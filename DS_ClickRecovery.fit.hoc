@@ -1,0 +1,83 @@
+
+
+objref gpstlist, grate[nchannels],anrate[nchannels],rate_level_graph
+
+
+
+
+objref gr, targetrl, rlst,level
+level = new Vector(22)
+level.indgen().mul(5).add(-15)
+targetrl = new Vector()
+targetrl.append(2.53,   2.14,   4.28,   6.24,   7.80,   12.10,   10.73,   13.47,   17.96,27.92,30.27,   32.81,   39.84,   51.75,   57.42,   58.00,   58.79,   62.11,   68.75,   82.62,   92.38,   100.78)
+gr = new Graph()
+rlst = new List()
+targetrl.plot(gr,level,2,2)
+gr.size(-20,100,0,150)
+gr.exec_menu("Keep Lines")
+
+
+objref g, dvec, fvec,ivec
+g = new Graph()
+g.size(0,3,0,3)
+
+func fun() {local f
+        if ($1 == 90) {
+                g.line($2, $3)
+                g.flush()
+      //doNotify()
+      print $1, $2, $3
+      }
+   spl=$1
+   weight_sum=$2
+   golgi_spon=$3
+   runtime = startsw()
+      ClearSpikes()
+      RefreshParameters()
+      sg_rate=50000
+      ANFilterBankRun()
+      sg_rate = 50000
+      sg_tdres = 1/sg_rate
+      golgi[76][0].SetRate()
+
+      for j=0, reps-1{
+         golgi[76][0].GenSpikes()
+         print j
+         golgi[76][0].SaveSpikes()
+         //print startsw()-x, "secs"
+      }
+      runtime = startsw()-runtime
+      print "Simulation took ",runtime, " secs "
+
+   return golgi[76][0].spikes.size()/(reps*0.05)
+
+}
+
+
+objref vv
+
+
+dvec = new Vector()
+ivec = new Vector()
+reps = 50
+
+vv = new Vector()
+vv.append(3,6,14,18,20,22)
+dvec = targetrl.ind(vv)
+ivec = level.ind(vv)
+fvec = new Vector(4)
+//fvec.fill(0)
+
+a = 1.5
+b = 3.5
+
+proc RunFit(){
+g.beginline()
+error = dvec.fit(fvec, "fun", ivec, &a, &b)
+print a, b, error
+g.flush()
+g.exec_menu("View = plot")
+fvec.plot(Graph[0],ivec,1,1)
+}
+RunFit()
+*/

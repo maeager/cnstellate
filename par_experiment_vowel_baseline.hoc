@@ -1,0 +1,136 @@
+// experiment_vowel_baseline.hoc
+// Cochlear Nucleus network model: experiment file
+//   for lateral inhibition.
+// Andrew Davison, The Babraham Institute, 2000.
+
+// *** Set inputs and connections
+// set_no_input()
+// glomshock(20,2,5)
+// randomise_NMDA(NMDAweight,(0.5*NMDAweight)^2)
+
+// *** Voltage clamp mitral cell
+// objref vclamp
+// if (pnm.gid_exists(tsgid.x[3][3])) {
+// mit[3][3].GABAA.e = 0 // mV
+// mit[3][3].soma vclamp = new SEClamp(0.5)
+// vclamp.rs = 2 // Mohm
+// vclamp.dur1 = 1
+// vclamp.amp1 = -65
+// vclamp.dur2 = 4000
+// vclamp.amp2 = -70
+// vclamp.dur3 = 0
+// vclamp.amp3 = -65
+// }
+forall {Ra = 150 cm=0.9}
+// *** Set-up recording
+objref dsvec, tvec, vstel, vtv //, iclamp
+record_step = 0.1
+record_vec_size = int(tstop/record_step)+1
+dsvec = new Vector(record_vec_size)
+tvec = new Vector(record_vec_size)
+vstel = new Vector(record_vec_size)
+vtv = new Vector(record_vec_size)
+//iclamp = new Vector(record_vec_size)
+record_step = 0.1
+if (pnm.gid_exists(dsgid.x[icentre][0])) dsvec.record(&dstellate[icentre][0].soma.v(0.5),record_step)
+if (pnm.myid == 0) tvec.record(&t,record_step)
+if (pnm.gid_exists(tsgid.x[icentre][0])) vstel.record(&tstellate[icentre][0].soma.v(0.5),record_step)
+if (pnm.gid_exists(tvgid.x[icentre][0])) vtv.record(&tuberculoventral[icentre][0].soma.v(0.5),record_step)
+//if (pnm.gid_exists(tsgid.x[3][3])) iclamp.record(&vclamp.i,record_step)
+
+proc post_record() {
+   if (pnm.gid_exists(dsgid.x[icentre][0])) pnm.pc.post("dsvec", dsvec)
+   if (pnm.gid_exists(tsgid.x[icentre][0])) pnm.pc.post("vstel", vstel)
+   if (pnm.gid_exists(tvgid.x[icentre][0])) pnm.pc.post("vtv", vtv)
+   //if (pnm.gid_exists(tsgid.x[3][3])) pnm.pc.post("iclamp", iclamp)
+}
+proc take_record() {
+   pnm.pc.context("post_record()")
+   if (!pnm.pc.gid_exists(dsgid.x[icentre][0])) pnm.pc.take("dsvec", dsvec)
+   if (!pnm.pc.gid_exists(tsgid.x[icentre][0])) pnm.pc.take("vstel", vstel)
+   if (!pnm.pc.gid_exists(tvgid.x[icentre][0])) pnm.pc.take("vtv", vtv)
+   //if (!pnm.pc.gid_exists(tsgid.x[3][3])) pnm.pc.take("iclamp", iclamp)
+}
+
+// *** Process data and print out results
+xopen("par_calcisilag.hoc") // everybody needs this for the post_results
+
+proc print_results() {
+
+  print_raster(fileroot)
+  print_an_raster(fileroot)
+  print_ds_raster(fileroot)
+  print_an_hist(dt*2,fileroot)
+//print_smooth_hist(dt*2, fileroot)
+//   print_isi_stats(fileroot)
+
+  sprint(filename,"%s.curvs",fileroot)
+  outfile.wopen(filename)
+  take_record()
+  for i = 0, tvec.size()-1 {
+  if (i>=dsvec.size() || i>=vstel.size() || i>=vtv.size()) break
+    outfile.printf("%8.3g %8.3g %8.3g %8.3g \n",tvec.x[i],dsvec.x[i],vstel.x[i],vtv.x[i])
+  }
+  outfile.close()
+  print "Results printed to files"
+}
+
+
+//Setup Auditory model
+
+stimtype = 0  //read stim from file
+path = "../PVSyllables/"
+wavefile = "../PVSyllables/be.dat"
+usesavedfilterbanks=1
+
+
+sg_rate = 10000
+sg_tdres = 1/sg_rate
+/*
+proc LoadVowel(){
+RefreshParameters()   //Generate or get stim from file
+spl=$1
+RescaleStim()      //Scale the vowel
+ANFilterBankRun()   //Build the filterbank
+an.SetRates()      //Allocate filterbanks to ANFs
+//DummyGraphs()
+}
+*/
+
+//LoadVowel(73)
+
+//an.GenSpikes() //calls SGfast(1) on each fibre
+                //it might be quicker to use another method
+                //eg. calling the original zbcatmodel and
+                //outputing several spike trains
+                //since ANFs are just VecStims
+
+xopen("vowel_baseline.ses")
+
+proc LoadVowel(){
+RefreshParameters()   //Generate or get stim from file
+stim.resample(stim,3)
+srate       = 44100*3
+stimtdres    = 1/srate
+spl=$1
+RescaleStim(spl,stim.size/5,stim.size*4/5)      //Scale the vowel
+par_ANFilterBankRun()   //Build the filterbank
+an.SetRates()      //Allocate filterbanks to ANFs
+for i=0,nchannels-1 for j=0,nGperchannel-1 if (pnm.gid_exists(glggid.x[i][j])) {
+   golgi[i][j].SetRate()
+}
+
+//DummyGraphs()
+}
+
+LoadVowel(60)
+an.GenSpikes()
+//for i=0,nchannels-1 for j=0,nGperchannel-1 if (pnm.gid_exists(glggid.x[i][j])) golgi[i][j].GenSpikes()
+an.PrintSpikes()
+
+
+if (pnm.myid ==0) {
+   print "Ready to Start..."
+   print "Hosts: ", pnm.pc.nhost
+}
+//quit()

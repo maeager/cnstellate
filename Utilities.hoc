@@ -1,0 +1,1425 @@
+
+/*****************************************************
+ ** Calculate Input Resistance using NEURON's Impedence class
+ ** Code from optimization tutorial 1. Copyright  2004 by N.T.
+ ** Carnevale and M.L. Hines
+ *****************************************************/
+  objref zz
+  zz = new Impedance()
+//ensure currently accessed section is at the soma before calling this function
+  func rn() { local rn
+    init()  // make sure all changes to g, c, ri etc. have taken effect
+    zz.loc(0.5)  // sets origin for impedance calculations to middle of currently accessed section
+    zz.compute(0)  // DC input R
+     { rn = zz.input(0.5) }  // rn is input R at middle of the section
+    return rn
+  }
+
+/****************************************
+ ** Temperature  Scaling
+ ** Rothman and Manis (2003) & Manis Neuron implementation
+ ** uses 22C as the base model temperature
+ ****************************************/
+func Q10(){
+    return 3^((celsius-22)/10)
+}
+tempfactor = Q10()
+
+/********************************************************************
+ ** BM Functions adapted from CMPA.C of Heinz et al. 1999
+ **     Implemented in hoc by Michael Eager 21/7/2004
+ **     Rat model added 0./2007
+ ** Calculate the location on Basilar Membrane from best frequency
+ *******************************************************************/
+func cochlea_f2x() { local species, f, dist
+
+    species = $1
+    f = $2
+    if(species==0){
+            /*human */
+        dist=(1.0/0.06)*log10((f/165.4)+0.88)
+        }else{
+        /*cat */
+        dist = 11.9 * log10(0.80 + (f / 456.0))
+        }
+
+    return dist
+}
+func cochlea_x2f() { local species, f, dist
+    species = $1
+    dist = $2
+    if(species==0){
+            /*human */
+        if((dist>35)||(dist<0)){
+            hoc_error("BM distance out of human range, [in cochlea_x2f(...)]")
+        }
+        f=165.4*((10^(0.06*dist))-0.88)
+    }else{ if (species==3) {
+        // rat
+        f = 7613.3*((10^(dist/8.65))-1.0)
+        }else{
+
+        //cat
+            f = 456.0*((10^(dist/11.9))-0.80)
+        }
+    }
+    return f
+}
+
+/********************************************************
+ ** Random Number generator
+ *******************************************************/
+objref Rand
+strdef seedstr
+proc InitRandom() {
+    objref Rand
+    system("date +%s", seedstr)
+    seed = 0
+    sscanf(seedstr, "%f", &seed)
+    if (name_declared("pnm") == 0) print "Random seed:" , seed
+    highindex = 2  //seed
+    lowindex = mcell_ran4_init()
+    variable_domain(&highindex, 0, 2^32-1)
+    if (name_declared("pnm") == 0) print "RNG initialised ",lowindex, " ", highindex
+    Rand = new Random(seed)
+    Rand = new Random(2)
+}
+InitRandom()
+
+
+/********************************************************
+ ** Loudness functions
+ *******************************************************/
+
+func Decibels(){local raw_ampl localobj tmpv
+    tmpv = $o1.c
+    tmpv.mul(tmpv)
+    if (numarg()==1) {raw_ampl = sqrt(tmpv.mean())
+    }else raw_ampl =  sqrt(tmpv.mean($2,$3))
+    return ampl2splNoise(raw_ampl)
+}
+func spl2ampl(){  //dB SPL (rms) to peak amplitude
+    return (1/0.707) * 20.e-6 * 10.0^($1 / 20.0)    //Scale dBSPL into uPascals
+}
+func ampl2spl(){  //peak to dB SPL (rms)
+    return 20* log10($1 * 0.707 / 20.e-6)   //Scale uPascals into  dBSPL
+
+}
+func spl2amplNoise(){  //rms already calculated for non-sinusoid
+    return 20.e-6 * 10.0^($1 / 20.0)    //Scale dBSPL into uPascals
+}
+func ampl2splNoise(){
+    return 20* log10($1 / 20.e-6)   //Scale uPascals into  dBSPL
+
+}
+
+
+
+
+func mycos(){
+    return sin($1 + (PI/2))
+}
+
+/********************************************************
+ ** Stimulus Generation procedures
+ **   SPLtone
+ **   AMtone
+ **   ToneplusNoise (simultaneous)
+ **   GaussianNoise
+ **    AMnoise
+ **   Twotone
+ **   Ramptone
+ **   GetWavfile - functions to retreive stim from file
+ **    NotchNoise - pregenerated in MATLAB
+ *******************************************************/
+objref stim,file,modulation,bbnoise,clicktimes
+objref rampx, offramp, onramp, middle, quiet, envelope, inputsound,initquiet
+
+proc SPLTone() {local stimtdres, rampts, rstep, totalpts, steadypts, tonefrequency,samplingrate, duration,spl,cycle, ramplength, aa, nrep,delay
+
+//assumes stim is already a Vector() object
+objref stim
+objref rampx, offramp, onramp, middle, quiet, envelope, inputsound,initquiet
+
+    tonefrequency = $1
+    samplingrate = $2   //sampling rate (Hz)  should be at least 2*(highest frequency component)
+                // Nyquist criterion
+    duration = $3       //duration in seconds
+    spl = $4        //Sound Pressure level in dB SPL
+    cycle = $5      //Ratio of signal to silence, duty cycle
+    ramplength = $6     //0.005 ramp duration in seconds (note - duration includes 1/2 of ramp)
+    nrep = $7
+    delay = $8
+    inputsound = new Vector()
+
+
+
+    stimtdres = 1/samplingrate
+    rampts = ramplength * samplingrate
+    steadypts = duration * samplingrate - rampts
+    totalpts = steadypts + (rampts*2)
+
+    // Create Cosine Squared On/off ramps
+    rstep = (PI) / (rampts-1)
+    rampx = new Vector(rampts)
+
+//middle section of tone
+    middle =new Vector(steadypts, 1)
+
+//offramp = (1+cos(rampx))/2
+    offramp = new Vector(rampts)
+    offramp = rampx.indgen(rstep).apply("mycos").add(1).div(2)
+
+//onramp = (1+cos(fliplr(rampx)))./2;
+    objref rampx
+    rampx =new Vector(rampts)
+    onramp = new Vector(rampts)
+    onramp = rampx.indgen(rstep).reverse().apply("mycos").add(1).div(2)
+
+
+//Put tone together
+    envelope = new Vector()
+    envelope.append(onramp, middle, offramp)    //Envelope for stimulus (i.e. on/off ramps)
+//Quiet segments
+    quiet = new Vector(totalpts*(cycle), 0) //int() returns integer component of double
+    initquiet = new Vector(delay*samplingrate,0)
+
+    objref rampx, inputsound
+//Amplitude scaling of tone (into Pascals for AN model)
+        aa = spl2ampl((spl))
+    rstep = tonefrequency * 2.0 * PI * (1/samplingrate)
+    rampx = new Vector(totalpts)
+    rampx.indgen(rstep)
+    inputsound = new Vector(totalpts)
+//make sure the input vector is the right size
+    inputsound = rampx.apply("sin")
+    envelope.resize(inputsound.size)
+    inputsound.mul(aa).mul(envelope)
+// mul by on/off ramps, and add quiet period at end
+
+//Add quiet sections
+
+    inputsound.append(quiet)
+    objref stim
+    stim = new Vector()
+    stim.append(initquiet).append(inputsound)
+    if (nrep > 1){ for i = 2, nrep { stim.append(inputsound) } }
+    objref rampx, offramp, onramp, middle, quiet, envelope, inputsound
+}
+
+proc AMtone() {local stimtdres,rstep, totalpts, fc, fm, samplingrate, duration,spl,depth, aa, nrep,delay,cycle
+ //  input fc, fm, m, duration
+//assumes stim is already a Vector() object
+//AMtone(tonefreq, srate, dur, spl, dutycycle, ramplngth,nrep, stimdelay, AM_modfreq, AM_depth)
+objref modulation ,rampx, inputsound,initquiet, stim
+    tonefrequency = $1
+    samplingrate = $2   //sampling rate (Hz)  should be at least 2*(highest frequency component)
+                // Nyquist criterion
+    duration = $3       //duration in seconds
+    spl = $4        //Sound Pressure level in dB SPL
+    cycle = $5      //Ratio of signal to silence, duty cycle
+    ramplength = $6     //0.005 ramp duration in seconds (note - duration includes 1/2 of ramp)
+    nrep = $7
+    delay = $8
+    fm = $9
+    depth = 1-$10           //Ratio difference/sum of max and min of AM signal
+
+
+    stimtdres = 1/samplingrate
+    rampts = ramplength * samplingrate
+    steadypts = duration * samplingrate - rampts
+    totalpts = steadypts + (rampts*2)
+
+// Create Cosine Squared On/off ramps and envelope
+    rstep = (PI) / (rampts-1)
+    rampx = new Vector(rampts)
+
+//middle section of tone
+    middle =new Vector(steadypts, 1)
+
+//offramp = (1+cos(rampx))/2
+    offramp = new Vector(rampts)
+    offramp = rampx.indgen(rstep).apply("mycos").add(1).div(2)
+
+//onramp = (1+cos(fliplr(rampx)))./2;
+    objref rampx
+    rampx =new Vector(rampts)
+    onramp = new Vector(rampts)
+    onramp = rampx.indgen(rstep).reverse().apply("mycos").add(1).div(2)
+
+//Modulation envelope for stimulus
+
+    modulation = new Vector(totalpts)
+    rstep = fm * 2.0 * PI * (1/samplingrate)
+    rampx = new Vector(totalpts)
+    rampx.indgen(rstep)
+    modulation = rampx.apply("mycos").mul(-0.5)
+    if (depth!=1){ modulation.mul(1-depth) }
+    modulation.add(1-modulation.max())
+
+
+//Put tone together
+    envelope = new Vector()
+    envelope.append( modulation )   //Envelope for stimulus
+//Quiet segments
+    quiet = new Vector(totalpts*(cycle), 0) //int() returns integer component of double
+    initquiet = new Vector(delay*samplingrate,0)
+
+    objref rampx, inputsound
+//Amplitude scaling of tone (into Pascals for AN model)
+        aa = spl2ampl((spl))
+    rstep = tonefrequency * 2.0 * PI * (1/samplingrate)
+    rampx = new Vector(totalpts)
+    rampx.indgen(rstep)
+    inputsound = new Vector(totalpts)
+//make sure the input vector is the right size
+    inputsound = rampx.apply("sin")
+    envelope.resize(inputsound.size)
+    inputsound.mul(aa).mul(envelope)
+// mul by on/off ramps, and add quiet period at end
+
+//Add quiet sections
+
+    inputsound.append(quiet)
+
+
+    objref stim
+    stim = new Vector()
+    stim.append(initquiet).append(inputsound)
+    if (nrep > 1){ for i = 2, nrep { stim.append(inputsound) } }
+    objref rampx, offramp, onramp, middle, quiet, envelope, inputsound
+
+
+
+}
+/*
+objref modulation , carrier
+proc AMtone() {local stimtdres,rstep, totalpts, fc, fm,period, samplingrate, duration,spl,depth, aa, nrep,delay
+ //  input fc, fm, depth, repetitions, duration
+//assumes stim is already a Vector() object
+//AMtone(tonefreq, AM_modfreq, AM_depth, nrep, spl, stimdelay,dur)
+
+objref modulation ,rampx, carrier,initquiet, stim
+    fc = $1
+    fm = $2
+    depth = $3          //Ratio difference/sum of max and min of AM signal
+    samplingrate = srate    //sampling rate (Hz)  should be 50000
+    nrep = $4           //how many periods of modulating frequency
+
+    spl = $5            //Sound Pressure level in dB SPL
+    delay = $6
+    stimtdres = 1/samplingrate
+
+    //Use function: s(t) = (1-depth*sin(2*pi*fm*t))*sin(2*pi*fc*t)
+
+    period = 1/fm
+    duration = $7
+    if (period < duration){
+        duration = period
+    } else nrep = int(duration/period)+1
+
+    totalpts = duration * samplingrate
+
+
+    print "duration ", duration, " periods ", duration/period
+
+//Envelope for stimulus
+    modulation = new Vector(totalpts)
+    rstep = fm * 2.0 * PI * (1/samplingrate)
+    rampx = new Vector(totalpts)
+    rampx.indgen(rstep)
+    modulation = rampx.apply("mycos").mul(-depth).add(1)
+//Amplitude scaling of tone (into Pascals for AN model)
+        aa = spl2ampl((spl))
+//Quiet segments
+    initquiet = new Vector(delay*samplingrate,0)
+//Carrier segment
+    objref rampx, carrier
+    rstep = fc * 2.0 * PI * (1/samplingrate)
+    rampx = new Vector(totalpts)
+    rampx.indgen(rstep)
+    carrier = new Vector(totalpts)
+    carrier = rampx.apply("sin")
+//Combine carrier and modulation, scale amplitude
+    carrier.mul(modulation).mul(aa)
+
+   //Finish stimulus
+    stim = new Vector()
+    stim.append(initquiet).append(carrier)
+
+
+}*/
+
+proc ToneplusNoise() {local rampts, rstep, totalpts \
+,steadypts, tonefrequency,samplingrate, duration,spl \
+,cycle, ramplength, aa, nrep,delay,aan,bbnspl
+
+//assumes stim is already a Vector() object
+
+objref stim
+
+objref rampx, offramp, onramp, middle, quiet, envelope, inputsound,initquiet,bbnoise
+    tonefrequency = $1
+    samplingrate = $2   //sampling rate (Hz)  should be 50000
+    duration = $3       //duration in seconds
+    spl = $4        //Sound Pressure level in dB SPL
+    cycle = $5      //Ratio of signal to silence, duty cycle
+    ramplength = $6     //0.005 ramp duration in seconds (note - duration includes 1/2 of ramp)
+    nrep = $7
+    delay = $8
+    bbnspl = $9
+    inputsound = new Vector()
+
+
+
+    stimtdres = 1/samplingrate
+    rampts = ramplength * samplingrate
+    steadypts = duration * samplingrate - rampts
+    totalpts = steadypts + (rampts*2)
+
+    // Create Cosine Squared On/off ramps
+    rstep = (PI) / (rampts-1)
+    rampx = new Vector(rampts)
+
+//middle section of tone
+    middle =new Vector(steadypts, 1)
+
+//offramp = (1+cos(rampx))/2
+    offramp = new Vector(rampts)
+    offramp = rampx.indgen(rstep).apply("mycos").add(1).div(2)
+
+//onramp = (1+cos(fliplr(rampx)))./2;
+    objref rampx rampx =new Vector(rampts)
+    onramp = new Vector(rampts)
+    onramp = rampx.indgen(rstep).reverse().apply("mycos").add(1).div(2)
+
+
+//Put tone together
+    envelope = new Vector()
+    envelope.append(onramp, middle, offramp)    //Envelope for stimulus (i.e. on/off ramps)
+//Quiet segments
+    quiet = new Vector(totalpts*(cycle), 0) //int() returns integer component of double
+    initquiet = new Vector(delay*samplingrate,0)
+
+    objref rampx, inputsound
+//Amplitude scaling of tone (into Pascals for AN model)
+        aa = spl2ampl((spl))
+    rstep = tonefrequency * 2.0 * PI * (1/samplingrate)
+    rampx = new Vector(totalpts)
+    rampx.indgen(rstep)
+//make sure the input vectors are the right size
+    bbnoise = new Vector(totalpts)
+    inputsound = new Vector(totalpts)
+
+//Generate the noise
+    Rand.normal(0,1)
+    bbnoise.setrand(Rand)
+    aan = spl2ampl(bbnspl)
+    bbnoise.mul(aan).mul(envelope)
+//Generate the tone
+    inputsound = rampx.apply("sin")
+    inputsound.mul(aa).mul(envelope)
+//Combine noise and tone
+
+    objref stim
+    stim = new Vector()
+    stim.append(inputsound).add(bbnoise)
+    stim.insrt(0,initquiet).append(quiet)
+    if (nrep > 1){ for i = 2, nrep { stim.append(inputsound.c.add(bbnoise)).append(quiet) } }
+    objref rampx, offramp, onramp, middle, quiet, envelope
+
+
+}
+
+proc GaussianNoise() {local mean, variance, stimtdres, rampts, rstep, totalpts, steadypts, tonefrequency,samplingrate, duration,spl,cycle, ramplength, aa, nrep,delay
+
+//assumes stim is already a Vector() object
+
+objref stim
+
+objref rampx, offramp, onramp, middle, quiet, envelope, inputsound,initquiet
+
+    samplingrate = $1   //sampling rate (Hz)  should be 50000
+    duration = $2       //duration in seconds
+    spl = $3        //Sound Pressure level in dB SPL
+    cycle = $4      //Ratio of signal to silence, duty cycle
+    ramplength = $5     //0.005 ramp duration in seconds (note - duration includes 1/2 of ramp)
+    nrep = $6
+    delay = $7
+    mean = $8
+    variance = $9
+    inputsound = new Vector()
+
+
+
+    Rand.normal(mean, variance)
+
+
+    stimtdres = 1/samplingrate
+    rampts = ramplength * samplingrate
+    steadypts = duration * samplingrate - rampts
+    totalpts = steadypts + (rampts*2)
+
+    // Create Cosine Squared On/off ramps
+    rstep = (PI) / (rampts-1)
+    rampx = new Vector(rampts)
+
+//middle section of tone
+    middle =new Vector(steadypts, 1)
+
+//offramp = (1+cos(rampx))/2
+    offramp = new Vector(rampts)
+    offramp = rampx.indgen(rstep).apply("mycos").add(1).div(2)
+
+//onramp = (1+cos(fliplr(rampx)))./2;
+    objref rampx rampx =new Vector(rampts)
+    onramp = new Vector(rampts)
+    onramp = rampx.indgen(rstep).reverse().apply("mycos").add(1).div(2)
+
+
+//Put tone together
+    envelope = new Vector()
+    envelope.append(onramp, middle, offramp)    //Envelope for stimulus (i.e. on/off ramps)
+//Quiet segments
+    quiet = new Vector(totalpts*(cycle), 0) //int() returns integer component of double
+    initquiet = new Vector(delay*samplingrate,0)
+
+    objref rampx, inputsound
+//Amplitude scaling of tone (into Pascals for AN model)
+        aa = spl2ampl((spl))
+
+    inputsound = new Vector(totalpts)
+    for i=0,inputsound.size-1 {
+        inputsound.x[i] = Rand.repick()
+    }
+    inputsound.mul(aa).mul(envelope)
+// mul by on/off ramps, and add quiet period at end
+
+//Add quiet sections
+
+    inputsound.append(quiet)
+
+
+
+    objref stim
+    stim = new Vector()
+    stim.append(initquiet).append(inputsound)
+    if (nrep > 1){ for i = 2, nrep { stim.append(inputsound) } }
+    objref rampx, offramp, onramp, middle, quiet, envelope, inputsound
+
+
+}
+
+proc AMnoise() {local stimtdres,rstep, totalpts, fc, fm, samplingrate, duration,spl,depth, aa, nrep,delay
+ //  input fc, fm, m, duration
+//assumes stim is already a Vector() object
+
+objref modulation ,rampx, inputsound,initquiet, stim
+    samplingrate = $1   //sampling rate (Hz)
+    fm = $2
+    depth = 1-$3            //Ratio difference/sum of max and min of AM signal
+
+    nrep = $4           //how many periods of modulating frequency
+    //duration      //duration in seconds
+    spl = $5            //Sound Pressure level in dB SPL
+
+    delay = $6
+
+
+
+    stimtdres = 1/samplingrate
+
+    duration = nrep*(2/fm)
+    totalpts = duration * samplingrate
+
+    print " Mod f ", fm
+
+    print "duration", duration
+    print "total points", totalpts
+//Envelope for stimulus
+
+    modulation = new Vector(totalpts)
+    rstep = fm * 2.0 * PI * (1/samplingrate)
+    rampx = new Vector(totalpts)
+    rampx.indgen(rstep)
+    modulation = rampx.apply("mycos").mul(-0.5)
+    if (depth!=1){ modulation.mul(1-depth) }
+    modulation.add(1-modulation.max())
+
+
+//Amplitude scaling of tone (into Pascals for AN model)
+
+        aa = spl2ampl((spl))
+
+//Quiet segments
+
+    initquiet = new Vector(delay*samplingrate,0)
+
+    objref rampx, inputsound
+
+
+    inputsound= new Vector(totalpts)
+    for i=0,inputsound.size-1 {
+        inputsound.x[i] = mcell_ran4(&highindex)
+    }
+    inputsound.add(-0.5).mul(aa).mul(modulation)
+
+   //Finish stimulus
+    stim = new Vector()
+    stim.append(initquiet).append(inputsound)
+
+
+}
+
+objref tone2
+proc TwoTone() {local  rampts,rstep,totalpts,steadypts,aa localobj quiet2,initquiet2
+
+objref stim
+
+objref rampx, offramp, onramp, middle, quiet, envelope, inputsound,initquiet
+    stimtdres = 1/srate
+    rampts = ramplngth * srate
+    steadypts = dur * srate - rampts
+    totalpts = steadypts + (rampts*2)
+    print totalpts
+    // Create Cosine Squared On/off ramps
+    rstep = (PI) / (rampts-1)
+    rampx = new Vector(rampts)
+
+//middle section of tone
+    middle =new Vector(steadypts, 1)
+
+//offramp = (1+cos(rampx))/2
+    offramp = new Vector(rampts)
+    offramp = rampx.indgen(rstep).apply("mycos").add(1).div(2)
+
+//onramp = (1+cos(fliplr(rampx)))./2;
+    objref rampx
+    rampx =new Vector(rampts)
+    onramp = new Vector(rampts)
+    onramp = rampx.indgen(rstep).reverse().apply("mycos").add(1).div(2)
+
+
+//Put tone1 together
+    envelope = new Vector()
+    envelope.append(onramp, middle, offramp) //Envelope for stimulus (i.e. on/off ramps)
+    print envelope.size
+//Quiet segments
+    quiet = new Vector(totalpts*(dutycycle), 0)
+    initquiet = new Vector(stimdelay*srate,0)
+    quiet2 = new Vector(totalpts*(dutycycle)-tone2delay*srate, 0)
+    initquiet2 = new Vector((stimdelay+tone2delay)*srate,0)
+    objref rampx, inputsound
+//Amplitude scaling of tone (into Pascals for AN model)
+        aa = spl2ampl((spl))
+    rstep = tonefreq * 2.0 * PI * (1/srate)
+    rampx = new Vector(totalpts)
+    rampx.indgen(rstep)
+    inputsound = new Vector(totalpts)
+//make sure the input vector is the right size
+    inputsound.indgen(rstep).apply("sin").mul(aa).mul(envelope)
+    print inputsound.size
+//  envelope.resize(inputsound.size)
+
+
+//Second tone
+    objref rampx
+        aa = spl2ampl((tone2spl))
+    rstep = tone2freq * 2.0 * PI * (1/srate)
+    rampx = new Vector(totalpts)
+    rampx.indgen(rstep)
+    tone2 = new Vector(totalpts)
+//make sure the input vector is the right size
+    tone2.indgen(rstep).apply("sin").mul(aa).mul(envelope)
+
+    print tone2.size
+//Put the two tones together and add envelope
+
+    tone2.insrt(0,initquiet2)
+    inputsound.insrt(0,initquiet)
+
+
+// mul by on/off ramps, and add quiet period at end
+
+//Add quiet sections
+    tone2.append(quiet2)
+    inputsound.append(quiet)
+    if (tone2.size != inputsound.size) tone2.resize(inputsound.size)
+    inputsound.add(tone2)
+    objref stim
+    stim = new Vector()
+    stim = inputsound.c
+    if (nrep > 1){ for i = 2, nrep { stim.append(inputsound) } }
+    //objref rampx, offramp, onramp, middle, quiet, envelope, inputsound
+
+
+}
+
+proc RampTone() {local stimtdres, rampts, rstep, totalpts, steadypts, tonefrequency,samplingrate, duration,spl,cycle, aa, nrep,delay
+
+//assumes stim is already a Vector() object
+
+objref stim
+
+objref rampx, onramp, quiet,  inputsound,initquiet
+    tonefrequency = $1
+    samplingrate = $2   //sampling rate (Hz)  should be at least 2*(highest frequency component)
+                // Nyquist criterion
+    duration = $3       //duration in seconds
+    spl = $4        //Sound Pressure level in dB SPL
+    cycle = $5      //Ratio of signal to silence, duty cycle
+    nrep = $6
+    delay = $7
+    inputsound = new Vector()
+
+
+
+    stimtdres = 1/samplingrate
+    rampts = duration * samplingrate
+    steadypts = duration * samplingrate
+    totalpts = steadypts
+
+
+    onramp = new Vector(rampts)
+    onramp.indgen()
+
+
+//Quiet segments
+    quiet = new Vector(totalpts*(cycle), 0) //int() returns integer component of double
+    initquiet = new Vector(delay*samplingrate,0)
+
+    objref rampx, inputsound
+//Amplitude scaling of tone (into Pascals for AN model)
+        aa = spl2ampl((spl))
+    rstep = tonefrequency * 2.0 * PI * (1/samplingrate)
+    rampx = new Vector(totalpts)
+    rampx.indgen(rstep)
+    inputsound = new Vector(totalpts)
+//make sure the input vector is the right size
+    inputsound = rampx.apply("sin")
+    onramp.resize(inputsound.size)
+    inputsound.mul(aa).mul(onramp)
+// mul by on/off ramps, and add quiet period at end
+
+//Add quiet sections
+
+    inputsound.append(quiet)
+
+    objref stim
+    stim = new Vector()
+    stim.append(initquiet).append(inputsound)
+    if (nrep > 1){ for i = 2, nrep { stim.append(inputsound) } }
+    objref rampx, ramp,  quiet,  inputsound
+
+
+}
+
+// Wav file Chooser
+
+{load_file("stdlib.hoc", "String")}
+
+objref rwl_, rwf_, sf_, tobj, box
+objref ldfile
+strdef tstr, rwdname, path, fname
+
+sprint(path, "%s", getcwd())
+ldfile = new File()
+
+sf_ = new StringFunctions()
+if (unix_mac_pc() == 1) {
+    rwdname = "$(HOME)/.NRNWorkingDirs"
+}else{
+    rwdname = "$(NEURONHOME)/RecentWorkingDirs"
+}
+proc filemenu() {
+    box = new VBox()
+    box.intercept(1)
+    xpanel("")
+    xmenu("Recent directories", "recent_working_dirs()")
+    xmenu()
+    xlabel("Michael's wavfile chooser")
+    xpanel()
+    box.intercept(0)
+}
+proc GetWavfile() {local b
+
+    filemenu()
+    while (1) {
+        index = -1
+        b = box.dialog("Choose directory containing sound .dat files", "Choose directory", "Done")
+        if (b == 0) { break }
+        if (index != -1) {
+            chdir(rwl_.object(index).s)
+        }
+        change_working_dir()
+        break
+    }
+    sprint($s1, "%s%s", path, fname)
+
+}
+proc change_working_dir() {
+    ldfile.chooser("d", "Directory", "", "Selected Directory", "Cancel", getcwd())
+    if (ldfile.chooser()) {
+        read_recent_working_dirs()
+        if (change_working_dir1(ldfile.dir)) {
+            checker()
+        }
+    }
+}
+
+func change_working_dir1() {
+    if(chdir($s1) != 0) {
+        sprint(tstr, "No such directory: %s", $s1)
+        continue_dialog(tstr)
+        return 0
+    }
+    sprint(path, "%s", getcwd())
+    write_recent_working_dirs()
+    return 1
+}
+
+proc read_recent_working_dirs() {local i
+    rwf_ = new File()
+    rwl_ = new List()
+    if (rwf_.ropen(rwdname)) {
+        while (!rwf_.eof()) {
+            rwf_.gets(tstr)
+            sf_.left(tstr, sf_.len(tstr) - 1)
+            tobj = new String(tstr)
+            rwl_.append(tobj)
+        }
+        rwf_.close()
+    }
+}
+
+proc write_recent_working_dirs() {local i
+    rwf_ = new File()
+    if (rwf_.wopen(rwdname)) {
+        rwf_.printf("%s\n", path)
+        for i=0, rwl_.count-1 {
+            if (strcmp(path, rwl_.object(i).s) != 0) {
+                rwf_.printf("%s\n", rwl_.object(i).s)
+                if (i > 10) break
+            }
+        }
+        rwf_.close()
+    }
+}
+
+proc recent_working_dirs() {local i
+    read_recent_working_dirs()
+    for i=0, rwl_.count-1 {
+        //sprint(tstr, "change_working_dir2(%d)", i)
+        sprint(tstr, "index=%d box.unmap(1)", i)
+        xbutton(rwl_.object(i).s, tstr)
+    }
+}
+
+objref strobj
+strobj = new StringFunctions()
+proc checker() {
+
+    chdir(path)
+    ldfile.chooser("", "Find .DAT files:", "*.dat", "Choose File", "Done", getcwd())
+    while (ldfile.chooser()) {
+        ldfile.getname(fname)
+
+
+        strobj.right(fname, 2)
+        print fname
+        break
+    }
+
+}
+objref  m
+
+func Readfile() {
+    //$o1 stim, $o2 file
+    objref m, tobj
+    m = new Matrix()
+    m.scanf($o2)
+    $o2.close
+    if (m.nrow == 1) { tobj = m.getrow(0) }
+    if (m.ncol == 1) { tobj = m.getcol(0) }
+    $o1 = tobj.c
+//  objref m, tobj
+    return $o1.size
+}
+
+proc NotchNoise() {local stimtdres, rampts, rstep, totalpts, steadypts, tonefrequency,samplingrate, duration,spl,cycle, ramplength, aa, nrep,delay
+
+//Get notch noise data
+objref stim, file
+stim = new Vector()
+file = new File()
+file.ropen("notch.dat")
+Readfile(stim,file)
+file.close()
+objref rampx, offramp, onramp, middle, quiet, envelope, inputsound,initquiet
+
+    srate = 50000   //sampling rate (Hz)  should be 50000
+    duration = $1       //duration in seconds  no bigger than 200msec
+    spl = $2        //Sound Pressure level in dB SPL
+    cycle = $3      //Ratio of signal to silence following stim
+    ramplength = $4 //ramp duration in seconds (note - duration includes 1/2 of ramp)
+    delay = $5
+    inputsound = new Vector()
+
+    stimtdres = 1/srate
+    rampts = ramplength * srate
+    steadypts = duration * srate - rampts
+    totalpts = steadypts + (rampts*2)
+
+
+    // Create Cosine Squared On/off ramps
+    rstep = (PI) / (rampts-1)
+    rampx = new Vector(rampts)
+
+//middle section of tone
+    middle =new Vector(steadypts, 1)
+
+//offramp = (1+cos(rampx))/2
+    offramp = new Vector(rampts)
+    offramp = rampx.indgen(rstep).apply("mycos").add(1).div(2)
+
+//onramp = (1+cos(fliplr(rampx)))./2;
+    objref rampx rampx =new Vector(rampts)
+    onramp = new Vector(rampts)
+    onramp = rampx.indgen(rstep).reverse().apply("mycos").add(1).div(2)
+
+
+//Put tone together
+    envelope = new Vector()
+    envelope.append(onramp, middle, offramp)    //Envelope for stimulus (i.e. on/off ramps)
+//Quiet segments
+    quiet = new Vector(totalpts*(cycle), 0) //int() returns integer component of double
+    initquiet = new Vector(delay*srate,0)
+
+    objref rampx, inputsound
+//Amplitude scaling of tone (into Pascals for AN model)
+	aa = spl2amplNoise((spl))/spl2amplNoise(Decibels(stim))
+
+    inputsound = new Vector(totalpts)
+    for i=0,inputsound.size-1 {
+        inputsound.x[i] = stim.x[i%stim.size]
+    }
+    inputsound.mul(aa).mul(envelope)
+// mul by on/off ramps, and add quiet period at end
+
+//Add quiet sections
+
+    inputsound.append(quiet)
+
+
+
+    objref stim
+    stim = new Vector()
+    stim.append(initquiet).append(inputsound)
+    if (nrep > 1){ for i = 2, nrep { stim.append(inputsound) } }
+    objref rampx, offramp, onramp, middle, quiet, envelope, inputsound
+
+
+}
+
+
+/************************************************************
+ * Stimulus and filterbank generation  and refresh functions
+ *   RefreshParameters()
+ *   ResampleANFilterBank()
+ *   GetANfileString()
+ *   SaveANFilterBank2File()
+ *   RetrieveANFilterBank()
+ *   GetRatAudiogramData()
+ *   GenerateFilterbank()
+ *   ANFilterBankRun()
+ **********************************************************/
+objref stim, file, tvec, cf
+ifspike     = 1
+    //sout is adjusted so that instant. rate can be fed to spike generator
+    //not neccessary for Bruce model
+delx        = 0.05
+    //"delta x", or spacing of "IHC"s along BM (linearly spaced IHCs in terms of location along BM
+    //  results in approximately logarithmic spacing in terms of frequency.
+Model_Params    = 1
+/*  refers to the version of the model used, as follows:
+    Model numbers as used in ARLO Heinz et al.,2001 Fig. 4 -
+    1: Nonlinear_w/compression & suppression (model for 'healthy' ear)
+    2: Nonlinear_w/compression, but without off-frequency suppression
+        3: Linear sharp
+        4: Linear broad, low threshold
+        5: Linear broad, high threshold
+
+    Tan and Carney 2003
+    same as ARLO model
+*/
+//install_anmodel()         //Heinz ARLO model
+//install_an_tanmodel()      //Tan and Carney
+install_an_zbcatmodel07()   //Zilany and Bruce
+
+    objref  LSRout[nchannels], HSRout[nchannels],cf, ANfile, MSRout[nchannels]
+    cf = new Vector(nchannels)
+    xlo = cochlea_f2x(species,cflo)
+    xhi = cochlea_f2x(species,cfhi)
+    xcenter = (xhi - xlo)/2. + xlo
+    delx = (xhi-xlo)/(nchannels-1)
+    cf.x[int(nchannels/2)] = cochlea_x2f(species,xcenter)
+    icentre = int(nchannels/2)-1
+
+   for icf = 0, nchannels-1 {
+      LSRout[icf] = new Vector()
+      HSRout[icf] = new Vector()
+      x = xlo + (icf)*delx
+      cf.x[icf] = int(cochlea_x2f(species,x)) // from BM location to CF
+        //print icf, cf.x[icf], x
+   }
+
+strdef grlbl, lbl
+scale = 1
+objref tobj
+
+
+/********************************************************************
+ *  Find Index in Filterbank with nearest CF
+ ********************************************************************/
+
+func FindInd() {local value, index, diff
+    value = $1
+    index = 0
+
+    while (index <= nchannels-1) {
+        //print "index ", index, " value ", cf.get(index)
+        if (value < cf.get(index)){ break
+        }else{ index +=1 }
+    }
+    if (index == 0) { return 0}
+    if (index < nchannels-1) {
+        if ((cf.get(index) - value) > (value - cf.get(index-1))){
+            index-=1
+        }
+    }else { index = nchannels-1 }
+    //print "index ", index, " value ", value
+    return index
+
+}
+
+/*******************************************************************
+ *  Find the channel index (bandwidth) away in octaves
+ *******************************************************************/
+func MaxBWChannel() { local curind, curcf, maxcf, bw,maxind
+    curind = $1
+    bw = $2     //in octaves
+    curcf = cf.x[curind]
+    if (bw !=0 ) {
+        maxcf = curcf*sqrt(2^bw)
+        maxind = FindInd(maxcf)
+    } else {
+        maxind = curind
+    }
+    //print curind, " ", curcf," ", bw," ", maxcf, " ", maxind
+    return maxind
+}
+
+
+
+proc Setwavfile(){
+    stimtype = 0
+    GetWavfile(wavefile)  //returns with filename string in 'wavefile'
+
+}
+
+
+
+
+proc RefreshParameters() {local aa localobj tmprand
+    objref cf,stim, file, tvec, b1
+    //strdef grlbl
+    tvec = new Vector()
+    file = new File()
+    stim = new Vector()
+    cf   = new Vector(int(nchannels))
+    //Initialise variables
+    xlo = cochlea_f2x(species,cflo)
+    xhi = cochlea_f2x(species,cfhi)
+    xcenter = (xhi -xlo)/2. + xlo
+    delx = (xhi-xlo)/(nchannels-1)
+    cf.x[int(nchannels/2)-1] = cochlea_x2f(species,xcenter)
+    icentre = int(nchannels/2)-1
+
+//Nothing
+   if (stimtype < 0){
+      objref stim
+      grlbl=""
+   }
+
+    //Tone
+        if (stimtype == 1){
+           srate = 500000
+            stimtdres = 1/srate   //1/50000 sampling rate
+            //Generate Stimulus, must have stim available
+            SPLTone(tonefreq, srate, dur, spl, dutycycle, ramplngth,nrep, stimdelay)
+            sprint( grlbl, "Tonefreq Stimulus %d Hz, Sound Level %d dBSPL", tonefreq, spl)
+        }
+    //Quiet
+        if (stimtype == 2){
+            objref stim
+       srate=500000
+            stimtdres =  1/srate   //1/50000 sampling rate
+            stimdur = 0.05     //50 ms
+            stim  = new Vector(int(stimdur/stimtdres), 0 )
+            if (nrep > 1) { for i=2,nrep { stim.append(new Vector(int(stimdur/stimtdres), 0 ))} }
+            sprint(grlbl,"Silence")
+        }
+    //AM tone
+        if(stimtype == 3) {
+            srate = 500000
+            stimtdres = 1/srate  //1/50000 sampling rate
+            //Generate Stimulus, must have stim available
+            AMtone(tonefreq, srate, dur, spl, dutycycle, ramplngth,nrep, stimdelay, AM_modfreq, AM_depth)
+            sprint( grlbl, "AM Stimulus fc %d Hz fm %d Hz m %f %d dB SPL", tonefreq, AM_modfreq,AM_depth,spl)
+        }
+    //WB noise
+        if(stimtype ==4) {
+            objref stim
+       srate = 500000
+            stimtdres   = 1/srate
+            WBnoise(srate, dur, spl, dutycycle, ramplngth,nrep, stimdelay)
+
+            sprint( grlbl, "Wide-band Noise:  %d dB SPL Sampling freq %5.0f", spl, srate)
+        }
+    //AM noise
+        if(stimtype ==5) {
+            objref stim
+       srate = 500000
+            stimtdres   = 1/srate
+            AMnoise(srate,AM_modfreq, AM_depth, nrep, spl, stimdelay)
+
+            sprint( grlbl, "Wide-band Noise with Amplitude Modulation  fm %d (Hz) m %f %d (dB SPL) Sampling freq %5.0f (Hz)", AM_modfreq,AM_depth, spl, srate)
+        }
+    //Gaussian noise
+        if(stimtype ==6) {
+            objref stim
+           srate = 500000
+            stimtdres   = 1/srate
+            GaussianNoise(srate, dur, spl, dutycycle, ramplngth,nrep, stimdelay, Gaussmean, Gaussvar)
+
+            sprint( grlbl, "Gaussian Noise:  mean %f, variance %d, %d dB SPL, Sampling freq %5.0f", Gaussmean,Gaussvar,spl, 1/stimtdres)
+        }
+    //Tone and Noise
+        if(stimtype ==7) {
+            objref stim
+   srate = 500000
+       stimtdres   = 1/srate
+            ToneplusNoise(tonefreq, srate, dur, spl, dutycycle, ramplngth,nrep, stimdelay, NoiseLevel)
+
+            sprint( grlbl, "Tone + Noise:  %d dB SPL, %d Hz tone plus %d dB SPL noise, Sampling freq %5.0f", spl,tonefreq,NoiseLevel, 1/stimtdres)
+        }
+    //Notch Noise
+        if(stimtype ==8) {
+            objref stim
+            srate = 50000
+            stimtdres   = 1/srate
+
+            NotchNoise( dur, spl, dutycycle, ramplngth, stimdelay)
+
+            sprint( grlbl, "Notch Noise:  Stopband centred on 5kHz, 1/2 octave bandwidth, Sampling freq %g", srate)
+        }
+    //Two Tone
+        if (stimtype == 9){
+           srate = 500000
+            stimtdres = 1/srate   //1/50000 sampling rate
+            //Generate Stimulus, must have stim available
+            TwoTone()
+            sprint( grlbl, "Two-Tone Stimulus: %dHz, %ddBSPL &%dHz, %ddBSPL ", tonefreq, spl,tone2freq,tone2spl)
+        }
+    //Ramp Tone
+        if (stimtype == 10){
+            srate = 500000
+            stimtdres = 1/srate   //1/50000 sampling rate
+            //Generate Stimulus, must have stim available
+            RampTone(tonefreq, srate, dur, spl, dutycycle, nrep, stimdelay)
+            sprint( grlbl, "RampTone at %dHz, 0dB to %ddB SPL in %g msec ", tonefreq, spl,dur*1000)
+        }
+    //Click Recovery
+        if (stimtype == 11){
+            objref stim
+           //srate=500000
+            stimtdres =  1/srate   //1/50000 sampling rate
+//          objref clicktimes
+//          clicktimes = new Vector()
+//          clicktimes.append(20,22,70,74,130,138).mul(srate/1000)
+            stim = new Vector(int(dur/stimtdres),0)
+            for i=0,clicktimes.size-1{
+                for j=0,20 stim.x[clicktimes.x[i]+j] = spl2ampl(120)
+            }
+            sprint(grlbl,"ClickRecovery")
+        }
+
+        if (stimtype ==0){
+    //Get Stimulus from Wavefile
+   file = new File()
+        file.ropen(wavefile)
+        Readfile(stim,file)
+        file.close()
+        srate   = 44100.0   //Hz
+        stimtdres   = 1/srate
+        dur=stim.size*(stimtdres)
+        stimdelay=0
+            stimdur = stim.size*(stimtdres*1000)
+        if (stimdur < 50) {
+            stim.resize(int(50/(stimtdres*1000)))}  //Pad with zeroes if too small
+
+        sprint( grlbl, "Wavefile Stimulus %s", wavefile)
+        if (nrep > 1) {
+            objref tobj
+            tobj = stim.c
+            for i=2,nrep { stim.append(tobj)}
+            objref tobj
+        }
+        }
+    /*****Resize short stimuli and add delay****/
+    stimdur = stim.size*(stimtdres*1000)
+    tstop = stimdur
+    if (stimdur < 20) {stim.resize(int(30/(stimtdres*1000)))}  //Pad with zeroes if too small
+    stimdur = stim.size*(stimtdres*1000)
+    tstop = stimdur
+    /***Set up time - axis information ****/
+    tvec.indgen(0, (stim.size)*stimtdres, stimtdres)
+    tvec.mul(1000)
+
+
+    //Add Noise
+    if (AdditiveNoise==1) {
+        Rand.normal(-1,1)
+        tmprand=new Vector(stim.size)
+        tmprand.setrand(Rand)
+        aa = Decibels(tmprand)
+        tmprand.mul(spl2amplNoise(NoiseLevel)/aa)
+        stim.add(tmprand)
+        sprint(grlbl, "%s with %f dB Noise", grlbl, NoiseLevel)
+
+    }
+
+}
+
+proc ResampleANFilterBank() {local smpl_ratio
+    smpl_ratio = $1
+    for icf = 0, nchannels-1 {
+        LSRout[icf].resample(LSRout[icf],smpl_ratio)
+        HSRout[icf].resample(HSRout[icf],smpl_ratio)
+    }
+    sg_tdres = 1/sg_rate
+
+}
+
+
+func GetANfileString() {local i
+  sprint(ANpath, "%s",ANsoundspath)
+  if(ANmodel==4) sprint(ANpath, "%s/arlo",ANpath)
+  if(ANmodel==3) sprint(ANpath, "%s/tan",ANpath)
+  if(ANmodel==6) sprint(ANpath, "%s/bruce",ANpath)
+
+
+    if (stimtype==1){ //Tone _ Loudness
+        sprint(ANstr,"T%.0f_L%d_dur%d_del%d", tonefreq,spl,stimdur, int(stimdelay*1000))
+    }
+    if (stimtype == 2){
+        sprint(ANstr,"Silence_Spont%.0f_dur%d", Highspont,int(dur*1000))
+    }
+    //AM tone
+    if(stimtype == 3) {// Carrier freq, Mod frequency, Modulation depth, Loudness (peak)
+        sprint( ANstr, "AM_fc%d_fm%d_md%d_%ddB_dur%d", tonefreq, AM_modfreq,AM_depth*100,spl,stimdur)
+    }
+    //WB noise
+    if(stimtype ==4) { //SPL and sampling frequency
+        sprint(ANstr, "WBN_spl%d_smpfreq%f_del%f", spl, srate/1000,stimdelay)
+        }
+    //AM noise
+    if(stimtype ==5) {
+        sprint( ANstr, "AMN_fm%d_m%f_spl%d_sf%5.0f", AM_modfreq,AM_depth, spl, 1/stimtdres)
+        }
+    //Gaussian noise
+    if(stimtype ==6) {
+        sprint( ANstr, "GN_m%f_v%d_spl%d_sf%5.0f", Gaussmean,Gaussvar,spl, 1/stimtdres)
+        }
+    //Stimulus Wavfile
+    if (stimtype ==0){
+        sprint(ANstr,"%s", wavefile)
+        sf_.right(ANstr,sf_.len(path))
+        if (sf_.substr(ANstr,".")!=-1) sf_.left(ANstr, sf_.substr(ANstr,"."))
+        sprint(ANstr,"Wav_%s_%ddB",ANstr, spl)
+    }
+    if (stimtype==7){ //Tone _ Loudness  _ Sampling Rate
+        sprint(ANstr,"SimTN%.0f_L%d_N%d_dur%d_del%d", tonefreq,spl,NoiseLevel,int(dur*1000), int(stimdelay*1000))
+    }
+    if (stimtype==8){ //NotchNoise delay,spl,dur,ramp
+        sprint(ANstr,"Notch_L%d_Del%d_Dur%d", spl,stimdelay*1000,dur*1000)
+    }
+    if (stimtype==9){ //Twotone
+        sprint(ANstr,"TwoTone_1F%.0fL%d_2F%.0fL%d_Del%d_Dur%d",tonefreq, spl,tone2freq,tone2spl,stimdelay*1000,dur*1000)
+    }
+    if (stimtype==10){ //Ramptone
+        sprint(ANstr,"RampTone_F%.0fL%d_Del%d_Dur%d",tonefreq, spl,stimdelay*1000,dur*1000)
+    }
+    if (stimtype==11){ //Click Recovery
+        sprint(ANstr,"Click_Recovery")
+	for i=0,clicktimes.size-1 sprint(ANstr,"%s_%d",ANstr,clicktimes.x[i])
+    }
+    if (AdditiveNoise==1) {
+        sprint(ANstr, "%s+Noise_%d", ANstr, NoiseLevel)
+
+    }
+    if (!strcmp(ANstr, "")){
+        return 0
+    }else {
+
+        sprint(ANstr,"%s.dat",ANstr)
+        return 1
+    }
+}
+strdef tmpANstr
+proc SaveANFilterBank2File(){local nchan
+    objref ANfile
+
+    GetANfileString()
+    ANfile = new File()
+    sprint(tmpANstr,"%s/%s",ANpath,ANstr)
+    ANfile.wopen(tmpANstr)
+    if (ANfile.isopen()){
+    ANfile.printf("%d\n%d\n%d\n%d\n%d\n%d\n", sg_rate, HSRout[0].size, nchannels,cflo,cfhi,species)
+    for icf = 0, nchannels-1 {
+        ANfile.printf("%d\n%d\n", icf, cf.x[icf])
+        LSRout[icf].printf(ANfile,"%.3f\t")
+        ANfile.printf("\n")
+        HSRout[icf].printf(ANfile,"%.3f\t")
+        ANfile.printf("\n")
+    }
+
+    ANfile.close()
+    } else print "Unable to Save file ", tmpANstr
+
+}
+
+proc RescaleStim(){local rms
+   rms = Decibels(stim,int($2),int($3))
+   stim.mul(spl2amplNoise($1)/spl2amplNoise(rms))
+}
+
+say_once = 0
+func RetrieveANFilterBank(){local nsize, nchan, temp
+    objref ANfile
+    objref  LSRout[nchannels], HSRout[nchannels]
+    GetANfileString()
+    ANfile = new File()
+    sprint(tmpANstr,"%s/%s",ANpath,ANstr)
+    ANfile.ropen(tmpANstr)
+    if (ANfile.isopen()){
+        if (name_declared("pnm") == 0 && say_once!=1) print "Retrieving AN Filterbank: ", ANstr
+        sg_rate = ANfile.scanvar()
+        nsize = ANfile.scanvar()
+   nchannels = ANfile.scanvar()
+   cflo = ANfile.scanvar()
+   cfhi = ANfile.scanvar()
+   species = ANfile.scanvar()
+
+     for icf = 0, nchannels-1 {
+        LSRout[icf] = new Vector(nsize)
+        HSRout[icf] = new Vector(nsize)
+        if (ANfile.scanvar() == icf){
+        cf.x[icf] = ANfile.scanvar()
+        LSRout[icf].scanf(ANfile,nsize)
+        HSRout[icf].scanf(ANfile,nsize)
+       // if (MSRsperchannel>0) MSRout[icf].scanf(ANfile,nsize)
+        }
+     }
+     sg_tdres = 1/sg_rate
+     ANfile.close()
+     return 1
+    } else {
+        print "Unable to load file ", tmpANstr
+        return 0
+    }
+}
+objref audiogram,cohc,cihc
+
+proc GetRatAudiogramData(){
+   objref audiogram,file
+   file = new File()
+   audiogram = new Matrix()
+   cohc = new Vector()
+   cihc = new Vector()
+   file.ropen(bruce_impairment_file)
+   if (file.isopen()){
+   if (name_declared("pnm") == 0 && say_once!=1)   print "Loading Rat Audiogram Data"
+      audiogram.scanf(file,13,4)
+      file.close()
+   } else {  audiogram.resize(13,4) }
+
+   //Interpolate compression data to cf positions
+   cohc.interpolate(cf, audiogram.getcol(0).c, audiogram.getcol(2).c)
+   cihc.interpolate(cf, audiogram.getcol(0).c, audiogram.getcol(3).c)
+}
+GetRatAudiogramData()
+
+proc GenerateFilterbank(){ local icf
+
+    if (name_declared("pnm") == 0 && say_once!=1) print "Generating AN model instantaneous rate functions"
+    for icf = 0, nchannels-1 {
+
+ //    if (srate!=500000){
+ //       stim.resample(stim,500000/srate)
+ //       srate = 500000
+ //       stimtdres = 1/srate
+ //    }
+        LSRout[icf] = new Vector(stim.size)
+        HSRout[icf] = new Vector(stim.size)
+        LSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], Lowspont, cohc.x[icf],cihc.x[icf],species, nrep)
+        HSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], Highspont, cihc.x[icf],cohc.x[icf],species, nrep)
+
+        if (MSRsperchannel>0){
+            MSRout[icf] = new Vector(stim.size)
+            MSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], Medspont, cohc.x[icf],cihc.x[icf],species, nrep)
+        }
+   // print icf, cf.x[icf]
+
+    }
+    // Resampling rate should be set prior to calling GenerateFilterbank eg. sg_rate = 50000
+    ResampleANFilterBank(sg_rate/srate)
+}
+
+proc ANFilterBankRun() {local x
+    objref  LSRout[nchannels], HSRout[nchannels] , MSRout[nchannels]
+    /*Recalculate xlo from cflo, routine from Frank Zhang's Auditory model */
+    xlo = cochlea_f2x(species,cflo)
+    xhi = cochlea_f2x(species,cfhi)
+    xcenter = (xhi - xlo)/2. + xlo
+    delx = (xhi-xlo)/(nchannels-1)
+    cf.x[int(nchannels/2)] = cochlea_x2f(species,xcenter)
+    icentre = int(nchannels/2)-1
+
+   for icf = 0, nchannels-1 {
+   x = xlo + (icf)*delx
+   cf.x[icf] = int(cochlea_x2f(species,x))
+   }
+   GetRatAudiogramData()
+
+    /********Generate Filterbank of ANF Instantaneous rate profiles*******/
+
+    if (usesavedfilterbanks) {
+        if (!RetrieveANFilterBank()) {
+            GenerateFilterbank()
+            SaveANFilterBank2File()
+        }
+    } else {
+        GenerateFilterbank()
+    }
+
+}
+
+
+proc GenerateMSRs(){ local icf
+    for icf = 0, nchannels-1 {
+        MSRout[icf] = new Vector(stim.size)
+        MSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], Medspont, cohc.x[icf],cihc.x[icf],species, nrep)
+        MSRout[icf].resample(MSRout[icf],sg_rate/srate)
+    }
+}

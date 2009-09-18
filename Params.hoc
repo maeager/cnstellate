@@ -1,0 +1,168 @@
+/***************************************
+ * Cochlear Nucleus Stellate Network
+ * Default parameters
+ * Michael Eager, University of Melbourne, 2007
+ ***************************************/
+nchannels = 100
+HSRsperchannel  =   20
+MSRsperchannel  =   0
+LSRsperchannel  =   10
+ANoffset=0.5
+ANjitter=0.1
+LSR2GLG=0       //Conductance=1 or Phenomenological=0  golgi model
+
+//Indexes into cell lists and vectors use these labels
+ts=0
+tv = 1
+ds = 2
+glg = 3
+hsr = 4
+lsr = 5
+
+black = 1
+red = 2
+blue = 3
+
+/**********************************************************
+ **  Synapse Parameters
+ **********************************************************/
+
+//Glutamate-AMPA Synaptic time constants from Gardner et al. JNeurophysiol 1999 @ 34 C degrees
+ampa_decay = 0.36   //Trussell 1998 .4-.5 at room temp
+ampa_erev = 0
+
+//Glycine Receptor time constants see Leao J Neurophysiol  (2004); MNTB mice neurons
+// HartyManis:1998 Slice prep 30C; VCN guinea pigs
+//1mM Gly-> activation time constant 0.8 to 4.6 ms, with a mean of 2.0 ± 1.2 ms
+// deactivation to 1s glycine ; 2 exponentials, tau f was 15.5 ms and tau s was 73.4 ms
+// LimOleskevichEtAl:2003,AwatramaniTurecekEtAl:2005,LeaoOleskevichEtAl:2004
+gly_decay = 2.5
+gly_rise = 0.4      //half width of glyc mIPSCs in MNTB is 2.3msec, rise time 0.4msec,
+               //normal decay time constant 5.47+/-0.19, deaf 8.01 msec  (P12-14)
+               //Awatramani J Neurophysiol (2005)
+               //MNTB rat P30 gly decay constant 2.0,
+gly_erev = -72      //see Paolini 1999
+
+gaba_decay = 9      //probably a combination of two time constants see Awatramani gabaA fast 5-10 slow 20-60
+gaba_rise = 0.7
+gaba_erev=-72      // in T stellates this is more likely to be closer to RMP as
+               //Ferragamo et al. 1998 found no GABAergic IPSPs but the cells were still
+               //sensitive to bicuculine
+
+
+cfhi        = 20000     //FilterBank upper and lower frequency (Hz)
+cflo        = 200
+Lowspont    = 0.1     // Auditory nerve fibre spontaneous discharge rates (sp/sec)
+Medspont    = 18
+Highspont   = 50.0
+
+totalHSR        =   nchannels*HSRsperchannel
+totalMSR        =   nchannels*MSRsperchannel
+totalLSR        =   nchannels*LSRsperchannel
+
+/****************************************
+ ** Stimulus Parameters
+ ****************************************/
+strdef wavefile,N
+stimtype    = 1         //0 for wavefile,1 for tone,
+                        //2 no stim, 3 AM tone, 4 WB noise
+tonefreq    = 4000.0    //Hz Sinusoidal tone frequency
+dur         = 0.045     //duration of tone segment (seconds)
+spl         = 50        //dB SPL
+dutycycle   = 0.2       //quiet duration = dutycycle*dur
+ramplngth   = 0.005     //2*cosine ramp length (1/2 on and 1/2 off)
+                        //total tone segment = dur + 1*ramplngth
+strdef wavefile         // delimited txt file from wav file
+N = neuronhome()
+wavefile    = "../sounds/T4000_L50.dat"
+srate       = 50000.0   //Hz, Stimulus Sampling rate
+stimtdres   = 1/srate   //time step (time domain resolution)
+// nstim            // nstim=number of pts in stimulus
+nrep        = 1         //nrep is number of reps of stimulus passed to AN
+stimdur     = 0         //ms, Stim duration set by RefreshParameters()
+stimdelay   = 0.02      //sec, Delay before tone segment
+AM_modfreq  = 100       //Hz
+AM_depth    = 1     //% of max
+Gaussmean = 0           // Gaussian noise mean
+Gaussvar =1             //Gaussian noise variance
+AdditiveNoise   =0      //0=No noise added, 1= Noise added
+NoiseLevel  =0          //dB rms spl, if AdditiveNoise=1, amount of Added Noise
+//Two-Tone frequency parameters
+tone2freq   = 4000
+tone2delay  = 0
+tone2spl    = 30
+//Downsampling rate for ANF spike generator
+sg_rate=10000
+srate = 1/stimtdres
+sg_tdres = 1/sg_rate
+
+usesavedfilterbanks=0   //Save time by using saved AN filterbank responses
+
+strdef ANstr, ANpath,ANsoundspath
+ANpath= "../../sounds"
+ANsoundspath= "../../sounds"
+
+
+celsius=37 // base model temperature
+           // default in NEURON is 6.3C
+           //Rothman and Manis (2003) & Manis Neuron implementation uses 22C
+
+
+/**********************************************************
+ **  Auditory Model Simulation Parameters
+ **********************************************************/
+ANmodel = 6     //  3 = Tan+Carney 2003,
+            //  4= Heinz ARLO model 2001, default
+            //  6 Zilany and Bruce 2007
+
+
+/*Bruce Model Parameters Impairment of Inner and Outer Hair cell function
+    variables cohc, cihc  are frequency and animal specific
+   See my adaptions to AN model in Utilities.hoc
+*/
+strdef bruce_impairment_file
+bruce_impairment_file="rat_bruce_audiogram.dat"
+objref audiogram,cohc,ihc
+species     = 2
+    /*0 = human (as in ARLO paper)
+          9 = cat, all CFs (as in JASA 2001 Zhang et al., paper)
+          1 = cat, only low CFs (as in Carney '93 JASA paper - not recommended)
+          2= Rat, Michael Eager 2007-9
+    */
+
+//----------------------------------------------------------------
+//  The parameter file for any experiment should look like the following lines:
+
+
+// Cochlear Nucleus network model: parameters file
+// based on parameters_odour_baseline.hoc by Andrew Davison
+// Michael Eager, University of Melbourne
+
+nchannels   = 100               // Total number of frequency channels
+nTSperchannel   = 10           // number of TS cells in each freq channel
+numTS     = nchannels*nTSperchannel   // total number of TS cells
+nTVperchannel   = 3           // number of TV cells in each freq channel
+numTV   = nchannels*nTVperchannel       // total number of TV cells
+nDSperchannel   = 1           // number of DS cells in each freq channel
+numDS   = nchannels*nDSperchannel       // total number of DS cells
+nGperchannel   = 1          // number of Golgi cells in each freq channel
+numG= nchannels*nGperchannel       // total number of Golgi cells
+
+seed        = 0         // seed for random number generator see InitRandom()
+thresh      = -10       // mV, threshold for detecting spikes
+
+
+strdef fileroot
+sprint(fileroot,"vowel_baseline")   // default root for output filenames
+vowelnumber = 1                       // which vowel
+inputnumber = 1                         // fixed input file
+tstop       = 400                             // ms, total simulation time
+ttrans       = 20                           // ms,  when calculating statistics, ignore
+                                              // spikes occuring before this time
+cvode.active(0)
+dt        = 0.05
+steps_per_ms = 10                   // NEURON variable
+setdt()
+dt=0.1                                       //ms, integration time step
+celsius = 37                               //degrees C, body  temperature
+secondorder=2                          //second order integration
