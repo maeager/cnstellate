@@ -1,0 +1,24 @@
+syntax: glob
+*.curvs
+*.connect
+*.bak
+*.sav
+*~
+*.o
+*.backup
+*.out
+*.aux
+*.bbl
+*.lot
+*.lof
+*.log
+*.toc
+i686/*
+.svn/*
+$pfebk/*
+*.ps
+*.pdf
+
+syntax: regexp
+.*\#.*\#$
+

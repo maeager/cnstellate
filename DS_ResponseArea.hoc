@@ -1,5 +1,5 @@
 /*
- *   DS_ClickRecovery.hoc
+ *   DS_ResponseArea.hoc
  *
  */
 load_file("nrngui.hoc")

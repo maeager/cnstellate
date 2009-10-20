@@ -1273,6 +1273,7 @@ func GetANfileString() {local i
     }else {
 
         sprint(ANstr,"%s.dat",ANstr)
+	  print "ANstr: ", ANstr
         return 1
     }
 }

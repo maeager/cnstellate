@@ -255,10 +255,10 @@ gr = new Graph()
    targetclickrecovery = new Vector()
   targetclickrecovery.append(1,1,1,0.2,1,0.63,1,0.45,1,0.3,0,0,0,0)
   wclick = new Vector(14,1)
-  wclick.x[3]=5
-  wclick.x[5]=5
-  wclick.x[7]=5
-  wclick.x[9]=5
+  wclick.x[3]=1
+  wclick.x[5]=20
+  wclick.x[7]=8
+  wclick.x[9]=3
 targetclickrecovery.plot(gr,2,2)
 gr.exec_menu("View = plot")
 
@@ -506,7 +506,7 @@ proc runprax2(){
 }
 
 
-for iprax=0,10 {
+for iprax=0,20 {
             runprax()
     // Default Output Plot
     sprint(grlbl, "DS_ClickRecovery/DS_ClickRecovery_Example%d.eps",iprax)
@@ -526,5 +526,5 @@ runprax2()
 /*  Notes: 17/9/09
 * when more emphasis is on the 8ms and 2ms (weight 10 and 8 vs 1 or 2) the optimisation tend to favour higher LSR weight and lower HSR/lower GABA inputs.
 * emphasis still present when init favoured LSR and weight normalised
-* better improvement when initialised at default
+* better improvement when initialised at default - still having trouble with 8ms
 */
