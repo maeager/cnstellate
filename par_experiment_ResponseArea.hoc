@@ -1,0 +1,54 @@
+///********************************************
+//  Response Area Simulation Experiment
+//
+//
+//
+///********************************************/
+
+//Setup Auditory model
+
+stimtype = 1  //tone stimulus
+
+
+proc SetRates(){
+
+	an.SetRates()
+	for i=0,99 golgi[i][0].SetRates()
+	
+}
+
+proc GenSpikes(){local i
+	an.GenSpikes()
+	for i=0,numG-1 golgi[i][0].GenSpikes()
+}
+
+proc ResponseArea(){local _ifreq,_spl,
+
+	for _ifreq=0,nchannels-1 for (spl=5;spl<=90;spl=spl+5){
+			freq= cf.x[_ifreq]
+			RefreshParameters()	//Generate or get stim from file
+			ANFilterBankRun()	//Build the filterbank
+			SetRates()		//Allocate filterbanks to ANFs and golgi
+			GenSpikes()
+			//DummyGraphs()
+			
+	}
+}
+
+
+// *** Process data and print out results
+xopen("par_calcisilag.hoc") // everybody needs this for the post_results
+
+proc print_results() {
+%  print_raster(fileroot)
+%  print_gran_raster(fileroot)
+%  print_gran_hist(1,fileroot)
+%  sprint(filename,"%s.curvs",fileroot)
+%  outfile.wopen(filename)
+%  take_record()
+%  for i = 0, tvec.size()-1 {
+%    outfile.printf("%8.3g %8.3g %8.3g %8.3g %8.3g \n",tvec.x[i],igabaa.x[i],vmit.x[i],vgran.x[i],iclamp.x[i])
+%  }
+%  outfile.close()
+%  print "Results printed to files"
+}

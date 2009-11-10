@@ -1,0 +1,52 @@
+/*
+ *   zilany_brucev2_test.hoc
+ *
+ */
+load_file("nrngui.hoc")
+
+thresh=-20
+
+      xopen("mathslib.hoc")         // mathematical procedures
+      xopen("Params.hoc")
+      xopen("Utilities.hoc")
+      xopen("NetworkParameters.hoc")
+      xopen("AuditoryNerve.hoc")
+      xopen("parameters_vowel_baseline.hoc")           // model parameters
+
+//Setup Auditory model
+   cfhi=64000
+   cflo=200
+
+   dur       = 0.08  //duration of stim (seconds)
+   srate       = 500000.0   //
+   stimtdres    = 1/srate
+   sg_rate    = 50000
+   sg_tdres    = 1/sg_rate
+   stimdelay    = 0.01      //sec
+   stimtype   = 2      //Silence
+   reps      = 25
+   ANmodel      = 6      //Zilany Bruce model
+   species      = 2      //Rat
+   nrep      = 1        //nrep is number of reps of stimulus
+
+stimtype = 0  //read stim from file
+path = "../PVSyllables/"
+wavefile = "../PVSyllables/be.dat"
+
+usesavedfilterbanks=1
+sg_rate = 10000
+sg_tdres = 1/sg_rate
+
+proc LoadVowel(){
+RefreshParameters()   //Generate or get stim from file
+stim.resample(stim,3)
+srate       = 44100*3
+stimtdres    = 1/srate
+spl=$1
+RescaleStim(spl,stim.size/5,stim.size*4/5)      //Scale the vowel
+ANFilterBankRun()   //Build the filterbank
+//an.SetRates()      //Allocate filterbanks to ANFs
+//DummyGraphs()
+}
+
+LoadVowel(60)

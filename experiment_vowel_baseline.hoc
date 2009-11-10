@@ -1,0 +1,56 @@
+///********************************************
+//  Vowel Simulation Experiment
+//
+//
+//
+///********************************************/
+
+//Setup Auditory model
+
+stimtype = 0  //read stim from file
+path = "./stim/"
+wavefile = "./stim/b6t.dat"
+
+proc RescaleStim(){local rms
+rms = Decibels(stim)
+stim.mul(spl2amplNoise(spl)/spl2amplNoise(rms))
+}
+
+sg_rate = 50000
+sg_tdres = 1/sg_rate
+
+proc LoadVowel(){
+RefreshParameters()   //Generate or get stim from file
+spl=$1
+RescaleStim()      //Scale the vowel
+ANFilterBankRun()   //Build the filterbank
+//an.SetRates()      //Allocate filterbanks to ANFs
+//DummyGraphs()
+}
+
+
+LoadVowel(73)   
+
+an.GenSpikes() //calls SGfast(1) on each fibre
+                //it might be quicker to use another method
+                //eg. calling the original zbcatmodel and
+                //outputing several spike trains
+                //since ANFs are just VecStims
+
+
+// *** Process data and print out results
+xopen("par_calcisilag.hoc") // everybody needs this for the post_results
+
+proc print_results() {
+  print_raster(fileroot)
+  print_gran_raster(fileroot)
+  print_gran_hist(1,fileroot)
+  sprint(filename,"%s.curvs",fileroot)
+  outfile.wopen(filename)
+  take_record()
+  for i = 0, tvec.size()-1 {
+    outfile.printf("%8.3g %8.3g %8.3g %8.3g %8.3g \n",tvec.x[i],igabaa.x[i],vmit.x[i],vgran.x[i],iclamp.x[i])
+  }
+  outfile.close()
+  print "Results printed to files"
+}

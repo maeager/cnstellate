@@ -1,0 +1,346 @@
+// CNcell.tem
+// Template for Rothman and Manis (2003) based cell model
+// as described in:
+//    Michael Eager, The University of Melbourne , 2007
+//R+M singlecompartment
+
+// Must convert from nanosiemens to mho/cm2 for the conductances
+// and change temperature conditions
+
+celsius = 37
+
+Erest=-65
+
+gaussian_mean=10
+gaussian_variance=1
+func gaussian(){local mean,var
+	if (numarg()==1){
+		mean=gaussian_mean
+		var=gaussian_variance
+	}
+	if (numarg()==3){
+		mean=$2
+		var=$3
+	}
+	return (1/sqrt(2*PI*var))*exp(-(($1-mean)^2)/(2*var))
+}
+
+
+begintemplate CNcell
+  public soma, dend, AMPA, GlyR, GABAA, spiketimes, spikecount
+  public connect2target, synlist,cf,model,channel
+  external thresh,Erest
+  external ampa_decay,ampa_erev,gly_decay,gly_erev,gly_rise, gaba_decay, gaba_erev,gaba_rise//,acell_home_
+
+  create soma
+  objref AMPA, GlyR, GABAA, spikecount, spiketimes, synlist
+somaarea=1E-4
+cf=1E3
+channel=0
+  proc init() { local length,RM, p, q, r, Atotal
+  create soma
+   synlist = new List()
+    spiketimes = new Vector()
+    lastspikecount = 0
+
+
+    if($1 == 0) set_tstellate() //Tstellate cell
+    if($1 == 1) set_tuberc() //Tubervuloventral cell
+    if($1 == 2) set_dstellate() //Dstellate cell
+    if($1 == 3) set_golgi() //golgi cell
+    cf = $2
+    channel=$3
+
+    soma {
+      spikecount = new APCount(0.5)
+      spikecount.thresh = -30
+      spikecount.record(spiketimes)
+
+      AMPA = new ExpSyn(0.5)
+	   synlist.append(AMPA)
+      AMPA.tau      = ampa_decay
+      AMPA.e 		= ampa_erev
+
+   //   if (model==1 || model ==2){
+        GlyR = new Exp2Syn(0.5)
+        synlist.append(GlyR)
+        GlyR.tau2 	= gly_decay
+	GlyR.tau1	= gly_rise
+        GlyR.e 		= gly_erev
+//	}
+//    if (model==1 || model ==3){
+        GABAA = new Exp2Syn(0.5)
+	    synlist.append(GABAA)
+        GABAA.tau2 	= gaba_decay
+        GABAA.tau1 	= gaba_rise
+        GABAA.e 	= gaba_erev
+ //     }
+    }
+
+
+    forall if (ismembrane("na_ion")) {
+      ena = 50		// mV
+    }
+    forall if (ismembrane("k_ion")) {
+      ek  = -70		//  mV
+    }
+
+  }	// end init()
+
+proc connect2target() {
+	soma $o2 = new NetCon(&v(0.5), $o1)
+	$o2.threshold = thresh
+}
+
+func nstomho() {
+
+ return (1E-9*$1/somaarea)
+}
+
+func qt(){
+ if(numarg()==1){//quality, temperature coefficient for Ih conductance	
+ 	return 1.3^((celsius-22)/10)
+ } else {
+	return 2^((celsius-22)/10)
+ }
+}
+proc set_tstellate() {
+ soma {
+	insert rm
+	insert ka
+	eh_rm=-43
+	Ra=150 cm=0.9
+	eleak_rm 		= 	Erest	// reversal potential mV
+	model = 0
+	RM = 96  //MOhms
+	L	= 19.5
+	diam 	= L
+	somaarea = PI*(L/1E4)^2   //um to cm2
+	gnabar_rm = nstomho(1000)*qt()
+	gkhtbar_rm = nstomho(80)*qt()
+	gkabar_ka =  nstomho(65)*qt()
+	ghbar_rm = nstomho(0.5)*qt(1)
+	gleak_rm = nstomho(2)*qt()
+ }
+}
+proc set_tuberc() {
+ soma {
+	insert rm
+	ek_rm = -70
+	ena_rm = 50
+	eh_rm=-43
+	Ra=150 cm=0.9
+	eleak_rm 		= 	Erest	// reversal potential mV
+	model = 2
+	//RM = 170  //MOhms
+	L	= 19
+	diam 	= L
+	somaarea = PI*(L/1E4)^2   //um to cm2
+	gnabar_rm = nstomho(1000)*qt()
+	gkhtbar_rm = nstomho(150)*qt()
+	ghbar_rm = nstomho(0.5)*qt(1)
+	gleak_rm = nstomho(2)*qt()
+ }
+}
+
+proc set_dstellate() {
+ soma {
+	insert rm
+	insert klt
+	ek_rm = -70
+	ena_rm = 50
+	eh_rm=-43
+	Ra=150 cm=0.9
+	eleak_rm 		= 	Erest	// reversal potential mV
+	model = 1
+	//RM =  //MOhms
+	L	= 21
+	diam 	= L
+	somaarea = PI*(L/1E4)^2   //um to cm2
+	gnabar_rm = nstomho(1000)*qt()
+	gkhtbar_rm = nstomho(150)*qt()
+	gkltbar_rm = nstomho(20)*qt()
+	ghbar_rm = nstomho(2)*qt(1)
+	gleak_rm = nstomho(2)*qt()
+ }
+}
+
+proc set_golgi() {
+ soma {
+	insert rm
+	ek_rm = -70
+	ena_rm = 50
+	eh_rm=-43
+	Ra=150 cm=0.9
+	eleak_rm 		= 	Erest	// reversal potential mV
+	model = 3
+	RM = 130  //MOhms
+	L	= 14
+	diam 	= L
+	somaarea = PI*(L/1E4)^2   //um to cm2
+	gnabar_rm = nstomho(1000)*qt()
+	gkhtbar_rm = nstomho(150)*qt()
+	ghbar_rm = nstomho(0.5)*qt(1)
+	gleak_rm = nstomho(2)*qt()
+	 }
+}
+
+
+endtemplate CNcell
+
+
+//Default parameters
+weight_sum = 1
+golgi_spon = 1
+golgi_spatial_filter_variance = 4
+golgi_syn_filter_tau = 0.0005  // s
+golgi_syn_filter_scale_factor=1
+// Adding MSR and HSR to golgi
+weight_sum_LSR = 0.5
+golgi_spatial_filter_variance_LSR=1
+weight_sum_MSR=0.5
+golgi_spatial_filter_variance_MSR=1
+weight_sum_HSR=0.5
+golgi_spatial_filter_variance_HSR=1
+
+
+
+
+objref golgi_synfilter
+func alpha(){//Alpha function synaptic/membrane filter
+return $1*sg_tdres*exp(-($1*sg_tdres)/golgi_syn_filter_tau)
+}
+proc CreateGolgiSynFilter(){
+golgi_synfilter = new Vector(sg_rate*10*golgi_syn_filter_tau)
+
+golgi_synfilter.indgen().apply("alpha")  //apply alpha function
+golgi_synfilter.mul(golgi_syn_filter_scale_factor/golgi_synfilter.sum()) //scale and normalise
+
+}
+CreateGolgiSynFilter()
+proc convolve(){local x1,x2,wsize
+	for x1=0,$o1.size -1 {
+		wsize = $o2.size
+		if(x1 < wsize) wsize=x1+1
+		for x2=0,wsize-1 $o3.x[x1]+=$o1.x[x1-x2]*$o2.x[x2]
+	}
+	//correct for initial response
+	//SGfast does not like first element to be zero
+	for x1 = 0,$o2.size $o3.x[x1] = $o3.x[$o2.size]
+}
+
+begintemplate Golgicell
+  public connect2target,SetRate,SetRate2,GenSpikes,SaveSpikes,ClearSpikes
+  public s,w, spiketimes, spikecount,sout, synlist,cf,model,channel,spikes
+  public wLSR,wHSR,wMSR
+  external thresh,LSRout,nchannels,sg_tdres,weight_sum, golgi_spon,golgi_spatial_filter_variance
+  external gaussian,gaussian_mean,gaussian_variance,golgi_synfilter,convolve, MSRsperchannel, Lowspont,Highspont,Medspont
+  external param,lsr,glg,sg_rate,HSRout, MSRout, weight_sum_LSR, golgi_spatial_filter_variance_LSR, weight_sum_MSR, golgi_spatial_filter_variance_MSR, weight_sum_HSR, golgi_spatial_filter_variance_HSR
+  objref s,w, spiketimes, spikecount,sout,synlist,spikes
+  objref wLSR,wHSR,wMSR
+  cf=1E3
+  channel=0
+ inputchannelvariance=1
+  proc init() {localobj r, data, hist, x, g
+    sout = new Vector()
+    spiketimes = new Vector()
+    spikes=new Vector()
+    lastspikecount = 0
+    model = $1
+    cf = $2
+    channel=$3
+    golgi_spatial_filter_variance=$4
+    s = new SGC_fast(0.5)
+    s.cf = cf
+	
+}
+objref tempsout
+proc SetRate() {local i,j,spon_factor
+	w = new Vector(nchannels)
+	w.indgen()
+	gaussian_mean = channel
+	gaussian_variance = golgi_spatial_filter_variance
+	w.apply("gaussian").mul(weight_sum)
+	tempsout = new Vector(LSRout[0].size)
+	sout = new Vector(LSRout[0].size)
+	for i=0,nchannels-1  {
+	tempsout.add(LSRout[i].c.mul(w.x[i]))
+	}
+	spon_factor = LSRout[0].x[0]/tempsout.x[0]
+	tempsout.mul(spon_factor).add(golgi_spon)
+	convolve(tempsout,golgi_synfilter,sout)
+	s.SetFibreRate(sout,spiketimes,sg_tdres)
+//print "golgi[",i,"][",j,"]: Process ",pnm.myid," mean ", sout.mean()
+	objref tempsout
+}
+proc SetRate2() {local i,j,spon_factor
+	tempsout = new Vector(LSRout[0].size)
+	sout = new Vector(LSRout[0].size)
+
+	wLSR = new Vector(nchannels)
+	wLSR.indgen()
+    wHSR = wLSR.c
+	gaussian_mean = channel
+	gaussian_variance = golgi_spatial_filter_variance_LSR
+	wLSR.apply("gaussian").mul(weight_sum_LSR)
+	if(MSRsperchannel>0){
+        gaussian_variance = golgi_spatial_filter_variance_MSR
+	    wMSR.apply("gaussian").mul(weight_sum_MSR)
+	}
+    gaussian_variance = golgi_spatial_filter_variance_HSR
+	wHSR.apply("gaussian").mul(weight_sum_HSR)
+
+
+	for i=0,nchannels-1  {
+	   if (wLSR.x[i]>0.01) tempsout.add(LSRout[i].c.add(-Lowspont).mul(wLSR.x[i]))
+	   if(MSRsperchannel>0) tempsout.add(MSRout[i].c.add(-Medspont).mul(wMSR.x[i]))
+	   if (wHSR.x[i]>0.01)tempsout.add(HSRout[i].c.add(-Highspont).mul(wHSR.x[i]))
+	}
+	tempsout.add(golgi_spon)
+	//Smooth AN input with alpha-function to simulate dendritic filtering
+    convolve(tempsout,golgi_synfilter,sout)
+    //Add conduction delay to inst. rate profile to ensure accurate FSL
+    for i = 0, param.delay.x[lsr][glg]*sg_rate/1000{
+        sout.insrt(0,golgi_spon)
+        sout.remove(sout.size-1)
+    }
+
+	s.SetFibreRate(sout,spiketimes,sg_tdres)
+//print "golgi[",i,"][",j,"]: Process ",pnm.myid," mean ", sout.mean()
+	objref tempsout
+}
+
+proc GenSpikes(){local i,j
+  s.SGfast(1)
+}
+
+proc SaveSpikes(){
+if (object_id(spikes)==0) spikes = new Vector()
+spikes.append(spiketimes)
+}
+proc ClearSpikes(){
+spikes.resize(0)
+}
+
+proc connect2target() {
+	 $o2 = new NetCon(s, $o1)
+	$o2.threshold = thresh
+}
+
+
+endtemplate Golgicell
+
+/*
+objref x
+x = new Vector()
+x.resize(100).indgen()
+x.printf
+x.apply("gaussian")
+x.printf
+objref g
+g = new Graph()
+g.size(0,100,0,0.5)
+x.plot(g)
+g.printfile("x.eps")
+quit()
+*/
