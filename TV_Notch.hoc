@@ -185,8 +185,8 @@ outfile.close
 create_cells()
 //connect_cells(fileroot)
 
-   cfhi=64000
-   cflo=200
+   cfhi=40000
+   cflo=800
 
    dur      = 0.3    //duration of stim (seconds)
    spl      = 100
