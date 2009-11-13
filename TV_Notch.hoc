@@ -188,7 +188,7 @@ create_cells()
    cfhi=40000
    cflo=800
 
-   dur      = 0.3    //duration of stim (seconds)
+   dur      = 0.1    //duration of stim (seconds)
    spl      = 100
    stimdelay= 0.01      //sec
    stimtype = 8      //Notch
@@ -198,9 +198,9 @@ create_cells()
    nrep     = 1        //nrep is number of reps of stimulus
 
 ANFBgr = new Graph()
-usesavedfilterbanks=1
+usesavedfilterbanks=0
 
-proc simulate_target_network(){     
+proc simulate_target_network(){
 stimtype = 8
 	reps=25
 	an.flag(0)
@@ -217,7 +217,7 @@ stimtype = 8
 RefreshParameters()
 ANFilterBankRun()   //Build the filterbank
 SetRates()      //Allocate filterbanks to ANFs
-  //ShowInputGraphs()
+ShowInputGraphs()
 tstop=300
 
 objref CNgr[4],CNspks[nchannels][4],CNhist,CNrate[4],CNrategr
@@ -362,7 +362,7 @@ g.exec_menu("View = plot")
 //fvec.plot(Graph[0],ivec,1,1)
 //Output
  file.wopen("TV_Notch.out.dat")
-    file.printf("# TV_Notch data\n") 
+    file.printf("# TV_Notch data\n")
     file.printf("# weight GLG->DS =%.2f\n",a1)
     file.printf("# weight ANF->DS =%.2f\n",a2)
     file.printf("# final error=%.2f\n",error)
@@ -538,7 +538,7 @@ runprax2()
 */
 
 
-/*  Notes: 
+/*  Notes:
 
 
 
