@@ -1391,20 +1391,32 @@ proc GenerateFilterbank(){ local icf
    // print icf, cf.x[icf]
 
     }
-for icf = 0, nchannels-1 {
-sprint(end_sout,"%f",LSRout[icf].x[stim.size-2])
-        if (strcmp(end_sout,"nan")==0){ print "detected nan LSR ", icf
-            system("sleep 0.1")
-            LSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], Lowspont, cohc.x[icf],cihc.x[icf],species, nrep)
-            sprint(end_sout,"%f",LSRout[icf].x[stim.size-2])
-            if (strcmp(end_sout,"nan")==0) print "Error creating LSR AN output"
 
-            }
-            }
     // Resampling rate should be set prior to calling GenerateFilterbank eg. sg_rate = 50000
     ResampleANFilterBank(sg_rate/srate)
 }
-
+proc CheckFilterbank(){local icf
+stim.resample(stim,100000/srate)
+srate=100000
+stimtdres=1/srate
+sg_rate=50000
+sg_tdres=1/sg_rate
+    for icf = 0, nchannels-1 {
+        sprint(end_sout,"%f",HSRout[icf].x[HSRout[0].size-1])
+        if (strcmp(end_sout,"nan")==0){print "detected nan HSR ", icf
+            HSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], Highspont, cohc.x[icf],cihc.x[icf],species, nrep)
+                    sprint(end_sout,"%f",HSRout[icf].x[HSRout[0].size-1])
+                    if (strcmp(end_sout,"nan")==0)print "Error recreating HSR AN output, channel:", icf
+        }
+        sprint(end_sout,"%f",LSRout[icf].x[LSRout[0].size-1])
+        if (strcmp(end_sout,"nan")==0){ print "detected nan LSR ", icf
+            system("sleep 0.1")
+            LSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], Lowspont, cohc.x[icf],cihc.x[icf],species, nrep)
+            sprint(end_sout,"%f",LSRout[icf].x[LSRout[0].size-1])
+            if (strcmp(end_sout,"nan")==0) print "Error recreating LSR AN output", icf
+        }
+    }
+}
 proc ANFilterBankRun() {local x
     objref  LSRout[nchannels], HSRout[nchannels] , MSRout[nchannels]
     /*Recalculate xlo from cflo, routine from Frank Zhang's Auditory model */

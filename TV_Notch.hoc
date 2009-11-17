@@ -34,13 +34,13 @@ proc GenSpikes2(){local i
    //     print stopsw()
 }
 proc GenSpikes(){local i
-  //  startsw()
-    for i=30,60{
+  startsw()
+    for i=0,nchannels-1{
 	for j=0,HSRsperchannel-1 an.HSR[i][j].SGfast(1)
 	for j=0,LSRsperchannel-1 an.LSR[i][j].SGfast(1)
-	golgi[i][0].GenSpikes()
+//	golgi[i][0].GenSpikes()
       }
-  //  print stopsw()
+  print "GenSpikes time:", stopsw()
 }
 
 proc SaveSpikes(){local i
@@ -186,11 +186,11 @@ create_cells()
 //connect_cells(fileroot)
 
    cfhi=40000
-   cflo=800
-
-   dur      = 0.1    //duration of stim (seconds)
+   cflo=1000
+  tstop=85
+  dur      = 0.049    //duration of stim (seconds)
    spl      = 100
-   stimdelay= 0.01      //sec
+   stimdelay= 0.02      //sec
    stimtype = 8      //Notch
    reps     = 50 //25
    ANmodel  = 6      //Zilany Bruce model
@@ -215,10 +215,18 @@ stimtype = 8
 
 
 RefreshParameters()
-ANFilterBankRun()   //Build the filterbank
-SetRates()      //Allocate filterbanks to ANFs
-ShowInputGraphs()
-tstop=300
+stim.resample(stim,2)
+srate=100000
+stimtdres=1/srate
+sg_rate=50000
+sg_tdres=1/sg_rate
+//ANFilterBankRun()   //Build the filterbank
+//CheckFilterbank()
+//SetRates()      //Allocate filterbanks to ANFs
+//ShowInputGraphs()
+//GenSpikes()
+//ANSpikes()
+
 
 objref CNgr[4],CNspks[nchannels][4],CNhist,CNrate[4],CNrategr
 proc DSSpikes(){local i, icf
@@ -480,10 +488,10 @@ func err() {local jj,pp
 
 }
 
-objref dstellate[nchannels][1]
-dstellate[50][0] = new CNcell(2,cf.x[50],50)
+//objref dstellate[nchannels][1]
+//dstellate[50][0] = new CNcell(2,cf.x[50],50)
 connect_cells(fileroot)
-tstop=300
+//tstop=300
 pvec.printf
 // print err(0,&pvec.x[0])
 
