@@ -65,6 +65,7 @@ for j=0,HSRsperchannel-1 {
 
 
        }
+       //system("sleep 0.1")
 for j=0,LSRsperchannel-1 {
 
         LSR[i][j].SGfast(1)
