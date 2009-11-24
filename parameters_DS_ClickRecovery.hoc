@@ -23,7 +23,6 @@ strdef fileroot
 sprint(fileroot,"DS_ClickRecovery") // root for output filenames
 
 inputnumber = 1         // fixed input file
-tstop       = 400   // ms   // total simulation time
 ttrans       = 10   // ms   // when calculating statistics, ignore
             // spikes occuring before this time
 cvode.active(0)
@@ -32,3 +31,26 @@ steps_per_ms = 10
 setdt()
 celsius = 37
 secondorder=2
+
+//Input stimulus
+   cfhi=64000
+   cflo=200
+   dur      = 0.3    //duration of stim (seconds)
+   spl      = 100
+   srate    = 500000
+   stimtdres= 1/srate
+   sg_rate  = 50000
+   sg_tdres = 1/sg_rate
+   stimdelay= 0.01      //sec
+   stimtype = 11      //Click Recovery
+   reps     = 25     //simulation repetions
+   ANmodel  = 6      //Zilany Bruce model
+   species  = 2      //Rat
+   nrep     = 1        //nrep is number of repetitions within stimulus
+    usesavedfilterbanks=1
+    tstop=300
+//Default click times
+   objref clicktimes
+   clicktimes = new Vector()
+   //   clicktimes.append(20,36,70,74,130,138).mul(srate/1000)
+   clicktimes.append(10,26,80,82,150,158,210,214,280,283).mul(srate/1000)
