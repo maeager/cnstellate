@@ -60,8 +60,8 @@ strdef cmd
 //Having trouble with local variables when using execute1
 
 proc create_cells() { local p,i_chan,j_cell
-
-    if (!object_id(an)) an = new AuditoryNerve()
+    //objref an
+    //an = new AuditoryNerve()
     i_chan=0
     j_cell=0
   quitmodel = 0
@@ -151,7 +151,7 @@ ts2tsAMPAlist.remove_all()
 ts2tvAMPAlist.remove_all()
 ts2dsAMPAlist.remove_all()
 
-print "HSR->TS"
+printf("HSR->TS")
 if( ( param.n.getval(hsr,ts) > 0 ) && ( nTSperchannel != 0 ) ){
 outfile.printf("\n%d %d\n",hsr,ts)
  for channel = 0, nchannels-1{
@@ -183,7 +183,7 @@ outfile.printf("\n%d %d\n",hsr,ts)
  }
  printf("\n")
 }
-print "LSR->TS"
+printf("LSR->TS")
 if( ( param.n.getval(lsr,ts) > 0 ) && ( nTSperchannel != 0 ) ){
  outfile.printf("\n%d %d\n",lsr,ts)
  for channel = 0, nchannels-1{
@@ -214,7 +214,7 @@ if( ( param.n.getval(lsr,ts) > 0 ) && ( nTSperchannel != 0 ) ){
  }
  printf("\n")
 }
-print "HSR->TV"
+printf("HSR->TV")
 if( ( param.n.getval(hsr,tv) > 0 ) && ( nTVperchannel != 0 ) ){
  outfile.printf("\n%d %d\n",hsr,tv)
  for channel = 0, nchannels-1{
@@ -246,7 +246,7 @@ if( ( param.n.getval(hsr,tv) > 0 ) && ( nTVperchannel != 0 ) ){
  }
  printf("\n")
 }
- print "LSR->TV"
+ printf("LSR->TV")
 if( ( param.n.getval(lsr,tv) > 0 ) && ( nTVperchannel != 0 ) ){
  outfile.printf("\n%d %d\n",lsr,tv)
  for channel = 0, nchannels-1{
@@ -280,7 +280,7 @@ sprint(cmd, "tuberculoventral[%d][%d].soma lsr2tvAMPAlist.append( new NetCon( an
  }
  printf("\n")
 }
- print "HSR->DS"
+ printf("HSR->DS")
 if( ( param.n.getval(hsr,ds) > 0 ) && ( nDSperchannel != 0 ) ){
  outfile.printf("\n%d %d\n",hsr,ds)
  for channel = 0, nchannels-1{
@@ -312,7 +312,7 @@ if( ( param.n.getval(hsr,ds) > 0 ) && ( nDSperchannel != 0 ) ){
  }
  printf("\n")
 }
- print "LSR->DS"
+ printf("LSR->DS")
 if( ( param.n.getval(lsr,ds) > 0 ) && ( nDSperchannel != 0 ) ){
  outfile.printf("\n%d %d\n",lsr,ds)
  for channel = 0, nchannels-1{
@@ -345,7 +345,7 @@ if( ( param.n.getval(lsr,ds) > 0 ) && ( nDSperchannel != 0 ) ){
  printf("\n")
 }
 if (LSR2GLG == 1){  //Only for Conductance based golgi cell
- print "LSR->GLG"
+ printf("LSR->GLG")
 if( ( param.n.getval(lsr,glg) > 0 ) && ( nGperchannel != 0 ) ){
  outfile.printf("\n%d %d\n",lsr,glg)
  for channel = 0, nchannels-1{
@@ -616,8 +616,6 @@ proc SaveSpikes(){local i,j
          execute1(cmd)
          }
          for j=0,nTVperchannel-1{
-
-            sprint(cmd, "tuberculoventral[i][j].spikes.append(tuberculoventral[i][j].spiketimes)")
             sprint(cmd, "tuberculoventral[%d][%d].spikes.append(tuberculoventral[%d][%d].spiketimes)",i,j,i,j)
 		     execute1(cmd)
          }

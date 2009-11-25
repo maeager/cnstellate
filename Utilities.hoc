@@ -1492,6 +1492,7 @@ proc CheckFilterbank(){local icf
             if (strcmp(end_sout,"nan")==0) print "Error recreating LSR AN output", icf
         }
     }
+    (sg_rate/srate)
 }
 proc ANFilterBankRun() {local x
     objref  LSRout[nchannels], HSRout[nchannels] , MSRout[nchannels]
@@ -1514,7 +1515,7 @@ proc ANFilterBankRun() {local x
     if (usesavedfilterbanks) {
         if (!RetrieveANFilterBank()) {
             GenerateFilterbank()
-            SaveANFilterBank2File()
+			SaveANFilterBank2File()
         }
     } else {
         GenerateFilterbank()
