@@ -1,0 +1,65 @@
+/*
+ *  NetworkParameters.hoc
+ */
+
+
+objref param
+
+begintemplate NetworkParameters
+public bw, n, w,delay   //bandwidth, number, weight, delay
+public offset
+public ncol, nrow
+//functions
+public getnetparameters, saveparameters,printparams
+objref bw, n, w,delay
+offset=3
+proc init(){
+    nrow = $1  ncol = $2
+    bw = new Matrix(nrow, ncol)
+    n = new Matrix(nrow, ncol)
+    w = new Matrix(nrow, ncol)
+    delay = new Matrix(nrow,ncol)
+    offset=0
+
+}
+
+objref file
+strdef filename
+proc getnetparameters(){
+    objref file
+    filename = $s1
+    file = new File()
+    file.ropen(filename)
+    bw.scanf(file)
+    n.scanf(file)
+    w.scanf(file)
+    delay.scanf(file)
+    offset = file.scanvar()
+    file.close()
+
+}
+proc getdelay() {
+    objref file
+    filename = "delays.dat"
+    file= new File()
+    file.ropen(filename)
+    delay.scanf(file)
+    file.close()
+}
+proc saveparameters(){
+    objref file
+    filename = $s1
+    file = new File()
+    file.wopen(filename)
+    bw.fprint(file)
+    n.fprint(file)
+    w.fprint(file)
+    delay.fprint(file)
+    file.printf("%d\n",offset)
+    file.close()
+    objref file
+}
+endtemplate NetworkParameters
+
+param = new NetworkParameters(6,4)
+param.getnetparameters("defaultrecurrentparams.dat")

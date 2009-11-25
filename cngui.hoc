@@ -1,0 +1,312 @@
+
+
+
+objref stimgr, b1,  gr
+/*graph variables*/
+objref  ANFBgr, b2, Sout[nchannels]
+changescale=1
+scale = 60
+proc ShowInputGraphs() {
+   objref stimgr, b1,  gr
+/*graph variables*/
+   objref  ANFBgr, b2, Sout[nchannels]
+
+   /*** Set up Stimulus Graph*/
+   b1 = new VBox()
+   b1.intercept(1)
+   stimgr = new Graph(0)
+   stimgr.view(0, -0.01, 0.042, 0.02, 308, 88, 685, 150)
+   stimgr.label(0.1, 0.91, grlbl)
+   stimgr.label(0.0, 0.65, "Amplitude  (uPascals)")
+   stimgr.label(0.85, 0.35, "time (ms)")
+   stim.plot(stimgr, tvec)
+   stimgr.exec_menu("View = plot")
+   //b1.intercept(0)
+   //b1.map("Stimulus waveform",360, 0, 650.7, 193.5)
+
+   /**** Set up AN filterbank graph ***/
+   //b1.intercept(1)
+   ANFBgr = new Graph(0)
+   ANFBgr.size(0,0.05,0,180000)
+   ANFBgr.view(0, 0, 0.05, 180000, 308, 345, 685, 365)
+   ANFBgr.label(0.92,0.90, "CF")
+   ANFBgr.label(0.1,0.95,"Auditory Filterbank Instantaneous Rate Profiles")
+   for icf = 0, nchannels-1 {
+      Sout[icf] = HSRout[icf].c
+      Sout[icf].mul(2).add(100*icf)
+      Sout[icf].plot(ANFBgr,sg_tdres, 1, 0)
+      sprint(lbl, "%g ", cf.x[icf])
+      ANFBgr.label(0.92, 0.810*(icf/(nchannels-1))+0.075, lbl)
+   }
+   //system("date")
+   ANFBgr.exec_menu("View = plot")
+   b1.intercept(0)
+   b1.map("Stimulus and Auditory Filterbank",308, 345, 685, 365)
+
+
+}//Dummy Graphs
+
+
+proc ShowGolgiGraphs() {
+
+   objref  ANFBgr,  Sout[nchannels]
+
+   //Set up Stimulus Graph
+
+   ANFBgr = new Graph(0)
+   ANFBgr.size(0,0.05,0,180000)
+   ANFBgr.view(0, 0, 0.05, 180000, 308, 345, 685, 365)
+   ANFBgr.label(0.92,0.90, "CF")
+   ANFBgr.label(0.1,0.95,"Auditory Filterbank Instantaneous Rate Profiles")
+   for icf = 0, nchannels-1 {
+      Sout[icf] = golgi[icf][0].sout.c
+      Sout[icf].add(icf) 
+      Sout[icf].plot(ANFBgr,sg_tdres, 1, 0)
+      sprint(lbl, "%g ", cf.x[icf])
+      ANFBgr.label(0.92, 0.810*(icf/(nchannels-1))+0.075, lbl)
+   }
+   //system("date")
+   ANFBgr.exec_menu("View = plot")
+
+
+//   ANFBgr.printfile("x.eps")
+}//Dummy Graphs
+
+
+/************************************************************************
+ *      Auditory Nerve Raster Plot
+ *********************************************************************** */
+
+objref ANFgr[2],ANspksL[nchannels],ANspksH[nchannels],ANFhist,ANFrate[2]
+proc ANSpikes(){local i, icf
+objref ANFgr[2],ANspksL[nchannels],ANspksH[nchannels],ANFrate[2],ANFhist
+   for i=0,1 {
+      ANFgr[i] = new Graph()
+       ANFrate[i] = new Vector()
+   }
+
+   ANFhist = new Graph()
+   for icf=0 ,  nchannels-1{
+      ANspksL[icf] = new Vector()
+      ANspksH[icf] = new Vector()
+      for i=0, HSRsperchannel-1  {
+         for j=0, an.HSRspiketimes[icf][i].size() -1 {
+            ANFgr[0].mark(an.HSRspiketimes[icf][i].x[j], icf*HSRsperchannel+i, "o", 0.5, red,1)
+         }
+         ANspksH[icf].append(an.HSRspiketimes[icf][i])
+
+      }
+
+      for  i=0,LSRsperchannel-1 {
+         for j=0, an.LSRspiketimes[icf][i].size() -1 {
+            ANFgr[0].mark(an.LSRspiketimes[icf][i].x[j], icf*HSRsperchannel+i, "o", 0.5,blue,1)
+         }
+         ANspksL[icf].append(an.LSRspiketimes[icf][i])
+      }
+//.div(reps*binsize/1000)
+      ANspksH[icf] = ANspksH[icf].histogram(0,tstop,0.1)
+      ANspksL[icf] = ANspksL[icf].histogram(0,tstop,0.1)
+      ANFrate[0].append(ANspksH[icf].mean())
+      ANFrate[1].append(ANspksL[icf].mean())
+      ANspksH[icf].add(icf*5).plot(ANFhist, 0.1)
+
+
+   }
+   ANFgr[0].label(0.3, 0.95, "Raster Plot of all Auditory Nerve Fibres")
+   ANFgr[0].label(0.3,0.92,"High spont: red       Low spont: blue" )
+   ANFgr[0].label(0.95,0.8,"High CF" )
+   ANFgr[0].label(0.95, 0.1,"Low CF")
+   ANFgr[0].exec_menu("View = plot")
+   ANFhist.label(0.5, 0.95, "PSTH of all Auditory Nerve Fibres in each channel")
+   ANFhist.exec_menu("View = plot")
+   ANFrate[0].plot(ANFgr[1],1,red,1)
+   ANFrate[1].plot(ANFgr[1],1,blue,1)
+   ANFgr[1].label(0.3, 0.95, "Rate-Place Representation: Auditory Nerve Fibres")
+   ANFgr[1].label(0.3,0.92,"High spont: red       Low spont: blue" )
+   ANFgr[1].exec_menu("View = plot")
+}
+
+
+/************************************************************************
+ *       Raster Plot of CN cells
+ ************************************************************************/
+
+objref CNgr[4],CNspks[nchannels][4],CNhist,CNrate[4],CNrategr
+proc CNSpikes(){local i, icf
+objref CNgr[4],CNspks[nchannels][4],CNhist,CNrate[4],CNrategr
+   for i=0,3 {
+      CNgr[i] = new Graph()
+       CNrate[i] = new Vector()
+   }
+
+   CNhist = new Graph()
+   CNrategr = new Graph()
+   for icf=0 ,  nchannels-1{
+      CNspks[icf][ts] = new Vector()
+      CNspks[icf][tv] = new Vector()
+      CNspks[icf][ds] = new Vector()
+      CNspks[icf][glg] = new Vector()
+
+     if (nTSperchannel > 0){ for i=0, nTSperchannel-1  {
+         for j=0, tstellate[icf][i].spiketimes.size() -1 {
+            CNgr[0].mark(tstellate[icf][i].spiketimes.x[j], icf*nTSperchannel+i, "o", 0.5, red,1)
+         }
+         CNspks[icf][0].append(tstellate[icf][i].spiketimes)
+
+      }}
+      if (nDSperchannel > 0){for i=0, nDSperchannel-1  {
+         for j=0, dstellate[icf][i].spiketimes.size() -1 {
+            CNgr[1].mark(dstellate[icf][i].spiketimes.x[j], icf*nDSperchannel+i, "o", 0.5, red,1)
+         }
+         CNspks[icf][1].append(dstellate[icf][i].spiketimes)
+
+      }}
+      if (nTVperchannel > 0){for i=0, nTVperchannel-1  {
+         for j=0, tuberculoventral[icf][i].spiketimes.size() -1 {
+            CNgr[2].mark(tuberculoventral[icf][i].spiketimes.x[j], icf*nTVperchannel+i, "o", 0.5, red,1)
+         }
+         CNspks[icf][2].append(tuberculoventral[icf][i].spiketimes)
+
+	  }}
+      if (nGperchannel > 0){for i=0, nGperchannel-1  {
+         for j=0, golgi[icf][i].spiketimes.size() -1 {
+            CNgr[3].mark(golgi[icf][i].spiketimes.x[j], icf*nGperchannel+i, "o", 0.5, red,1)
+         }
+         CNspks[icf][3].append(golgi[icf][i].spiketimes)
+
+      }}
+//.div(reps*binsize/1000)
+      for i=0,3{
+      CNspks[icf][i] = CNspks[icf][i].histogram(0,tstop,0.1)
+      CNrate[i].append(CNspks[icf][i].sum())
+      }
+      CNspks[icf][1].add(icf*5).plot(CNhist, 0.1)
+
+
+   }
+   CNgr[0].label(0.3, 0.95, "Raster Plot of Tstellate")
+   CNgr[1].label(0.3, 0.95, "Raster Plot of D-stellate")
+      for i=0,3{
+         CNgr[i].exec_menu("View = plot")
+         CNrate[i].plot(CNrategr,1,i+1,1)
+   }
+   CNhist.label(0.5, 0.95, "PSTH")
+   CNhist.exec_menu("View = plot")
+   CNrategr.label(0.3, 0.95, "Rate-Place Representation")
+   CNrategr.exec_menu("View = plot")
+}
+
+proc CNSpikes2(){local i, icf
+	objref CNgr[4],CNspks[nchannels][4],CNhist,CNrate[4],CNrategr
+	for i=0,3 {
+//		CNgr[i] = new Graph()
+		CNrate[i] = new Vector()
+	}
+
+	CNhist = new Graph()
+	CNrategr = new Graph()
+	for icf=0 ,  nchannels-1{
+		CNspks[icf][ts] = new Vector()
+		CNspks[icf][tv] = new Vector()
+		CNspks[icf][ds] = new Vector()
+		CNspks[icf][glg] = new Vector()
+
+		if (nTSperchannel > 0){ for i=0, nTSperchannel-1  {
+			CNspks[icf][ts] = tstellate[icf][i].spikes.histogram(0,tstop,0.1)
+		}}
+		if (nDSperchannel > 0){for i=0, nDSperchannel-1  {
+			CNspks[icf][ds] = dstellate[icf][i].spikes.histogram(0,tstop,0.1)
+		}}
+		if (nTVperchannel > 0){for i=0, nTVperchannel-1  {
+			CNspks[icf][tv] = tuberculoventral[icf][i].spikes.histogram(0,tstop,0.1)
+		}}
+		if (nGperchannel > 0){for i=0, nGperchannel-1  {
+			CNspks[icf][glg] = golgi[icf][i].spikes.histogram(0,tstop,0.1)
+		}}
+		for i=0,3{
+			//CNspks[icf][i] = CNspks[icf][i].histogram(0,tstop,0.1)
+			CNrate[i].append(CNspks[icf][i].sum())
+		}
+		//CNspks[icf][1].add(icf*5).plot(CNhist, 0.1)
+
+	}
+	for i=0,3{
+//		CNgr[i].exec_menu("View = plot")
+		CNrate[i].plot(CNrategr,1,i+1,1)
+	}
+	
+	CNrategr.label(0.3, 0.95, "Rate-Place Representation")
+	CNrategr.exec_menu("View = plot")
+}
+
+
+/********************************************************************
+ *   Stimulus Menu
+ ********************************************************************/
+
+xpanel("Auditory Model Simulation Parameters")
+   xlabel("Auditory Filterbank Simulation Parameters")
+   xmenu("Stimulus Menu")
+      xbutton("Tone", "stimtype = 1")
+      xbutton("*.Wav File","stimtype = 0")
+      xbutton("Quiet", "stimtype = 2")
+      xbutton("AM tone", "stimtype = 3")
+      xbutton ("Uniform Noise", "stimtype=4")
+      xbutton("AM Noise","stimtype =5")
+      xbutton("Gaussian Noise","stimtype =6")
+      xbutton("Simultaneous Tone and Noise", "stimtype =7")
+      xbutton("Two Tones", "TwoTonePanel()")
+
+   xmenu()
+         xvalue("Sound level (dB SPL)","spl")
+         xvalue("Tone Frequency (Hz)","tonefreq")
+         xvalue("Tone Duration (sec)","dur")             //duration of tone segment seconds
+         xvalue("Repetitions ", "nrep")       //dB SPL
+         xvalue("DutyCycle","dutycycle")      //quiet duration = dutycycle*dur
+         xvalue("Ramp Length (sec)", "ramplngth")
+         xvalue("Stim Delay (sec)", "stimdelay")
+         xbutton("Select New Wavfile stimulus","Setwavfile()")
+         xvarlabel(wavefile)
+         xvalue("Modulation Freq (Hz)", "AM_modfreq")
+         xvalue("Depth (%)","AM_depth")
+         xvalue("Sampling Rate (Hz)", "srate")
+      xcheckbox("Add noise",&AdditiveNoise)
+      xvalue("additive noise level", "NoiseLevel")
+   xvalue("Stimtype", "stimtype")
+		xcheckbox("Save to file",&usesavedfilterbanks)
+		xlabel("ANFilterbank - Save Dir & File")
+		xvarlabel(ANpath)
+		xvarlabel(ANstr)
+
+		xpanel()
+		xpanel("Auditory & Cochlear Nucleus Methods")
+   xbutton("Refresh Stim and Param", "RefreshParameters()")
+   xbutton("Update Filterbanks","ANFilterBankRun()")
+   xbutton("Reset ANFs","an.SetRates()")
+   xbutton("Plot Stim & AN filterbank","ShowInputGraphs()")
+   xbutton("Golgi filterbank","ShowGolgiGraphs()")
+	xbutton("Generate Spikes", "an.GenSpikes()")
+	xbutton("AN Raster","ANSpikes()")
+   xbutton("CN Rasters","CNSpikes()")
+xpanel()
+
+	//  xopen("reset_weights.hoc")
+		
+		
+
+		proc weightspanel(){
+	xpanel("Network Weights")
+			xvalue("param.w.x[hsr][ts]")
+			xvalue("param.w.x[hsr][tv]")
+			xvalue("param.w.x[hsr][ds]")
+			xvalue("param.w.x[lsr][ts]")
+			xvalue("param.w.x[lsr][tv]")
+			xvalue("param.w.x[lsr][ds]")
+			xvalue("param.w.x[lsr][glg]")
+			xvalue("param.w.x[ds][ts]")
+			xvalue("param.w.x[ds][tv]")
+			xvalue("param.w.x[glg][ds]")
+			xvalue("param.w.x[tv][ts]")
+			xbutton("Reset Weights","reset_weights()")
+			xpanel()
+		}

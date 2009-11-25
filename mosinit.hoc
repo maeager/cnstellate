@@ -1,0 +1,3 @@
+load_file("nrngui.hoc")
+nrn_load_dll("../../modfiles/nrnmech.dll")
+xopen("init.hoc")

@@ -1,0 +1,24 @@
+260       83.6916          0           0
+502       64.2991          0           0
+1022      24.5794     0.3500      0.4000
+2028      22.2430     0.4500      0.4000
+2948      21.7757     0.4500      0.4000
+3877      13.1308     0.6000      0.6500
+8189       0.0467     1.0000      1.0000
+16661     10.3271     0.7000      0.7000
+22751      4.7196     0.8500      0.8000
+33479     -1.3551     1.0000      1.0000
+37921      1.2150     0.9500      1.0000
+44590     16.6355     0.5500      0.5000
+61652     28.5514     0.3500      0.3000
+
+#Freq       Atten       Cohc        Cihc
+
+# Rat audiogram data obtained from earlab.bu.edu then passed
+# through Zilany and Bruce MATLAB function fitaudiogram
+# eg:
+# load heffner_1993_rattus_fig2
+# load THRESHOLD_TUNING_ALL
+# [Cohc,Cihc,OHC_Loss]=fitaudiogram(X_thief,Y_thief)
+
+#NEURON code will extrapolate audiogram to CF values

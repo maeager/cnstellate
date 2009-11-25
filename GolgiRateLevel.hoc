@@ -1,0 +1,310 @@
+/*
+ *   GolgiRatelevel.hoc
+ *
+ */
+load_file("nrngui.hoc")
+//load_file("par_netpar.hoc")
+//load_file("par_init.hoc")
+thresh=-20
+
+      xopen("mathslib.hoc")         // mathematical procedures
+      xopen("Params.hoc")
+      xopen("Utilities.hoc")
+      xopen("NetworkParameters.hoc")
+      xopen("AuditoryNerve.hoc")
+      xopen("CNcell.tem")      // CN cell template
+      xopen("parameters_golgi_Ratelevel.hoc")           // model parameters
+      xopen("CochlearNucleus.hoc")         // model set-up
+//      if (pnm.myid == 0)  print "Reading input procedures"
+//      xopen("par_input.hoc")      // define procedures to set-up input
+//      if (pnm.myid == 0)  print "Setting-up experiment"
+//      xopen("par_experiment_SAM.hoc")
+//      xopen(filename)
+
+objref an,golgi[nchannels][1],g, ANFBgr
+an = new AuditoryNerve()
+for i=0,99 {
+   for j = 0, HSRsperchannel-1 {
+      //sprint(celltype,"new SGC_fast(%d,%d,%d)",4,cf.x[i],i)
+      an.HSR[i][j] = new SGC_fast(0.5)
+    }
+    for j = 0, LSRsperchannel-1 {
+      //sprint(celltype,"new ANF(%d,%d,%d)",5,cf.x[i],i)
+      an.LSR[i][j] = new SGC_fast(0.5)
+    }
+     golgi[i][0] = new Golgicell(3,cf.x[i],i,2)
+}
+
+proc SetRates(){local i
+   an.SetRates()
+   for i=0,99 golgi[i][0].SetRate()
+}
+
+proc GenInputSpikes(){local j
+  // an.GenSpikes()
+  for i=0,99 golgi[i][0].GenSpikes()
+}
+
+proc SaveSpikes(){local i
+ //  an.SaveSpikes()
+   for i=0,99 golgi[i][0].SaveSpikes()
+}
+
+proc ClearSpikes(){local i
+    golgi[76][0].ClearSpikes()
+}
+
+objref ind,isi
+isistdev =0
+func meanrate(){ local i localobj spikes
+// Take in a spike vector ( presume an appended vector of 50 spike trains)
+// remove values less than the stimulus delay
+// calculate intervals, remove negative intervals,
+// mean rate is the inverse of the isi mean
+   objref ind,isi
+   spikes = new Vector()
+   if ($o1.size < 60) {
+      isistdev = 10
+      return $o1.size()/(reps*0.05)
+   }
+   spikes.copy($o1)
+   ind = new Vector()
+   isi = new Vector()
+   ind.indvwhere(spikes,"<",20)
+   if (spikes.size -ind.size <= 50) {
+      isistdev = 10
+      return spikes.size()/(reps*0.05)
+   }
+   if (ind.size > 0) for i=0, ind.size-1 { spikes.remove(ind.x[i]-i) }
+print "print spikes.size", spikes.size
+   for i=1,spikes.size-1 {
+      isi.append( spikes.x[i]-spikes.x[i-1])
+   }
+print "print isi.size", isi.size
+
+   ind.indvwhere(isi,"<=",0)
+   if (isi.size -ind.size <= 10) {
+      isistdev = 10
+      return spikes.size()/(reps*0.05)
+   }
+   if (ind.size > 0) for i=0, ind.size-1 { isi.remove(ind.x[i]-i)
+print "removing ", ind.x[i] }
+   ind.indvwhere(isi,">",50)
+   if (ind.size >= 1) {
+    if (isi.size -ind.size <= 3) {
+      isistdev = 15
+      return spikes.size()/(reps*0.05)
+    }
+    for i=0, ind.size-1 { isi.remove(ind.x[i]-i)
+print "removing ", ind.x[i] }
+   }
+print "print isi.size", isi.size
+
+   if (isi.size <= 1) {
+      isistdev = 1e6
+      return spikes.size()/(reps*0.05)
+   }
+
+   isistdev = isi.stdev()
+   return 1000/isi.mean()
+}
+
+
+objref gpstlist, grate[nchannels],anrate[nchannels],rate_level_graph, gstdev[nchannels]
+proc RatelevelGolgi1(){local i,j,count,sum,runtime,cell,xtime localobj tmp
+   //objref Notchgr,results[sp.cells.count], Notch
+
+   count = 0
+   tonefreq = cf.x[76]
+   dur       = 0.049    //duration of tone segment (seconds)
+
+   dutycycle    = 0.2      //quiet duration = dutycycle*dur
+   ramplngth    = 0.001
+   srate       = 500000.0  stimtdres    = 1/srate
+   sg_rate = 50000      sg_tdres = 1/sg_rate
+   stimdelay = 0.02      //sec
+   stimtype=1   //tone
+   reps=50
+   gpstlist = new List()
+   for i=0,99 {
+      grate[i] = new Vector()
+      anrate[i] = new Vector()
+      gstdev[i] = new Vector()
+   }
+   //RefreshParameters()
+   //ANFilterBankRun()
+   for (spl = -20; spl <= 95; spl+=5){
+      runtime = startsw()
+      ClearSpikes()
+      RefreshParameters()
+
+      ANFilterBankRun()
+      SetRates()
+
+      for j=0, reps-1{
+         GenInputSpikes()
+         print j
+         SaveSpikes()
+         //print startsw()-x, "secs"
+      }
+
+      for j=0,99 {
+      sum=0
+         grate[j].append(meanrate(golgi[j][0].spikes))
+         gstdev[j].append(1000/isistdev)
+         for i=0,LSRsperchannel-1 sum+= meanrate(an.LSRspiketimes[j][i])
+         anrate[j].append(sum/(LSRsperchannel))
+      }
+
+
+      count+=1
+      runtime = startsw()-runtime
+      print "Simulation took ",runtime, " secs "
+   }
+
+   rate_level_graph = new Graph()
+   grate[76].plot(rate_level_graph)
+   anrate[76].plot(rate_level_graph)
+   rate_level_graph.exec_menu("View = plot")
+
+}//RatelevelGolgi1
+
+
+
+
+// Simulation parameters
+
+   stimtype     = 1   //tone stimulus
+   count        = 0
+   dur          = 0.049    //duration of tone segment (seconds)
+   dutycycle    = 0.2      //quiet duration = dutycycle*dur
+   ramplngth    = 0.001
+   srate        = 500000.0  //stimulus sampling rate
+   stimtdres    = 1/srate
+   sg_rate      = 50000     //spike generator rate
+   sg_tdres     = 1/sg_rate
+   stimdelay    = 0.02      //sec
+   reps         = 25        //repetitions
+
+
+objref gr, targetrl, rlst,level,isi,ind
+level = new Vector(22)
+level.indgen().mul(5).add(-15)
+targetrl = new Vector()
+targetrl.append(2.53,   2.14,   4.28,   6.24,   7.80,   12.10,   10.73,   13.47,   17.96,27.92,30.27,   32.81,   39.84,   51.75,   57.42,   58.00,   58.79,   62.11,   68.75,   82.62,   92.38,   100.78)
+gr = new Graph()
+rlst = new List()
+targetrl.plot(gr,level,2,2)
+gr.size(-20,100,0,150)
+gr.exec_menu("View = plot")
+gr.exec_menu("Keep Lines")
+
+
+objref g, dvec, fvec,ivec
+g = new Graph()
+g.size(0,3,0,3)
+count = 0
+func fun() {local f,mspikerate
+       if ($1 == 90) {
+                g.line($2*$3, $3*$4)
+                g.flush()
+      doNotify()
+//      print "spl ", $1,"a (scaling) ", $2,"b (stdev) ", $3
+      }
+
+   if ($1 == -15 && count != 0){
+      fvec.plot(Graph[0],ivec,1,1)
+      Graph[0].flush()
+      doNotify()
+   }
+   spl=$1
+   //weight_sum=$2
+   golgi_spon=$2
+   golgi_spatial_filter_stdev =$3
+   golgi_syn_filter_scale_factor=$4
+   runtime = startsw()
+   golgi[76][0].ClearSpikes()
+   tonefreq = cf.x[76]
+   RefreshParameters()
+   sg_rate=50000
+   ANFilterBankRun()
+   sg_rate = 50000
+   sg_tdres = 1/sg_rate
+   CreateGolgiSynFilter()
+   golgi[76][0].SetRate()
+
+   for j=0, reps-1{
+      golgi[76][0].GenSpikes()
+      print j
+      golgi[76][0].SaveSpikes()
+      //print startsw()-x, "secs"
+   }
+
+   runtime = startsw()-runtime
+   print "Simulation took ",runtime, " secs "
+   mspikerate = meanrate(golgi[76][0].spikes)
+   print "Mean: ",mspikerate , " stdev: ", isistdev
+   return mspikerate //golgi[76][0].spikes.size()/(reps*0.05)
+
+}
+
+
+objref vv
+
+
+dvec = new Vector()
+ivec = new Vector()
+reps = 50
+
+vv = new Vector()
+vv.append(0,6,10,14,18,21) //2,6,14,18,20
+dvec = targetrl.ind(vv)
+ivec = level.ind(vv)
+fvec = new Vector(4)
+//fvec.fill(0)
+
+a = 1.5
+b = 4
+c = 1
+
+proc RunFit(){
+g.beginline()
+error = dvec.fit(fvec, "fun", ivec, &a, &b, &c)
+print a, b, c, error
+g.flush()
+g.exec_menu("View = plot")
+fvec.plot(Graph[1],ivec,1,1)
+}
+//RunFit()
+//RunFit()
+//RatelevelGolgi1()
+strdef datestr
+proc PrintRatelevel(){ local i
+   RatelevelGolgi1()
+   if (file.isopen()) file.close()
+system("date",datestr)
+
+    file.wopen("GolgiRateLevel.dat")
+    file.printf("# Golgi model rate-level data\n")
+file.printf("# %s \n",datestr)    
+file.printf("# Spatial filter: Stdev of LSR input channels=%.4f\n",golgi_spatial_filter_variance_LSR)
+    file.printf("# Synaptic Filter: Tau = 5ms, Scale_factor=%.2f\n",golgi_syn_filter_scale_factor)
+    file.printf("# Weighted sum of LSR = %.4f \n",weight_sum_LSR)
+    file.printf("# Weighted sum of HSR = %.4f \n",weight_sum_HSR)
+    file.printf("# Golgi Spontaneous rate = %.4f\n",golgi_spon)
+    file.printf("# SPL\tRate (sp/sec)\t Stdev\n")
+    for i=0,grate[76].size() -1 { file.printf("%d\t%.3f\t%.3f\t%.3f\n",i*5-20,grate[76].x[i],gstdev[76].x[i], targetrl.x[i]) }
+    file.close()
+
+	file.wopen("pvec_Golgi_RateLevel.hoc")
+ file.printf("# %s \n",datestr)
+  file.printf("golgi_spatial_filter_variance_LSR=%.4f\n",golgi_spatial_filter_variance_LSR)
+    file.printf("golgi_syn_filter_scale_factor=%.2f\n",golgi_syn_filter_scale_factor)
+    file.printf("weight_sum_LSR= %.4f \n",weight_sum_LSR)
+    file.printf("weight_sum_HSR= %.4f \n",weight_sum_HSR)
+    file.printf("# Golgi Spontaneous rate = %.4f\n",golgi_spon)
+  
+}
+
+
+  for i=0,5 { file.printf("%d\t%.3f\t%.3f\n",i*5-20,dvec.x[i],fvec.x[i]) }
