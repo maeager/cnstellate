@@ -1,11 +1,10 @@
- /*
+/*
  *   TV_Notch.hoc
  *
  */
-load_file("nrngui.hoc")
+	load_file("nrngui.hoc")
 //load_file("par_netpar.hoc")
 //load_file("par_init.hoc")
-thresh=-20
 
       xopen("mathslib.hoc")         // mathematical procedures
       xopen("Params.hoc")
@@ -15,9 +14,9 @@ thresh=-20
       xopen("par_CNcell.tem")      // CN cell template
       xopen("parameters_TV_Notch.hoc")           // model parameters
       xopen("CochlearNucleus.hoc")         // model set-up
-      xopen("cngui.hoc")
-
-
+//Previous optimisation parameters
+	xopen("pvec_Golgi_RateLevel.hoc")
+	xopen("pvec_DS_ClickRecovery.hoc")
 
 whichcell=50
 
@@ -27,169 +26,68 @@ proc SetRates(){
 }
 
 proc GenSpikes2(){local i
-   // startsw()
+    startsw()
+	//Only generate spikes from stimulators that have a connecting synapse
     for i=0,hsr2dsAMPAlist.count-1 hsr2dsAMPAlist.object(i).pre.SGfast(1)
     for i=0,lsr2dsAMPAlist.count-1 lsr2dsAMPAlist.object(i).pre.SGfast(1)
     for i=0,glg2dsGABAlist.count-1 glg2dsGABAlist.object(i).pre.SGfast(1)
-   //     print stopsw()
+				print "GenSpikes time:", stopsw()
 }
 proc GenSpikes(){local i
   startsw()
     for i=0,nchannels-1{
 	for j=0,HSRsperchannel-1 an.HSR[i][j].SGfast(1)
 	for j=0,LSRsperchannel-1 an.LSR[i][j].SGfast(1)
-//	golgi[i][0].GenSpikes()
+	golgi[i][0].GenSpikes()
       }
   print "GenSpikes time:", stopsw()
 }
 
-proc SaveSpikes(){local i
-    //an.SaveSpikes()
-   //for i=0,99
-   i=76
-   golgi[i][0].SaveSpikes()
-}
 proc ClearSpikes(){local i
    an.ClearSpikes()
    for i=0,99 golgi[i][0].ClearSpikes()
 }
 
-
-
-
-
-objref an,golgi[nchannels][1],g, dstellate[nchannels][1], tuberculoventral[nchannels][1]
-
-
-
-proc create_cells(){
-an = new AuditoryNerve()
-for i=0,99 {
-   for j = 0, HSRsperchannel-1 an.HSR[i][j] = new SGC_fast(0.5)
-   for j = 0, LSRsperchannel-1 an.LSR[i][j] = new SGC_fast(0.5)
-   golgi[i][0] = new Golgicell(3,cf.x[i],i,2)
-   dstellate[i][0] = new CNcell(2,cf.x[i],i)
-
+proc reset_weights() { local i // 1 arg - weight
+	for i = 0,hsr2dsAMPAlist.count()-1 {
+		hsr2dsAMPAlist.object(i).weight = param.w.x[hsr][ds]
+	}
+	for i = 0,lsr2dsAMPAlist.count()-1 {
+		lsr2dsAMPAlist.object(i).weight = param.w.x[lsr][ds]
+	}
+	for i = 0,hsr2tvAMPAlist.count()-1 {
+		hsr2tvAMPAlist.object(i).weight = param.w.x[hsr][tv]
+	}
+	for i = 0,lsr2tvAMPAlist.count()-1 {
+		lsr2tvAMPAlist.object(i).weight = param.w.x[lsr][tv]
+	}
+	for i = 0,glg2dsGABAlist.count()-1 {
+		glg2dsGABAlist.object(i).weight = param.w.x[glg][ds]
+	}
+	for i = 0,ds2tvGLYlist.count()-1 {
+		ds2tvGLYlist.object(i).weight = param.w.x[ds][tv]
+	}
 }
-tuberculoventral[whichcell][0]= new CNcell(1,cf.x[whichcell],whichcell)
-}
 
-proc connect_cells(){local i,p,target,source,low,high,range,channel,sourcechannel
 
-    print "Connecting cells"
-    sprint(filename,"%s.connect",$s1)
-    outfile.wopen(filename)
 
-hsr2tsAMPAlist.remove_all()
-lsr2tsAMPAlist.remove_all()
-hsr2tvAMPAlist.remove_all()
-lsr2tvAMPAlist.remove_all()
-hsr2dsAMPAlist.remove_all()
-lsr2dsAMPAlist.remove_all()
-hsr2glgAMPAlist.remove_all()
-lsr2glgAMPAlist.remove_all()
-glg2dsGABAlist.remove_all()
-glg2tsGABAlist.remove_all()
-ds2tsGLYlist.remove_all()
-ds2tvGLYlist.remove_all()
-tv2tsGLYlist.remove_all()
-ts2tsAMPAlist.remove_all()
- print "HSR->DS"
-if( ( param.n.getval(hsr,ds) > 0 ) && ( nDSperchannel != 0 ) ){
- outfile.printf("\n%d %d\n",hsr,ds)
-channel = 50
-target = 0
-   for i=0, param.n.getval(hsr,ds)-1{
-    //Choose source channel
-    sourcechannel = random.normal(channel,param.bw.getval(hsr,ds)/2)
-    if ((sourcechannel - int(sourcechannel)) > 0.5 ){
-        sourcechannel = 1+int(sourcechannel)
-    } else { sourcechannel = int(sourcechannel) }
-    if (sourcechannel <=0 ) sourcechannel=0
-    if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
-    //Choose random source from available cells
-    source = random.discunif(0,HSRsperchannel-1)
- //print "HSR[",sourcechannel,"][",source,"] connected to DS[",channel,"][",target,"]"
- sprint(cmd, "dstellate[%d][%d].soma hsr2dsAMPAlist.append( new NetCon( an.HSR[%d][%d],  dstellate[%d][%d].AMPA,thresh,param.delay.getval(hsr,ds), param.w.getval(hsr,ds)))",channel,target,sourcechannel,source,channel,target)
-        execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
-   outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
 
-   }
 
-      p = 100*(channel)/(nchannels)
-    printf("\r=== %3d%% ===",p)
-    flushf()
-    doNotify() // Although this slows down cell creation, the
-               // process is so long that we have to allow the
-               // user to quit during the creation.
-
-}
- print "LSR->DS"
-if( ( param.n.getval(lsr,ds) > 0 ) && ( nDSperchannel != 0 ) ){
- outfile.printf("\n%d %d\n",lsr,ds)
- channel = 50
-target = 0
-   for i=0, param.n.getval(lsr,ts)-1{
-    //Choose source channel
-    sourcechannel = random.normal(channel,param.bw.getval(lsr,ds)/2)
-    if ((sourcechannel - int(sourcechannel)) > 0.5 ){
-        sourcechannel = 1+int(sourcechannel)
-    } else { sourcechannel = int(sourcechannel) }
-    if (sourcechannel <=0 ) sourcechannel=0
-    if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
-    //Choose random source from available cells
-    source = random.discunif(0,LSRsperchannel-1)
- //print "LSR[",sourcechannel,"][",source,"] connected to DS[",channel,"][",target,"]"
- sprint(cmd, "dstellate[%d][%d].soma lsr2dsAMPAlist.append( new NetCon( an.LSR[%d][%d],  dstellate[%d][%d].AMPA, thresh,param.delay.getval(lsr,ds), param.w.getval(lsr,ds)))",channel,target,sourcechannel,source,channel,target)
-        execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
-    outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
-  }
-      p = 100*(channel)/(nchannels)
-    printf("\r=== %3d%% ===",p)
-    flushf()
-    doNotify() // Although this slows down cell creation, the
-               // process is so long that we have to allow the
-               // user to quit during the creation.
-}
- print "GLG->DS"
-if( ( param.n.getval(glg,ds) > 0 ) && ( nDSperchannel != 0 ) && ( nGperchannel != 0 ) ){
- outfile.printf("\n%d %d\n",glg,ds)
-channel = 50
-target = 0
-   for i=0, param.n.getval(glg,ds)-1{
-    //Choose source channel
-    sourcechannel = random.normal(channel,param.bw.getval(glg,ds)/2)
-    if ((sourcechannel - int(sourcechannel)) > 0.5 ){
-        sourcechannel = 1+int(sourcechannel)
-    } else { sourcechannel = int(sourcechannel) }
-    if (sourcechannel <=0 ) sourcechannel=0
-    if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
-    //Choose random source from available cells
-    source = random.discunif(0,nGperchannel-1)
- // print "GLG[",sourcechannel,"][",source,"] connected to "DS[",channel,"][",target,"]"
-   if (LSR2GLG ==1 ) {
-   sprint(cmd, "golgi[%d][%d].soma glg2dsGABAlist.append( new NetCon(&v(0.5),dstellate[%d][%d].GABAA,thresh,param.delay.getval(glg,ds), param.w.getval(glg,ds)))",sourcechannel, source, channel, target )
-     execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
-   } else {
-      sprint(cmd, "glg2dsGABAlist.append( new NetCon( golgi[%d][%d].s,dstellate[%d][%d].GABAA, thresh,param.delay.getval(glg,ds), param.w.getval(glg,ds)))",sourcechannel, source ,channel ,target )
-        execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
-   }
- outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
-   }
-}
-outfile.close
-}
+objref golgi[nchannels][1],g, dstellate[nchannels][1], tuberculoventral[nchannels][1]
 
 
 //--- Setup Auditory model
-create_cells()
-//connect_cells(fileroot)
+	create_cells()
+	connect_cells(fileroot)
+	connect_CNcells(fileroot)
+	xopen("cngui.hoc")
+  
 
-   cfhi=40000
-   cflo=1000
-  tstop=85
-  dur      = 0.049    //duration of stim (seconds)
-   spl      = 100
+   cfhi     =48000
+   cflo     =1000
+   tstop	  =85
+   dur      = 0.049    //duration of stim (seconds)
+   spl      = 100 
    stimdelay= 0.02      //sec
    stimtype = 8      //Notch
    reps     = 50 //25
@@ -200,63 +98,40 @@ create_cells()
 ANFBgr = new Graph()
 usesavedfilterbanks=0
 
-proc simulate_target_network(){
-stimtype = 8
-	reps=25
-	an.flag(0)
-	RefreshParameters()
-	ANFilterBankRun()
-	an.reset()
-	getAN()
-	an.flag(2)
-	reps=25
- }
-
-
-
+ANsoundspath="../soma/sounds"
 RefreshParameters()
-stim.resample(stim,2)
+file.ropen("./TV_notch/Notch-sb10-0.5oct.dat")
+Readfile(stim,file)
 srate=100000
 stimtdres=1/srate
 sg_rate=50000
 sg_tdres=1/sg_rate
-//ANFilterBankRun()   //Build the filterbank
-//CheckFilterbank()
-//SetRates()      //Allocate filterbanks to ANFs
-//ShowInputGraphs()
-//GenSpikes()
-//ANSpikes()
-
-
-objref CNgr[4],CNspks[nchannels][4],CNhist,CNrate[4],CNrategr
-proc DSSpikes(){local i, icf
-objref CNgr[4],CNspks[nchannels][4],CNhist,CNrate[4],CNrategr
-   for i=0,3 {
-      CNgr[i] = new Graph()
-   CNrate[i] = new Vector()
-   }
-CNhist = new Graph()
-   for icf=0 ,  nchannels-1{
-    CNspks[icf][1] = new Vector()
-      if (nDSperchannel > 0){for i=0, nDSperchannel-1  {
-         for j=0, dstellate[icf][0].spiketimes.size() -1 {
-            CNgr[1].mark(dstellate[icf][0].spiketimes.x[j], icf*nDSperchannel, "o", 0.5, red,1)
-         }
-         CNspks[icf][1].append(dstellate[icf][0].spiketimes)
-
-      }}
-
-      CNspks[icf][1] = CNspks[icf][1].histogram(0,tstop,0.1)
-      CNrate[i].append(CNspks[icf][i].sum())
-      CNspks[icf][1].add(icf*5).plot(CNhist, 0.1)
-
-  }
+		spl=60
+		aa = spl2amplNoise((spl))/spl2amplNoise(Decibels(stim))
+		stim.mul(aa)
+		ANFilterBankRun()   //Build the filterbank
+		CheckFilterbank()
+		SetRates()      //Allocate filterbanks to ANFs
+		//ShowInputGraphs()
+		//ShowGolgiGraphs()
+		GenSpikes()
+		ANSpikes()
+		
+for iii=0,9{
+		run()
+		SaveSpikes()
 }
+CNSpikes2()
+		
 
 
+			
+			
 
+		Graph[2].printfile("TV_notch/AN_rateplace_10_0.5.eps")
+		Graph[5].printfile("TV_notch/CN_rateplace_10_0.5.eps")
 
-
+/*
 
 //ShowGolgiGraphs()
 
@@ -279,29 +154,8 @@ gg = new Graph()
 g = new Graph()
 g.size(0,3,0,3)
 
-proc reset_weights() { local i // 1 arg - weight
-   for i = 0,hsr2dsAMPAlist.count()-1 {
-   hsr2dsAMPAlist.object(i).weight = param.w.x[hsr][ds]
-  }
-   for i = 0,lsr2dsAMPAlist.count()-1 {
-   lsr2dsAMPAlist.object(i).weight = param.w.x[lsr][ds]
-  }
-   for i = 0,hsr2tvAMPAlist.count()-1 {
-   hsr2tvAMPAlist.object(i).weight = param.w.x[hsr][tv]
-  }
-   for i = 0,lsr2tvAMPAlist.count()-1 {
-   lsr2tvAMPAlist.object(i).weight = param.w.x[lsr][tv]
-  }
-   for i = 0,glg2dsGABAlist.count()-1 {
-   glg2dsGABAlist.object(i).weight = param.w.x[glg][ds]
-  }
-   for i = 0,ds2tvGLYlist.count()-1 {
-   ds2tvGLYlist.object(i).weight = param.w.x[ds][dtv]
-  }
 
-}
 
-/*
 
 
 
@@ -407,7 +261,6 @@ pvec_ranges= new Matrix(NPARAMS,2)
  for i=0,NPARAMS-1 pvec_ranges.x[i][0]= 0.00001
 //max
  for i=0,NPARAMS-1 pvec_ranges.x[i][1]= 0.005
-
 
 func err() {local jj,pp
      DSvec = new Vector()

@@ -510,6 +510,78 @@ objref rampx, offramp, onramp, middle, quiet, envelope, inputsound,initquiet
 
 }
 
+proc FilteredNoise() {local mean, variance, stimtdres, rampts, rstep, totalpts, steadypts, tonefrequency,samplingrate, duration,spl,cycle, ramplength, aa, nrep,delay
+
+	objref stim
+
+	objref rampx, offramp, onramp, middle, quiet, envelope, inputsound,initquiet
+
+	samplingrate = $1   //sampling rate (Hz)  should be 50000
+	duration = $2       //duration in seconds
+	spl = $3        //Sound Pressure level in dB SPL
+	cycle = $4      //Ratio of signal to silence, duty cycle
+	ramplength = $5     //0.005 ramp duration in seconds (note - duration includes 1/2 of ramp)
+	delay = $6
+	stopband1 = $7
+	notchwidth = $8
+	notchdepth=$9
+	inputsound = new Vector()
+
+	Rand.normal(0,1)
+	stimtdres = 1/samplingrate
+	rampts = ramplength * samplingrate
+	steadypts = duration * samplingrate - rampts
+	totalpts = steadypts + (rampts*2)
+
+    // Create Cosine Squared On/off ramps
+	rstep = (PI) / (rampts-1)
+	rampx = new Vector(rampts)
+
+//middle section of tone
+	middle =new Vector(steadypts, 1)
+
+//offramp = (1+cos(rampx))/2
+	offramp = new Vector(rampts)
+	offramp = rampx.indgen(rstep).apply("mycos").add(1).div(2)
+
+//onramp = (1+cos(fliplr(rampx)))./2;
+	objref rampx rampx =new Vector(rampts)
+	onramp = new Vector(rampts)
+	onramp = rampx.indgen(rstep).reverse().apply("mycos").add(1).div(2)
+
+//Put tone together
+	envelope = new Vector()
+	envelope.append(onramp, middle, offramp)    //Envelope for stimulus (i.e. on/off ramps)
+//Quiet segments
+	quiet = new Vector(totalpts*(cycle), 0) //int() returns integer component of double
+	initquiet = new Vector(delay*samplingrate,0)
+
+	objref rampx, inputsound
+
+	inputsound = new Vector(totalpts)
+	for i=0,inputsound.size-1 {
+		inputsound.x[i] = Rand.repick()
+	}
+	
+	
+	//Amplitude scaling of tone (into Pascals for AN model)
+	aa = spl2ampl(spl)/spl2ampl(Decibels(inputsound))
+
+	inputsound.mul(aa).mul(envelope)
+// mul by on/off ramps, and add quiet period at end
+
+//Add quiet sections
+	inputsound.append(quiet)
+
+	objref stim
+	stim = new Vector()
+	stim.append(initquiet).append(inputsound)
+	if (nrep > 1){ for i = 2, nrep { stim.append(inputsound) } }
+	objref rampx, offramp, onramp, middle, quiet, envelope, inputsound
+
+}
+
+
 proc AMnoise() {local stimtdres,rstep, totalpts, fc, fm, samplingrate, duration,spl,depth, aa, nrep,delay
  //  input fc, fm, m, duration
 //assumes stim is already a Vector() object
@@ -1396,22 +1468,26 @@ proc GenerateFilterbank(){ local icf
     ResampleANFilterBank(sg_rate/srate)
 }
 proc CheckFilterbank(){local icf
-stim.resample(stim,100000/srate)
-srate=100000
-stimtdres=1/srate
-sg_rate=50000
-sg_tdres=1/sg_rate
+//stim.resample(stim,100000/srate)
+//srate=100000
+//stimtdres=1/srate
+//sg_rate=50000
+//sg_tdres=1/sg_rate
     for icf = 0, nchannels-1 {
         sprint(end_sout,"%f",HSRout[icf].x[HSRout[0].size-1])
         if (strcmp(end_sout,"nan")==0){print "detected nan HSR ", icf
+            HSRout[icf] = new Vector(stim.size)
             HSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], Highspont, cohc.x[icf],cihc.x[icf],species, nrep)
-                    sprint(end_sout,"%f",HSRout[icf].x[HSRout[0].size-1])
-                    if (strcmp(end_sout,"nan")==0)print "Error recreating HSR AN output, channel:", icf
+            LSRout[icf].resample(LSRout[icf],sg_rate/srate)
+            sprint(end_sout,"%f",HSRout[icf].x[HSRout[0].size-1])
+            if (strcmp(end_sout,"nan")==0)print "Error recreating HSR AN output, channel:", icf
         }
         sprint(end_sout,"%f",LSRout[icf].x[LSRout[0].size-1])
         if (strcmp(end_sout,"nan")==0){ print "detected nan LSR ", icf
             system("sleep 0.1")
+            LSRout[icf] = new Vector(stim.size)
             LSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], Lowspont, cohc.x[icf],cihc.x[icf],species, nrep)
+            LSRout[icf].resample(LSRout[icf],sg_rate/srate)
             sprint(end_sout,"%f",LSRout[icf].x[LSRout[0].size-1])
             if (strcmp(end_sout,"nan")==0) print "Error recreating LSR AN output", icf
         }

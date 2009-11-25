@@ -1,7 +1,6 @@
 
 
 
-
 begintemplate AuditoryNerve
 public HSR,LSR, reorder,HSRspiketimes,LSRspiketimes,LSRspikes,HSRspikes
 public flag,channel,tdres,spont,nspks,ncells,reorder
