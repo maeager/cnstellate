@@ -43,16 +43,6 @@ proc GenSpikes(){local i
   //  print stopsw()
 }
 
-proc SaveSpikes(){local i
-    //an.SaveSpikes()
-   //for i=0,99
-   i=76
-   golgi[i][0].SaveSpikes()
-}
-proc ClearSpikes(){local i
-   an.ClearSpikes()
-   for i=0,99 golgi[i][0].ClearSpikes()
-}
 
 
 
@@ -180,40 +170,43 @@ outfile.close
 }
 
 
+
 //--- Setup Auditory model
 create_cells()
 //connect_cells(fileroot)
 
    cfhi=64000
    cflo=200
-
    dur      = 0.3    //duration of stim (seconds)
    spl      = 100
-  //   srate    = 100000.0
+   srate    = 500000
    stimtdres= 1/srate
    sg_rate  = 50000
    sg_tdres = 1/sg_rate
    stimdelay= 0.01      //sec
    stimtype = 11      //Click Recovery
-   reps     = 50 //25
+   reps     = 25 //25
    ANmodel  = 6      //Zilany Bruce model
    species  = 2      //Rat
    nrep     = 1        //nrep is number of reps of stimulus
+    usesavedfilterbanks=0
+    tstop=300
 //Input stimuli
    objref clicktimes
    clicktimes = new Vector()
-  //   clicktimes.append(20,36,70,74,130,138).mul(srate/1000)
+   //   clicktimes.append(20,36,70,74,130,138).mul(srate/1000)
+   clicktimes.append(10,26,80,82,150,158,210,214,280,283).mul(srate/1000)
 
-clicktimes.append(10,26,80,82,150,158,210,214,280,283).mul(srate/1000)
 
-ANFBgr = new Graph()
-usesavedfilterbanks=1
 
+//--- Setup Auditory model
 RefreshParameters()
 ANFilterBankRun()   //Build the filterbank
-SetRates()      //Allocate filterbanks to ANFs
-  //ShowInputGraphs()
-tstop=300
+CheckFilterbank()
+SetRates()      //Allocate filterbanks to ANFs and Golgi units
+ShowInputGraphs()
+ShowGolgiGraphs()
+
 
 /*objref CNgr[4],CNspks[nchannels][4],CNhist,CNrate[4],CNrategr
 proc DSSpikes(){local i, icf
@@ -230,9 +223,7 @@ CNhist = new Graph()
             CNgr[1].mark(dstellate[icf][0].spiketimes.x[j], icf*nDSperchannel, "o", 0.5, red,1)
          }
          CNspks[icf][1].append(dstellate[icf][0].spiketimes)
-
       }}
-
       CNspks[icf][1] = CNspks[icf][1].histogram(0,tstop,0.1)
       CNrate[i].append(CNspks[icf][i].sum())
       CNspks[icf][1].add(icf*5).plot(CNhist, 0.1)
@@ -473,7 +464,10 @@ dstellate[50][0] = new CNcell(2,cf.x[50],50)
 connect_cells(fileroot)
 tstop=300
 pvec.printf
-// print err(0,&pvec.x[0])
+
+proc QuickRun(){
+ print err(0,&pvec.x[0])
+}
 
 proc runprax(){
 attr_praxis(0.0001, 0.001, 3)
@@ -517,7 +511,7 @@ proc runprax2(){
  
 }
 
-
+/*
 for iprax=0,20 {
             runprax()
     // Default Output Plot
@@ -527,12 +521,11 @@ for iprax=0,20 {
     gg.printfile("DS_ClickRecovery/DS_ClickRecovery_Gpsth.eps")
     g.erase_all()
 gg.erase_all()
-
 }
 //runprax()
 //runprax()
 runprax2()
-
+*/
 
 
 /*  Notes: 17/9/09

@@ -81,9 +81,10 @@ objref golgi[nchannels][1],g, dstellate[nchannels][1], tuberculoventral[nchannel
 	connect_cells(fileroot)
 	connect_CNcells(fileroot)
 	xopen("cngui.hoc")
+  
 
-   cfhi		=48000
-   cflo		=1000
+   cfhi     =48000
+   cflo     =1000
    tstop	  =85
    dur      = 0.049    //duration of stim (seconds)
    spl      = 100 
@@ -100,7 +101,7 @@ usesavedfilterbanks=0
 ANsoundspath="../soma/sounds"
 RefreshParameters()
 file.ropen("./TV_notch/Notch-sb10-0.5oct.dat")
-Readfile(stim,file) 
+Readfile(stim,file)
 srate=100000
 stimtdres=1/srate
 sg_rate=50000

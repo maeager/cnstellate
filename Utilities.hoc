@@ -1468,26 +1468,31 @@ proc GenerateFilterbank(){ local icf
     ResampleANFilterBank(sg_rate/srate)
 }
 proc CheckFilterbank(){local icf
-stim.resample(stim,100000/srate)
-srate=100000
-stimtdres=1/srate
-sg_rate=50000
-sg_tdres=1/sg_rate
+//stim.resample(stim,100000/srate)
+//srate=100000
+//stimtdres=1/srate
+//sg_rate=50000
+//sg_tdres=1/sg_rate
     for icf = 0, nchannels-1 {
         sprint(end_sout,"%f",HSRout[icf].x[HSRout[0].size-1])
         if (strcmp(end_sout,"nan")==0){print "detected nan HSR ", icf
+            HSRout[icf] = new Vector(stim.size)
             HSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], Highspont, cohc.x[icf],cihc.x[icf],species, nrep)
-                    sprint(end_sout,"%f",HSRout[icf].x[HSRout[0].size-1])
-                    if (strcmp(end_sout,"nan")==0)print "Error recreating HSR AN output, channel:", icf
+            LSRout[icf].resample(LSRout[icf],sg_rate/srate)
+            sprint(end_sout,"%f",HSRout[icf].x[HSRout[0].size-1])
+            if (strcmp(end_sout,"nan")==0)print "Error recreating HSR AN output, channel:", icf
         }
         sprint(end_sout,"%f",LSRout[icf].x[LSRout[0].size-1])
         if (strcmp(end_sout,"nan")==0){ print "detected nan LSR ", icf
             system("sleep 0.1")
+            LSRout[icf] = new Vector(stim.size)
             LSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], Lowspont, cohc.x[icf],cihc.x[icf],species, nrep)
+            LSRout[icf].resample(LSRout[icf],sg_rate/srate)
             sprint(end_sout,"%f",LSRout[icf].x[LSRout[0].size-1])
             if (strcmp(end_sout,"nan")==0) print "Error recreating LSR AN output", icf
         }
     }
+    (sg_rate/srate)
 }
 proc ANFilterBankRun() {local x
     objref  LSRout[nchannels], HSRout[nchannels] , MSRout[nchannels]
