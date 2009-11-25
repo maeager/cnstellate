@@ -84,9 +84,9 @@ objref golgi[nchannels][1],g, dstellate[nchannels][1], tuberculoventral[nchannel
 
    cfhi		=48000
    cflo		=1000
-   tstop	=85
+   tstop	  =85
    dur      = 0.049    //duration of stim (seconds)
-   spl      = 100
+   spl      = 100 
    stimdelay= 0.02      //sec
    stimtype = 8      //Notch
    reps     = 50 //25
@@ -95,11 +95,11 @@ objref golgi[nchannels][1],g, dstellate[nchannels][1], tuberculoventral[nchannel
    nrep     = 1        //nrep is number of reps of stimulus
 
 ANFBgr = new Graph()
-usesavedfilterbanks=1
+usesavedfilterbanks=0
 
 ANsoundspath="../soma/sounds"
 RefreshParameters()
-file.ropen("./TV_notch/Notch-sb6-0.5oct.dat")
+file.ropen("./TV_notch/Notch-sb10-0.5oct.dat")
 Readfile(stim,file) 
 srate=100000
 stimtdres=1/srate
@@ -127,8 +127,8 @@ CNSpikes2()
 			
 			
 
-		Graph[2].printfile("TV_notch/AN_rateplace_6_0.5.eps")
-		Graph[5].printfile("TV_notch/CN_rateplace_6_0.5.eps")
+		Graph[2].printfile("TV_notch/AN_rateplace_10_0.5.eps")
+		Graph[5].printfile("TV_notch/CN_rateplace_10_0.5.eps")
 
 /*
 
