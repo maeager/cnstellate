@@ -17,6 +17,8 @@ thresh=-20
       xopen("CochlearNucleus.hoc")         // model set-up
       xopen("cngui.hoc")
 
+//Preview optimisation parameters
+	  xopen("pvec_Golgi_RateLevel.hoc")
 
 proc SetRates(){
    an.SetRates()
@@ -30,6 +32,7 @@ proc GenSpikes2(){local i
     for i=0,glg2dsGABAlist.count-1 glg2dsGABAlist.object(i).pre.SGfast(1)
    //     print stopsw()
 }
+
 proc GenSpikes(){local i
   //  startsw()
     for i=30,60{
@@ -391,7 +394,7 @@ func err() {local jj,pp
      Gvec = new Vector()
   param.w.x[glg][ds] = $&2[0]
   param.w.x[hsr][ds] = $&2[1]
-			 param.w.x[lsr][ds] = $&2[2] //param.w.x[hsr][ds]
+  param.w.x[lsr][ds] = $&2[2] //param.w.x[hsr][ds]
     dstellate[50][0].GABAA.tau2 = $&2[3]*10000
     dstellate[50][0].soma.gleak_rm = $&2[4]
 			 print $&2[0], $&2[1], $&2[2], $&2[3],$&2[4] //param.w.x[glg][ds], param.w.x[hsr][ds]
@@ -482,6 +485,7 @@ strdef datestr,grlbl
 objref ivec
 ivec= new Vector()
 ivec.append(3,9,7,5,1,2,8,6,4,0,10,11,12,13)
+
 proc runprax2(){
 //attr_praxis(0.01, 0.0001, 3)
 //fit_praxis(NPARAMS,"err",&pvec.x[0])
@@ -503,6 +507,14 @@ proc runprax2(){
  file.close()
  system("(cd DS_ClickRecovery; gnuplot DS_ClickRecovery_ExpData.gnu)")
 
+ file.wopen("pvec_DS_ClickRecovery.hoc")
+ file.printf("# %s \n",datestr)
+ file.printf("param.w.x[glg][ds] =%f\n",pvec.x[0])
+ file.printf("param.w.x[hsr][ds] =%f\n",pvec.x[1])
+ file.printf("param.w.x[lsr][ds] =%f\n",pvec.x[2])
+ file.printf("gaba_decay =%f\n",pvec.x[3]*10000)
+ file.close()
+ 
 }
 
 

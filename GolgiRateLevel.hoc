@@ -278,14 +278,16 @@ fvec.plot(Graph[1],ivec,1,1)
 //RunFit()
 //RunFit()
 //RatelevelGolgi1()
-
+strdef datestr
 proc PrintRatelevel(){ local i
    RatelevelGolgi1()
    if (file.isopen()) file.close()
+system("date",datestr)
 
     file.wopen("GolgiRateLevel.dat")
     file.printf("# Golgi model rate-level data\n")
-    file.printf("# Spatial filter: Stdev of LSR input channels=%.4f\n",golgi_spatial_filter_variance_LSR)
+file.printf("# %s \n",datestr)    
+file.printf("# Spatial filter: Stdev of LSR input channels=%.4f\n",golgi_spatial_filter_variance_LSR)
     file.printf("# Synaptic Filter: Tau = 5ms, Scale_factor=%.2f\n",golgi_syn_filter_scale_factor)
     file.printf("# Weighted sum of LSR = %.4f \n",weight_sum_LSR)
     file.printf("# Weighted sum of HSR = %.4f \n",weight_sum_HSR)
@@ -294,6 +296,14 @@ proc PrintRatelevel(){ local i
     for i=0,grate[76].size() -1 { file.printf("%d\t%.3f\t%.3f\t%.3f\n",i*5-20,grate[76].x[i],gstdev[76].x[i], targetrl.x[i]) }
     file.close()
 
+	file.wopen("pvec_Golgi_RateLevel.hoc")
+ file.printf("# %s \n",datestr)
+  file.printf("golgi_spatial_filter_variance_LSR=%.4f\n",golgi_spatial_filter_variance_LSR)
+    file.printf("golgi_syn_filter_scale_factor=%.2f\n",golgi_syn_filter_scale_factor)
+    file.printf("weight_sum_LSR= %.4f \n",weight_sum_LSR)
+    file.printf("weight_sum_HSR= %.4f \n",weight_sum_HSR)
+    file.printf("# Golgi Spontaneous rate = %.4f\n",golgi_spon)
+  
 }
 
 

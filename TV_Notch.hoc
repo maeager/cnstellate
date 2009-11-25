@@ -14,7 +14,9 @@
       xopen("par_CNcell.tem")      // CN cell template
       xopen("parameters_TV_Notch.hoc")           // model parameters
       xopen("CochlearNucleus.hoc")         // model set-up
-
+//Previous optimisation parameters
+	xopen("pvec_Golgi_RateLevel.hoc")
+	xopen("pvec_DS_ClickRecovery.hoc")
 
 whichcell=50
 
@@ -44,6 +46,27 @@ proc GenSpikes(){local i
 proc ClearSpikes(){local i
    an.ClearSpikes()
    for i=0,99 golgi[i][0].ClearSpikes()
+}
+
+proc reset_weights() { local i // 1 arg - weight
+	for i = 0,hsr2dsAMPAlist.count()-1 {
+		hsr2dsAMPAlist.object(i).weight = param.w.x[hsr][ds]
+	}
+	for i = 0,lsr2dsAMPAlist.count()-1 {
+		lsr2dsAMPAlist.object(i).weight = param.w.x[lsr][ds]
+	}
+	for i = 0,hsr2tvAMPAlist.count()-1 {
+		hsr2tvAMPAlist.object(i).weight = param.w.x[hsr][tv]
+	}
+	for i = 0,lsr2tvAMPAlist.count()-1 {
+		lsr2tvAMPAlist.object(i).weight = param.w.x[lsr][tv]
+	}
+	for i = 0,glg2dsGABAlist.count()-1 {
+		glg2dsGABAlist.object(i).weight = param.w.x[glg][ds]
+	}
+	for i = 0,ds2tvGLYlist.count()-1 {
+		ds2tvGLYlist.object(i).weight = param.w.x[ds][tv]
+	}
 }
 
 
@@ -76,7 +99,7 @@ usesavedfilterbanks=1
 
 ANsoundspath="../soma/sounds"
 RefreshParameters()
-file.ropen("TV_notch/Notch-sb12.5-1oct.dat")
+file.ropen("./TV_notch/Notch-sb6-0.5oct.dat")
 Readfile(stim,file) 
 srate=100000
 stimtdres=1/srate
@@ -88,18 +111,26 @@ sg_tdres=1/sg_rate
 		ANFilterBankRun()   //Build the filterbank
 		CheckFilterbank()
 		SetRates()      //Allocate filterbanks to ANFs
-		ShowInputGraphs()
+		//ShowInputGraphs()
+		//ShowGolgiGraphs()
 		GenSpikes()
 		ANSpikes()
 		
+for iii=0,9{
+		run()
+		SaveSpikes()
+}
+CNSpikes2()
+		
 
 
+			
+			
 
-
+		Graph[2].printfile("TV_notch/AN_rateplace_6_0.5.eps")
+		Graph[5].printfile("TV_notch/CN_rateplace_6_0.5.eps")
 
 /*
-
-
 
 //ShowGolgiGraphs()
 
@@ -122,27 +153,6 @@ gg = new Graph()
 g = new Graph()
 g.size(0,3,0,3)
 
-proc reset_weights() { local i // 1 arg - weight
-   for i = 0,hsr2dsAMPAlist.count()-1 {
-   hsr2dsAMPAlist.object(i).weight = param.w.x[hsr][ds]
-  }
-   for i = 0,lsr2dsAMPAlist.count()-1 {
-   lsr2dsAMPAlist.object(i).weight = param.w.x[lsr][ds]
-  }
-   for i = 0,hsr2tvAMPAlist.count()-1 {
-   hsr2tvAMPAlist.object(i).weight = param.w.x[hsr][tv]
-  }
-   for i = 0,lsr2tvAMPAlist.count()-1 {
-   lsr2tvAMPAlist.object(i).weight = param.w.x[lsr][tv]
-  }
-   for i = 0,glg2dsGABAlist.count()-1 {
-   glg2dsGABAlist.object(i).weight = param.w.x[glg][ds]
-  }
-   for i = 0,ds2tvGLYlist.count()-1 {
-   ds2tvGLYlist.object(i).weight = param.w.x[ds][dtv]
-  }
-
-}
 
 
 

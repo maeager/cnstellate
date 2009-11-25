@@ -28,12 +28,12 @@ func gaussian(){local mean,var
 
 begintemplate CNcell
   public soma, dend, AMPA, GlyR, GABAA, spiketimes, spikecount
-  public connect2target, synlist,cf,model,channel
+  public spikes,connect2target, synlist,cf,model,channel
   external thresh,Erest
   external ampa_decay,ampa_erev,gly_decay,gly_erev,gly_rise, gaba_decay, gaba_erev,gaba_rise//,acell_home_
 
   create soma
-  objref AMPA, GlyR, GABAA, spikecount, spiketimes, synlist
+  objref AMPA, GlyR, GABAA, spikecount, spiketimes, synlist,spikes
 somaarea=1E-4
 cf=1E3
 channel=0
@@ -42,7 +42,7 @@ channel=0
    synlist = new List()
     spiketimes = new Vector()
     lastspikecount = 0
-
+	spikes = new Vector()
 
     if($1 == 0) set_tstellate() //Tstellate cell
     if($1 == 1) set_tuberc() //Tubervuloventral cell
