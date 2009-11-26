@@ -48,7 +48,7 @@ gaba_rise = 0.7
 gaba_erev=-72      // in T stellates this is more likely to be closer to RMP as
                //Ferragamo et al. 1998 found no GABAergic IPSPs but the cells were still
                //sensitive to bicuculine
-
+dstellate_gleak_rm = 
 
 cfhi        = 20000     //FilterBank upper and lower frequency (Hz)
 cflo        = 200

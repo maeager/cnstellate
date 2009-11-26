@@ -251,10 +251,9 @@ gr = new Graph()
   wclick = new Vector(14,1)
   wclick.x[3]=1
   wclick.x[5]=20
-  wclick.x[7]=8
-  wclick.x[9]=3
-targetclickrecovery.plot(gr,2,2)
-gr.exec_menu("View = plot")
+  wclick.x[7]=20
+  wclick.x[9]=20
+targetclickrecovery.plot(gr,2,2) gr.exec_menu("View = plot")
 
 
 
@@ -314,8 +313,8 @@ errorvec = new Vector()
 maxrate = (DSvec.sum(240,260) + DSvec.sum(740,760)+ DSvec.sum(1340,1360))/3
 //Calc ratio of number of spikes in second clcik relative to mean first click
 errorvec.append( DSvec.sum(260,280) / maxrate )
-errorvec.append( DSvec.sum(780,800) / maxrate )
-errorvec.append( DSvec.sum(1420,1440) / maxrate )
+errorvec.append(DSvec.sum(780,800) / maxrate )
+errorvec.append( DSvec.sum(1420,1440)/ maxrate )
 errorvec.plot(gr,3,3)
 print maxrate
 errorvec.printf
@@ -334,7 +333,7 @@ file = new File()
 
 proc RunFit(){
 g.beginline()
-error = dvec.fit(fvec, "fun", ivec, &a1, &a2)
+error = dvec.fit(fvec, "fun", ivec,&a1, &a2)
 print a1, a2, error
 g.flush()
 g.exec_menu("View = plot")
@@ -363,11 +362,12 @@ objref pvec,fvec,DSvec,DShist,pvec_ranges,Gvec,Ghist
 pvec = new Vector(NPARAMS)
 //pvec contains the parameters to be fitted
   //Initial values
-pvec.x[0]= 0.00081
-pvec.x[1]= 0.00201
-pvec.x[2]= 0.00206
-pvec.x[3]= 0.002
-pvec.x[4]= 0.0008
+pvec.x[0] = 0.00081
+pvec.x[1] = 0.00201
+pvec.x[2] = 0.00206
+pvec.x[3] = 0.002
+pvec.x[4] = 0.0008
+pvec.x[5] = 0.0007
 
 		//pvec.x[2]= param.w.x[lsr][ds]
   //pvec.x[3]=
@@ -386,38 +386,41 @@ func err() {local jj,pp
   param.w.x[glg][ds] = $&2[0]
   param.w.x[hsr][ds] = $&2[1]
   param.w.x[lsr][ds] = $&2[2] //param.w.x[hsr][ds]
-    dstellate[50][0].GABAA.tau2 = $&2[3]*10000
-    dstellate[50][0].soma.gleak_rm = $&2[4]
-			 print $&2[0], $&2[1], $&2[2], $&2[3],$&2[4] //param.w.x[glg][ds], param.w.x[hsr][ds]
+  dstellate[50][0].GABAA.tau2 = $&2[3]*10000
+  dstellate[50][0].GABAA.tau1 = $&2[5]*1000
+  dstellate[50][0].soma.gleak_rm = $&2[4]
+  print $&2[0], $&2[1], $&2[2], $&2[3],$&2[4] //param.w.x[glg][ds], param.w.x[hsr][ds]
 
-    // check for bad values
-   for pp=0,NPARAMS-1 {
-    if ($&2[pp] <= pvec_ranges.x[pp][0] || $&2[pp] > pvec_ranges.x[pp][1]){
-     return 1e9
+    //Check for bad values
+    for pp=0,NPARAMS-1 {
+     if ($&2[pp] <= pvec_ranges.x[pp][0] || $&2[pp] > pvec_ranges.x[pp][1]){
+      return 1e9
      }
-     }
-     //param.n.x[hsr][ds] = $&2[2]
-        reset_weights()
-      for jj=0, reps-1{
+    }
+    if (dstellate[50][0].GABAA.tau2 < dstellate[50][0].GABAA.tau1) return 1e8
+
+    //Update model
+    reset_weights()
+    for jj=0, reps-1{
          //print jj
          GenSpikes2()
          run()
          DSvec.append(dstellate[50][0].spiketimes)
          Gvec.append(golgi[50][0].spiketimes)
          //print startsw()-x, "secs"
-      }
-      DShist = DSvec.histogram(0,tstop,0.1)
-      Ghist = Gvec.histogram(0,tstop,0.1)
+     }
+     DShist = DSvec.histogram(0,tstop,0.1)
+     Ghist = Gvec.histogram(0,tstop,0.1)
      DShist.plot(g,0.1)
      g.exec_menu("View = plot")
-          Ghist.plot(gg,0.1)
+     Ghist.plot(gg,0.1)
      gg.exec_menu("View = plot")
      doNotify()
      objref errorvec
      errorvec = new Vector()
 //Find the mean number of spikes in the first click
-//  maxrate = (DShist.sum(240,260) + DShist.sum(740,760)+ DShist.sum(1340,1360))/3
-//     if (maxrate < 1) return 1e10
+//maxrate = (DShist.sum(240,260) + DShist.sum(740,760)+ DShist.sum(1340,1360))/3
+//if (maxrate < 1) return 1e10
 //Calc ratio of number of spikes in second clcik relative to mean first click
 
    for (i=0;i<clicktimes.size;i=i+1){
@@ -431,7 +434,8 @@ func err() {local jj,pp
     errorvec.append(DShist.sum(clicktimes.x[7]*10000/srate+80,clicktimes.x[8]*10000/srate+40))
 
      errorvec.mul(1/reps)
-    print a=errorvec.meansqerr(targetclickrecovery,wclick)
+     printf("Unweighted error: %f\n",errorvec.meansqerr(targetclickrecovery))
+    print "Weighted error:", a=errorvec.meansqerr(targetclickrecovery,wclick)
     gr.erase_all()
 	sprint(grlbl,"Error = %g", a)
 	gr.label(0.65,0.85,grlbl)
@@ -450,7 +454,7 @@ func err() {local jj,pp
   doNotify()
   if(file.isopen())  file.close()
   file.aopen("DS_ClickRecovery/praxis.dat")
-  file.printf("%g\t%g\t%g\t%g\t%g\t%g\n",$&2[0],$&2[1],$&2[2] ,$&2[3]*10000,$&2[4] ,a)
+  file.printf("%g\t%g\t%g\t%g\t%g\t%g\t%g\n",$&2[0],$&2[1],$&2[2] ,$&2[3],$&2[4],$&2[5] ,a)
   file.close()
 	    //  print maxrate
   errorvec.printf
@@ -475,6 +479,7 @@ fit_praxis(NPARAMS,"err",&pvec.x[0])
 }
 	error=0
 
+strdef datestr,grlbl objref ivec
 strdef datestr,grlbl
 objref ivec
 ivec= new Vector()
@@ -493,7 +498,10 @@ proc runprax2(){
  file.printf("# weight HSR->DS =%f\n",pvec.x[1])
  file.printf("# weight LSR->DS =%f\n",pvec.x[2])
  file.printf("# GABAa decay tau (ms) =%f\n",pvec.x[3]*10000)
+ file.printf("# GABAa rise tau (ms) =%f\n",pvec.x[5]*1000)
+ file.printf("# DS gleak = %g ", pvec.x[4])
  file.printf("# final error=%f\n",error)
+ file.printf("# unweighted error=%f\n",errorvec.meansqerr(targetclickrecovery))
  file.printf("# Click Delay (ms)\tTarget Rate (normalised)\t Output\n")
  for ii=0, 4 { file.printf("%d\t%.3f\t%.3f\t%.3f\t%.3f\n",(clicktimes.x[ivec.x[ii]]-clicktimes.x[ivec.x[ii+5]]) / srate *1000 ,targetclickrecovery.x[ivec.x[ii+5]],targetclickrecovery.x[ivec.x[ii]],errorvec.x[ivec.x[ii+5]],errorvec.x[ivec.x[ii]])}
  file.printf("# Error in quiet regions\n")
@@ -501,18 +509,19 @@ proc runprax2(){
  file.close()
  system("(cd DS_ClickRecovery; gnuplot DS_ClickRecovery_ExpData.gnu)")
 
- file.wopen("pvec_DS_ClickRecovery.hoc")
- file.printf("# %s \n",datestr)
+ file.aopen("pvec_DS_ClickRecovery.hoc")
+ file.printf("/**** %s *******/\n",datestr)
  file.printf("param.w.x[glg][ds] =%f\n",pvec.x[0])
  file.printf("param.w.x[hsr][ds] =%f\n",pvec.x[1])
  file.printf("param.w.x[lsr][ds] =%f\n",pvec.x[2])
+ file.printf("dstellate_gleak_rm =%f\n",pvec.x[4])
  file.printf("gaba_decay =%f\n",pvec.x[3]*10000)
+ file.printf("gaba_rise =%f\n",pvec.x[5]*1000)
  file.close()
- 
+
 }
 
-/*
-for iprax=0,20 {
+/* for iprax=0,20 {
             runprax()
     // Default Output Plot
     sprint(grlbl, "DS_ClickRecovery/DS_ClickRecovery_Example%d.eps",iprax)
@@ -520,12 +529,10 @@ for iprax=0,20 {
     g.printfile("DS_ClickRecovery/DS_ClickRecovery_DSpsth.eps")
     gg.printfile("DS_ClickRecovery/DS_ClickRecovery_Gpsth.eps")
     g.erase_all()
-gg.erase_all()
-}
+gg.erase_all() }
 //runprax()
 //runprax()
-runprax2()
-*/
+runprax2() */
 
 
 /*  Notes: 17/9/09

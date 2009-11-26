@@ -609,7 +609,7 @@ proc random_init() { local i,j, ran
 }
 
 proc SaveSpikes(){local i,j
-      
+
 	for i=0,nchannels-1{
          for j=0,nTSperchannel-1{
             sprint(cmd, "tstellate[%d][%d].spikes.append(tstellate[%d][%d].spiketimes)",i,j,i,j)
@@ -637,7 +637,7 @@ proc SaveSpikes(){local i,j
 }
 
 proc ClearSpikes(){local i,j
-    an.ClearSpikes()  
+    an.ClearSpikes()
 	for i=0,nchannels-1{
          for j=0,nTSperchannel-1{
  sprint(cmd, "tstellate[%d][%d].spikes.remove_all()",i,j)
@@ -723,6 +723,12 @@ proc reset_weights() { local i // 1 arg - weight
    ts2tvAMPAlist.object(i).weight = param.w.x[ts][tv]
   }
 
+//Extra updating feature for DS_ClickRecovery
+  for i=0,nDSperchannel-1{
+    sprint(cmd, "dstellate[%d][0].soma.gleak_rm = %f",i, dstellate_gleak_rm)
+    execute1(cmd)
+  }
+
+
 
 }
-
