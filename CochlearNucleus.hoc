@@ -65,7 +65,7 @@ proc create_cells() { local p,i_chan,j_cell
     i_chan=0
     j_cell=0
   quitmodel = 0
- print "Creating cells. This may take some time."
+ print "Creating cells."
   for i_chan = 0, nchannels-1 {
     if (nTSperchannel > 0) for j_cell = 0, nTSperchannel-1 {
         sprint(cmd, "tstellate[%d][%d] = new CNcell(0,cf.x[%d],%d)",i_chan,j_cell,i_chan,i_chan)
@@ -129,7 +129,7 @@ func wrap() {
 proc connect_cells() {local i,p,target,source,low,high,range,channel,sourcechannel
 
 
-    print "Connecting cells"
+    print "Connecting cells."
     sprint(filename,"%s.connect",$s1)
     outfile.wopen(filename)
 
@@ -722,13 +722,4 @@ proc reset_weights() { local i // 1 arg - weight
    for i = 0,ts2tvAMPAlist.count()-1 {
    ts2tvAMPAlist.object(i).weight = param.w.x[ts][tv]
   }
-
-//Extra updating feature for DS_ClickRecovery
-  for i=0,nDSperchannel-1{
-    sprint(cmd, "dstellate[%d][0].soma.gleak_rm = %f",i, dstellate_gleak_rm)
-    execute1(cmd)
-  }
-
-
-
 }

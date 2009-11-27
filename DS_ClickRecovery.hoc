@@ -17,7 +17,7 @@ thresh=-20
       xopen("CochlearNucleus.hoc")         // model set-up
       xopen("cngui.hoc")
 
-//Preview optimisation parameters
+//previous optimisation parameters
 	  xopen("pvec_Golgi_RateLevel.hoc")
 
 proc SetRates(){
@@ -45,23 +45,6 @@ proc GenSpikes(){local i
 
 
 
-
-
-
-objref an,golgi[nchannels][1],g, dstellate[nchannels][1]
-
-
-
-proc create_cells(){
-an = new AuditoryNerve()
-for i=0,99 {
-   for j = 0, HSRsperchannel-1 an.HSR[i][j] = new SGC_fast(0.5)
-   for j = 0, LSRsperchannel-1 an.LSR[i][j] = new SGC_fast(0.5)
-   golgi[i][0] = new Golgicell(3,cf.x[i],i,2)
-   dstellate[i][0] = new CNcell(2,cf.x[i],i)
-
-}
-}
 
 proc connect_cells(){local i,p,target,source,low,high,range,channel,sourcechannel
 
@@ -173,29 +156,12 @@ outfile.close
 
 //--- Setup Auditory model
 create_cells()
-//connect_cells(fileroot)
+objref dstellate[nchannels][1]
+dstellate[50][0] = new CNcell(2,cf.x[50],50)
+connect_cells(fileroot)
+tstop=300
 
-   cfhi=64000
-   cflo=200
-   dur      = 0.3    //duration of stim (seconds)
-   spl      = 100
-   srate    = 500000
-   stimtdres= 1/srate
-   sg_rate  = 50000
-   sg_tdres = 1/sg_rate
-   stimdelay= 0.01      //sec
-   stimtype = 11      //Click Recovery
-   reps     = 25 //25
-   ANmodel  = 6      //Zilany Bruce model
-   species  = 2      //Rat
-   nrep     = 1        //nrep is number of reps of stimulus
-    usesavedfilterbanks=0
-    tstop=300
-//Input stimuli
-   objref clicktimes
-   clicktimes = new Vector()
-   //   clicktimes.append(20,36,70,74,130,138).mul(srate/1000)
-   clicktimes.append(10,26,80,82,150,158,210,214,280,283).mul(srate/1000)
+
 
 
 
@@ -208,29 +174,7 @@ ShowInputGraphs()
 ShowGolgiGraphs()
 
 
-/*objref CNgr[4],CNspks[nchannels][4],CNhist,CNrate[4],CNrategr
-proc DSSpikes(){local i, icf
-objref CNgr[4],CNspks[nchannels][4],CNhist,CNrate[4],CNrategr
-   for i=0,3 {
-      CNgr[i] = new Graph()
-   CNrate[i] = new Vector()
-   }
-CNhist = new Graph()
-   for icf=0 ,  nchannels-1{
-    CNspks[icf][1] = new Vector()
-      if (nDSperchannel > 0){for i=0, nDSperchannel-1  {
-         for j=0, dstellate[icf][0].spiketimes.size() -1 {
-            CNgr[1].mark(dstellate[icf][0].spiketimes.x[j], icf*nDSperchannel, "o", 0.5, red,1)
-         }
-         CNspks[icf][1].append(dstellate[icf][0].spiketimes)
-      }}
-      CNspks[icf][1] = CNspks[icf][1].histogram(0,tstop,0.1)
-      CNrate[i].append(CNspks[icf][i].sum())
-      CNspks[icf][1].add(icf*5).plot(CNhist, 0.1)
 
-  }
-}
-*/
 
 
 
@@ -240,19 +184,19 @@ CNhist = new Graph()
 
 //D-stellate Click train PSTH   (Backoff et al. 1997)
 objref gr,targetclickrecovery, dslist, fvec,dvec,ivec,wclick
-
+objref Gvec,Ghist,DSvec,DShist
 objref gpstlist, grate[nchannels],anrate[nchannels],rate_level_graph
 gr = new Graph()
 
    //Target response from
-             //Fraction of repetitions that ellicit a response
+  //Fraction of repetitions that ellicit a response
    targetclickrecovery = new Vector()
   targetclickrecovery.append(1,1,1,0.2,1,0.63,1,0.45,1,0.3,0,0,0,0)
   wclick = new Vector(14,1)
-  wclick.x[3]=1
+  wclick.x[3]=10
   wclick.x[5]=20
-  wclick.x[7]=20
-  wclick.x[9]=20
+  wclick.x[7]=1
+  wclick.x[9]=10
 targetclickrecovery.plot(gr,2,2) gr.exec_menu("View = plot")
 
 
@@ -356,51 +300,69 @@ g.exec_menu("View = plot")
 
 // Praxis method
 a=0
+b=0
+/*
 print "Setup parameters"
-NPARAMS=5
-objref pvec,fvec,DSvec,DShist,pvec_ranges,Gvec,Ghist
+NPARAMS=6
 pvec = new Vector(NPARAMS)
 //pvec contains the parameters to be fitted
   //Initial values
 pvec.x[0] = 0.00081
 pvec.x[1] = 0.00201
 pvec.x[2] = 0.00206
-pvec.x[3] = 0.002
-pvec.x[4] = 0.0008
+pvec.x[3] = 0.0008
+pvec.x[4] = 0.002
 pvec.x[5] = 0.0007
-
-		//pvec.x[2]= param.w.x[lsr][ds]
-  //pvec.x[3]=
-
 //pvec_ranges  (min,max) pairs for each param
 pvec_ranges= new Matrix(NPARAMS,2)
 //min
  for i=0,NPARAMS-1 pvec_ranges.x[i][0]= 0.00001
 //max
  for i=0,NPARAMS-1 pvec_ranges.x[i][1]= 0.005
+*/
+
+proc reset_DS(){local i
+//Extra updating feature for DS_ClickRecovery
+   dstellate[50][0].soma.gkltbar_klt =dstellate_gkltbar
+   dstellate[50][0].GABAA.tau2 = gaba_decay
+   dstellate[50][0].GABAA.tau1 = gaba_rise
+
+}
+
+objref ivec
+ivec= new Vector()
+ivec.append(3,9,7,5,1,2,8,6,4,0,10,11,12,13)
 
 
-func err() {local jj,pp
+func err() {local ii,jj,pp
      DSvec = new Vector()
      Gvec = new Vector()
-  param.w.x[glg][ds] = $&2[0]
-  param.w.x[hsr][ds] = $&2[1]
-  param.w.x[lsr][ds] = $&2[2] //param.w.x[hsr][ds]
-  dstellate[50][0].GABAA.tau2 = $&2[3]*10000
-  dstellate[50][0].GABAA.tau1 = $&2[5]*1000
-  dstellate[50][0].soma.gleak_rm = $&2[4]
-  print $&2[0], $&2[1], $&2[2], $&2[3],$&2[4] //param.w.x[glg][ds], param.w.x[hsr][ds]
-
-    //Check for bad values
+  print $&2[0], $&2[1], $&2[2], $&2[3],$&2[4] , $&2[5]
+  //Check for bad values
     for pp=0,NPARAMS-1 {
      if ($&2[pp] <= pvec_ranges.x[pp][0] || $&2[pp] > pvec_ranges.x[pp][1]){
       return 1e9
      }
     }
-    if (dstellate[50][0].GABAA.tau2 < dstellate[50][0].GABAA.tau1) return 1e8
+    if ($&2[4]*pvec_factor.x[4] < $&2[5]*pvec_factor.x[5]) return 1e8
+//Update parameters
+    for pp=0,NPARAMS-1 {
+        sprint(cmd,"%s = %g\n",pvec_name.object(pp).s,$&2[pp]*pvec_factor.x[pp])
+        execute1(cmd)
+    }
+
+//  param.w.x[glg][ds] = $&2[0]
+//  param.w.x[hsr][ds] = $&2[1]
+//  param.w.x[lsr][ds] = $&2[2] //param.w.x[hsr][ds]
+//  dstellate[50][0].GABAA.tau2 = $&2[3]*10000
+//  dstellate[50][0].GABAA.tau1 = $&2[5]*1000
+//  dstellate[50][0].soma.gkltbar = $&2[4]
 
     //Update model
     reset_weights()
+    reset_DS()
+
+    //Run the model
     for jj=0, reps-1{
          //print jj
          GenSpikes2()
@@ -430,43 +392,37 @@ func err() {local jj,pp
      //clicktimes.append(10,26,80,82,150,158,210,214,280,283).mul(srate/1000)
     errorvec.append(DShist.sum(clicktimes.x[1]*10000/srate+60,clicktimes.x[2]*10000/srate+40))
     errorvec.append(DShist.sum(clicktimes.x[3]*10000/srate+60,clicktimes.x[4]*10000/srate+40))
-   errorvec.append(DShist.sum(clicktimes.x[5]*10000/srate+80,clicktimes.x[6]*10000/srate+40))
+    errorvec.append(DShist.sum(clicktimes.x[5]*10000/srate+80,clicktimes.x[6]*10000/srate+40))
     errorvec.append(DShist.sum(clicktimes.x[7]*10000/srate+80,clicktimes.x[8]*10000/srate+40))
 
      errorvec.mul(1/reps)
-     printf("Unweighted error: %f\n",errorvec.meansqerr(targetclickrecovery))
+     printf("Unweighted error: %f\n",b=errorvec.meansqerr(targetclickrecovery))
     print "Weighted error:", a=errorvec.meansqerr(targetclickrecovery,wclick)
     gr.erase_all()
-	sprint(grlbl,"Error = %g", a)
-	gr.label(0.65,0.85,grlbl)
-	sprint(grlbl,"weight GLG->DS = %g", pvec.x[0])
-	gr.label(0.65,0.75,grlbl)
-	sprint(grlbl,"weight HSR->DS = %g", pvec.x[1])
-	gr.label(0.65,0.65,grlbl)
-	sprint(grlbl,"weight LSR->DS = %g", pvec.x[2])
-	gr.label(0.65,0.55,grlbl)
-	sprint(grlbl,"GABA decay tau = %g ", pvec.x[3]*10000)
-	gr.label(0.65,0.45,grlbl)
-	sprint(grlbl,"DS gleak = %g ", pvec.x[4])
-	gr.label(0.65,0.35,grlbl)
+	sprint(grlbl,"W Error = %g", a)
+    gr.label(0.65,0.95,grlbl)
+	sprint(grlbl,"UnW Error = %g", b)
+    gr.label(0.05,0.95,grlbl)
+        for pp=0,NPARAMS-1 {
+		 sprint(grlbl,"%s = %g",pvec_name.object(pp).s, $&2[pp]*pvec_factor.x[pp])
+    	 gr.label(0.65,(0.75-pp*0.05),grlbl)
+        }
   targetclickrecovery.plot(gr,2,1)
   errorvec.plot(gr,3,2)
   doNotify()
   if(file.isopen())  file.close()
   file.aopen("DS_ClickRecovery/praxis.dat")
-  file.printf("%g\t%g\t%g\t%g\t%g\t%g\t%g\n",$&2[0],$&2[1],$&2[2] ,$&2[3],$&2[4],$&2[5] ,a)
+    for pp=0,NPARAMS-1 file.printf("%g\t",$&2[pp])
+    file.printf("%g\n",a)
   file.close()
-	    //  print maxrate
+
   errorvec.printf
 
   return a
 
 }
 
-objref dstellate[nchannels][1]
-dstellate[50][0] = new CNcell(2,cf.x[50],50)
-connect_cells(fileroot)
-tstop=300
+
 pvec.printf
 
 proc QuickRun(){
@@ -479,11 +435,9 @@ fit_praxis(NPARAMS,"err",&pvec.x[0])
 }
 	error=0
 
-strdef datestr,grlbl objref ivec
 strdef datestr,grlbl
-objref ivec
-ivec= new Vector()
-ivec.append(3,9,7,5,1,2,8,6,4,0,10,11,12,13)
+
+
 
 proc runprax2(){
 //attr_praxis(0.01, 0.0001, 3)
@@ -491,37 +445,36 @@ proc runprax2(){
 //Output
  print error=err(0,&pvec.x[0])
  system("date",datestr)
- file.wopen("DS_ClickRecovery/DS_ClickRecovery.Fit.dat")
- file.printf("# DS_ClickRecovery data\n")
+ sprint(fname,"%s/%s.Fit.dat",fileroot,fileroot)
+ file.wopen(fname)
+ if (file.isopen()){
+ file.printf("# %s Optimisation\n",fileroot)
  file.printf("# %s \n",datestr)
- file.printf("# weight GLG->DS =%f\n",pvec.x[0])
- file.printf("# weight HSR->DS =%f\n",pvec.x[1])
- file.printf("# weight LSR->DS =%f\n",pvec.x[2])
- file.printf("# GABAa decay tau (ms) =%f\n",pvec.x[3]*10000)
- file.printf("# GABAa rise tau (ms) =%f\n",pvec.x[5]*1000)
- file.printf("# DS gleak = %g ", pvec.x[4])
+    for pp=0,NPARAMS-1 {
+         file.printf("#%s = %g\t[%g,%g]\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp],pvec_ranges.x[pp][0],pvec_ranges.x[pp][1])
+    }
  file.printf("# final error=%f\n",error)
  file.printf("# unweighted error=%f\n",errorvec.meansqerr(targetclickrecovery))
  file.printf("# Click Delay (ms)\tTarget Rate (normalised)\t Output\n")
  for ii=0, 4 { file.printf("%d\t%.3f\t%.3f\t%.3f\t%.3f\n",(clicktimes.x[ivec.x[ii]]-clicktimes.x[ivec.x[ii+5]]) / srate *1000 ,targetclickrecovery.x[ivec.x[ii+5]],targetclickrecovery.x[ivec.x[ii]],errorvec.x[ivec.x[ii+5]],errorvec.x[ivec.x[ii]])}
  file.printf("# Error in quiet regions\n")
  for ii=10, 13 { file.printf("#  %.3f\n",errorvec.x[ii]) }
+ }
  file.close()
  system("(cd DS_ClickRecovery; gnuplot DS_ClickRecovery_ExpData.gnu)")
 
- file.aopen("pvec_DS_ClickRecovery.hoc")
+sprint(fname,"pvec_%s.hoc",fileroot)
+file.aopen(fname)
  file.printf("/**** %s *******/\n",datestr)
- file.printf("param.w.x[glg][ds] =%f\n",pvec.x[0])
- file.printf("param.w.x[hsr][ds] =%f\n",pvec.x[1])
- file.printf("param.w.x[lsr][ds] =%f\n",pvec.x[2])
- file.printf("dstellate_gleak_rm =%f\n",pvec.x[4])
- file.printf("gaba_decay =%f\n",pvec.x[3]*10000)
- file.printf("gaba_rise =%f\n",pvec.x[5]*1000)
+    for pp=0,NPARAMS-1 {
+         file.printf("%s = %g\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp])
+    }
  file.close()
 
 }
 
-/* for iprax=0,20 {
+/*
+for iprax=0,10 {
             runprax()
     // Default Output Plot
     sprint(grlbl, "DS_ClickRecovery/DS_ClickRecovery_Example%d.eps",iprax)
@@ -530,9 +483,11 @@ proc runprax2(){
     gg.printfile("DS_ClickRecovery/DS_ClickRecovery_Gpsth.eps")
     g.erase_all()
 gg.erase_all() }
+*/
 //runprax()
 //runprax()
-runprax2() */
+//runprax2()
+
 
 
 /*  Notes: 17/9/09
@@ -540,3 +495,38 @@ runprax2() */
 * emphasis still present when init favoured LSR and weight normalised
 * better improvement when initialised at default - still having trouble with 8ms
 */
+
+
+/* Notes 27/11
+ Trying various parameters
+gkltbar
+erev_rm
+gleak_rm
+*/
+objref initpvec,mypvec
+initpvec = pvec.c
+runprax()
+bb=b
+mypvec = pvec.c
+dstellate[50][0].soma.gleak_rm/=10
+pvec = initpvec.c
+runprax()
+sprint(grlbl, "DS_ClickRecovery/DS_ClickRecovery_GleakDiv10.eps")
+    gr.printfile(grlbl)
+if (b < bb){
+ bb=b
+ mypvec = pvec.c
+}
+dstellate[50][0].soma.gleak_rm*=10
+dstellate[50][0].soma.erev_rm=-70
+pvec = initpvec.c
+runprax()
+sprint(grlbl, "DS_ClickRecovery/DS_ClickRecovery_Erev-70.eps")
+    gr.printfile(grlbl)
+if (b < bb){
+ bb=b
+ mypvec = pvec.c
+}
+dstellate[50][0].soma.erev_rm=-65
+pvec = initpvec.c
+runprax()

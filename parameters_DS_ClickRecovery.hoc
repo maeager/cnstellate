@@ -54,3 +54,37 @@ secondorder=2
    clicktimes = new Vector()
    //   clicktimes.append(20,36,70,74,130,138).mul(srate/1000)
    clicktimes.append(10,26,80,82,150,158,210,214,280,283).mul(srate/1000)
+
+
+//Optimisation parameters
+print "Optimisation parameters"
+NPARAMS=6
+objref pvec,fvec,pvec_ranges,pvec_name,pvec_factor
+pvec = new Vector(NPARAMS) //contains the parameters to be fitted
+pvec_ranges= new Matrix(NPARAMS,2) // (min,max) pairs for each param
+pvec_name = new List() //names of parameters in String list
+pvec_factor = new Vector(NPARAMS,1)
+//Initial values
+pvec.x[0] = 0.002
+pvec.x[1] = 0.0005
+pvec.x[2] = 0.001
+pvec.x[3] = 0.001592   //nstomho(2)*qt()
+pvec.x[4] = 0.00095
+pvec.x[5] = 0.0007
+pvec_factor.x[4] = 10
+pvec_factor.x[4] = 10000
+pvec_factor.x[5] = 1000
+
+pvec_name.append(new String("param.w.x[glg][ds]"))
+pvec_name.append(new String("param.w.x[hsr][ds]"))
+pvec_name.append(new String("param.w.x[lsr][ds]"))
+pvec_name.append(new String("dstellate_gkltbar"))
+pvec_name.append(new String("gaba_decay"))
+pvec_name.append(new String("gaba_rise"))
+
+
+//min
+ for i=0,NPARAMS-1 pvec_ranges.x[i][0]= 0.00001
+
+//max
+ for i=0,NPARAMS-1 pvec_ranges.x[i][1]= 0.01
