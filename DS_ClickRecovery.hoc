@@ -194,7 +194,7 @@ gr = new Graph()
   targetclickrecovery.append(1,1,1,0.2,1,0.63,1,0.45,1,0.3,0,0,0,0)
   wclick = new Vector(14,1)
   wclick.x[3]=5
-  wclick.x[5]=20
+  wclick.x[5]=10
   wclick.x[7]=1
   wclick.x[9]=5
   wclick.x[10]=0.01
@@ -359,13 +359,6 @@ printf("\n")
         execute1(cmd)
     }
 
-//  param.w.x[glg][ds] = $&2[0]
-//  param.w.x[hsr][ds] = $&2[1]
-//  param.w.x[lsr][ds] = $&2[2] //param.w.x[hsr][ds]
-//  dstellate[50][0].GABAA.tau2 = $&2[3]*10000
-//  dstellate[50][0].GABAA.tau1 = $&2[5]*1000
-//  dstellate[50][0].soma.gkltbar = $&2[4]
-
     //Update model
     reset_weights()
     reset_DS()
@@ -379,6 +372,8 @@ printf("\n")
          Gvec.append(golgi[50][0].spiketimes)
          //print startsw()-x, "secs"
      }
+
+//View the output
      DShist = DSvec.histogram(0,tstop,0.1)
      Ghist = Gvec.histogram(0,tstop,0.1)
      DShist.plot(g,0.1)
@@ -602,16 +597,17 @@ print bstar, "was the best"
 /* 30/11/09
 running with 7 parameters
 
-*/
+
 bstar=0
 objref aapvec,mypvec
 astar=0
 bb=1e9
 aa=1e9
 for iprax=0,10 {
-    Rand.uniform(pvec_ranges.x[0][0],pvec_ranges.x[0][1])
+    Rand.uniform(pvec_ranges.x[0][0]*2,pvec_ranges.x[0][1]/10)
     pvec.setrand(Rand)
      runprax()
+//fit_praxis(3,"err",&pvec.x[0])
 if (b < bb){
  bb=b
  mypvec = pvec.c
@@ -633,3 +629,5 @@ astar = iprax
 
 print bstar, "was the best unweighted optimisation"
 print astar, "was the best weighted optimisation"
+
+*/
