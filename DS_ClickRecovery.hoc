@@ -204,8 +204,8 @@ RefreshParameters()
 ANFilterBankRun()   //Build the filterbank
 CheckFilterbank()
 SetRates()      //Allocate filterbanks to ANFs and Golgi units
-ShowInputGraphs()
-ShowGolgiGraphs()
+//ShowInputGraphs()
+//ShowGolgiGraphs()
 
 
 /*objref CNgr[4],CNspks[nchannels][4],CNhist,CNrate[4],CNrategr
