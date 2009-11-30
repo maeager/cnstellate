@@ -81,13 +81,13 @@ objref golgi[nchannels][1],g, dstellate[nchannels][1], tuberculoventral[nchannel
 	connect_cells(fileroot)
 	connect_CNcells(fileroot)
 	xopen("cngui.hoc")
-  
+
 
    cfhi     =48000
    cflo     =1000
    tstop	  =85
    dur      = 0.049    //duration of stim (seconds)
-   spl      = 100 
+   spl      = 100
    stimdelay= 0.02      //sec
    stimtype = 8      //Notch
    reps     = 50 //25
@@ -117,15 +117,12 @@ sg_tdres=1/sg_rate
 		GenSpikes()
 		ANSpikes()
 		
-for iii=0,9{
+for reps=0,9{
 		run()
 		SaveSpikes()
 }
 CNSpikes2()
-		
-
-
-			
+				
 			
 
 		Graph[2].printfile("TV_notch/AN_rateplace_10_0.5.eps")
@@ -359,26 +356,34 @@ objref ivec
 ivec= new Vector()
 ivec.append(3,9,7,5,1,2,8,6,4,0,10,11,12,13)
 proc runprax2(){
-//attr_praxis(0.01, 0.0001, 3)
-//fit_praxis(NPARAMS,"err",&pvec.x[0])
-//Output
+
+//Output model data with best parameters
  print error=err(0,&pvec.x[0])
  system("date",datestr)
- file.wopen("TV_Notch/TV_Notch.Fit.dat")
- file.printf("# TV_Notch data\n")
+ sprint(fname,"%s/%s.Fit.dat",fileroot,fileroot)
+ file.wopen(fname)
+ if (file.isopen()){
+ file.printf("# %s Optimisation\n",fileroot)
  file.printf("# %s \n",datestr)
- file.printf("# weight GLG->DS =%f\n",pvec.x[0])
- file.printf("# weight HSR->DS =%f\n",pvec.x[1])
- file.printf("# weight LSR->DS =%f\n",pvec.x[2])
- file.printf("# GABAa decay tau (ms) =%f\n",pvec.x[3]*10000)
+    for pp=0,NPARAMS-1 {
+         file.printf("#%s = %g\t[%g,%g]\n",pvec_name.object(pp).s,pvec.x[pp],pvec_ranges.x[pp][0],pvec_ranges.x[pp][1])
+    }
  file.printf("# final error=%f\n",error)
- file.printf("# Click Delay (ms)\tTarget Rate (normalised)\t Output\n")
- for ii=0, 4 { file.printf("%d\t%.3f\t%.3f\t%.3f\t%.3f\n",(clicktimes.x[ivec.x[ii]]-clicktimes.x[ivec.x[ii+5]]) / srate *1000 ,targetclickrecovery.x[ivec.x[ii+5]],targetclickrecovery.x[ivec.x[ii]],errorvec.x[ivec.x[ii+5]],errorvec.x[ivec.x[ii]])}
- file.printf("# Error in quiet regions\n")
- for ii=10, 13 { file.printf("#  %.3f\n",errorvec.x[ii]) }
+ file.printf("# unweighted error=%f\n",errorvec.meansqerr(targetclickrecovery)) file.printf("#  %.3f\n",errorvec.x[ii]) }
+ }
  file.close()
- system("(cd TV_Notch; gnuplot TV_Notch_ExpData.gnu)")
+sprint(fname,"(cd %s; gnuplot %s_ExpData.gnu)",fileroot,fileroot)
+system(cmd)
 
+
+//Write parameters to general optimisation file
+sprint(fname,"pvec_%s.hoc",fileroot)
+file.aopen(fname)
+ file.printf("/**** %s *******/\n",datestr)
+    for pp=0,NPARAMS-1 {
+         file.printf("%s = %g\n",pvec_name.object(pp).s,pvec.x[pp])
+    }
+ file.close()
 }
 
 
@@ -391,7 +396,6 @@ for iprax=0,20 {
     gg.printfile("TV_Notch/TV_Notch_Gpsth.eps")
     g.erase_all()
 gg.erase_all()
-
 }
 //runprax()
 //runprax()

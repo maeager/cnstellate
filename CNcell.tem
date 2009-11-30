@@ -1,7 +1,7 @@
-// CNcell.tem 
-// Template for Rothman and Manis (2003) based cell model 
-// as described in: 
-//    Michael Eager, The University of Melbourne , 2007 
+// CNcell.tem
+// Template for Rothman and Manis (2003) based cell model
+// as described in:
+//    Michael Eager, The University of Melbourne , 2007
 //R+M singlecompartment
 
 // Must convert from nanosiemens to mho/cm2 for the conductances
@@ -26,16 +26,16 @@ func gaussian(){local mean,var
 }
 
 
-begintemplate CNcell 
+begintemplate CNcell
   public soma, dend, AMPA, GlyR, GABAA, spiketimes, spikecount
   public connect2target, synlist,cf,model,channel
-  external thresh,Erest
+  external thresh,Erest,dstellate_gleak_rm
   external ampa_decay,ampa_erev,gly_decay,gly_erev,gly_rise, gaba_decay, gaba_erev,gaba_rise//,acell_home_
 
   create soma
   objref AMPA, GlyR, GABAA, spikecount, spiketimes, synlist
 somaarea=1E-4
-cf=1E3 
+cf=1E3
 channel=0
   proc init() { local length,RM, p, q, r, Atotal
   create soma
@@ -50,34 +50,34 @@ channel=0
     if($1 == 3) set_golgi() //golgi cell
     cf = $2
     channel=$3
-    
+
     soma {
       spikecount = new APCount(0.5)
       spikecount.thresh = -30
       spikecount.record(spiketimes)
-  
+
       AMPA = new ExpSyn(0.5)
-	   synlist.append(AMPA) 
-      AMPA.tau 		= ampa_decay
+	   synlist.append(AMPA)
+      AMPA.tau = ampa_decay
       AMPA.e 		= ampa_erev
-    
+
    //   if (model==1 || model ==2){
         GlyR = new Exp2Syn(0.5)
         synlist.append(GlyR)
         GlyR.tau2 	= gly_decay
 	GlyR.tau1	= gly_rise
-        GlyR.e 		= gly_erev
+        GlyR.e = gly_erev
 //	}
-//    if (model==1 || model ==3){  
+//    if (model==1 || model ==3){
         GABAA = new Exp2Syn(0.5)
-	    synlist.append(GABAA) 
-        GABAA.tau2 	= gaba_decay
-        GABAA.tau1 	= gaba_rise
+	    synlist.append(GABAA)
+        GABAA.tau2 = gaba_decay
+        GABAA.tau1 = gaba_rise
         GABAA.e 	= gaba_erev
  //     }
     }
 
-    
+
     forall if (ismembrane("na_ion")) {
       ena = 50		// mV
     }
@@ -87,13 +87,13 @@ channel=0
 
   }	// end init()
 
-proc connect2target() { 
-	soma $o2 = new NetCon(&v(0.5), $o1) 
-	$o2.threshold = thresh 
-} 
+proc connect2target() {
+	soma $o2 = new NetCon(&v(0.5), $o1)
+	$o2.threshold = thresh
+}
 
 func nstomho() {
- 
+
  return (1E-9*$1/somaarea)
 }
 
@@ -104,12 +104,12 @@ func qt(){
 	return 2^((celsius-22)/10)
  }
 }
-proc set_tstellate() { 
- soma { 
-	insert rm 
+proc set_tstellate() {
+ soma {
+	insert rm
 	insert ka
-	eh_rm=-43 
-	Ra=150 cm=0.9 
+	eh_rm=-43
+	Ra=150 cm=0.9
 	eleak_rm 		= 	Erest	// reversal potential mV
 	model = 0
 	RM = 96  //MOhms
@@ -122,12 +122,12 @@ proc set_tstellate() {
 	ghbar_rm = nstomho(0.5)*qt(1)
 	gleak_rm = nstomho(2)*qt()
  }
-} 
-proc set_tuberc() { 
- soma { 
-	insert rm 
-	ek_rm = -70 
-	ena_rm = 50 
+}
+proc set_tuberc() {
+ soma {
+	insert rm
+	ek_rm = -70
+	ena_rm = 50
 	eh_rm=-43
 	Ra=150 cm=0.9
 	eleak_rm 		= 	Erest	// reversal potential mV
@@ -144,11 +144,11 @@ proc set_tuberc() {
 }
 
 proc set_dstellate() {
- soma { 
-	insert rm 
+ soma {
+	insert rm
 	insert klt
-	ek_rm = -70 
-	ena_rm = 50 
+	ek_rm = -70
+	ena_rm = 50
 	eh_rm=-43
 	Ra=150 cm=0.9
 	eleak_rm 		= 	Erest	// reversal potential mV
@@ -165,13 +165,13 @@ proc set_dstellate() {
  }
 }
 
-proc set_golgi() { 
- soma { 
-	insert rm 
-	ek_rm = -70 
-	ena_rm = 50 
-	eh_rm=-43 
-	Ra=150 cm=0.9 
+proc set_golgi() {
+ soma {
+	insert rm
+	ek_rm = -70
+	ena_rm = 50
+	eh_rm=-43
+	Ra=150 cm=0.9
 	eleak_rm 		= 	Erest	// reversal potential mV
 	model = 3
 	RM = 130  //MOhms
@@ -183,7 +183,7 @@ proc set_golgi() {
 	ghbar_rm = nstomho(0.5)*qt(1)
 	gleak_rm = nstomho(2)*qt()
 	 }
-} 
+}
 
 
 endtemplate CNcell
@@ -215,14 +215,14 @@ proc convolve(){local x1,x2,wsize
 	//SGfast does not like first element to be zero
 	for x1 = 0,$o2.size $o3.x[x1] = $o3.x[$o2.size]
 }
-begintemplate Golgicell 
+begintemplate Golgicell
   public s,w, spiketimes, spikecount,sout,SetRate,GenSpikes,SaveSpikes,ClearSpikes
   public connect2target, synlist,cf,model,channel,spikes
   external thresh,LSRout,nchannels,sg_tdres,weight_sum, golgi_spon,golgi_spatial_filter_variance
   external gaussian,gaussian_mean,gaussian_variance,golgi_synfilter,convolve
 
   objref s,w, spiketimes, spikecount,sout,synlist,spikes
-  cf=1E3 
+  cf=1E3
   channel=0
  inputchannelvariance=1
   proc init() {localobj r, data, hist, x, g
@@ -270,10 +270,10 @@ proc ClearSpikes(){
 spikes.resize(0)
 }
 
-proc connect2target() { 
-	 $o2 = new NetCon(s, $o1) 
-	$o2.threshold = thresh 
-} 
+proc connect2target() {
+	 $o2 = new NetCon(s, $o1)
+	$o2.threshold = thresh
+}
 
 
 endtemplate Golgicell
