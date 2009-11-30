@@ -193,10 +193,14 @@ gr = new Graph()
    targetclickrecovery = new Vector()
   targetclickrecovery.append(1,1,1,0.2,1,0.63,1,0.45,1,0.3,0,0,0,0)
   wclick = new Vector(14,1)
-  wclick.x[3]=10
+  wclick.x[3]=5
   wclick.x[5]=20
   wclick.x[7]=1
-  wclick.x[9]=10
+  wclick.x[9]=5
+  wclick.x[10]=0.01
+  wclick.x[11]=0.01
+  wclick.x[12]=0.01
+  wclick.x[13]=0.01
 targetclickrecovery.plot(gr,2,2) gr.exec_menu("View = plot")
 
 
@@ -323,6 +327,7 @@ pvec_ranges= new Matrix(NPARAMS,2)
 
 proc reset_DS(){local i
 //Extra updating feature for DS_ClickRecovery
+   dstellate[50][0].soma.gleak_rm =dstellate_gleak_rm
    dstellate[50][0].soma.gkltbar_klt =dstellate_gkltbar
    dstellate[50][0].GABAA.tau2 = gaba_decay
    dstellate[50][0].GABAA.tau1 = gaba_rise
@@ -337,7 +342,10 @@ ivec.append(3,9,7,5,1,2,8,6,4,0,10,11,12,13)
 func err() {local ii,jj,pp
      DSvec = new Vector()
      Gvec = new Vector()
-  print $&2[0], $&2[1], $&2[2], $&2[3],$&2[4] , $&2[5]
+    //Show parameters
+for pp=0,NPARAMS-1 printf("%g\t", $&2[pp])
+printf("\n")
+
   //Check for bad values
     for pp=0,NPARAMS-1 {
      if ($&2[pp] <= pvec_ranges.x[pp][0] || $&2[pp] > pvec_ranges.x[pp][1]){
@@ -433,8 +441,8 @@ proc runprax(){
 attr_praxis(0.0001, 0.001, 3)
 fit_praxis(NPARAMS,"err",&pvec.x[0])
 }
-	error=0
 
+error=0
 strdef datestr,grlbl
 
 
@@ -474,15 +482,24 @@ file.aopen(fname)
 }
 
 /*
+bstar=0
+bb=1e9
 for iprax=0,10 {
-            runprax()
+     runprax()
+if (b < bb){
+ bb=b
+ mypvec = pvec.c
+bstar = iprax
+}
     // Default Output Plot
     sprint(grlbl, "DS_ClickRecovery/DS_ClickRecovery_Example%d.eps",iprax)
     gr.printfile(grlbl)
     g.printfile("DS_ClickRecovery/DS_ClickRecovery_DSpsth.eps")
     gg.printfile("DS_ClickRecovery/DS_ClickRecovery_Gpsth.eps")
     g.erase_all()
-gg.erase_all() }
+gg.erase_all()
+}
+print bstar, "was the best"
 */
 //runprax()
 //runprax()
@@ -502,10 +519,12 @@ gg.erase_all() }
 gkltbar
 erev_rm
 gleak_rm
-*/
+* 29/11 GleakDiv10 was the best
+
 objref initpvec,mypvec
 initpvec = pvec.c
 runprax()
+bstar = 0
 bb=b
 mypvec = pvec.c
 dstellate[50][0].soma.gleak_rm/=10
@@ -516,8 +535,20 @@ sprint(grlbl, "DS_ClickRecovery/DS_ClickRecovery_GleakDiv10.eps")
 if (b < bb){
  bb=b
  mypvec = pvec.c
+bstar = 1
 }
 dstellate[50][0].soma.gleak_rm*=10
+dstellate[50][0].soma.gleak_rm*=10
+pvec = initpvec.c
+runprax()
+sprint(grlbl, "DS_ClickRecovery/DS_ClickRecovery_GleakMul10.eps")
+    gr.printfile(grlbl)
+if (b < bb){
+ bb=b
+ mypvec = pvec.c
+bstar=2
+}
+dstellate[50][0].soma.gleak_rm/=10
 dstellate[50][0].soma.erev_rm=-70
 pvec = initpvec.c
 runprax()
@@ -526,7 +557,79 @@ sprint(grlbl, "DS_ClickRecovery/DS_ClickRecovery_Erev-70.eps")
 if (b < bb){
  bb=b
  mypvec = pvec.c
+bstar=3
 }
 dstellate[50][0].soma.erev_rm=-65
 pvec = initpvec.c
 runprax()
+
+dstellate[50][0].soma.erev_rm=-70
+dstellate[50][0].soma.gleak_rm=0.0008
+pvec = initpvec.c
+runprax()
+sprint(grlbl, "DS_ClickRecovery/DS_ClickRecovery_Erev-70_Gleakx2.eps")
+    gr.printfile(grlbl)
+if (b < bb){
+ bb=b
+ mypvec = pvec.c
+bstar=4
+}
+print bstar, "was the best ", bb
+mypvec.printf
+
+bstar=0
+bb=1e9
+dstellate[50][0].soma.gleak_rm=dstellate_gleak_rm
+pvec = initpvec.c
+for iprax=0,10 {
+     runprax()
+if (b < bb){
+ bb=b
+ mypvec = pvec.c
+bstar = iprax
+}
+    // Default Output Plot
+    sprint(grlbl, "DS_ClickRecovery/DS_ClickRecovery_Example%d.eps",iprax)
+    gr.printfile(grlbl)
+    g.printfile("DS_ClickRecovery/DS_ClickRecovery_DSpsth.eps")
+    gg.printfile("DS_ClickRecovery/DS_ClickRecovery_Gpsth.eps")
+    g.erase_all()
+gg.erase_all()
+}
+print bstar, "was the best"
+*/
+
+/* 30/11/09
+running with 7 parameters
+
+*/
+bstar=0
+objref aapvec,mypvec
+astar=0
+bb=1e9
+aa=1e9
+for iprax=0,10 {
+    Rand.uniform(pvec_ranges.x[0][0],pvec_ranges.x[0][1])
+    pvec.setrand(Rand)
+     runprax()
+if (b < bb){
+ bb=b
+ mypvec = pvec.c
+bstar = iprax
+}
+if (a < aa){
+ aa=a
+ aapvec = pvec.c
+astar = iprax
+}
+    // Default Output Plot
+    sprint(grlbl, "DS_ClickRecovery/DS_ClickRecovery_Example%d.eps",iprax)
+    gr.printfile(grlbl)
+    //g.printfile("DS_ClickRecovery/DS_ClickRecovery_DSpsth.eps")
+    //gg.printfile("DS_ClickRecovery/DS_ClickRecovery_Gpsth.eps")
+    g.erase_all()
+    gg.erase_all()
+}
+
+print bstar, "was the best unweighted optimisation"
+print astar, "was the best weighted optimisation"
