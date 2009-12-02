@@ -1,14 +1,15 @@
 param.w.x[glg][ds]=0.004613
 param.w.x[hsr][ds]=0.001777
 param.w.x[lsr][ds]=0.003025
-gaba_decay=21.141/**** Fri Nov 27 14:15:11 AUSEDT 2009
+gaba_decay=21.141
+/**** Fri Nov 27 14:15:11 AUSEDT 2009
  *******/
-#param.w.x[glg][ds] = 0.00412297	[1e-05,0.005]
-#param.w.x[hsr][ds] = 0.00316778	[1e-05,0.005]
-#param.w.x[lsr][ds] = 0.00290919	[1e-05,0.005]
-#dstellate_gleak_rm = 0.00189479	[1e-05,0.005]
-#gaba_decay = 9.49853	[1,50]
-#gaba_rise = 0.698917	[0.01,5]
+param.w.x[glg][ds] = 0.00412297	//[1e-05,0.005]
+param.w.x[hsr][ds] = 0.00316778	//[1e-05,0.005]
+param.w.x[lsr][ds] = 0.00290919	//[1e-05,0.005]
+dstellate_gleak_rm = 0.00189479	//[1e-05,0.005]
+gaba_decay = 9.49853	//[1,50]
+gaba_rise = 0.698917	//[0.01,5]
 /**** Fri Nov 27 14:26:07 AUSEDT 2009
  *******/
 param.w.x[glg][ds] = 0.000743491
@@ -98,3 +99,57 @@ dstellate_gleak_rm = 0.000792384
 param.w.x[glg][ds] = 0.00387006
 param.w.x[hsr][ds] = 0.00175949
 param.w.x[lsr][ds] = 0.001444
+/**** Wed Dec  2 14:31:22 AUSEDT 2009
+ *******/
+param.w.x[glg][ds] = 0.00103242
+param.w.x[hsr][ds] = 0.00124843
+param.w.x[lsr][ds] = 0.00170673
+dstellate_gkltbar = 0.00389337
+gaba_decay = 7.3232
+gaba_rise = 1.98756
+dstellate_gleak_rm = 0.000895587
+/**** Wed Dec  2 14:32:37 AUSEDT 2009
+ *******/
+param.w.x[glg][ds] = 0.000884531
+param.w.x[hsr][ds] = 0.000217737
+param.w.x[lsr][ds] = 0.00180256
+dstellate_gkltbar = 0.00139863
+gaba_decay = 23.385
+gaba_rise = 0.622478
+dstellate_gleak_rm = 0.000540347
+/**** Wed Dec  2 15:50:53 AUSEDT 2009
+ *******/
+param.w.x[glg][ds] = 0.00180738
+param.w.x[hsr][ds] = 0.000462153
+param.w.x[lsr][ds] = 0.00125062
+dstellate_gkltbar = 0.0272203
+gaba_decay = 8.64908
+gaba_rise = 0.415534
+dstellate_gleak_rm = 5.94486e-05
+/**** Wed Dec  2 16:03:12 AUSEDT 2009
+ *******/
+param.w.x[glg][ds] = 0.00134969
+param.w.x[hsr][ds] = 0.00130666
+param.w.x[lsr][ds] = 0.000336829
+dstellate_gkltbar = 0.00162955
+gaba_decay = 20.232
+gaba_rise = 0.962692
+dstellate_gleak_rm = 0.00102533
+/**** Wed Dec  2 16:42:32 AUSEDT 2009
+ *******/
+param.w.x[glg][ds] = 0.0149285
+param.w.x[hsr][ds] = 0.00753355
+param.w.x[lsr][ds] = 0.010145
+dstellate_gkltbar = 0.0433877
+gaba_decay = 85.1227
+gaba_rise = 14.185
+dstellate_gleak_rm = 0.0137864
+/**** Wed Dec  2 17:05:15 AUSEDT 2009
+ *******/
+param.w.x[glg][ds] = 0.000302709
+param.w.x[hsr][ds] = 0.00412146
+param.w.x[lsr][ds] = 0.000705554
+dstellate_gkltbar = 0.0167574
+gaba_decay = 19.7756
+gaba_rise = 2.10512
+dstellate_gleak_rm = 0.0012425

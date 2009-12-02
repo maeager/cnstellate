@@ -22,7 +22,7 @@ exptBox.intercept(1)
 //   xradiobutton("Optimisation of DS cells to increasing notch", "run_experiment(\"DS_notch\")")
 //   xradiobutton("Optimisation of DS cells to MTF", "run_experiment(\"DS_MTF\")")
 
- //   xradiobutton("Response to vowel /eh/ as in bet ", "run_experiment(\"vowel_baseline\")")  xpanel()
+    xradiobutton("Response to vowel /eh/ as in bet ", "run_experiment(\"vowel_baseline\")")  //xpanel()
   //xpanel("Controls",1)
     xbutton("Quit","quit()")
   xpanel()
