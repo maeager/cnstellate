@@ -619,7 +619,7 @@ for iprax=0,20 {
     pvec.setrand(Rand)
     runprax()
     runprax2()
-    sprint(cmd, "cp %s/%s.Fit.dat %s/%s.Fit%d.dat",fileroot,fileroot,fileroot,fileroot,bstar)
+    sprint(cmd, "cp %s/%s.Fit.dat %s/%s.Fit%d.dat",fileroot,fileroot,fileroot,fileroot,iprax)
     system(cmd)
 
 

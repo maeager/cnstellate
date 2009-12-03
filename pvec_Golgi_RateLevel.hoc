@@ -1,7 +1,5 @@
-golgi_spatial_filter_variance_LSR=2.4837
-golgi_syn_filter_scale_factor=1.00
-weight_sum_LSR = 0.5166 
-weight_sum_HSR=0.0487 
+golgi_spatial_filter_variance_LSR = 2.4837
+golgi_syn_filter_scale_factor = 1.00
+weight_sum_LSR = 0.5166
+weight_sum_HSR = 0.0487
 golgi_spon = 3.7271
-
-  

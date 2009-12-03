@@ -49,4 +49,9 @@ ANFilterBankRun()   //Build the filterbank
 //DummyGraphs()
 }
 
-LoadVowel(60)
+
+LoadVowel(45)
+LoadVowel(55)
+LoadVowel(65)
+LoadVowel(75)
+LoadVowel(85)

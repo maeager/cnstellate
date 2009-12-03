@@ -1,24 +1,24 @@
 # DS_ClickRecovery Optimisation
-# Thu Dec  3 12:38:57 AUSEDT 2009
+# Thu Dec  3 12:41:34 AUSEDT 2009
  
-#param.w.x[glg][ds] = 0.000884531	[1e-06,0.03]
-#param.w.x[hsr][ds] = 0.000217737	[1e-06,0.03]
-#param.w.x[lsr][ds] = 0.00180256	[1e-06,0.03]
-#dstellate_gkltbar = 0.00139863	[1e-06,0.03]
-#gaba_decay = 23.385	[1e-06,0.03]
-#gaba_rise = 0.622478	[1e-06,0.03]
-#dstellate_gleak_rm = 0.000540347	[1e-06,0.03]
-# final error=0.074343
-# unweighted error=0.024600
+#param.w.x[glg][ds] = 0.00138185	[1e-06,0.03]
+#param.w.x[hsr][ds] = 0.00254258	[1e-06,0.03]
+#param.w.x[lsr][ds] = 0.000527849	[1e-06,0.03]
+#dstellate_gkltbar = 0.00821596	[1e-06,0.03]
+#gaba_decay = 19.1691	[1e-06,0.03]
+#gaba_rise = 3.37315	[1e-06,0.03]
+#dstellate_gleak_rm = 0.0010128	[1e-06,0.03]
+# final error=0.116940
+# unweighted error=0.026164
 # Click Delay (ms)	Target Rate (normalised)	 Output
-2	1.000	0.200	1.000	0.000
-3	1.000	0.300	0.990	0.000
-4	1.000	0.450	0.990	0.010
-8	1.000	0.630	0.990	0.770
-16	1.000	1.000	1.000	0.970
+2	1.000	0.200	1.000	0.120
+3	1.000	0.300	1.000	0.370
+4	1.000	0.450	1.000	0.910
+8	1.000	0.630	1.000	1.000
+16	1.000	1.000	1.000	1.000
 # Error in quiet regions
-#  0.000
-#  0.000
+#  0.010
+#  0.080
 #  0.000
 #  0.000
 # Principle axis matrix
