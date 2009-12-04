@@ -27,7 +27,8 @@ if (name_declared("mosinit")) {
 }
 
 
-/*prun()
+/*
+prun()
 
 pnm.pc.runworker
 

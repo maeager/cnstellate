@@ -125,7 +125,7 @@ for i=0,nchannels-1 for j=0,nGperchannel-1 if (pnm.gid_exists(glggid.x[i][j])) {
 //DummyGraphs()
 }
 
-LoadVowel(60)
+LoadVowel(65)
 an.GenSpikes()
 //for i=0,nchannels-1 for j=0,nGperchannel-1 if (pnm.gid_exists(glggid.x[i][j])) golgi[i][j].GenSpikes()
 an.PrintSpikes()

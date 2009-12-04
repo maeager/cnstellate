@@ -607,7 +607,7 @@ running with 7 parameters
  1/12/09
 Running opt with reps=50
 Cleaned up pvec_factor.x[3]
-*/
+
 reps=50
 bstar=0
 objref aapvec,mypvec
@@ -656,3 +656,85 @@ pvec = aapvec.c
 runprax2()
 sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery_result.eps ~/work/thesis/SimpleResponsesChapter/gfx/DS_ClickRecovery_result_weighted_%d.eps",astar)
 system(cmd)
+*/
+
+
+/* 4/12/09
+
+*/
+
+objref wclick,initpvec
+initpvec = pvec.c
+  wclick = new Vector(14,1)
+ //wclick.x[3]=5
+//  wclick.x[5]=10
+//  wclick.x[7]=1
+//  wclick.x[9]=10
+//  wclick.x[10]=0.1
+//  wclick.x[11]=0.1
+//  wclick.x[12]=0.1
+//  wclick.x[13]=0.1
+reps=50
+//bstar=0
+objref aapvec,mypvec
+//astar=0
+//bb=1e9
+//aa=1e9
+for iprax=21,40 {
+    Rand.uniform(pvec_ranges.x[0][0]*2,pvec_ranges.x[0][1]/10)
+    pvec.setrand(Rand)
+    //pvec = initpvec.c
+    runprax()
+    runprax2()
+    sprint(cmd, "cp %s/%s.Fit.dat %s/%s.Fit.%d.dat",fileroot,fileroot,fileroot,fileroot,iprax)
+    system(cmd)
+sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery_result.eps DS_ClickRecovery/DS_ClickRecovery_result.%d.eps",iprax)
+system(cmd)
+
+if (b < bb){
+ bb=b
+ mypvec = pvec.c
+bstar = iprax
+}
+if (a < aa){
+ aa=a
+ aapvec = pvec.c
+astar = iprax
+}
+    // Default Output Plot
+    sprint(grlbl, "DS_ClickRecovery/DS_ClickRecovery_Example.%d.eps",iprax)
+    gr.printfile(grlbl)
+    //g.printfile("DS_ClickRecovery/DS_ClickRecovery_DSpsth.eps")
+    //gg.printfile("DS_ClickRecovery/DS_ClickRecovery_Gpsth.eps")
+    g.erase_all()
+    gg.erase_all()
+}
+reps=100
+print bstar, "was the best unweighted optimisation"
+sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery.Fit.%d.dat /home/maeager/work/thesis/SimpleResponsesChapter/gfx/DS_ClickRecovery_best_unweighted.Fit.%d.dat",bstar,bstar)
+system(cmd)
+pvec = mypvec.c
+runprax2()
+sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery_result.eps /home/maeager/work/thesis/SimpleResponsesChapter/gfx/DS_ClickRecovery_result_unweighted.%d.eps",bstar)
+system(cmd)
+print astar, "was the best weighted optimisation"
+sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery.Fit.%d.dat /home/maeager/work/thesis/SimpleResponsesChapter/gfx/DS_ClickRecovery_best_weighted.Fit.%d.dat",astar,astar)
+system(cmd)
+pvec = aapvec.c
+runprax2()
+sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery_result.eps /home/maeager/work/thesis/SimpleResponsesChapter/gfx/DS_ClickRecovery_result_weighted.%d.eps",astar)
+system(cmd)
+
+
+lineno=344
+for iprax=0,20 {
+sprint(cmd, "head -%d pvec_DS_ClickRecovery.hoc | tail -7 > /tmp/params.hoc",lineno)
+system(cmd)
+xopen("/tmp/params.hoc")
+set_pvec()
+pvec.printf
+runprax2()
+sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery_result.eps DS_ClickRecovery/DS_ClickRecovery_result.%d.eps",iprax)
+system(cmd)
+lineno+=9
+}
