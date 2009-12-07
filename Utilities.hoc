@@ -103,7 +103,6 @@ func spl2ampl(){  //dB SPL (rms) to peak amplitude
 }
 func ampl2spl(){  //peak to dB SPL (rms)
     return 20* log10($1 * 0.707 / 20.e-6)   //Scale uPascals into  dBSPL
-
 }
 func spl2amplNoise(){  //rms already calculated for non-sinusoid
     return 20.e-6 * 10.0^($1 / 20.0)    //Scale dBSPL into uPascals
@@ -1216,6 +1215,7 @@ proc RefreshParameters() {local aa localobj tmprand
             objref stim
            //srate=500000
             stimtdres =  1/srate   //1/50000 sampling rate
+//Allow user to control clicktimes
 //          objref clicktimes
 //          clicktimes = new Vector()
 //          clicktimes.append(20,22,70,74,130,138).mul(srate/1000)
@@ -1286,12 +1286,12 @@ proc ResampleANFilterBank() {local smpl_ratio
 
 func GetANfileString() {local i
   sprint(ANpath, "%s",ANsoundspath)
-  if(ANmodel==4) sprint(ANpath, "%s/arlo",ANpath)
-  if(ANmodel==3) sprint(ANpath, "%s/tan",ANpath)
-  if(ANmodel==6) sprint(ANpath, "%s/bruce",ANpath)
+  if(ANmodel == 4) sprint(ANpath, "%s/arlo",ANpath)
+  if(ANmodel == 3) sprint(ANpath, "%s/tan",ANpath)
+  if(ANmodel == 6) sprint(ANpath, "%s/bruce",ANpath)
 
 
-    if (stimtype==1){ //Tone _ Loudness
+    if (stimtype == 1){ //Tone _ Loudness
         sprint(ANstr,"T%.0f_L%d_dur%d_del%d", tonefreq,spl,stimdur, int(stimdelay*1000))
     }
     if (stimtype == 2){
@@ -1302,15 +1302,15 @@ func GetANfileString() {local i
         sprint( ANstr, "AM_fc%d_fm%d_md%d_%ddB_dur%d", tonefreq, AM_modfreq,AM_depth*100,spl,stimdur)
     }
     //WB noise
-    if(stimtype ==4) { //SPL and sampling frequency
+    if(stimtype == 4) { //SPL and sampling frequency
         sprint(ANstr, "WBN_spl%d_smpfreq%f_del%f", spl, srate/1000,stimdelay)
         }
     //AM noise
-    if(stimtype ==5) {
+    if(stimtype == 5) {
         sprint( ANstr, "AMN_fm%d_m%f_spl%d_sf%5.0f", AM_modfreq,AM_depth, spl, 1/stimtdres)
         }
     //Gaussian noise
-    if(stimtype ==6) {
+    if(stimtype == 6) {
         sprint( ANstr, "GN_m%f_v%d_spl%d_sf%5.0f", Gaussmean,Gaussvar,spl, 1/stimtdres)
         }
     //Stimulus Wavfile

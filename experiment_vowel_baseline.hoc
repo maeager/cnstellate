@@ -7,6 +7,11 @@
 
 //Setup Auditory model
 
+//  Create the model
+create_cells()
+connect_cells(fileroot)
+connect_CNcells(fileroot)
+
 stimtype = 0  //read stim from file
 path = "./stim/"
 wavefile = "./stim/b6t.dat"
@@ -29,7 +34,7 @@ ANFilterBankRun()   //Build the filterbank
 }
 
 
-LoadVowel(73)   
+LoadVowel(73)
 
 an.GenSpikes() //calls SGfast(1) on each fibre
                 //it might be quicker to use another method
@@ -39,7 +44,7 @@ an.GenSpikes() //calls SGfast(1) on each fibre
 
 
 // *** Process data and print out results
-xopen("par_calcisilag.hoc") // everybody needs this for the post_results
+xopen("calcisilag.hoc") // everybody needs this for the post_results
 
 proc print_results() {
   print_raster(fileroot)

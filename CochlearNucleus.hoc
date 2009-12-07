@@ -60,8 +60,10 @@ strdef cmd
 //Having trouble with local variables when using execute1
 
 proc create_cells() { local p,i_chan,j_cell
-    //objref an
-    //an = new AuditoryNerve()
+    if(!object_id(an)){
+        objref an
+        an = new AuditoryNerve()
+    }
     i_chan=0
     j_cell=0
   quitmodel = 0
@@ -662,10 +664,7 @@ proc ClearSpikes(){local i,j
       }
 }
 
-//  Create the model
-// create_cells()
-// connect_cells(fileroot)
-// connect_CNcells(fileroot)
+
 
 proc reset_weights() { local i // 1 arg - weight
 //ANF connections

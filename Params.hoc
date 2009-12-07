@@ -64,8 +64,12 @@ totalLSR        =   nchannels*LSRsperchannel
  ** Stimulus Parameters
  ****************************************/
 strdef wavefile,N
-stimtype    = 1         //0 for wavefile,1 for tone,
-                        //2 no stim, 3 AM tone, 4 WB noise
+stimtype    = 1         //0 for wavefile,1 for tone,2 silent stim,
+                        //3 AM tone, 4 WB noise (obsolete)
+                        //5 AM noise, 6 Gaussian Noise,
+                        //7 Simult. Tone & Noise,
+                        //8 Notch, 9 Twotones, 10 Ramptone,
+                        //11 Clicks separated by vector 'clicktimes'
 tonefreq    = 4000.0    //Hz Sinusoidal tone frequency
 dur         = 0.045     //duration of tone segment (seconds)
 spl         = 50        //dB SPL
@@ -111,9 +115,9 @@ celsius=37 // base model temperature
 /**********************************************************
  **  Auditory Model Simulation Parameters
  **********************************************************/
-ANmodel = 6     //  3 = Tan+Carney 2003,
-            //  4= Heinz ARLO model 2001, default
-            //  6 Zilany and Bruce 2007
+ANmodel = 6 //  3  Tan+Carney 2003,
+            //  4 Heinz ARLO model 2001
+            //  6 Zilany and Bruce 2007/08, default
 
 
 /*Bruce Model Parameters Impairment of Inner and Outer Hair cell function
@@ -123,12 +127,10 @@ ANmodel = 6     //  3 = Tan+Carney 2003,
 strdef bruce_impairment_file
 bruce_impairment_file="rat_bruce_audiogram.dat"
 objref audiogram,cohc,ihc
-species     = 2
-    /*0 = human (as in ARLO paper)
-          9 = cat, all CFs (as in JASA 2001 Zhang et al., paper)
-          1 = cat, only low CFs (as in Carney '93 JASA paper - not recommended)
-          2= Rat, Michael Eager 2007-9
-    */
+species     = 2        // 0  human (as in ARLO paper)
+                       // 9  cat, all CFs (as in JASA 2001 Zhang et al., paper)
+                       // 1  cat, only low CFs (as in Carney '93 JASA paper - not recommended)
+                       // 2  rat, Michael Eager 2007-9
 
 //----------------------------------------------------------------
 //  The parameter file for any experiment should look like the following lines:
@@ -138,31 +140,31 @@ species     = 2
 // based on parameters_odour_baseline.hoc by Andrew Davison
 // Michael Eager, University of Melbourne
 
-nchannels   = 100               // Total number of frequency channels
-nTSperchannel   = 10           // number of TS cells in each freq channel
-numTS     = nchannels*nTSperchannel   // total number of TS cells
+nchannels   = 100             // Total number of frequency channels
+nTSperchannel   = 10          // number of TS cells in each freq channel
+numTS     = nchannels*nTSperchannel  // total number of TS cells
 nTVperchannel   = 3           // number of TV cells in each freq channel
-numTV   = nchannels*nTVperchannel       // total number of TV cells
+numTV   = nchannels*nTVperchannel    // total number of TV cells
 nDSperchannel   = 1           // number of DS cells in each freq channel
-numDS   = nchannels*nDSperchannel       // total number of DS cells
-nGperchannel   = 1          // number of Golgi cells in each freq channel
-numG= nchannels*nGperchannel       // total number of Golgi cells
+numDS   = nchannels*nDSperchannel    // total number of DS cells
+nGperchannel   = 1            // number of Golgi cells in each freq channel
+numG= nchannels*nGperchannel  // total number of Golgi cells
 
 seed        = 0         // seed for random number generator see InitRandom()
 thresh      = -10       // mV, threshold for detecting spikes
 
 
 strdef fileroot
-sprint(fileroot,"vowel_baseline")   // default root for output filenames
-vowelnumber = 1                       // which vowel
-inputnumber = 1                         // fixed input file
-tstop       = 400                             // ms, total simulation time
-ttrans       = 20                           // ms,  when calculating statistics, ignore
-                                              // spikes occuring before this time
+sprint(fileroot,"vowel_baseline")  // default root for output filenames
+vowelnumber = 1                    // which vowel
+inputnumber = 1                    // fixed input file
+tstop       = 400                  // ms, total simulation time
+ttrans       = 20                  // ms,  when calculating statistics, ignore
+                                   // spikes occuring before this time
 cvode.active(0)
 dt        = 0.05
 steps_per_ms = 10                   // NEURON variable
 setdt()
-dt=0.1                                       //ms, integration time step
-celsius = 37                               //degrees C, body  temperature
-secondorder=2                          //second order integration
+dt=0.1                              //ms, integration time step
+celsius = 37                        //degrees C, body  temperature
+secondorder=2                       //Crank-Nickolson integration, correct to second order

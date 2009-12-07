@@ -37,6 +37,7 @@ usesavedfilterbanks=1
 sg_rate = 10000
 sg_tdres = 1/sg_rate
 
+
 proc LoadVowel(){
 RefreshParameters()   //Generate or get stim from file
 stim.resample(stim,3)
@@ -49,4 +50,9 @@ ANFilterBankRun()   //Build the filterbank
 //DummyGraphs()
 }
 
-LoadVowel(60)
+
+LoadVowel(45)
+LoadVowel(55)
+LoadVowel(65)
+LoadVowel(75)
+LoadVowel(85)

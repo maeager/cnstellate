@@ -1,0 +1,12 @@
+Frequency (Hz)	dB SPL
+125	18.4
+250	4
+500	-8.7
+1000	-18.3
+2000	-23.7
+4000	-19.2
+8000	-14.8
+12000	-17
+16000	-20.6
+
+Sokolovski (1973) Behavioral audiogram of Felis catus (cat).	

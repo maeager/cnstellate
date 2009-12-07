@@ -1,8 +1,8 @@
+ARCH=$(shell arch)
+NRNMODL = ~/neuron/nrn-7.1/nrnmpi/$(ARCH)/bin/nrnivmodl
+IVMODL=~/neuron/nrngui/$(ARCH)/bin/nrnivmodl
 
-NRNMODL = /home/meager/nrn-6.1/nrnmpi/ia64/bin/nrnivmodl
-IVMODL=/home/meager/nrn-6.1/nrniv/ia64/bin/nrnivmodl
-
-all: gui mpi
+all: clean-all gui mpi
 
 clean-mpi:
 	-rm -rf *.[0-9]*
@@ -13,11 +13,12 @@ clean: clean-mpi
 	-rm -f out.dat *.[0-9]* *~ *.bak *.sav 
 
 clean-all: clean
-	-rm -rf ia64 gui
+	-rm -rf mpi gui
 
 gui:
 	$(IVMODL)
-	mv ia64 gui
+	mv $(ARCH) gui
 	
 mpi:
 	$(NRNMODL)
+	mv $(ARCH) mpi
