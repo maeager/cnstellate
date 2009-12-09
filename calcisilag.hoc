@@ -357,7 +357,7 @@ proc print_spiketimes() { // 3 args - indices of Tstellate cell plus filename ro
 }
 
 
-proc print_raster() { // 1 arg - filename root
+proc print_ts_raster() { // 1 arg - filename root
 
   sprint(filename,"%s.ras",$s1)
   outfile.wopen(filename)

@@ -27,8 +27,10 @@ blue = 3
  **  Synapse Parameters
  **********************************************************/
 
-//Glutamate-AMPA Synaptic time constants from Gardner et al. JNeurophysiol 1999 @ 34 C degrees
-ampa_decay = 0.36   //Trussell 1998 .4-.5 at room temp
+//Glutamate-AMPA Synaptic time constants
+// from Gardner et al. JNeurophysiol 1999 @ 34 C degrees
+// and Trussell 1998 .4-.5 at room temp
+ampa_decay = 0.36
 ampa_erev = 0
 
 //Glycine Receptor time constants see Leao J Neurophysiol  (2004); MNTB mice neurons
@@ -103,8 +105,8 @@ sg_tdres = 1/sg_rate
 usesavedfilterbanks=0   //Save time by using saved AN filterbank responses
 
 strdef ANstr, ANpath,ANsoundspath
-ANpath= "../../sounds"
-ANsoundspath= "../../sounds"
+ANpath= "../../sounds"          //Variable string
+ANsoundspath= "../../sounds"    //Fixed string
 
 
 celsius=37 // base model temperature
@@ -134,11 +136,10 @@ species     = 2        // 0  human (as in ARLO paper)
 
 //----------------------------------------------------------------
 //  The parameter file for any experiment should look like the following lines:
-
-
+// Michael Eager, University of Melbourne
 // Cochlear Nucleus network model: parameters file
 // based on parameters_odour_baseline.hoc by Andrew Davison
-// Michael Eager, University of Melbourne
+
 
 nchannels   = 100             // Total number of frequency channels
 nTSperchannel   = 10          // number of TS cells in each freq channel
@@ -161,6 +162,7 @@ inputnumber = 1                    // fixed input file
 tstop       = 400                  // ms, total simulation time
 ttrans       = 20                  // ms,  when calculating statistics, ignore
                                    // spikes occuring before this time
+
 cvode.active(0)
 dt        = 0.05
 steps_per_ms = 10                   // NEURON variable
