@@ -8,7 +8,7 @@ xopen("pvec_Golgi_RateLevel.hoc")
 xopen("pvec_DS_ClickRecovery.hoc")
 
 
-proc reset_DS(){local ii
+proc set_DS_ClickRecovery(){local ii
 //Extra updating feature for DS_ClickRecovery
    for ii = 0,nchannels-1 {
     dstellate[ii][0].soma.gleak_rm =dstellate_gleak_rm

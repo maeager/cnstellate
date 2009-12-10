@@ -66,6 +66,7 @@ totalLSR        =   nchannels*LSRsperchannel
  ** Stimulus Parameters
  ****************************************/
 strdef wavefile,N
+N = neuronhome()
 stimtype    = 1         //0 for wavefile,1 for tone,2 silent stim,
                         //3 AM tone, 4 WB noise (obsolete)
                         //5 AM noise, 6 Gaussian Noise,
@@ -73,18 +74,20 @@ stimtype    = 1         //0 for wavefile,1 for tone,2 silent stim,
                         //8 Notch, 9 Twotones, 10 Ramptone,
                         //11 Clicks separated by vector 'clicktimes'
 tonefreq    = 4000.0    //Hz Sinusoidal tone frequency
-dur         = 0.045     //duration of tone segment (seconds)
-spl         = 50        //dB SPL
+dur         = 0.045     //(seconds), duration of tone segment
+spl         = 50        //dB SPL, sound level
+reps        = 25        //repetitions used in multiple runs
 dutycycle   = 0.2       //quiet duration = dutycycle*dur
-ramplngth   = 0.005     //2*cosine ramp length (1/2 on and 1/2 off)
+ramplngth   = 0.005     //sec, 2*ramp length (1/2 on and 1/2 off)
+                        //cosinesquared ramp
                         //total tone segment = dur + 1*ramplngth
-strdef wavefile         // delimited txt file from wav file
-N = neuronhome()
+strdef wavefile         // extract stim data file from wav file converted to txt
+
 wavefile    = "../sounds/T4000_L50.dat"
 srate       = 50000.0   //Hz, Stimulus Sampling rate
 stimtdres   = 1/srate   //time step (time domain resolution)
-// nstim            // nstim=number of pts in stimulus
-nrep        = 1         //nrep is number of reps of stimulus passed to AN
+// nstim                // nstim=number of pts in stimulus
+nrep        = 1         //nrep is number of reps of single stimulus in stim vector
 stimdur     = 0         //ms, Stim duration set by RefreshParameters()
 stimdelay   = 0.02      //sec, Delay before tone segment
 AM_modfreq  = 100       //Hz
@@ -97,6 +100,9 @@ NoiseLevel  =0          //dB rms spl, if AdditiveNoise=1, amount of Added Noise
 tone2freq   = 4000
 tone2delay  = 0
 tone2spl    = 30
+//Notch Noise
+stopband =  10          //Files available are in TV_notch folder - stopband 10,12.5
+notchwidth = 0.5        //in octaves, 1/8,1/4,1/2,1
 //Downsampling rate for ANF spike generator
 sg_rate=10000
 srate = 1/stimtdres
@@ -109,9 +115,10 @@ ANpath= "../../sounds"          //Variable string
 ANsoundspath= "../../sounds"    //Fixed string
 
 
-celsius=37 // base model temperature
-           // default in NEURON is 6.3C
-           //Rothman and Manis (2003) & Manis Neuron implementation uses 22C
+celsius=37              //degrees, base model temperature
+                        // default in NEURON is 6.3C
+                        // Rothman and Manis (2003) &
+                        // P. Manis Neuron implementation uses 22C
 
 
 /**********************************************************
@@ -141,14 +148,14 @@ species     = 2        // 0  human (as in ARLO paper)
 // based on parameters_odour_baseline.hoc by Andrew Davison
 
 
-nchannels   = 100             // Total number of frequency channels
-nTSperchannel   = 10          // number of TS cells in each freq channel
+nchannels   = 100       // Total number of frequency channels
+nTSperchannel   = 10    // number of TS cells in each freq channel
 numTS     = nchannels*nTSperchannel  // total number of TS cells
-nTVperchannel   = 3           // number of TV cells in each freq channel
+nTVperchannel   = 3     // number of TV cells in each freq channel
 numTV   = nchannels*nTVperchannel    // total number of TV cells
-nDSperchannel   = 1           // number of DS cells in each freq channel
+nDSperchannel   = 1     // number of DS cells in each freq channel
 numDS   = nchannels*nDSperchannel    // total number of DS cells
-nGperchannel   = 1            // number of Golgi cells in each freq channel
+nGperchannel   = 1      // number of Golgi cells in each freq channel
 numG= nchannels*nGperchannel  // total number of Golgi cells
 
 seed        = 0         // seed for random number generator see InitRandom()
@@ -160,7 +167,7 @@ sprint(fileroot,"vowel_baseline")  // default root for output filenames
 vowelnumber = 1                    // which vowel
 inputnumber = 1                    // fixed input file
 tstop       = 400                  // ms, total simulation time
-ttrans       = 20                  // ms,  when calculating statistics, ignore
+t_ignore_before       = 20                  // ms,  when calculating statistics, ignore
                                    // spikes occuring before this time
 
 cvode.active(0)

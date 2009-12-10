@@ -233,9 +233,12 @@ proc CNSpikes2(){local i, icf
 	for i=0,3{
 //		CNgr[i].exec_menu("View = plot")
 		CNrate[i].plot(CNrategr,1,i+1,1)
-
 	}
-	
+	CNrategr.label(0, 0,"TS",1,1,-25,-15,ts)
+	CNrategr.label(0, 0,"TV",1,1,-25,-14,tv)
+	CNrategr.label(0, 0,"DS",1,1,-25,-13,ds)
+	CNrategr.label(0, 0,"GLG",1,1,-25,-12,glg)
+
 	CNrategr.label(0.3, 0.95, "Rate-Place Representation")
 	CNrategr.exec_menu("View = plot")
 }
@@ -250,15 +253,35 @@ proc CN_Histograms(){local itype,icf
     }
 }
 
-proc multi_run(){ 
+proc multi_run(){
     ClearSpikes()
     for ireps = 0, reps-1 {
-        GenSpikes()
+        GenSpikes2()
         run()
         SaveSpikes()
         }
     CNSpikes2()
 }
+
+
+
+		proc weightspanel(){
+	xpanel("Network Weights")
+			xvalue("param.w.x[hsr][ts]")
+			xvalue("param.w.x[hsr][tv]")
+			xvalue("param.w.x[hsr][ds]")
+			xvalue("param.w.x[lsr][ts]")
+			xvalue("param.w.x[lsr][tv]")
+			xvalue("param.w.x[lsr][ds]")
+			xvalue("param.w.x[lsr][glg]")
+			xvalue("param.w.x[ds][ts]")
+			xvalue("param.w.x[ds][tv]")
+			xvalue("param.w.x[glg][ds]")
+			xvalue("param.w.x[tv][ts]")
+			xbutton("Reset Weights","reset_weights()")
+			xpanel()
+		}
+
 
 /********************************************************************
  *   Stimulus Menu
@@ -311,6 +334,7 @@ xpanel("Auditory Model Simulation Parameters")
 	xbutton("Generate Spikes", "GenSpikes()")
 	xbutton("AN Raster","ANSpikes()")
    xbutton("CN Rasters","CNSpikes()")
+    xbutton("Weights Panel","weightspanel()")
 			xvalue("reps")
 			xbutton("Multi Run","multi_run()")
             xbutton("Plot Rate","CNSpikes2()")
@@ -320,20 +344,3 @@ xpanel()
 	//  xopen("reset_weights.hoc")
 		
 		
-
-		proc weightspanel(){
-	xpanel("Network Weights")
-			xvalue("param.w.x[hsr][ts]")
-			xvalue("param.w.x[hsr][tv]")
-			xvalue("param.w.x[hsr][ds]")
-			xvalue("param.w.x[lsr][ts]")
-			xvalue("param.w.x[lsr][tv]")
-			xvalue("param.w.x[lsr][ds]")
-			xvalue("param.w.x[lsr][glg]")
-			xvalue("param.w.x[ds][ts]")
-			xvalue("param.w.x[ds][tv]")
-			xvalue("param.w.x[glg][ds]")
-			xvalue("param.w.x[tv][ts]")
-			xbutton("Reset Weights","reset_weights()")
-			xpanel()
-		}
