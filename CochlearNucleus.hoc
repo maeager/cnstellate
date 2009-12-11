@@ -678,22 +678,22 @@ proc ClearSpikes(){local i,j
     an.ClearSpikes()
 	for i=0,nchannels-1{
          for j=0,nTSperchannel-1{
- sprint(cmd, "tstellate[%d][%d].spikes.remove_all()",i,j)
+ sprint(cmd, "tstellate[%d][%d].spikes.resize(0)",i,j)
          execute1(cmd)
          }
          for j=0,nTVperchannel-1{
- sprint(cmd, "tuberculoventral[%d][%d].spikes.remove_all()",i,j)
+ sprint(cmd, "tuberculoventral[%d][%d].spikes.resize(0)",i,j)
          execute1(cmd)
          }
          for j=0,nDSperchannel-1{
 
- sprint(cmd, "dstellate[%d][%d].spikes.remove_all()",i,j)
+ sprint(cmd, "dstellate[%d][%d].spikes.resize(0)",i,j)
          execute1(cmd)
 
          }
          for j=0,nGperchannel-1{
 
- sprint(cmd, "golgi[%d][%d].spikes.remove_all()",i,j)
+ sprint(cmd, "golgi[%d][%d].spikes.resize(0)",i,j)
          execute1(cmd)
 
          }

@@ -106,8 +106,8 @@ objref ANFgr[2],ANspksL[nchannels],ANspksH[nchannels],ANFrate[2],ANFhist
 //.div(reps*binsize/1000)
       ANspksH[icf] = ANspksH[icf].histogram(0,tstop,0.1)
       ANspksL[icf] = ANspksL[icf].histogram(0,tstop,0.1)
-      ANFrate[0].append(ANspksH[icf].mean())
-      ANFrate[1].append(ANspksL[icf].mean())
+      ANFrate[0].append(ANspksH[icf].sum()/HSRsperchannel)
+      ANFrate[1].append(ANspksL[icf].sum()/LSRsperchannel)
       ANspksH[icf].add(icf*5).plot(ANFhist, 0.1)
 
 
@@ -124,6 +124,21 @@ objref ANFgr[2],ANspksL[nchannels],ANspksH[nchannels],ANFrate[2],ANFhist
    ANFgr[1].label(0.3, 0.95, "Rate-Place Representation: Auditory Nerve Fibres")
    ANFgr[1].label(0.3,0.92,"High spont: red       Low spont: blue" )
    ANFgr[1].exec_menu("View = plot")
+}
+
+/*********************************************
+ *  Plot Audiogram
+ *********************************************/
+objref audiogramgr
+proc PlotAudiogram(){
+    objref audiogramgr
+    audiogramgr = new Graph()
+    cohc.plot(audiogramgr,1,1,1)
+    cihc.plot(audiogramgr,1,2,1)
+    audiogramgr.label(0.1,0.95, "Audiogram Data - Extrapolated for experimental data")
+    audiogramgr.label(0.1,0.90, "File: ")
+    audiogramgr.label(0.2,0.90, bruce_impairment_file)
+audiogramgr.exec_menu("View = plot")
 }
 
 
@@ -253,10 +268,18 @@ proc CN_Histograms(){local itype,icf
     }
 }
 
+proc GenSpikes(){local i
+  startsw()
+    for i=0,nchannels-1 for j=0,HSRsperchannel-1 an.HSR[i][j].SGfast(1)
+    for i=0,nchannels-1 for j=0,LSRsperchannel-1 an.LSR[i][j].SGfast(1)
+    for i=0,nchannels-1  golgi[i][0].s.SGfast(1)
+  print "GenSpikes time:", stopsw()
+}
+
 proc multi_run(){
     ClearSpikes()
     for ireps = 0, reps-1 {
-        GenSpikes2()
+        GenSpikes()
         run()
         SaveSpikes()
         }
@@ -326,6 +349,7 @@ xpanel("Auditory Model Simulation Parameters")
    xbutton("Create Cells","create_cells()")
    xbutton("Connect ANFs","connect_cells(fileroot)")
    xbutton("Connect CN cells","connect_CNcells(fileroot)")
+   xbutton("Show Audiogram","PlotAudiogram()")
    xbutton("Refresh Stim and Param", "RefreshParameters()")
    xbutton("Update Filterbanks","ANFilterBankRun()")
    xbutton("Reset ANFs","SetRates()")

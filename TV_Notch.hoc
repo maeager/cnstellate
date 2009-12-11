@@ -31,15 +31,15 @@ proc GenSpikes2(){local i
     for i=0,hsr2dsAMPAlist.count-1 hsr2dsAMPAlist.object(i).pre.SGfast(1)
     for i=0,lsr2dsAMPAlist.count-1 lsr2dsAMPAlist.object(i).pre.SGfast(1)
     for i=0,glg2dsGABAlist.count-1 glg2dsGABAlist.object(i).pre.SGfast(1)
-				print "GenSpikes time:", stopsw()
+	print "GenSpikes time:", stopsw()
 }
-proc GenSpikes(){local i
+proc GenSpikes(){local i,j,count
   startsw()
-    for i=0,nchannels-1 {
-	   for j=0,HSRsperchannel-1 an.HSR[i][j].SGfast(1)
-	   for j=0,LSRsperchannel-1 an.LSR[i][j].SGfast(1)
-	   golgi[i][0].GenSpikes()
-      }
+    for i=0,nchannels-1 for j=0,HSRsperchannel-1 an.HSR[i][j].SGfast(1)
+    for i=0,99 for j=0,HSRsperchannel-1 count+=an.HSRspiketimes[i][j].size
+   // if (count/(nchannels*HSRsperchannel) > 10) system("sleep 0.5")
+    for i=0,nchannels-1 for j=0,LSRsperchannel-1 an.LSR[i][j].SGfast(1)
+    for i=0,nchannels-1  golgi[i][0].s.SGfast(1)
   print "GenSpikes time:", stopsw()
 }
 
@@ -79,9 +79,6 @@ proc set_DS_ClickRecovery(){local ii
 }
 
 
-
-
-
 objref golgi[nchannels][1],g, dstellate[nchannels][1], tuberculoventral[nchannels][1]
 
 
@@ -90,6 +87,26 @@ objref golgi[nchannels][1],g, dstellate[nchannels][1], tuberculoventral[nchannel
 	connect_cells(fileroot)
 	connect_CNcells(fileroot)
 xopen("cngui.hoc")
+
+
+proc SaveMultiRun(){
+sprint(cmd,"TV_notch/CN_rateplace_%goct_spl%d.eps",notchwidth,spl)
+CNrategr.printfile(cmd)
+sprint(cmd,"TV_notch/AN_rateplace_%goct_spl%d.eps",notchwidth,spl)
+ANFgr[1].printfile(cmd)
+sprint(cmd,"TV_notch/CN_rateplace_%goct.tv.dat",notchwidth)
+{ file.aopen(cmd) CNrate[tv].printf(file) file.close() }
+sprint(cmd,"TV_notch/CN_rateplace_%goct.ds.dat",notchwidth)
+{ file.aopen(cmd) CNrate[ds].printf(file) file.close() }
+sprint(cmd,"TV_notch/CN_rateplace_%goct.glg.dat",notchwidth)
+{ file.aopen(cmd) CNrate[glg].printf(file) file.close() }
+sprint(cmd,"TV_notch/AN_rateplace_%goct.hsr.dat",notchwidth)
+{ file.aopen(cmd) ANFrate[0].printf(file) file.close() }
+sprint(cmd,"TV_notch/AN_rateplace_%goct.lsr.dat",notchwidth)
+{ file.aopen(cmd) ANFrate[1].printf(file) file.close() }
+}
+
+
 
 param.w.x[glg][ds]  = 0.00189573    //0.00022603 0.01117
 param.w.x[hsr][ds]  = 0.00164996    //0.000499146 0.0041214
@@ -119,7 +136,7 @@ ANFBgr = new Graph()
 usesavedfilterbanks=1
 
 
-RefreshParameters()
+
 //wavefile="./TV_notch/Notch-sb10-0.5oct.dat"
 //file.ropen("./TV_notch/Notch-sb10-1oct.dat")
 //Readfile(stim,file)
@@ -137,24 +154,32 @@ RefreshParameters()
 		//GenSpikes()
 		//ANSpikes()
 
-		
-reps=5
-/*
-for (spl=95;spl<=100;spl+=5){
-RescaleStim(spl,0,stim.size-1)
+//xopen("TV_Notch.ses")		
+reps=25
+
+notchwidth=1
+for (spl=15;spl<=100;spl+=5){
+RefreshParameters()
 ANFilterBankRun()   //Build the filterbank
 CheckFilterbank()
 SetRates()
 multi_run()
 ANSpikes()
-sprint(cmd,"TV_notch/CN_rateplace_spl_%d.eps",spl)
-CNrategr.printfile(cmd)
-sprint(cmd,"TV_notch/AN_rateplace_spl_%d.eps",spl)
-ANFgr[1].printfile(cmd)
+SaveMultiRun()
 }
-*/
-xopen("cngui.hoc")
-xopen("TV_Notch.ses")
+
+for (spl=15;spl<=100;spl+=5){
+RefreshParameters()
+ANFilterBankRun()   //Build the filterbank
+CheckFilterbank()
+SetRates()
+multi_run()
+ANSpikes()
+SaveMultiRun()
+}
+
+//xopen("cngui.hoc")
+
 
 				
 			

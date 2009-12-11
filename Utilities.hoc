@@ -503,7 +503,7 @@ objref rampx, offramp, onramp, middle, quiet, envelope, inputsound,initquiet
 
 }
 
-proc FilteredNoise() {local mean, variance, stimtdres, rampts, rstep, totalpts, steadypts, tonefrequency,samplingrate, duration,spl,cycle, ramplength, aa, nrep,delay
+proc FilteredNoise() {local rampts, rstep, totalpts, steadypts, duration,spl,cycle, ramplength, aa, nrep,delay
 //FilteredNoise( dur, spl, dutycycle, ramplngth, stimdelay,stopband,notchwidth,30)
 	objref stim
 
@@ -527,10 +527,8 @@ proc FilteredNoise() {local mean, variance, stimtdres, rampts, rstep, totalpts, 
     stimtdres=1/srate
     sg_rate=50000
     sg_tdres=1/sg_rate
-    samplingrate=srate
-	stimtdres = 1/samplingrate
-	rampts = ramplength * samplingrate
-	steadypts = duration * samplingrate - rampts
+	rampts = ramplength * srate
+	steadypts = duration * srate - rampts
 	totalpts = steadypts + (rampts*2)
 
     // Create Cosine Squared On/off ramps
@@ -554,7 +552,7 @@ proc FilteredNoise() {local mean, variance, stimtdres, rampts, rstep, totalpts, 
 	envelope.append(onramp, middle, offramp)    //Envelope for stimulus (i.e. on/off ramps)
 //Quiet segments
 	quiet = new Vector(totalpts*(cycle), 0) //int() returns integer component of double
-	initquiet = new Vector(delay*samplingrate,0)
+	initquiet = new Vector(delay*srate,0)
 
 //Inputsound and envelope must be the same size
     if (inputsound.size > envelope.size){
@@ -588,22 +586,14 @@ objref modulation ,rampx, inputsound,initquiet, stim
     samplingrate = $1   //sampling rate (Hz)
     fm = $2
     depth = 1-$3            //Ratio difference/sum of max and min of AM signal
-
     nrep = $4           //how many periods of modulating frequency
     //duration      //duration in seconds
     spl = $5            //Sound Pressure level in dB SPL
-
     delay = $6
-
-
-
     stimtdres = 1/samplingrate
-
     duration = nrep*(2/fm)
     totalpts = duration * samplingrate
-
     print " Mod f ", fm
-
     print "duration", duration
     print "total points", totalpts
 //Envelope for stimulus
@@ -1344,7 +1334,7 @@ func GetANfileString() {local i
         sprint(ANstr,"%s", wavefile)
         sf_.right(ANstr,sf_.len("./TV_notch/"))
         sf_.left(ANstr, sf_.len(ANstr)-4)
-        sprint(ANstr,"FilteredFile_%s_%ddB",ANstr, spl)
+        sprint(ANstr,"FilteredFile_%s_L%d_Del%d_Dur%d",ANstr, spl,stimdelay*1000,dur*1000)
     }
     if (AdditiveNoise==1) {
         sprint(ANstr, "%s+Noise_%d", ANstr, NoiseLevel)
