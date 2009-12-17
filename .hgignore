@@ -13,6 +13,8 @@ syntax: glob
 *.lof
 *.log
 *.toc
+mpi/*
+gui/*
 i686/*
 .svn/*
 $pfebk/*
