@@ -1,0 +1,68 @@
+% ----------------------------------------------------------------
+% AMS-LaTeX Paper ************************************************
+% **** -----------------------------------------------------------
+\documentclass{amsart}
+\usepackage{graphicx}
+% ----------------------------------------------------------------
+\vfuzz2pt % Don't report over-full v-boxes if over-edge is small
+\hfuzz2pt % Don't report over-full h-boxes if over-edge is small
+% THEOREMS -------------------------------------------------------
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{cor}[thm]{Corollary}
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{prop}[thm]{Proposition}
+\theoremstyle{definition}
+\newtheorem{defn}[thm]{Definition}
+\theoremstyle{remark}
+\newtheorem{rem}[thm]{Remark}
+\numberwithin{equation}{section}
+% MATH -----------------------------------------------------------
+\newcommand{\norm}[1]{\left\Vert#1\right\Vert}
+\newcommand{\abs}[1]{\left\vert#1\right\vert}
+\newcommand{\set}[1]{\left\{#1\right\}}
+\newcommand{\Real}{\mathbb R}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\To}{\longrightarrow}
+\newcommand{\BX}{\mathbf{B}(X)}
+\newcommand{\A}{\mathcal{A}}
+% ----------------------------------------------------------------
+\begin{document}
+
+\title[]{CN Network construction and optimisation}%
+\author{Michael Eager}%
+\address{}%
+\email{meager@bionicear.org}%
+
+\thanks{}%
+\subjclass{}%
+\keywords{}%
+
+%\date{}%
+%\dedicatory{}%
+%\commby{}%
+
+\maketitle
+% ----------------------------------------------------------------
+\section{Golgi Cells - rate model}
+
+Due to the unavailability of sufficient data regarding \emph{in vivo} golgi cell
+responses, we have decided to simulate the response of golgi cells using inputs
+from the Auditory Model filterbanks rather than simulating the neural membrane.
+
+The golgi cell template is similar to the previous CNcell template, so that
+minimal changes need to be made to other sections of code. 
+
+Each template consists of a spike generator, \emph{s}, and vector objects
+representing the instantaneous rate, the spike times and accumulated  spike
+times of the golgi cell. Parameters identifying each cell include the
+\emph{channel} number, CF and bandwidth of ANF input (actually the variance of
+the weight each auditory filter channel contributes to the firing of the cell).
+The instantaneous rate vector is derived by 
+
+
+
+
+
+
+\end{document}
+% ----------------------------------------------------------------

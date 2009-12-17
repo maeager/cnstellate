@@ -75,7 +75,7 @@ func minisi() { local i,j,min   // find shortest mean ISI
   min = 1e6
   for i = 0, nchannels-1 {
     for j = 0, nTSperchannel-1 {
-      calc_isis(i,j,ttrans)
+      calc_isis(i,j,t_ignore_before,t_ignore_after)
       if (isi.size() > 0) {
         if (isi.mean() < min) { min = isi.mean() }
       }
@@ -88,7 +88,7 @@ func minisi() { local i,j,min   // find shortest mean ISI
 proc rate_array() { local i,j
   for i = 0,nchannels-1 {
     for j = 0, nTSperchannel-1 {
-      calc_isis(i,j,ttrans)
+      calc_isis(i,j,t_ignore_before,t_ignore_after)
       if (isi.size() > 0) {
         TSoutputarray.x[i][j] = 1000/isi.mean()
       }else {
@@ -209,7 +209,7 @@ func synch_index() { local i1,j1,i2,j2,n
         for i2 = 0, nchannels-1 {
           for j2 = 0, nTSperchannel-1 {
             if (i1 != i2 || j1 != j2) {
-              calc_phase_lags(i1,j1,i2,j2,ttrans)
+              calc_phase_lags(i1,j1,i2,j2,t_ignore_before,t_ignore_after)
               n += lags.size()
               synchindex += lags.reduce("abs",0)
             }
@@ -235,7 +235,7 @@ func phaselock_index() { local n,i1,j1,i2,j2
         for i2 = 0, nchannels-1 {
           for j2 = 0, nTSperchannel-1 {
             if (i1 != i2 || j1 != j2) {
-              calc_phase_lags(i1,j1,i2,j2,ttrans)
+              calc_phase_lags(i1,j1,i2,j2,t_ignore_before,t_ignore_after)
               if (lags.size() > 1) {
                 synchindex += lags.var()
                 n += 1
@@ -275,7 +275,8 @@ proc print_smooth_hist() { // 2 args - variance, filename root
   outfile.close()
 
   work.resize(0)
-  hist.remove(0,ttrans)
+  hist.remove(t_ignore_after, hist.size-1)
+  hist.remove(0,t_ignore_before)
   work.spctrm(hist)
   sprint(filename,"%s.pow",$s2)
   outfile.wopen(filename)
@@ -303,7 +304,7 @@ proc print_an_smooth_hist() { // 2 args - variance, filename root
   hist.printf(outfile,"%8.3f\n")
   outfile.close()
   //work.resize(0)
-  //hist.remove(0,ttrans)
+  //hist.remove(0,t_ignore_before,t_ignore_after
   //work.spctrm(hist)
   //sprint(filename,"%s.an.HSR.pow",$s2)
   //outfile.wopen(filename)
@@ -357,7 +358,7 @@ proc print_spiketimes() { // 3 args - indices of Tstellate cell plus filename ro
 }
 
 
-proc print_raster() { // 1 arg - filename root
+proc print_ts_raster() { // 1 arg - filename root
 
   sprint(filename,"%s.ras",$s1)
   outfile.wopen(filename)
@@ -443,7 +444,7 @@ proc print_an_raster() { // 1 arg - filename root
 }
 
 proc print_isis() { // 3 args - indices of tstellate cell plus filename root
-  calc_isis($1,$2,ttrans)
+  calc_isis($1,$2,t_ignore_before,t_ignore_after
   sprint(filename,"%s_%d_%d.isi",$s3,$1,$2)
   outfile.wopen(filename)
   outfile.printf("# Interspike intervals for Tstellate cell [%d][%d]",$1,$2)
@@ -458,7 +459,7 @@ proc print_isi_stats() { // 1 arg - filename root
   outfile.printf("# i  j   n   mean   median   stdev  \n")
   for i = 0, nchannels-1 {
     for j = 0, nTSperchannel-1 {
-      calc_isis(i,j,ttrans)
+      calc_isis(i,j,t_ignore_before,t_ignore_after
       outfile.printf("%3d%3d%4d",i,j,isi.size())
       if (isi.size() > 0) {
         outfile.printf("%8.2f%8.2f",isi.mean(),isi.median())
@@ -477,7 +478,7 @@ proc print_isi_stats() { // 1 arg - filename root
   outfile.printf("# i  j   n   mean   median   stdev  \n")
   for i = 0, nchannels-1 {
     for j = 0, HSRsperchannel-1 {
-      calc_an_isis(i,j,ttrans)
+      calc_an_isis(i,j,t_ignore_before,t_ignore_after
       outfile.printf("%3d%3d%4d",i,j,isi.size())
       if (isi.size() > 0) {
         outfile.printf("%8.2f%8.2f",isi.mean(),isi.median())
@@ -496,7 +497,7 @@ proc print_lags() { local i,j // 3 args - indices of Tstellate cell + filename r
   outfile.printf("# Lag times for Tstellate cell [%d][%d]\n",$1,$2)
   for i = 0, nchannels-1 {
     for j = 0, nTSperchannel-1 {
-      calc_lags($1,$2,i,j,ttrans)
+      calc_lags($1,$2,i,j,t_ignore_before,t_ignore_after
       outfile.printf("[%d,%d]",i,j)
       lags.printf(outfile,"%10.3f")
     }

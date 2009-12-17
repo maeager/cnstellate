@@ -405,6 +405,12 @@ if( ( param.n.getval(ts,ts) > 0 ) && ( nTSperchannel > 1 ) ){
 
    }
   }
+        p = 100*(channel)/(nchannels)
+    printf("\r=== %3d%% ===",p)
+    flushf()
+    doNotify() // Although this slows down cell creation, the
+               // process is so long that we have to allow the
+               // user to quit during the creation.
  }
   printf("\n")
 }
@@ -430,6 +436,12 @@ if( ( param.n.getval(tv,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nTVperchannel !
 
    }
   }
+        p = 100*(channel)/(nchannels)
+    printf("\r=== %3d%% ===",p)
+    flushf()
+    doNotify() // Although this slows down cell creation, the
+               // process is so long that we have to allow the
+               // user to quit during the creation.
  }
   printf("\n")
 }
@@ -454,6 +466,12 @@ if( ( param.n.getval(ds,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nDSperchannel !
   outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
   }
   }
+        p = 100*(channel)/(nchannels)
+    printf("\r=== %3d%% ===",p)
+    flushf()
+    doNotify() // Although this slows down cell creation, the
+               // process is so long that we have to allow the
+               // user to quit during the creation.
  }
   printf("\n")
 }
@@ -478,6 +496,12 @@ if( ( param.n.getval(ds,tv) > 0 ) && ( nTVperchannel != 0 ) && ( nDSperchannel !
     outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
    }
   }
+        p = 100*(channel)/(nchannels)
+    printf("\r=== %3d%% ===",p)
+    flushf()
+    doNotify() // Although this slows down cell creation, the
+               // process is so long that we have to allow the
+               // user to quit during the creation.
  }
   printf("\n")
 }
@@ -507,6 +531,12 @@ if( ( param.n.getval(glg,ds) > 0 ) && ( nDSperchannel != 0 ) && ( nGperchannel !
  outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
    }
   }
+        p = 100*(channel)/(nchannels)
+    printf("\r=== %3d%% ===",p)
+    flushf()
+    doNotify() // Although this slows down cell creation, the
+               // process is so long that we have to allow the
+               // user to quit during the creation.
  }
   printf("\n")
 }
@@ -538,6 +568,12 @@ if( ( param.n.getval(glg,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nGperchannel !
      outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
   }
   }
+        p = 100*(channel)/(nchannels)
+    printf("\r=== %3d%% ===",p)
+    flushf()
+    doNotify() // Although this slows down cell creation, the
+               // process is so long that we have to allow the
+               // user to quit during the creation.
  }
   printf("\n")
 }
@@ -642,22 +678,22 @@ proc ClearSpikes(){local i,j
     an.ClearSpikes()
 	for i=0,nchannels-1{
          for j=0,nTSperchannel-1{
- sprint(cmd, "tstellate[%d][%d].spikes.remove_all()",i,j)
+ sprint(cmd, "tstellate[%d][%d].spikes.resize(0)",i,j)
          execute1(cmd)
          }
          for j=0,nTVperchannel-1{
- sprint(cmd, "tuberculoventral[%d][%d].spikes.remove_all()",i,j)
+ sprint(cmd, "tuberculoventral[%d][%d].spikes.resize(0)",i,j)
          execute1(cmd)
          }
          for j=0,nDSperchannel-1{
 
- sprint(cmd, "dstellate[%d][%d].spikes.remove_all()",i,j)
+ sprint(cmd, "dstellate[%d][%d].spikes.resize(0)",i,j)
          execute1(cmd)
 
          }
          for j=0,nGperchannel-1{
 
- sprint(cmd, "golgi[%d][%d].spikes.remove_all()",i,j)
+ sprint(cmd, "golgi[%d][%d].spikes.resize(0)",i,j)
          execute1(cmd)
 
          }

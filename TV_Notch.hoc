@@ -31,15 +31,15 @@ proc GenSpikes2(){local i
     for i=0,hsr2dsAMPAlist.count-1 hsr2dsAMPAlist.object(i).pre.SGfast(1)
     for i=0,lsr2dsAMPAlist.count-1 lsr2dsAMPAlist.object(i).pre.SGfast(1)
     for i=0,glg2dsGABAlist.count-1 glg2dsGABAlist.object(i).pre.SGfast(1)
-				print "GenSpikes time:", stopsw()
+	print "GenSpikes time:", stopsw()
 }
-proc GenSpikes(){local i
+proc GenSpikes(){local i,j,count
   startsw()
-    for i=0,nchannels-1{
-	for j=0,HSRsperchannel-1 an.HSR[i][j].SGfast(1)
-	for j=0,LSRsperchannel-1 an.LSR[i][j].SGfast(1)
-	golgi[i][0].GenSpikes()
-      }
+    for i=0,nchannels-1 for j=0,HSRsperchannel-1 an.HSR[i][j].SGfast(1)
+    for i=0,99 for j=0,HSRsperchannel-1 count+=an.HSRspiketimes[i][j].size
+   // if (count/(nchannels*HSRsperchannel) > 10) system("sleep 0.5")
+    for i=0,nchannels-1 for j=0,LSRsperchannel-1 an.LSR[i][j].SGfast(1)
+    for i=0,nchannels-1  golgi[i][0].s.SGfast(1)
   print "GenSpikes time:", stopsw()
 }
 
@@ -68,9 +68,15 @@ proc reset_weights() { local i // 1 arg - weight
 		ds2tvGLYlist.object(i).weight = param.w.x[ds][tv]
 	}
 }
-
-
-
+proc set_DS_ClickRecovery(){local ii
+//Extra updating feature for DS_ClickRecovery
+   for ii = 0,nchannels-1 {
+    dstellate[ii][0].soma.gleak_rm =dstellate_gleak_rm
+    dstellate[ii][0].soma.gkltbar_klt =dstellate_gkltbar
+    dstellate[ii][0].GABAA.tau2 = gaba_decay
+    dstellate[ii][0].GABAA.tau1 = gaba_rise
+  }
+}
 
 
 objref golgi[nchannels][1],g, dstellate[nchannels][1], tuberculoventral[nchannels][1]
@@ -80,53 +86,109 @@ objref golgi[nchannels][1],g, dstellate[nchannels][1], tuberculoventral[nchannel
 	create_cells()
 	connect_cells(fileroot)
 	connect_CNcells(fileroot)
-	xopen("cngui.hoc")
+xopen("cngui.hoc")
 
 
+proc SaveMultiRun(){
+sprint(cmd,"TV_notch/CN_rateplace_%goct_spl%d.eps",notchwidth,spl)
+CNrategr.printfile(cmd)
+sprint(cmd,"TV_notch/AN_rateplace_%goct_spl%d.eps",notchwidth,spl)
+ANFgr[1].printfile(cmd)
+sprint(cmd,"TV_notch/CN_rateplace_%goct.tv.dat",notchwidth)
+{ file.aopen(cmd) CNrate[tv].printf(file) file.close() }
+sprint(cmd,"TV_notch/CN_rateplace_%goct.ds.dat",notchwidth)
+{ file.aopen(cmd) CNrate[ds].printf(file) file.close() }
+sprint(cmd,"TV_notch/CN_rateplace_%goct.glg.dat",notchwidth)
+{ file.aopen(cmd) CNrate[glg].printf(file) file.close() }
+sprint(cmd,"TV_notch/AN_rateplace_%goct.hsr.dat",notchwidth)
+{ file.aopen(cmd) ANFrate[0].printf(file) file.close() }
+sprint(cmd,"TV_notch/AN_rateplace_%goct.lsr.dat",notchwidth)
+{ file.aopen(cmd) ANFrate[1].printf(file) file.close() }
+}
+
+
+
+param.w.x[glg][ds]  = 0.00189573    //0.00022603 0.01117
+param.w.x[hsr][ds]  = 0.00164996    //0.000499146 0.0041214
+param.w.x[lsr][ds]  = 0.0275752    //0.000184798 0.0105719
+dstellate_gkltbar   = 0.0219322     //0.000972424 0.109179
+gaba_decay          = 14.816        //1.41772 30.11
+gaba_rise           = 1.3127        //0.195085 3.37315
+dstellate_gleak_rm  = 0.00177256    //0.000196441 0.00280103
+reset_weights()
+set_DS_ClickRecovery()
+
+   ANsoundspath="../../sounds"
    cfhi     =48000
    cflo     =1000
-   tstop	  =85
+   tstop	=85
    dur      = 0.049    //duration of stim (seconds)
    spl      = 100
    stimdelay= 0.02      //sec
-   stimtype = 8      //Notch
+   stimtype = 12      //Notch
    reps     = 50 //25
    ANmodel  = 6      //Zilany Bruce model
    species  = 2      //Rat
    nrep     = 1        //nrep is number of reps of stimulus
-
+   stopband=10
+   notchwidth=0.5
 ANFBgr = new Graph()
-usesavedfilterbanks=0
+usesavedfilterbanks=1
 
-ANsoundspath="../soma/sounds"
-RefreshParameters()
-file.ropen("./TV_notch/Notch-sb10-0.5oct.dat")
-Readfile(stim,file)
-srate=100000
-stimtdres=1/srate
-sg_rate=50000
-sg_tdres=1/sg_rate
-		spl=60
-		aa = spl2amplNoise((spl))/spl2amplNoise(Decibels(stim))
-		stim.mul(aa)
-		ANFilterBankRun()   //Build the filterbank
-		CheckFilterbank()
-		SetRates()      //Allocate filterbanks to ANFs
+
+
+//wavefile="./TV_notch/Notch-sb10-0.5oct.dat"
+//file.ropen("./TV_notch/Notch-sb10-1oct.dat")
+//Readfile(stim,file)
+//srate=100000
+//stimtdres=1/srate
+//sg_rate=50000
+//sg_tdres=1/sg_rate
+//		spl=85
+//		RescaleStim(spl,0,stim.size-1)
+//		ANFilterBankRun()   //Build the filterbank
+//		CheckFilterbank()
+//		SetRates()      //Allocate filterbanks to ANFs
 		//ShowInputGraphs()
 		//ShowGolgiGraphs()
-		GenSpikes()
-		ANSpikes()
-		
-for reps=0,9{
-		run()
-		SaveSpikes()
+		//GenSpikes()
+		//ANSpikes()
+
+//xopen("TV_Notch.ses")		
+reps=25
+
+notchwidth=1
+for (spl=15;spl<=100;spl+=5){
+RefreshParameters()
+ANFilterBankRun()   //Build the filterbank
+CheckFilterbank()
+SetRates()
+multi_run()
+ANSpikes()
+SaveMultiRun()
 }
-CNSpikes2()
+
+for (spl=15;spl<=100;spl+=5){
+RefreshParameters()
+ANFilterBankRun()   //Build the filterbank
+CheckFilterbank()
+SetRates()
+multi_run()
+ANSpikes()
+SaveMultiRun()
+}
+
+//xopen("cngui.hoc")
+
+
 				
 			
 
-		Graph[2].printfile("TV_notch/AN_rateplace_10_0.5.eps")
-		Graph[5].printfile("TV_notch/CN_rateplace_10_0.5.eps")
+	//	Graph[2].printfile("TV_notch/AN_rateplace_10_0.5.eps")
+	//	
+
+
+
 
 /*
 
@@ -344,19 +406,16 @@ connect_cells(fileroot)
 //tstop=300
 pvec.printf
 // print err(0,&pvec.x[0])
-
 proc runprax(){
 attr_praxis(0.0001, 0.001, 3)
 fit_praxis(NPARAMS,"err",&pvec.x[0])
 }
 	error=0
-
 strdef datestr,grlbl
 objref ivec
 ivec= new Vector()
 ivec.append(3,9,7,5,1,2,8,6,4,0,10,11,12,13)
 proc runprax2(){
-
 //Output model data with best parameters
  print error=err(0,&pvec.x[0])
  system("date",datestr)
@@ -374,19 +433,15 @@ proc runprax2(){
  file.close()
 sprint(fname,"(cd %s; gnuplot %s_ExpData.gnu)",fileroot,fileroot)
 system(cmd)
-
-
 //Write parameters to general optimisation file
 sprint(fname,"pvec_%s.hoc",fileroot)
 file.aopen(fname)
- file.printf("/**** %s *******/\n",datestr)
+ file.printf(" //  %s  \n",datestr)
     for pp=0,NPARAMS-1 {
          file.printf("%s = %g\n",pvec_name.object(pp).s,pvec.x[pp])
     }
  file.close()
 }
-
-
 for iprax=0,20 {
             runprax()
     // Default Output Plot

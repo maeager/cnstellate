@@ -4,39 +4,82 @@
 //
 //
 ///********************************************/
+xopen("pvec_Golgi_RateLevel.hoc")
+xopen("pvec_DS_ClickRecovery.hoc")
+
+
+proc set_DS_ClickRecovery(){local ii
+//Extra updating feature for DS_ClickRecovery
+   for ii = 0,nchannels-1 {
+    dstellate[ii][0].soma.gleak_rm =dstellate_gleak_rm
+    dstellate[ii][0].soma.gkltbar_klt =dstellate_gkltbar
+    dstellate[ii][0].GABAA.tau2 = gaba_decay
+    dstellate[ii][0].GABAA.tau1 = gaba_rise
+  }
+}
+
 
 //Setup Auditory model
+//an = new AuditoryNerve
+
+proc SetRates(){
+    an.SetRates()
+    for ii = 0,nchannels-1 golgi[ii][0].SetRate()
+}
+proc GenSpikes(){
+    an.GenSpikes()
+    for ii = 0,nchannels-1 golgi[ii][0].GenSpikes()
+}
+
 
 //  Create the model
 create_cells()
 connect_cells(fileroot)
-connect_CNcells(fileroot)
+system("sleep 1")
+//connect_CNcells(fileroot)
+
+
+//Setup Auditory model
+   cfhi=64000
+   cflo=200
+
+   dur       = 0.08  //duration of stim (seconds)
+   srate       = 500000.0   //
+   stimtdres    = 1/srate
+   sg_rate    = 50000
+   sg_tdres    = 1/sg_rate
+   stimdelay    = 0.01      //sec
+   stimtype   = 2      //Silence
+   reps      = 25
+   ANmodel      = 6      //Zilany Bruce model
+   species      = 2      //Rat
+   nrep      = 1        //nrep is number of reps of stimulus
 
 stimtype = 0  //read stim from file
-path = "./stim/"
-wavefile = "./stim/b6t.dat"
+path = "../PVSyllables/"
+wavefile = "../PVSyllables/bu.dat"
 
-proc RescaleStim(){local rms
-rms = Decibels(stim)
-stim.mul(spl2amplNoise(spl)/spl2amplNoise(rms))
-}
-
-sg_rate = 50000
+usesavedfilterbanks=1
+sg_rate = 10000
 sg_tdres = 1/sg_rate
+
 
 proc LoadVowel(){
 RefreshParameters()   //Generate or get stim from file
+stim.resample(stim,3)
+srate       = 44100*3
+stimtdres    = 1/srate
 spl=$1
-RescaleStim()      //Scale the vowel
+RescaleStim(spl,stim.size/5,stim.size*4/5)      //Scale the vowel
 ANFilterBankRun()   //Build the filterbank
 //an.SetRates()      //Allocate filterbanks to ANFs
 //DummyGraphs()
 }
 
 
-LoadVowel(73)
+LoadVowel(75)
 
-an.GenSpikes() //calls SGfast(1) on each fibre
+//GenSpikes() //calls SGfast(1) on each fibre
                 //it might be quicker to use another method
                 //eg. calling the original zbcatmodel and
                 //outputing several spike trains
@@ -45,17 +88,19 @@ an.GenSpikes() //calls SGfast(1) on each fibre
 
 // *** Process data and print out results
 xopen("calcisilag.hoc") // everybody needs this for the post_results
+xopen("cngui.hoc")
 
 proc print_results() {
-  print_raster(fileroot)
-  print_gran_raster(fileroot)
-  print_gran_hist(1,fileroot)
-  sprint(filename,"%s.curvs",fileroot)
-  outfile.wopen(filename)
-  take_record()
-  for i = 0, tvec.size()-1 {
-    outfile.printf("%8.3g %8.3g %8.3g %8.3g %8.3g \n",tvec.x[i],igabaa.x[i],vmit.x[i],vgran.x[i],iclamp.x[i])
-  }
-  outfile.close()
+  print_ts_raster(fileroot)
+  print_an_raster(fileroot)
+  print_ds_raster(fileroot)
+  print_tv_raster(fileroot)
+  print_golgi_raster(fileroot)
+  print_an_hist(dt*2,fileroot)
+  print_smooth_hist(dt*2, fileroot)
+   print_isi_stats(fileroot)
+   print_isis(fileroot)
+   print_si(fileroot)
+
   print "Results printed to files"
 }

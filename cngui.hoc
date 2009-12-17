@@ -60,7 +60,7 @@ proc ShowGolgiGraphs() {
    ANFBgr.label(0.1,0.95,"Auditory Filterbank Instantaneous Rate Profiles")
    for icf = 0, nchannels-1 {
       Sout[icf] = golgi[icf][0].sout.c
-      Sout[icf].add(icf) 
+      Sout[icf].add(icf)
       Sout[icf].plot(ANFBgr,sg_tdres, 1, 0)
       sprint(lbl, "%g ", cf.x[icf])
       ANFBgr.label(0.92, 0.810*(icf/(nchannels-1))+0.075, lbl)
@@ -106,8 +106,8 @@ objref ANFgr[2],ANspksL[nchannels],ANspksH[nchannels],ANFrate[2],ANFhist
 //.div(reps*binsize/1000)
       ANspksH[icf] = ANspksH[icf].histogram(0,tstop,0.1)
       ANspksL[icf] = ANspksL[icf].histogram(0,tstop,0.1)
-      ANFrate[0].append(ANspksH[icf].mean())
-      ANFrate[1].append(ANspksL[icf].mean())
+      ANFrate[0].append(ANspksH[icf].sum()/HSRsperchannel)
+      ANFrate[1].append(ANspksL[icf].sum()/LSRsperchannel)
       ANspksH[icf].add(icf*5).plot(ANFhist, 0.1)
 
 
@@ -124,6 +124,21 @@ objref ANFgr[2],ANspksL[nchannels],ANspksH[nchannels],ANFrate[2],ANFhist
    ANFgr[1].label(0.3, 0.95, "Rate-Place Representation: Auditory Nerve Fibres")
    ANFgr[1].label(0.3,0.92,"High spont: red       Low spont: blue" )
    ANFgr[1].exec_menu("View = plot")
+}
+
+/*********************************************
+ *  Plot Audiogram
+ *********************************************/
+objref audiogramgr
+proc PlotAudiogram(){
+    objref audiogramgr
+    audiogramgr = new Graph()
+    cohc.plot(audiogramgr,1,1,1)
+    cihc.plot(audiogramgr,1,2,1)
+    audiogramgr.label(0.1,0.95, "Audiogram Data - Extrapolated for experimental data")
+    audiogramgr.label(0.1,0.90, "File: ")
+    audiogramgr.label(0.2,0.90, bruce_impairment_file)
+audiogramgr.exec_menu("View = plot")
 }
 
 
@@ -187,7 +202,7 @@ objref CNgr[4],CNspks[nchannels][4],CNhist,CNrate[4],CNrategr
    CNgr[ts].label(0.3, 0.95, "Raster Plot of Tstellate")
    CNgr[ds].label(0.3, 0.95, "Raster Plot of D-stellate")
       for i=0,3{
-         CNgr[i].exec_menu("View = plot")
+         CNgr[i].size(0,tstop,0,nchannels)
          CNrate[i].plot(CNrategr,1,i+1,1)
    }
    CNhist.label(0.5, 0.95, "PSTH")
@@ -199,7 +214,7 @@ objref CNgr[4],CNspks[nchannels][4],CNhist,CNrate[4],CNrategr
 proc CNSpikes2(){local i, icf
 	objref CNgr[4],CNspks[nchannels][4],CNhist,CNrate[4],CNrategr
 	for i=0,3 {
-//		CNgr[i] = new Graph()
+		CNgr[i] = new Graph()
 		CNrate[i] = new Vector()
 	}
 
@@ -234,10 +249,61 @@ proc CNSpikes2(){local i, icf
 //		CNgr[i].exec_menu("View = plot")
 		CNrate[i].plot(CNrategr,1,i+1,1)
 	}
-	
+	CNrategr.label(0, 0,"TS",1,1,-25,-15,ts)
+	CNrategr.label(0, 0,"TV",1,1,-25,-14,tv)
+	CNrategr.label(0, 0,"DS",1,1,-25,-13,ds)
+	CNrategr.label(0, 0,"GLG",1,1,-25,-12,glg)
+
 	CNrategr.label(0.3, 0.95, "Rate-Place Representation")
 	CNrategr.exec_menu("View = plot")
 }
+
+proc CN_Histograms(){local itype,icf
+    objref CNgr[4]
+    for itype = 0,3 { 		
+        CNgr[itype] = new Graph()
+        for icf = 0,nchannels-1 {
+            CNspks[icf][itype].add(icf*5).plot(CNgr[itype], 0.1)
+        }
+    }
+}
+
+proc GenSpikes(){local i
+  startsw()
+    for i=0,nchannels-1 for j=0,HSRsperchannel-1 an.HSR[i][j].SGfast(1)
+    for i=0,nchannels-1 for j=0,LSRsperchannel-1 an.LSR[i][j].SGfast(1)
+    for i=0,nchannels-1  golgi[i][0].s.SGfast(1)
+  print "GenSpikes time:", stopsw()
+}
+
+proc multi_run(){
+    ClearSpikes()
+    for ireps = 0, reps-1 {
+        GenSpikes()
+        run()
+        SaveSpikes()
+        }
+    CNSpikes2()
+}
+
+
+
+		proc weightspanel(){
+	xpanel("Network Weights")
+			xvalue("param.w.x[hsr][ts]")
+			xvalue("param.w.x[hsr][tv]")
+			xvalue("param.w.x[hsr][ds]")
+			xvalue("param.w.x[lsr][ts]")
+			xvalue("param.w.x[lsr][tv]")
+			xvalue("param.w.x[lsr][ds]")
+			xvalue("param.w.x[lsr][glg]")
+			xvalue("param.w.x[ds][ts]")
+			xvalue("param.w.x[ds][tv]")
+			xvalue("param.w.x[glg][ds]")
+			xvalue("param.w.x[tv][ts]")
+			xbutton("Reset Weights","reset_weights()")
+			xpanel()
+		}
 
 
 /********************************************************************
@@ -280,33 +346,25 @@ xpanel("Auditory Model Simulation Parameters")
 
 		xpanel()
 		xpanel("Auditory & Cochlear Nucleus Methods")
+   xbutton("Create Cells","create_cells()")
+   xbutton("Connect ANFs","connect_cells(fileroot)")
+   xbutton("Connect CN cells","connect_CNcells(fileroot)")
+   xbutton("Show Audiogram","PlotAudiogram()")
    xbutton("Refresh Stim and Param", "RefreshParameters()")
    xbutton("Update Filterbanks","ANFilterBankRun()")
-   xbutton("Reset ANFs","an.SetRates()")
+   xbutton("Reset ANFs","SetRates()")
    xbutton("Plot Stim & AN filterbank","ShowInputGraphs()")
    xbutton("Golgi filterbank","ShowGolgiGraphs()")
-	xbutton("Generate Spikes", "an.GenSpikes()")
+	xbutton("Generate Spikes", "GenSpikes()")
 	xbutton("AN Raster","ANSpikes()")
    xbutton("CN Rasters","CNSpikes()")
+    xbutton("Weights Panel","weightspanel()")
+			xvalue("reps")
+			xbutton("Multi Run","multi_run()")
+            xbutton("Plot Rate","CNSpikes2()")
+            xbutton("Plot Histograms","CN_Histograms()")
 xpanel()
 
 	//  xopen("reset_weights.hoc")
 		
 		
-
-		proc weightspanel(){
-	xpanel("Network Weights")
-			xvalue("param.w.x[hsr][ts]")
-			xvalue("param.w.x[hsr][tv]")
-			xvalue("param.w.x[hsr][ds]")
-			xvalue("param.w.x[lsr][ts]")
-			xvalue("param.w.x[lsr][tv]")
-			xvalue("param.w.x[lsr][ds]")
-			xvalue("param.w.x[lsr][glg]")
-			xvalue("param.w.x[ds][ts]")
-			xvalue("param.w.x[ds][tv]")
-			xvalue("param.w.x[glg][ds]")
-			xvalue("param.w.x[tv][ts]")
-			xbutton("Reset Weights","reset_weights()")
-			xpanel()
-		}
