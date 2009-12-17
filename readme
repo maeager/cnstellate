@@ -1,0 +1,54 @@
+
+
+I generally setup two versions of NEURON one for testing with a GUI and the other with MPICH2 linked in. PVM may also be used to generate parallel simulations, but mpich2 is preferred.
+
+unpack nrn and iv then jump into iv
+
+cd
+mkdir neuron
+cd neuron
+tar zxvf ../iv-17.tar.gz
+mv iv-17 iv
+cd iv
+./configure --prefix=`pwd` && make && make install
+
+cd ..
+tar zxvf nrn-X.X.tar.gz
+mv nrn-X.X nrn
+cd nrn
+
+# now make your separate builds
+mkdir gui
+cd gui
+../configure --prefix=`pwd` --with-iv=$HOME/neuron/iv --without-paranrn
+make && make install
+cd ..
+mkdir mpi
+../configure --prefix=`pwd` --without-iv --with-paranrn
+make && make install
+
+
+In the working directory containing NMOL *.mod files, setup two linkable libraries against the two nrn builds.
+
+See the Makefile for instructions to make either the gui or mpi version, otherwise use "make all".  This calls the appropriate 'nrnivmodl' script to convert the *.mod files to a dynamic library.
+
+$ make gui
+
+or
+
+$ make mpi
+
+To run a script in gui mode:
+
+./guispecial par_golgi_test.hoc -
+or
+./gui/special par_golgi_test.hoc -
+The dash on the end allows the user to enter the interactive mode after loading the HOC file.
+
+the MPI version should be run in the background from the mpispecial script or in batch mode.  "np" is the number of processors requested (1 to 50)
+
+./mpispecial np par_batch.hoc > /tmp/batch.log 2>&1 &
+
+or you may need to submit the script to the SGI grid engine
+
+qsub -q medium.q -b y -V -cwd -e /dev/null -o /dev/null ./mpispecial np par_batch.hoc 

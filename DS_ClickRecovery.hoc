@@ -170,8 +170,8 @@ RefreshParameters()
 ANFilterBankRun()   //Build the filterbank
 CheckFilterbank()
 SetRates()      //Allocate filterbanks to ANFs and Golgi units
-ShowInputGraphs()
-ShowGolgiGraphs()
+//ShowInputGraphs()
+//ShowGolgiGraphs()
 
 
 
