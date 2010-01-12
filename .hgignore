@@ -22,3 +22,6 @@ $pfebk/*
 syntax: regexp
 .*\#.*\#$
 
+glob:*.diff
+glob:tags
+glob:*.orig
