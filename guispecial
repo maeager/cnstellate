@@ -1,0 +1,9 @@
+#!/bin/sh
+
+
+NRNHOME="/home/meager/nrn-6.1/nrniv"
+NRNBIN="/home/meager/nrn-6.1/nrniv/ia64/bin/"
+NRNIV="${NRNBIN}nrniv"
+LNRNMECH="/home/meager/dmf/work/netmod/cnstellate/gui/.libs/libnrnmech.so"
+
+"${NRNIV}" -dll "${LNRNMECH}" "$@" 
