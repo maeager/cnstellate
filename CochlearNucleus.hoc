@@ -758,3 +758,32 @@ proc reset_weights() { local i // 1 arg - weight
    ts2tvAMPAlist.object(i).weight = param.w.x[ts][tv]
   }
 }
+
+
+proc SetRates(){
+   an.SetRates()
+   for i=0,99 golgi[i][0].SetRate()
+}
+
+proc GenSpikesB(){local i
+    startsw()
+	//Only generate spikes from stimulators that have a connecting synapse
+    for i=0,hsr2dsAMPAlist.count-1 hsr2dsAMPAlist.object(i).pre.SGfast(1)
+    for i=0,lsr2dsAMPAlist.count-1 lsr2dsAMPAlist.object(i).pre.SGfast(1)
+    for i=0,glg2dsGABAlist.count-1 glg2dsGABAlist.object(i).pre.SGfast(1)
+	print "GenSpikes time:", stopsw()
+}
+proc GenSpikesA(){local i,j,count
+  startsw()
+    for i=0,nchannels-1 for j=0,HSRsperchannel-1 an.HSR[i][j].SGfast(1)
+    for i=0,99 for j=0,HSRsperchannel-1 count+=an.HSRspiketimes[i][j].size
+   // if (count/(nchannels*HSRsperchannel) > 10) system("sleep 0.5")
+    for i=0,nchannels-1 for j=0,LSRsperchannel-1 an.LSR[i][j].SGfast(1)
+    for i=0,nchannels-1  golgi[i][0].s.SGfast(1)
+  print "GenSpikes time:", stopsw()
+}
+
+proc ClearINputSpikes(){local i
+   an.ClearSpikes()
+   for i=0,99 golgi[i][0].ClearSpikes()
+}

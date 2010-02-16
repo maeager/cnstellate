@@ -22,7 +22,7 @@ thresh=-20
 
 proc SetRates(){
    an.SetRates()
-   for i=0,99 golgi[i][0].SetRate()
+    for i=0,99 golgi[i][0].SetRate()
 }
 
 proc GenSpikes2(){local i

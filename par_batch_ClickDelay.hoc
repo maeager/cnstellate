@@ -28,7 +28,7 @@ if (name_declared("mosinit")) {
 
 
 
-/*prun()
+prun()
 
 pnm.pc.runworker
 
@@ -51,4 +51,4 @@ printf("setuptime=%g   runtime=%g\n", setuptime, runtime)
 
 
 quit()
-*/
+

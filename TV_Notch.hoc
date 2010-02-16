@@ -1,3 +1,4 @@
+
 /*
  *   TV_Notch.hoc
  *
@@ -180,12 +181,6 @@ SaveMultiRun()
 
 //xopen("cngui.hoc")
 
-
-				
-			
-
-	//	Graph[2].printfile("TV_notch/AN_rateplace_10_0.5.eps")
-	//	
 
 
 
@@ -459,7 +454,11 @@ runprax2()
 
 
 /*  Notes:
+Predicted Population response  - inverted from single cell response to moving notch filter
 
+       _ _ _ _     _ _ _ _                  _
+                   \_/             ->   - - - -/   \_ - - -
+       
 
 
 */

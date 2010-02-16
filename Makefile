@@ -1,6 +1,6 @@
 ARCH=$(shell arch)
-NRNMODL = ~/neuron/nrn-7.1/nrnmpi/$(ARCH)/bin/nrnivmodl
-IVMODL=~/neuron/nrngui/$(ARCH)/bin/nrnivmodl
+NRNMODL = $HOME/Neuron/nrn/nrnmpi/$(ARCH)/bin/nrnivmodl
+GUIMODL=$HOME/Neuron/nrn/nrngui/$(ARCH)/bin/nrnivmodl
 
 all: clean-all gui mpi
 
@@ -16,9 +16,13 @@ clean-all: clean
 	-rm -rf mpi gui
 
 gui:
-	$(IVMODL)
+	$(GUIMODL)
 	mv $(ARCH) gui
+	cd gui
+	sed -i 's/cnstellate\/i686/cnstellate\/gui/g' *
 	
 mpi:
 	$(NRNMODL)
 	mv $(ARCH) mpi
+	cd mpi
+	sed -i 's/cnstellate\/i686/cnstellate\/mpi/g' *
