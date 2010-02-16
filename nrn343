@@ -1,0 +1,11 @@
+#!/bin/sh
+
+
+NRNHOME="/home/meager/neuron/nrn-7.1/nrnmpi"
+NRNBIN="$HOME/i686/bin"
+NRNIV="${NRNBIN}/nrniv"
+LNRNMECH=".libs/libnrnmech.so"
+MPIBIN="/usr/local/bin"
+MPIRUN="${MPIBIN}/mpirun"
+
+"${MPIRUN}" -np "$1" "${NRNIV}" -dll "${LNRNMECH}" "$@" 
