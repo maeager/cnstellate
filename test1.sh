@@ -7,7 +7,7 @@ LNRNMECH="/home/meager/dmf/work/netmod/cnstellate/ia64/.libs/libnrnmech.so"
 MPIBIN="/opt/mpich/ch-p4/bin/"
 MPIRUN="${MPIBIN}mpirun"
 
-if [[ `ps -u meager | grep ssh-agent` == "" ]]
+if [[ `ps -u $USER | grep ssh-agent` == "" ]]
 then
 	nohup ssh-agent -s > ~/.ssh-agent
 fi

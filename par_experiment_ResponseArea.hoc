@@ -2,11 +2,10 @@
 //  Response Area Simulation Experiment
 //
 //
-//
+///
 ///********************************************/
 
 //Setup Auditory model
-
 stimtype = 1  //tone stimulus
 
 

@@ -1,0 +1,288 @@
+/*
+ *   Responses.hoc
+ *  Generate RL,NRL,RA, MTF
+ */
+
+`	load_file("nrngui.hoc")
+//load_file("par_netpar.hoc")
+//load_file("par_init.hoc")
+
+      xopen("mathslib.hoc")         // mathematical procedures
+      xopen("Params.hoc")
+      xopen("Utilities.hoc")
+      xopen("NetworkParameters.hoc")
+      xopen("AuditoryNerve.hoc")
+      xopen("par_CNcell.tem")      // CN cell template
+
+//Previous optimisation parameters
+	xopen("pvec_Golgi_RateLevel.hoc")
+	xopen("pvec_DS_ClickRecovery.hoc")
+	xopen("pvec_TV_Notch.hoc")
+	xopen("parameters_Responses.hoc")
+
+//--- Setup CN Stellate Network model
+      xopen("CochlearNucleus.hoc")         // model set-up
+	create_cells()
+	connect_cells(fileroot)
+	connect_CNcells(fileroot)
+	xopen("cngui.hoc")
+
+
+proc SaveMultiRun(){
+sprint(cmd,"%s/CN_rateplace_%goct_spl%d.eps",fileroot,spl)
+CNrategr.printfile(cmd)
+sprint(cmd,"Responses/AN_rateplace_%goct_spl%d.eps",notchwidth,spl)
+ANFgr[1].printfile(cmd)
+sprint(cmd,"Responses/CN_rateplace.tv.dat")
+{ file.aopen(cmd) CNrate[tv].printf(file) file.close() }
+sprint(cmd,"Responses/CN_rateplace.ds.dat")
+{ file.aopen(cmd) CNrate[ds].printf(file) file.close() }
+sprint(cmd,"Responses/CN_rateplace.ts.dat")
+{ file.aopen(cmd) CNrate[ds].printf(file) file.close() }
+sprint(cmd,"Responses/CN_rateplace.glg.dat")
+{ file.aopen(cmd) CNrate[glg].printf(file) file.close() }
+sprint(cmd,"Responses/AN_rateplace.hsr.dat")
+{ file.aopen(cmd) ANFrate[0].printf(file) file.close() }
+sprint(cmd,"Responses/AN_rateplace.lsr.dat")
+{ file.aopen(cmd) ANFrate[1].printf(file) file.close() }
+}
+
+
+reset_weights()
+set_DS_ClickRecovery()
+usesavedfilterbanks=1
+
+
+
+notchwidth=1
+for (spl=15;spl<=100;spl+=5){
+RefreshParameters()
+ANFilterBankRun()   //Build the filterbank
+CheckFilterbank()
+SetRates()
+multi_run()
+ANSpikes()
+SaveMultiRun()
+}
+
+for (spl=15;spl<=95;spl+=5){
+RefreshParameters()
+ANFilterBankRun()   //Build the filterbank
+CheckFilterbank()
+SetRates()
+multi_run()
+ANSpikes()
+SaveMultiRun()
+}
+
+func err() {local jj,pp
+     DSvec = new Vector()
+     Gvec = new Vector()
+  param.w.x[glg][ds] = $&2[0]
+  param.w.x[hsr][ds] = $&2[1]
+			 param.w.x[lsr][ds] = $&2[2] //param.w.x[hsr][ds]
+    dstellate[50][0].GABAA.tau2 = $&2[3]*10000
+    dstellate[50][0].soma.gleak_rm = $&2[4]
+			 print $&2[0], $&2[1], $&2[2], $&2[3],$&2[4] //param.w.x[glg][ds], param.w.x[hsr][ds]
+
+    // check for bad values
+   for pp=0,NPARAMS-1 {
+    if ($&2[pp] <= pvec_ranges.x[pp][0] || $&2[pp] > pvec_ranges.x[pp][1]){
+     return 1e9
+     }
+     }
+     //param.n.x[hsr][ds] = $&2[2]
+        reset_weights()
+      for jj=0, reps-1{
+         //print jj
+         GenSpikes2()
+         run()
+         DSvec.append(dstellate[50][0].spiketimes)
+         Gvec.append(golgi[50][0].spiketimes)
+         //print startsw()-x, "secs"
+      }
+      DShist = DSvec.histogram(0,tstop,0.1)
+      Ghist = Gvec.histogram(0,tstop,0.1)
+     DShist.plot(g,0.1)
+     g.exec_menu("View = plot")
+          Ghist.plot(gg,0.1)
+     gg.exec_menu("View = plot")
+     doNotify()
+     objref errorvec
+     errorvec = new Vector()
+//Find the mean number of spikes in the first click
+//  maxrate = (DShist.sum(240,260) + DShist.sum(740,760)+ DShist.sum(1340,1360))/3
+//     if (maxrate < 1) return 1e10
+//Calc ratio of number of spikes in second clcik relative to mean first click
+
+   for (i=0;i<clicktimes.size;i=i+1){
+     errorvec.append(DShist.sum(clicktimes.x[i]*10000/srate+40,clicktimes.x[i]*10000/srate+60))
+   }
+     //  targetclickrecovery.append(1,1,1,0.2,0,1,0.63,0,1,0.45,0,1,0.3)
+     //clicktimes.append(10,26,80,82,150,158,210,214,280,283).mul(srate/1000)
+    errorvec.append(DShist.sum(clicktimes.x[1]*10000/srate+60,clicktimes.x[2]*10000/srate+40))
+    errorvec.append(DShist.sum(clicktimes.x[3]*10000/srate+60,clicktimes.x[4]*10000/srate+40))
+   errorvec.append(DShist.sum(clicktimes.x[5]*10000/srate+80,clicktimes.x[6]*10000/srate+40))
+    errorvec.append(DShist.sum(clicktimes.x[7]*10000/srate+80,clicktimes.x[8]*10000/srate+40))
+
+     errorvec.mul(1/reps)
+    print a=errorvec.meansqerr(targetclickrecovery,wclick)
+    gr.erase_all()
+	sprint(grlbl,"Error = %g", a)
+	gr.label(0.65,0.85,grlbl)
+	sprint(grlbl,"weight GLG->DS = %g", pvec.x[0])
+	gr.label(0.65,0.75,grlbl)
+	sprint(grlbl,"weight HSR->DS = %g", pvec.x[1])
+	gr.label(0.65,0.65,grlbl)
+	sprint(grlbl,"weight LSR->DS = %g", pvec.x[2])
+	gr.label(0.65,0.55,grlbl)
+	sprint(grlbl,"GABA decay tau = %g ", pvec.x[3]*10000)
+	gr.label(0.65,0.45,grlbl)
+	sprint(grlbl,"DS gleak = %g ", pvec.x[4])
+	gr.label(0.65,0.35,grlbl)
+  targetclickrecovery.plot(gr,2,1)
+  errorvec.plot(gr,3,2)
+  doNotify()
+  if(file.isopen())  file.close()
+  file.aopen("TV_Notch/praxis.dat")
+  file.printf("%g\t%g\t%g\t%g\t%g\t%g\n",$&2[0],$&2[1],$&2[2] ,$&2[3]*10000,$&2[4] ,a)
+  file.close()
+	    //  print maxrate
+  errorvec.printf
+
+  return a
+
+}
+
+//objref dstellate[nchannels][1]
+//dstellate[50][0] = new CNcell(2,cf.x[50],50)
+connect_cells(fileroot)
+//tstop=300
+pvec.printf
+// print err(0,&pvec.x[0])
+proc runprax(){
+attr_praxis(0.0001, 0.001, 3)
+fit_praxis(NPARAMS,"err",&pvec.x[0])
+}
+	error=0
+strdef datestr,grlbl
+objref ivec
+ivec= new Vector()
+ivec.append(3,9,7,5,1,2,8,6,4,0,10,11,12,13)
+proc runprax2(){
+//Output model data with best parameters
+ print error=err(0,&pvec.x[0])
+ system("date",datestr)
+ sprint(fname,"%s/%s.Fit.dat",fileroot,fileroot)
+ file.wopen(fname)
+ if (file.isopen()){
+ file.printf("# %s Optimisation\n",fileroot)
+ file.printf("# %s \n",datestr)
+    for pp=0,NPARAMS-1 {
+         file.printf("#%s = %g\t[%g,%g]\n",pvec_name.object(pp).s,pvec.x[pp],pvec_ranges.x[pp][0],pvec_ranges.x[pp][1])
+    }
+ file.printf("# final error=%f\n",error)
+ file.printf("# unweighted error=%f\n",errorvec.meansqerr(targetclickrecovery)) file.printf("#  %.3f\n",errorvec.x[ii]) }
+ }
+ file.close()
+sprint(fname,"(cd %s; gnuplot %s_ExpData.gnu)",fileroot,fileroot)
+system(cmd)
+//Write parameters to general optimisation file
+sprint(fname,"pvec_%s.hoc",fileroot)
+file.aopen(fname)
+ file.printf(" //  %s  \n",datestr)
+    for pp=0,NPARAMS-1 {
+         file.printf("%s = %g\n",pvec_name.object(pp).s,pvec.x[pp])
+    }
+ file.close()
+}
+*/
+
+
+/*  Notes:
+
+
+*/
+
+
+
+
+
+objref MRAv,MRAgr, mrafreq,psth
+MRAv = new Vector(31)
+
+proc ResponseArea(){local i,j,count,sum, channel, hi, lo,runtime, incr, startf, stopf localobj pst1,pst2
+     //	objref MRAgr, mrafreq,psth
+	//objref mratimes
+	pst1=new Vector(1001) 
+        pst2= new Vector(1001)
+	mrafreq = new Vector()
+	runtime = startsw()
+
+	//Basic Stimulus Properties
+	AdditiveNoise = 0
+	count=0
+	reps=10
+	stimtype = 1
+	dur 		= 0.095 	//duration of tone segment (seconds)
+	dutycycle 	= 0		//quiet duration = dutycycle*dur
+	ramplngth 	= 0.005
+	srate 		= 50000.0  
+	stimtdres 	= 1/srate
+	sg_rate 	= 10000		
+	sg_tdres 	= 1/sg_rate
+	nrep		= 1  		//nrep is number of reps in one stimulus
+	stimdelay 	= 0.02		//sec
+
+	//Input variables
+	if ($1==0) { tonefreq 	= cf.x[icentre]	//Hz
+	} else tonefreq = $1
+
+		
+	//Setup		
+	RefreshParameters()	
+	ANFilterBankRun()	//Generate new AN instant. rates
+	sp.FlushSpks()		//Erase old spikes
+
+	//Set all ANFs to New rates
+	an.reset()
+	startf = startsw()-runtime
+	// Perform multiple runs
+
+	for j=0, reps-1{ 
+		print j
+		run3() 
+		sp.SaveSpks() 
+	}	
+
+	runtime = startsw()-runtime
+	print "MRA at ",tonefreq,"  took ",runtime, " secs "
+	//Calculate mean 
+	MeanRate()
+	for (i=0;i<31;i+=1){ 
+		print i
+		sum=0
+		pst1 = Mspikes[i*2].histogram(0, 100,0.1)
+		pst2 = Mspikes[i*2+1].histogram(0, 100,0.1)
+		if (object_id(pst1, 1) >= 0) sum+=pst1.sum(500,1000)/(reps*0.05)
+		if (object_id(pst2,1)>=0) sum+=pst2.sum(500,1000)/(reps*0.05)
+		MRAv.x[i]=(sum/2)
+	
+	}
+	//Mspikes could be used to find PSTH, FSL etc info here
+
+
+	//Disable some parameters
+	AdditiveNoise = 0
+
+}
+
+targetcell="cn.tstellate[whichcell]"
+
+
+// channel position -> tonefreq
+
+
+
+
+
