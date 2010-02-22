@@ -9,7 +9,7 @@ run_experiment("ClickDelay")
 setuptime = startsw() - setuptime
 printf("setup time %g\n",setuptime)
 
-
+runtime=0
 pnm.want_all_spikes()
 pnm.set_maxstep(100)
 
@@ -26,7 +26,7 @@ if (name_declared("mosinit")) {
         stop
 }
 
-
+/*
 
 prun()
 
@@ -47,6 +47,7 @@ for i=0, mxhist.size-1 {
    printf("%d\t %d\n", i, mxhist.x[i])
 }
 
+*/
 printf("setuptime=%g   runtime=%g\n", setuptime, runtime)
 
 

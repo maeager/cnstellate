@@ -69,15 +69,6 @@ proc reset_weights() { local i // 1 arg - weight
 		ds2tvGLYlist.object(i).weight = param.w.x[ds][tv]
 	}
 }
-proc set_DS_ClickRecovery(){local ii
-//Extra updating feature for DS_ClickRecovery
-   for ii = 0,nchannels-1 {
-    dstellate[ii][0].soma.gleak_rm =dstellate_gleak_rm
-    dstellate[ii][0].soma.gkltbar_klt =dstellate_gkltbar
-    dstellate[ii][0].GABAA.tau2 = gaba_decay
-    dstellate[ii][0].GABAA.tau1 = gaba_rise
-  }
-}
 
 
 objref golgi[nchannels][1],g, dstellate[nchannels][1], tuberculoventral[nchannels][1]
@@ -117,7 +108,7 @@ gaba_decay          = 14.816        //1.41772 30.11
 gaba_rise           = 1.3127        //0.195085 3.37315
 dstellate_gleak_rm  = 0.00177256    //0.000196441 0.00280103
 reset_weights()
-set_DS_ClickRecovery()
+reset_DS_ClickRecovery()
 
    ANsoundspath="../../sounds"
    cfhi     =48000

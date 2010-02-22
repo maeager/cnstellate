@@ -787,3 +787,14 @@ proc ClearINputSpikes(){local i
    an.ClearSpikes()
    for i=0,99 golgi[i][0].ClearSpikes()
 }
+
+
+proc reset_DS_ClickRecovery(){local ii
+//Extra updating feature for DS_ClickRecovery
+   for ii = 0,nchannels-1 {
+    dstellate[ii][0].soma.gleak_rm = dstellate_gleak_rm
+    dstellate[ii][0].soma.gkltbar_klt =dstellate_gkltbar
+    dstellate[ii][0].GABAA.tau2 = gaba_decay
+    dstellate[ii][0].GABAA.tau1 = gaba_rise
+  }
+}
