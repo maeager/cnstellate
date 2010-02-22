@@ -23,14 +23,15 @@ proc GenSpikes(){local i
 
 proc ResponseArea(){local _ifreq,_spl,
 
-	for _ifreq=0,nchannels-1 for (spl=5;spl<=90;spl=spl+5){
+	for _ifreq=0,nchannels-1 {
+	    for (spl=5;spl<=90;spl=spl+5){
 			freq= cf.x[_ifreq]
 			RefreshParameters()	//Generate or get stim from file
 			ANFilterBankRun()	//Build the filterbank
 			SetRates()		//Allocate filterbanks to ANFs and golgi
 			GenSpikes()
 			//DummyGraphs()
-			
+	    }
 	}
 }
 

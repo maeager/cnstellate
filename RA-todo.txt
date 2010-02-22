@@ -1,0 +1,75 @@
+									
+stdref sstr1,sstr2
+proc SAVE_RESPONSES(){
+     sstr1 = $s1  //Response type
+     sstr2 = $s2 //Cell type
+     sprint(filename,"%s/%s_ ",fileroot, sstr1,sstr2,spl,tonefreq 
+
+     
+
+
+}
+
+//Create RA hoc file
+
+//1dB steps
+//1/8th octave steps
+
+// Run RLF
+//tonefreq=cf.x[50]
+for (spl=0;spl<=90;spl=spl+2.5){
+    MULTIRUN()
+    SAVEDATA()
+    if act=0 BREAK
+}
+//Calculate
+//fit RL
+//Find thresh, Max rate, spon rate, DR
+//30dB re thresh PSTH -> ISI, CV
+
+// Run Noise RF
+tonefreq=CF
+for (spl=0;spl<=90;spl=spl+2.5){
+    RUN()
+    SAVEDATA()
+    if act=0 BREAK
+//fit NRL
+//Find thresh, Max rate, spon rate, DR
+
+// Run tone RF with 50%noise
+tonefreq=CF
+AdditiveNoise=(50% mark SPL)
+for spl=90,-10
+    RUN()
+    SAVEDATA()
+    if act=0 BREAK
+//MRC Masked Responses curve
+
+//Run RA
+//short stim  25 ms
+incre=cf.x[50]/8
+for (spl=0; spl<=90; spl=spl+2.5){
+
+    for tonefreq=CF+incre, tonefreq< CF+1oct; tonefreq= tonefreq+incre {
+    	MULTIRUN()
+	SAVEDATA
+	if act=0 BREAK
+    }
+ for tonefreq=CF-incre, tonefreq< CF-2oct; tonefreq= tonefreq-incre {
+    	RUN
+	SAVEDATA
+//	if act=0 BREAK
+    }
+}
+
+//Run MTF
+? stimdur
+tonefreq=CF
+for (spl=40; spl<= 80; spl=spl+20){
+    for modfreq=10,50,100:1200 {
+    	RUN
+	SAVEDATA
+	}
+}
+plot rMTF
+plot tMTF

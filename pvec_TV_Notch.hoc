@@ -1,8 +1,8 @@
 
-params.w.x[ds][tv] = 0.029
-params.w.x[hsr][tv] = 0.00017
-params.n.x[hsr][tv] = 8
-params.n.x[lsr][tv] = 14
-params.s.x[ds][tv] = 2.1
-params.offset=0.24
+param.w.x[ds][tv] = 0.029
+param.w.x[hsr][tv] = 0.00017
+param.n.x[hsr][tv] = 8
+param.n.x[lsr][tv] = 14
+param.bw.x[ds][tv] = 2.1
+param.offset=0.24
 

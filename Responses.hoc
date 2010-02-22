@@ -3,7 +3,7 @@
  *  Generate RL,NRL,RA, MTF
  */
 
-`	load_file("nrngui.hoc")
+	load_file("nrngui.hoc")
 //load_file("par_netpar.hoc")
 //load_file("par_init.hoc")
 
@@ -29,10 +29,7 @@
 
 
 proc SaveMultiRun(){
-sprint(cmd,"%s/CN_rateplace_%goct_spl%d.eps",fileroot,spl)
-CNrategr.printfile(cmd)
-sprint(cmd,"Responses/AN_rateplace_%goct_spl%d.eps",notchwidth,spl)
-ANFgr[1].printfile(cmd)
+
 sprint(cmd,"Responses/CN_rateplace.tv.dat")
 { file.aopen(cmd) CNrate[tv].printf(file) file.close() }
 sprint(cmd,"Responses/CN_rateplace.ds.dat")
@@ -49,10 +46,10 @@ sprint(cmd,"Responses/AN_rateplace.lsr.dat")
 
 
 reset_weights()
-set_DS_ClickRecovery()
+reset_DS_ClickRecovery()
 usesavedfilterbanks=1
 
-
+/*
 
 notchwidth=1
 for (spl=15;spl<=100;spl+=5){
@@ -75,11 +72,13 @@ ANSpikes()
 SaveMultiRun()
 }
 
+
+
 func err() {local jj,pp
      DSvec = new Vector()
      Gvec = new Vector()
-  param.w.x[glg][ds] = $&2[0]
-  param.w.x[hsr][ds] = $&2[1]
+param.w.x[glg][ds] = $&2[0]
+param.w.x[hsr][ds] = $&2[1]
 			 param.w.x[lsr][ds] = $&2[2] //param.w.x[hsr][ds]
     dstellate[50][0].GABAA.tau2 = $&2[3]*10000
     dstellate[50][0].soma.gleak_rm = $&2[4]
@@ -154,47 +153,41 @@ func err() {local jj,pp
 
 }
 
-//objref dstellate[nchannels][1]
-//dstellate[50][0] = new CNcell(2,cf.x[50],50)
-connect_cells(fileroot)
-//tstop=300
-pvec.printf
-// print err(0,&pvec.x[0])
 proc runprax(){
 attr_praxis(0.0001, 0.001, 3)
 fit_praxis(NPARAMS,"err",&pvec.x[0])
 }
-	error=0
+error=0
 strdef datestr,grlbl
 objref ivec
 ivec= new Vector()
 ivec.append(3,9,7,5,1,2,8,6,4,0,10,11,12,13)
+
 proc runprax2(){
 //Output model data with best parameters
- print error=err(0,&pvec.x[0])
- system("date",datestr)
- sprint(fname,"%s/%s.Fit.dat",fileroot,fileroot)
- file.wopen(fname)
- if (file.isopen()){
+print error=err(0,&pvec.x[0])
+system("date",datestr)
+sprint(fname,"%s/%s.Fit.dat",fileroot,fileroot)
+file.wopen(fname)
+if (file.isopen()){
  file.printf("# %s Optimisation\n",fileroot)
  file.printf("# %s \n",datestr)
-    for pp=0,NPARAMS-1 {
+ for pp=0,NPARAMS-1 {
          file.printf("#%s = %g\t[%g,%g]\n",pvec_name.object(pp).s,pvec.x[pp],pvec_ranges.x[pp][0],pvec_ranges.x[pp][1])
     }
- file.printf("# final error=%f\n",error)
- file.printf("# unweighted error=%f\n",errorvec.meansqerr(targetclickrecovery)) file.printf("#  %.3f\n",errorvec.x[ii]) }
+    file.printf("# final error=%f\n",error)
+    file.printf("# unweighted error=%f\n",errorvec.meansqerr(targetclickrecovery)) file.printf("#  %.3f\n",errorvec.x[ii]) 
  }
- file.close()
+}
+file.close()
 sprint(fname,"(cd %s; gnuplot %s_ExpData.gnu)",fileroot,fileroot)
 system(cmd)
 //Write parameters to general optimisation file
 sprint(fname,"pvec_%s.hoc",fileroot)
 file.aopen(fname)
- file.printf(" //  %s  \n",datestr)
-    for pp=0,NPARAMS-1 {
-         file.printf("%s = %g\n",pvec_name.object(pp).s,pvec.x[pp])
-    }
- file.close()
+file.printf(" //  %s  \n",datestr)
+for pp=0,NPARAMS-1 file.printf("%s = %g\n",pvec_name.object(pp).s,pvec.x[pp])
+file.close()
 }
 */
 
@@ -252,7 +245,7 @@ proc ResponseArea(){local i,j,count,sum, channel, hi, lo,runtime, incr, startf, 
 	for j=0, reps-1{ 
 		print j
 		run3() 
-		sp.SaveSpks() 
+		SaveSpikes() 
 	}	
 
 	runtime = startsw()-runtime
