@@ -23,8 +23,8 @@
 //--- Setup CN Stellate Network model
       xopen("CochlearNucleus.hoc")         // model set-up
 	create_cells()
-	connect_cells(fileroot)
-	connect_CNcells(fileroot)
+//	connect_cells(fileroot)
+//	connect_CNcells(fileroot)
 	xopen("cngui.hoc")
 
 
@@ -235,7 +235,7 @@ proc ResponseArea(){local i,j,count,sum, channel, hi, lo,runtime, incr, startf, 
 	//Setup		
 	RefreshParameters()	
 	ANFilterBankRun()	//Generate new AN instant. rates
-	sp.FlushSpks()		//Erase old spikes
+	ClearSpikes() 	//Erase old spikes
 
 	//Set all ANFs to New rates
 	an.reset()
@@ -251,8 +251,8 @@ proc ResponseArea(){local i,j,count,sum, channel, hi, lo,runtime, incr, startf, 
 	runtime = startsw()-runtime
 	print "MRA at ",tonefreq,"  took ",runtime, " secs "
 	//Calculate mean 
-	MeanRate()
-	for (i=0;i<31;i+=1){ 
+	//MeanRate()
+/*	for (i=0;i<31;i+=1){ 
 		print i
 		sum=0
 		pst1 = Mspikes[i*2].histogram(0, 100,0.1)
@@ -261,7 +261,8 @@ proc ResponseArea(){local i,j,count,sum, channel, hi, lo,runtime, incr, startf, 
 		if (object_id(pst2,1)>=0) sum+=pst2.sum(500,1000)/(reps*0.05)
 		MRAv.x[i]=(sum/2)
 	
-	}
+	}*/
+
 	//Mspikes could be used to find PSTH, FSL etc info here
 
 
@@ -270,6 +271,7 @@ proc ResponseArea(){local i,j,count,sum, channel, hi, lo,runtime, incr, startf, 
 
 }
 
+strdef targetcell
 targetcell="cn.tstellate[whichcell]"
 
 
@@ -279,3 +281,4 @@ targetcell="cn.tstellate[whichcell]"
 
 
 
+load_file("RA-todo.txt")
