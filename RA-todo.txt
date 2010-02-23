@@ -1,75 +1,146 @@
 									
-stdref sstr1,sstr2
+strdef sstr1,sstr2
 proc SAVE_RESPONSES(){
      sstr1 = $s1  //Response type
      sstr2 = $s2 //Cell type
-     sprint(filename,"%s/%s_ ",fileroot, sstr1,sstr2,spl,tonefreq 
-
-     
+     sprint(filename,"%s/%s_%d_%g",fileroot, sstr1,sstr2,spl,tonefreq) 
 
 
 }
+proc MULTIRUN(){local nreps
+    RefreshParameters()
+//    ANFilterBankRun()
 
-//Create RA hoc file
+/*    for nreps=0,reps-1{
+	print nreps
+	//run()
+    }
+*/
+}
+/*********Default Parameters *************/
+   ANmodel      = 6      //Zilany Bruce model
+   species      = 2      //Rat
+   nrep      = 1        //nrep is number of reps of stimulus
+   cfhi=64000
+   cflo=200
+   srate       = 500000.0
+   stimtdres    = 1/srate
+   sg_rate    = 50000
+   sg_tdres    = 1/sg_rate
+   usesavedfilterbanks=1
+/****************************************/
 
-//1dB steps
-//1/8th octave steps
+
 
 // Run RLF
-//tonefreq=cf.x[50]
+proc RateLevelFunction(){
+  tonefreq=cf.x[50]
+
+   dur       = 0.049    //duration of stim (seconds)
+   stimdelay    = 0.01      //sec
+   stimtype   = 1      //tone
+   reps      = 25
+
 for (spl=0;spl<=90;spl=spl+2.5){
     MULTIRUN()
-    SAVEDATA()
-    if act=0 BREAK
+//    SAVEDATA()
+//    if act=0 BREAK
 }
+
 //Calculate
 //fit RL
 //Find thresh, Max rate, spon rate, DR
 //30dB re thresh PSTH -> ISI, CV
 
+
+}//RateLevelFunction
+
+
 // Run Noise RF
-tonefreq=CF
-for (spl=0;spl<=90;spl=spl+2.5){
-    RUN()
-    SAVEDATA()
-    if act=0 BREAK
+proc NoiseRateLevelFunction(){
+tonefreq=cf.x[50]
+stimtype=6
+for (spl=10;spl<=90;spl=spl+5){
+    MULTIRUN()
+//    SAVEDATA()
+//    if act=0 BREAK
+}
 //fit NRL
 //Find thresh, Max rate, spon rate, DR
 
+}
+
 // Run tone RF with 50%noise
-tonefreq=CF
-AdditiveNoise=(50% mark SPL)
-for spl=90,-10
-    RUN()
-    SAVEDATA()
-    if act=0 BREAK
-//MRC Masked Responses curve
+proc MaskedResponseCurve(){local ifreq,freq_increment, myCF
+  stimtype=7 //tone and noise
+  tonefreq=cf.x[50]
+  NoiseLevel=50 //(50% mark SPL)
+  dur       = 0.024    //duration of stim (seconds)
+  freq_increment=cf.x[50]/8
+  myCF = cf.x[50]
+  //Masked RL
+  for (spl=20; spl<=90;spl=spl+5){
+    MULTIRUN()
+ //   SAVEDATA()
+ //   if act=0 BREAK
+  }
+  //MRC Masked Responses curve
+  spl=80
+  for (ifreq=20; ifreq<= 70; ifreq= ifreq+1) {
+    tonefreq = cf.x[ifreq]
+    MULTIRUN()
+  }
+//  for (tonefreq=myCF-freq_increment, tonefreq>= cf.x[0]; tonefreq= tonefreq-freq_increment) {
+  //  MULTIRUN()
+//  }
+}
 
 //Run RA
+//1dB steps
+//1/8th octave steps
 //short stim  25 ms
-incre=cf.x[50]/8
+proc ResponseArea(){local myCF,ifreq
+  stimtype=1 //tone
+  dur       = 0.024    //duration of stim (seconds)
+  freq_increment=cf.x[50]/8
+  myCF = cf.x[50]
 for (spl=0; spl<=90; spl=spl+2.5){
 
-    for tonefreq=CF+incre, tonefreq< CF+1oct; tonefreq= tonefreq+incre {
-    	MULTIRUN()
-	SAVEDATA
-	if act=0 BREAK
-    }
- for tonefreq=CF-incre, tonefreq< CF-2oct; tonefreq= tonefreq-incre {
-    	RUN
-	SAVEDATA
+  for (ifreq=20; ifreq<= 70; ifreq= ifreq+1) {
+    tonefreq = cf.x[ifreq]
+    MULTIRUN()
+  }
+}
+
+//    for (tonefreq=CF+freq_increment; tonefreq<= myCF*2; tonefreq= tonefreq+freq_increment/ {
+//    	MULTIRUN()
+//	SAVEDATA
 //	if act=0 BREAK
-    }
+//    }
+// for tonefreq=CF-freq_increment, tonefreq>= myCF/8; tonefreq= tonefreq-freq_increment {
+//    	MULTIRUN()
+//	SAVEDATA
+//	if act=0 BREAK
+//    }
 }
 
 //Run MTF
-? stimdur
-tonefreq=CF
+proc ModulationTransferFunction(){
+stimtype=3 	//AM tone
+stimdur=0.249
+tonefreq=cf.x[50]
 for (spl=40; spl<= 80; spl=spl+20){
-    for modfreq=10,50,100:1200 {
-    	RUN
-	SAVEDATA
+    for (modfreq=50;modfreq<=800;modfreq=modfreq+50) {
+    	MULTIRUN()
+//	SAVEDATA
 	}
+//plot rMTF
+//plot tMTF
 }
-plot rMTF
-plot tMTF
+}
+
+RateLevelFunction()
+NoiseRateLevelFunction()
+MaskedResponseCurve()
+ResponseArea()
+ModulationTransferFunction()
