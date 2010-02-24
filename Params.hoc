@@ -111,14 +111,14 @@ sg_tdres = 1/sg_rate
 usesavedfilterbanks=0   //Save time by using saved AN filterbank responses
 
 strdef ANstr, ANpath,ANsoundspath
-ANpath= "../../sounds"          //Variable string
-ANsoundspath= "../../sounds"    //Fixed string
+ANpath= "../../sounds"          //Variable string that preceeds the filename
+ANsoundspath= "../../sounds"    //Fixed local path
 
 
 celsius=37              //degrees, base model temperature
                         // default in NEURON is 6.3C
                         // Rothman and Manis (2003) &
-                        // P. Manis Neuron implementation uses 22C
+                        // Paul Manis' Neuron implementation uses 22 degrees
 
 
 /**********************************************************

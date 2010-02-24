@@ -353,7 +353,7 @@ objref stim
 
 objref rampx, offramp, onramp, middle, quiet, envelope, inputsound,initquiet,bbnoise
     tonefrequency = $1
-    samplingrate = $2   //sampling rate (Hz)  should be 50000
+    samplingrate = $2   //sampling rate (Hz)  should be 500000 for Zilany or 50000 for Heinz
     duration = $3       //duration in seconds
     spl = $4        //Sound Pressure level in dB SPL
     cycle = $5      //Ratio of signal to silence, duty cycle
@@ -379,6 +379,7 @@ objref rampx, offramp, onramp, middle, quiet, envelope, inputsound,initquiet,bbn
 
 //offramp = (1+cos(rampx))/2
     offramp = new Vector(rampts)
+    print "offramp ", rampts, rstep
     offramp = rampx.indgen(rstep).apply("mycos").add(1).div(2)
 
 //onramp = (1+cos(fliplr(rampx)))./2;
@@ -396,9 +397,10 @@ objref rampx, offramp, onramp, middle, quiet, envelope, inputsound,initquiet,bbn
 
     objref rampx, inputsound
 //Amplitude scaling of tone (into Pascals for AN model)
-        aa = spl2ampl((spl))
+    aa = spl2ampl((spl))
     rstep = tonefrequency * 2.0 * PI * (1/samplingrate)
     rampx = new Vector(totalpts)
+    
     rampx.indgen(rstep)
 //make sure the input vectors are the right size
     bbnoise = new Vector(totalpts)
@@ -407,7 +409,7 @@ objref rampx, offramp, onramp, middle, quiet, envelope, inputsound,initquiet,bbn
 //Generate the noise
     Rand.normal(0,1)
     bbnoise.setrand(Rand)
-    aan = spl2ampl(bbnspl)
+    aan = spl2amplNoise(bbnspl)
     bbnoise.mul(aan).mul(envelope)
 //Generate the tone
     inputsound = rampx.apply("sin")
@@ -1087,8 +1089,21 @@ proc Setwavfile(){
 
 }
 
+proc RefreshCF(){local icf
+    /*Recalculate xlo from cflo, routine from Frank Zhang's Auditory model */
+    cf = new Vector(nchannels)
+    xlo = cochlea_f2x(species,cflo)
+    xhi = cochlea_f2x(species,cfhi)
+    xcenter = (xhi - xlo)/2. + xlo
+    delx = (xhi-xlo)/(nchannels-1)
+    cf.x[int(nchannels/2)] = cochlea_x2f(species,xcenter)
+    icentre = int(nchannels/2)-1
 
-
+   for icf = 0, nchannels-1 {
+   x = xlo + (icf)*delx
+   cf.x[icf] = int(cochlea_x2f(species,x))
+   }
+}
 
 proc RefreshParameters() {local aa localobj tmprand
     objref cf,stim, file, tvec, b1
@@ -1096,20 +1111,15 @@ proc RefreshParameters() {local aa localobj tmprand
     tvec = new Vector()
     file = new File()
     stim = new Vector()
-    cf   = new Vector(int(nchannels))
-    //Initialise variables
-    xlo = cochlea_f2x(species,cflo)
-    xhi = cochlea_f2x(species,cfhi)
-    xcenter = (xhi -xlo)/2. + xlo
-    delx = (xhi-xlo)/(nchannels-1)
-    cf.x[int(nchannels/2)-1] = cochlea_x2f(species,xcenter)
-    icentre = int(nchannels/2)-1
 
-//Nothing
-   if (stimtype < 0){
+    //Check on changes to filterbank cf 
+    RefreshCF()
+
+    //Nothing
+    if (stimtype < 0){
       objref stim
       grlbl=""
-   }
+    }
 
     //Tone
         if (stimtype == 1){
@@ -1171,7 +1181,7 @@ proc RefreshParameters() {local aa localobj tmprand
        stimtdres   = 1/srate
             ToneplusNoise(tonefreq, srate, dur, spl, dutycycle, ramplngth,nrep, stimdelay, NoiseLevel)
 
-            sprint( grlbl, "Tone + Noise:  %d dB SPL, %d Hz tone plus %d dB SPL noise, Sampling freq %5.0f", spl,tonefreq,NoiseLevel, 1/stimtdres)
+            sprint( grlbl, "Tone + Noise:  %g dB SPL, %g Hz tone plus %g dB SPL noise, Sampling freq %5.0f", spl,tonefreq,NoiseLevel, 1/stimtdres)
         }
     //Notch Noise
         if(stimtype ==8) {
@@ -1287,36 +1297,36 @@ func GetANfileString() {local i
 
 
     if (stimtype == 1){ //Tone _ Loudness
-        sprint(ANstr,"T%.0f_L%d_dur%d_del%d", tonefreq,spl,stimdur, int(stimdelay*1000))
+        sprint(ANstr,"T%.0f_L%g_dur%d_del%d", tonefreq,spl,stimdur, int(stimdelay*1000))
     }
     if (stimtype == 2){
         sprint(ANstr,"Silence_Spont%.0f_dur%d", Highspont,int(dur*1000))
     }
     //AM tone
     if(stimtype == 3) {// Carrier freq, Mod frequency, Modulation depth, Loudness (peak)
-        sprint( ANstr, "AM_fc%d_fm%d_md%d_%ddB_dur%d", tonefreq, AM_modfreq,AM_depth*100,spl,stimdur)
+        sprint( ANstr, "AM_fc%d_fm%d_md%d_%gdB_dur%d", tonefreq, AM_modfreq,AM_depth*100,spl,stimdur)
     }
     //WB noise
     if(stimtype == 4) { //SPL and sampling frequency
-        sprint(ANstr, "WBN_spl%d_smpfreq%f_del%f", spl, srate/1000,stimdelay)
+        sprint(ANstr, "WBN_spl%g_smpfreq%f_del%f", spl, srate/1000,stimdelay)
         }
     //AM noise
     if(stimtype == 5) {
-        sprint( ANstr, "AMN_fm%d_m%f_spl%d_sf%5.0f", AM_modfreq,AM_depth, spl, 1/stimtdres)
+        sprint( ANstr, "AMN_fm%g_m%f_spl%d_sf%5.0f", AM_modfreq,AM_depth, spl, 1/stimtdres)
         }
     //Gaussian noise
     if(stimtype == 6) {
-        sprint( ANstr, "GN_m%f_v%d_spl%d_sf%5.0f", Gaussmean,Gaussvar,spl, 1/stimtdres)
+        sprint( ANstr, "GN_m%f_v%g_spl%g_sf%5.0f", Gaussmean,Gaussvar,spl, 1/stimtdres)
         }
     //Stimulus Wavfile
     if (stimtype ==0){
         sprint(ANstr,"%s", wavefile)
         sf_.right(ANstr,sf_.len(path))
         if (sf_.substr(ANstr,".")!=-1) sf_.left(ANstr, sf_.substr(ANstr,"."))
-        sprint(ANstr,"Wav_%s_%ddB",ANstr, spl)
+        sprint(ANstr,"Wav_%s_%gdB",ANstr, spl)
     }
     if (stimtype==7){ //Tone _ Loudness  _ Sampling Rate
-        sprint(ANstr,"SimTN%.0f_L%d_N%d_dur%d_del%d", tonefreq,spl,NoiseLevel,int(dur*1000), int(stimdelay*1000))
+        sprint(ANstr,"SimTN%.0f_L%g_N%g_dur%d_del%d", tonefreq,spl,NoiseLevel,int(dur*1000), int(stimdelay*1000))
     }
     if (stimtype==8){ //NotchNoise delay,spl,dur,ramp
         sprint(ANstr,"Notch_L%d_Del%d_Dur%d", spl,stimdelay*1000,dur*1000)
@@ -1464,6 +1474,7 @@ proc GenerateFilterbank(){ local icf
     // Resampling rate should be set prior to calling GenerateFilterbank eg. sg_rate = 50000
     ResampleANFilterBank(sg_rate/srate)
 }
+
 proc CheckFilterbank(){local icf
 //stim.resample(stim,100000/srate)
 //srate=100000
@@ -1491,21 +1502,15 @@ proc CheckFilterbank(){local icf
     }
     (sg_rate/srate)
 }
+
+
+
+
 proc ANFilterBankRun() {local x
     objref  LSRout[nchannels], HSRout[nchannels] , MSRout[nchannels]
-    /*Recalculate xlo from cflo, routine from Frank Zhang's Auditory model */
-    xlo = cochlea_f2x(species,cflo)
-    xhi = cochlea_f2x(species,cfhi)
-    xcenter = (xhi - xlo)/2. + xlo
-    delx = (xhi-xlo)/(nchannels-1)
-    cf.x[int(nchannels/2)] = cochlea_x2f(species,xcenter)
-    icentre = int(nchannels/2)-1
-
-   for icf = 0, nchannels-1 {
-   x = xlo + (icf)*delx
-   cf.x[icf] = int(cochlea_x2f(species,x))
-   }
-   GetRatAudiogramData()
+    
+    RefreshCF()
+    GetRatAudiogramData()
 
     /********Generate Filterbank of ANF Instantaneous rate profiles*******/
 
