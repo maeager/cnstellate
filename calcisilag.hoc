@@ -459,7 +459,7 @@ proc print_isi_stats() { // 1 arg - filename root
   outfile.printf("# i  j   n   mean   median   stdev  \n")
   for i = 0, nchannels-1 {
     for j = 0, nTSperchannel-1 {
-      calc_isis(i,j,t_ignore_before,t_ignore_after
+      calc_isis(i,j,t_ignore_before,t_ignore_after)
       outfile.printf("%3d%3d%4d",i,j,isi.size())
       if (isi.size() > 0) {
         outfile.printf("%8.2f%8.2f",isi.mean(),isi.median())
@@ -478,7 +478,7 @@ proc print_isi_stats() { // 1 arg - filename root
   outfile.printf("# i  j   n   mean   median   stdev  \n")
   for i = 0, nchannels-1 {
     for j = 0, HSRsperchannel-1 {
-      calc_an_isis(i,j,t_ignore_before,t_ignore_after
+      calc_an_isis(i,j,t_ignore_before,t_ignore_after)
       outfile.printf("%3d%3d%4d",i,j,isi.size())
       if (isi.size() > 0) {
         outfile.printf("%8.2f%8.2f",isi.mean(),isi.median())
@@ -497,7 +497,7 @@ proc print_lags() { local i,j // 3 args - indices of Tstellate cell + filename r
   outfile.printf("# Lag times for Tstellate cell [%d][%d]\n",$1,$2)
   for i = 0, nchannels-1 {
     for j = 0, nTSperchannel-1 {
-      calc_lags($1,$2,i,j,t_ignore_before,t_ignore_after
+      calc_lags($1,$2,i,j,t_ignore_before,t_ignore_after)
       outfile.printf("[%d,%d]",i,j)
       lags.printf(outfile,"%10.3f")
     }

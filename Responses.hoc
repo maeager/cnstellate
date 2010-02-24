@@ -23,8 +23,8 @@
 //--- Setup CN Stellate Network model
       xopen("CochlearNucleus.hoc")         // model set-up
 	create_cells()
-//	connect_cells(fileroot)
-//	connect_CNcells(fileroot)
+	connect_cells(fileroot)
+	connect_CNcells(fileroot)
 	xopen("cngui.hoc")
 
 
@@ -279,6 +279,5 @@ targetcell="cn.tstellate[whichcell]"
 
 
 
-
-
 load_file("RA-todo.txt")
+

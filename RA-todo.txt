@@ -7,17 +7,48 @@ proc SAVE_RESPONSES(){
 
 
 }
+num_stim=0
+total_time=0
+
+proc CREATEFILTERBANKS(){
+    RefreshParameters()
+    ANFilterBankRun()
+    print "num_stim ",num_stim=num_stim+1," total_time ",total_time=total_time+(stim.size/srate)
+}
+
 proc MULTIRUN(){local nreps
     RefreshParameters()
-//    ANFilterBankRun()
-
-/*    for nreps=0,reps-1{
-	print nreps
-	//run()
-    }
-*/
+    ANFilterBankRun()
+    multi_run()   //needs cngui.hoc
 }
+
+load_file("calcisilag.hoc")
+strdef fileroot_
+
+proc print_results() {
+  print_an_raster(fileroot_)
+  print_ts_raster(fileroot_)
+  print_ds_raster(fileroot_)
+  print_tv_raster(fileroot_)
+  print_golgi_raster(fileroot_)
+  print_an_hist(dt*2,fileroot_)
+  print_smooth_hist(dt*2, fileroot_)
+   print_isi_stats(fileroot_)
+   print_isis(fileroot_)
+   print_si(fileroot_)
+
+  print "Results printed to files"
+}
+
+
+
+
+
+
+
+
 /*********Default Parameters *************/
+  ANsoundspath="../soma/sounds"  //local sounds path
    ANmodel      = 6      //Zilany Bruce model
    species      = 2      //Rat
    nrep      = 1        //nrep is number of reps of stimulus
@@ -28,6 +59,7 @@ proc MULTIRUN(){local nreps
    sg_rate    = 50000
    sg_tdres    = 1/sg_rate
    usesavedfilterbanks=1
+   RefreshCF()
 /****************************************/
 
 
@@ -43,6 +75,8 @@ proc RateLevelFunction(){
 
 for (spl=0;spl<=90;spl=spl+2.5){
     MULTIRUN()
+  sprint(fileroot_,"%s/RateLevel/%d,fileroot,spl)
+  print_results()
 //    SAVEDATA()
 //    if act=0 BREAK
 }
@@ -58,15 +92,22 @@ for (spl=0;spl<=90;spl=spl+2.5){
 
 // Run Noise RF
 proc NoiseRateLevelFunction(){
-tonefreq=cf.x[50]
-stimtype=6
-for (spl=10;spl<=90;spl=spl+5){
+     tonefreq=cf.x[50]
+     stimtype=6
+for (spl=0;spl<=90;spl=spl+5){
     MULTIRUN()
+sprint(fileroot_,"%s/NoiseRateLevel/%d",fileroot,spl)
+print_results()
+
 //    SAVEDATA()
 //    if act=0 BREAK
 }
 //fit NRL
 //Find thresh, Max rate, spon rate, DR
+
+sprint(fileroot_,"%s/NoiseRateLevel",fileroot)
+print_results()
+
 
 }
 
@@ -81,15 +122,21 @@ proc MaskedResponseCurve(){local ifreq,freq_increment, myCF
   //Masked RL
   for (spl=20; spl<=90;spl=spl+5){
     MULTIRUN()
- //   SAVEDATA()
- //   if act=0 BREAK
+sprint(fileroot_,"%s/MaskedRateLevel/%d",fileroot,spl)
+print_results()
+
   }
+
   //MRC Masked Responses curve
   spl=80
   for (ifreq=20; ifreq<= 70; ifreq= ifreq+1) {
     tonefreq = cf.x[ifreq]
     MULTIRUN()
+sprint(fileroot_,"%s/MaskedResponseCurve/%d",fileroot,int(tonefreq))
+print_results()
   }
+
+
 //  for (tonefreq=myCF-freq_increment, tonefreq>= cf.x[0]; tonefreq= tonefreq-freq_increment) {
   //  MULTIRUN()
 //  }
@@ -109,6 +156,9 @@ for (spl=0; spl<=90; spl=spl+2.5){
   for (ifreq=20; ifreq<= 70; ifreq= ifreq+1) {
     tonefreq = cf.x[ifreq]
     MULTIRUN()
+sprint(fileroot_,"%s/ResponseArea/%d/%d",fileroot,int(spl),int(tonefreq))
+print_results()
+
   }
 }
 
@@ -122,25 +172,33 @@ for (spl=0; spl<=90; spl=spl+2.5){
 //	SAVEDATA
 //	if act=0 BREAK
 //    }
+
+
 }
 
 //Run MTF
 proc ModulationTransferFunction(){
 stimtype=3 	//AM tone
-stimdur=0.249
+dur=0.249
+stimdelay=0.02
 tonefreq=cf.x[50]
 for (spl=40; spl<= 80; spl=spl+20){
-    for (modfreq=50;modfreq<=800;modfreq=modfreq+50) {
+    for (AM_modfreq=50;AM_modfreq<=800;AM_modfreq=AM_modfreq+50) {
     	MULTIRUN()
 //	SAVEDATA
+sprint(fileroot_,"%s/ModulationTransferFunction/%d/%d",fileroot,spl/AM_modfreq)
+print_results()
+
 	}
 //plot rMTF
 //plot tMTF
+
 }
+
 }
 
 RateLevelFunction()
-NoiseRateLevelFunction()
-MaskedResponseCurve()
-ResponseArea()
-ModulationTransferFunction()
+//NoiseRateLevelFunction()
+//MaskedResponseCurve()
+//ResponseArea()
+//ModulationTransferFunction()

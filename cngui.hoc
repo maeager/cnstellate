@@ -282,7 +282,7 @@ proc multi_run(){
         GenSpikes()
         run()
         SaveSpikes()
-        }
+    }
     CNSpikes2()
 }
 
@@ -355,14 +355,14 @@ xpanel("Auditory Model Simulation Parameters")
    xbutton("Reset ANFs","SetRates()")
    xbutton("Plot Stim & AN filterbank","ShowInputGraphs()")
    xbutton("Golgi filterbank","ShowGolgiGraphs()")
-	xbutton("Generate Spikes", "GenSpikes()")
-	xbutton("AN Raster","ANSpikes()")
+   xbutton("Generate Spikes", "GenSpikes()")
+   xbutton("AN Raster","ANSpikes()")
    xbutton("CN Rasters","CNSpikes()")
-    xbutton("Weights Panel","weightspanel()")
-			xvalue("reps")
-			xbutton("Multi Run","multi_run()")
-            xbutton("Plot Rate","CNSpikes2()")
-            xbutton("Plot Histograms","CN_Histograms()")
+   xbutton("Weights Panel","weightspanel()")
+    xvalue("reps")
+   xbutton("Multi Run","multi_run()")
+   xbutton("Plot Rate","CNSpikes2()")
+   xbutton("Plot Histograms","CN_Histograms()")
 xpanel()
 
 	//  xopen("reset_weights.hoc")
