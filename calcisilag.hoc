@@ -21,14 +21,14 @@
 
 // Variables used in this file
 strdef tstr
-objref work, work2, TSoutputarray,DSoutputarray,TVoutputarray,Goutputarray, isi, lags, hist, tmpspike
+objref work, work2, TSoutputarray,DSoutputarray,TVoutputarray,Goutputarray, isi, lags, hist, tmpspike,psth[nchannels]
 work    = new Vector()
 work2    = new Vector()
 TSoutputarray = new Matrix(nchannels,nTSperchannel)
 DSoutputarray = new Matrix(nchannels,nDSperchannel)
 TVoutputarray = new Matrix(nchannels,nTVperchannel)
 Goutputarray = new Matrix(nchannels,nGperchannel)
-
+binwidth=0.1
 isi    = new Vector()
 lags    = new Vector()
 tmpspike = new Vector()
@@ -256,6 +256,59 @@ func phaselock_index() { local n,i1,j1,i2,j2
 
 // Procedures for writing out data --------------------------------
 
+proc calc_psth(){local i
+ for i = 0, nchannels-1 {
+    psth[i] = new Vector()
+    if($1==ts) psth[i] = tstellate[i][0].spikes.histogram(0,tstop,binwidth)
+    if($1==tv) psth[i] = tuberculoventral[i][0].spikes.histogram(0,tstop,binwidth)
+    if($1==ds) psth[i] = dstellate[i][0].spikes.histogram(0,tstop,binwidth)
+    if($1==glg) psth[i] = golgi[i][0].spikes.histogram(0,tstop,binwidth)
+  } 
+}
+
+objref folded_psth[nchannels]
+proc fold_psth(){local i,j,fsize
+ fsize = int($1*1000/binwidth)
+ for i = 0, nchannels-1 {
+    folded_psth[i] = new Vector(fsize,0)
+    for j=0,psth[0].size()-1 folded_psth[i].x[j%fsize] += psth[i].x[j] 
+ } 
+}
+
+proc print_psth() { // 2 args - variance, filename root
+
+  calc_psth($1)
+
+ // if (t_ignore_after == 0) t_ignore_after = int((stimdelay+dur+ramplngth/2)*1000)/binwidth)
+  if (t_ignore_after > psth[0].size()) t_ignore_after = psth[0].size()
+  if (t_ignore_before > psth[0].size()) t_ignore_before = psth[0].size()
+
+  sprint(filename,"%s/psth.%d.dat",$s2,$1)
+  outfile.wopen(filename)
+  outfile.printf("# %s cell histogram\n",$s3)
+  for i=0, nchannels-1{
+    for j=0,psth[0].size()-1 {
+	outfile.printf("%d\t%.2f\t%8.3f\n",i,j*binwidth,psth[i].x[j])
+    }
+  }
+  outfile.close()
+
+
+  sprint(filename,"%s/rateplace.%d.dat",$s2,$1)
+  outfile.wopen(filename)
+  outfile.printf("# %s cell rate place\n",$s3)
+  
+  for i=0, nchannels-1{
+    if (t_ignore_after != 0) psth[i].remove(t_ignore_after,psth[i].size-1)
+    if (t_ignore_before != 0) psth[i].remove(0,t_ignore_before)
+    outfile.printf("%d\t%.2f\t%8.3f\n",i,cf.x[i],psth[i].sum()/(reps))
+  }
+  outfile.close()
+
+}
+
+
+
 proc calc_smooth_hist() { // 1 arg - variance
   work.resize(0)
   for i = 0, nchannels-1 {
@@ -268,7 +321,7 @@ proc calc_smooth_hist() { // 1 arg - variance
 
 proc print_smooth_hist() { // 2 args - variance, filename root
   calc_smooth_hist($1)
-  sprint(filename,"%s.smhist",$s2)
+  sprint(filename,"%s/smhist.dat",$s2)
   outfile.wopen(filename)
   outfile.printf("# tstellate cell smoothed histogram\n")
   hist.printf(outfile,"%8.3f\n")
@@ -278,7 +331,7 @@ proc print_smooth_hist() { // 2 args - variance, filename root
   hist.remove(t_ignore_after, hist.size-1)
   hist.remove(0,t_ignore_before)
   work.spctrm(hist)
-  sprint(filename,"%s.pow",$s2)
+  sprint(filename,"%s/pow.dat",$s2)
   outfile.wopen(filename)
   outfile.printf("# Power spectrum of Tstellate cell smoothed histogram\n")
   work.printf(outfile,"%9.5f\n")
@@ -286,11 +339,13 @@ proc print_smooth_hist() { // 2 args - variance, filename root
 
 }
 
+
+
 proc calc_an_smooth_hist() { // 1 arg - variance
   work.resize(0)
   for i = 0, nchannels-1 {
     for j = 0, HSRsperchannel-1 {
-      work.append(an.HSR[i][j].spiketimes)
+      work.append(an.HSRspiketimes[i][j])
     }
   }
   hist = work.sumgauss(0,tstop,1,$1)
@@ -298,7 +353,7 @@ proc calc_an_smooth_hist() { // 1 arg - variance
 
 proc print_an_smooth_hist() { // 2 args - variance, filename root
   calc_an_smooth_hist($1)
-  sprint(filename,"%s.an.HSR.smhist",$s2)
+  sprint(filename,"%s/an.HSR.smhist",$s2)
   outfile.wopen(filename)
   outfile.printf("# an.HSR cell smoothed histogram\n")
   hist.printf(outfile,"%8.3f\n")
@@ -322,7 +377,7 @@ proc print_an_hist() { // 2 args - binsize, filename root
     }
   }
   hist = work.histogram(0,tstop,$1)
-  sprint(filename,"%s.an.HSR.hist",$s2)
+  sprint(filename,"%s/an.HSR.hist",$s2)
   outfile.wopen(filename)
   outfile.printf("# an.HSR cell unsmoothed histogram\n")
   hist.printf(outfile,"%8.3f\n")
@@ -331,13 +386,13 @@ proc print_an_hist() { // 2 args - binsize, filename root
 
 proc print_spiketimes() { // 3 args - indices of Tstellate cell plus filename root
   if (numarg() == 3) {
-    sprint(filename,"%s_%d_%d.isi",$s3,$1,$2)
+    sprint(filename,"%s/spikes_%d_%d.isi",$s3,$1,$2)
     outfile.wopen(filename)
     outfile.printf("# Spiketimes for Tstellate cell [%d][%d]",$1,$2)
     tstellate[$1][$2].spiketimes.printf(outfile,"%10.3f")
   }
   if (numarg() == 1) {
-    sprint(filename,"%s.isi",$s1)
+    sprint(filename,"%s/spikes.ts.isi",$s1)
     outfile.wopen(filename)
     for i = 0, nchannels-1 {
       for j = 0, nTSperchannel-1 {
@@ -345,7 +400,7 @@ proc print_spiketimes() { // 3 args - indices of Tstellate cell plus filename ro
         tstellate[i][j].spiketimes.printf(outfile,"%10.3f")
       }
     }
-    sprint(filename,"%s.ds.isi",$s1)
+    sprint(filename,"%s/spikes.ds.isi",$s1)
     outfile.wopen(filename)
     for i = 0, nchannels-1 {
       for j = 0, nDSperchannel-1 {
@@ -360,7 +415,7 @@ proc print_spiketimes() { // 3 args - indices of Tstellate cell plus filename ro
 
 proc print_ts_raster() { // 1 arg - filename root
 
-  sprint(filename,"%s.ras",$s1)
+  sprint(filename,"%s/ts_raster.dat",$s1)
   outfile.wopen(filename)
   outfile.printf("# Tstellate cell raster plot\n")
   for i = 0, nchannels-1 {
@@ -375,7 +430,7 @@ proc print_ts_raster() { // 1 arg - filename root
 
 proc print_ds_raster() { // 1 arg - filename root
 
-  sprint(filename,"%s.ds.ras",$s1)
+  sprint(filename,"%s/ds_raster.dat",$s1)
   outfile.wopen(filename)
   outfile.printf("# Dstellate cell raster plot\n")
   for i = 0, nchannels-1 {
@@ -389,7 +444,7 @@ proc print_ds_raster() { // 1 arg - filename root
 }
 proc print_tv_raster() { // 1 arg - filename root
 
-  sprint(filename,"%s.tv.ras",$s1)
+  sprint(filename,"%s/tv_raster.dat",$s1)
   outfile.wopen(filename)
   outfile.printf("# TV cell raster plot\n")
   for i = 0, nchannels-1 {
@@ -403,8 +458,7 @@ proc print_tv_raster() { // 1 arg - filename root
 }
 
 proc print_golgi_raster() { // 1 arg - filename root
-
-  sprint(filename,"%s.glg.ras",$s1)
+  sprint(filename,"%s/glg_raster.dat",$s1)
   outfile.wopen(filename)
   outfile.printf("# Golgi cell raster plot\n")
   for i = 0, nchannels-1 {
@@ -419,24 +473,24 @@ proc print_golgi_raster() { // 1 arg - filename root
 
 
 proc print_an_raster() { // 1 arg - filename root
-  sprint(filename,"%s.an.HSR.ras",$s1)
+  sprint(filename,"%s/anHSR_raster.dat",$s1)
   outfile.wopen(filename)
   outfile.printf("# HSR ANF raster plot\n")
   for i = 0, nchannels-1 {
     for j = 0, HSRsperchannel-1 {
-      for k = 0, an.HSR[i][j].spiketimes.size()-1 {
-        outfile.printf("%d %d %d %10.3f\n",i,j,i*HSRsperchannel+j,an.HSR[i][j].spiketimes.x[k])
+      for k = 0, an.HSRspiketimes[i][j].size()-1 {
+        outfile.printf("%d %d %d %10.3f\n",i,j,i*HSRsperchannel+j,an.HSRspiketimes[i][j].x[k])
       }
     }
   }
   outfile.close()
-    sprint(filename,"%s.an.LSR.ras",$s1)
+    sprint(filename,"%s/anLSR_raster.dat",$s1)
   outfile.wopen(filename)
   outfile.printf("# LSR ANF raster plot\n")
   for i = 0, nchannels-1 {
     for j = 0, LSRsperchannel-1 {
-      for k = 0, an.LSR[i][j].spiketimes.size()-1 {
-        outfile.printf("%d %d %d %10.3f\n",i,j,i*LSRsperchannel+j,an.LSR[i][j].spiketimes.x[k])
+      for k = 0, an.LSRspiketimes[i][j].size()-1 {
+        outfile.printf("%d %d %d %10.3f\n",i,j,i*LSRsperchannel+j,an.LSRspiketimes[i][j].x[k])
       }
     }
   }
@@ -444,8 +498,8 @@ proc print_an_raster() { // 1 arg - filename root
 }
 
 proc print_isis() { // 3 args - indices of tstellate cell plus filename root
-  calc_isis($1,$2,t_ignore_before,t_ignore_after
-  sprint(filename,"%s_%d_%d.isi",$s3,$1,$2)
+  calc_isis($1,$2,t_ignore_before,t_ignore_after)
+  sprint(filename,"%s/isis_%d_%d.dat",$s3,$1,$2)
   outfile.wopen(filename)
   outfile.printf("# Interspike intervals for Tstellate cell [%d][%d]",$1,$2)
   isi.printf(outfile,"%10.3f")
@@ -453,7 +507,7 @@ proc print_isis() { // 3 args - indices of tstellate cell plus filename root
 }
 
 proc print_isi_stats() { // 1 arg - filename root
-  sprint(filename,"%s.ts.stats",$s1)
+  sprint(filename,"%s/ts_stats.dat",$s1)
   outfile.wopen(filename)
   outfile.printf("#Interspike interval statistics for tstellate cells\n")
   outfile.printf("# i  j   n   mean   median   stdev  \n")
@@ -472,7 +526,7 @@ proc print_isi_stats() { // 1 arg - filename root
     }
   }
   outfile.close()
-  sprint(filename,"%s.ts.stats",$s1)
+  sprint(filename,"%s/ts.stats",$s1)
   outfile.wopen(filename)
   outfile.printf("#Interspike interval statistics for ANFs\n")
   outfile.printf("# i  j   n   mean   median   stdev  \n")
@@ -492,7 +546,7 @@ proc print_isi_stats() { // 1 arg - filename root
 }
 
 proc print_lags() { local i,j // 3 args - indices of Tstellate cell + filename root
-  sprint(filename,"%s_%d_%d.lags",$s3,$1,$2)
+  sprint(filename,"%s/lags_%d_%d.dat",$s3,$1,$2)
   outfile.wopen(filename)
   outfile.printf("# Lag times for Tstellate cell [%d][%d]\n",$1,$2)
   for i = 0, nchannels-1 {
@@ -507,7 +561,7 @@ proc print_lags() { local i,j // 3 args - indices of Tstellate cell + filename r
 
 proc print_si() { // 1 arg - fileroot
   print "Calculating synchronization indices"
-  sprint(filename,"%s.synch",$s1)
+  sprint(filename,"%s/synch.dat",$s1)
   outfile.wopen(filename)
   outfile.printf("Synchronization index: %10.3f\n",synch_index())
   outfile.printf("Phase-locking index:   %10.3f\n",phaselock_index())

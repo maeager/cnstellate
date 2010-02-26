@@ -268,23 +268,7 @@ proc CN_Histograms(){local itype,icf
     }
 }
 
-proc GenSpikes(){local i
-  startsw()
-    for i=0,nchannels-1 for j=0,HSRsperchannel-1 an.HSR[i][j].SGfast(1)
-    for i=0,nchannels-1 for j=0,LSRsperchannel-1 an.LSR[i][j].SGfast(1)
-    for i=0,nchannels-1  golgi[i][0].s.SGfast(1)
-  print "GenSpikes time:", stopsw()
-}
 
-proc multi_run(){
-    ClearSpikes()
-    for ireps = 0, reps-1 {
-        GenSpikes()
-        run()
-        SaveSpikes()
-    }
-    CNSpikes2()
-}
 
 
 
