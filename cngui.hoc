@@ -269,6 +269,25 @@ proc CN_Histograms(){local itype,icf
 }
 
 
+		proc delayspanel(){
+	xpanel("Network Delayss")
+			xvalue("param.delay.x[hsr][ts]")
+			xvalue("param.delay.x[hsr][tv]")
+			xvalue("param.delay.x[hsr][ds]")
+			xvalue("param.delay.x[lsr][ts]")
+			xvalue("param.delay.x[lsr][tv]")
+			xvalue("param.delay.x[lsr][ds]")
+			xvalue("param.delay.x[lsr][glg]")
+			xvalue("param.delay.x[ds][ts]")
+			xvalue("param.delay.x[ds][tv]")
+			xvalue("param.delay.x[glg][ds]")
+xvalue("param.delay.x[glg][ts]")
+			xvalue("param.delay.x[tv][ts]")
+			xvalue("param.delay.x[tv][ds]")
+			xbutton("Reset Delays","reset_delays()")
+			xpanel()
+		}
+
 
 
 
@@ -284,7 +303,9 @@ proc CN_Histograms(){local itype,icf
 			xvalue("param.w.x[ds][ts]")
 			xvalue("param.w.x[ds][tv]")
 			xvalue("param.w.x[glg][ds]")
+xvalue("param.w.x[glg][ts]")
 			xvalue("param.w.x[tv][ts]")
+			xvalue("param.w.x[tv][ds]")
 			xbutton("Reset Weights","reset_weights()")
 			xpanel()
 		}
@@ -337,18 +358,19 @@ xpanel("Auditory Model Simulation Parameters")
    xbutton("Refresh Stim and Param", "RefreshParameters()")
    xbutton("Update Filterbanks","ANFilterBankRun()")
    xbutton("Reset ANFs","SetRates()")
-   xbutton("Plot Stim & AN filterbank","ShowInputGraphs()")
-   xbutton("Golgi filterbank","ShowGolgiGraphs()")
    xbutton("Generate Spikes", "GenSpikes()")
    xbutton("AN Raster","ANSpikes()")
    xbutton("CN Rasters","CNSpikes()")
    xbutton("Weights Panel","weightspanel()")
+   xbutton("Delays Panel","delayspanel()")
     xvalue("reps")
    xbutton("Multi Run","multi_run()")
+   xbutton("Plot Stim & AN filterbank","ShowInputGraphs()")
+   xbutton("Plot Golgi filterbank","ShowGolgiGraphs()")
    xbutton("Plot Rate","CNSpikes2()")
    xbutton("Plot Histograms","CN_Histograms()")
 xpanel()
 
 	//  xopen("reset_weights.hoc")
 		
-		
+xopen("voltage.ses")		

@@ -10,7 +10,7 @@ done
 } > tstellate.dat
 paste level.dat tstellate.dat > TS_ratelevel_5810.dat
 rm -f tstellate.dat
-gnuplot ../TS_ratelevel.gnu
+gnuplot TS_ratelevel.gnu
 
 {
 for i in `ls -rt */rateplace.2.dat`
@@ -20,14 +20,14 @@ done
 } > dstellate.dat
 paste level.dat dstellate.dat > DS_ratelevel_5810.dat
 rm -f dstellate.dat
-gnuplot ../DS_ratelevel.gnu
+gnuplot DS_ratelevel.gnu
 
 {
 for i in `ls -rt */rateplace.1.dat`; do grep 5810 $i | awk '{print $3}'; done
 }> tuberculo.dat
 paste level.dat tuberculo.dat > TV_ratelevel_5810.dat
 rm -f tuberculo.dat
-gnuplot ../TV_ratelevel.gnu
+gnuplot TV_ratelevel.gnu
 
 {
 for i in `ls -rt */rateplace.3.dat`
@@ -37,7 +37,7 @@ done
 } > golgi.dat
 paste level.dat golgi.dat > G_ratelevel_5810.dat
 rm -f golgi.dat
-gnuplot ../G_ratelevel.gnu
+gnuplot G_ratelevel.gnu
 
 # gnuplot TS_response_area.gnu
 
@@ -102,16 +102,13 @@ do
 	echo ""
 done
 }>> psth.3.dat
-gnuplot ../psth.gnu
+gnuplot psth.gnu
 
-#display psthVlevel.0.eps &
-#display psthVlevel.1.eps &
-#display psthVlevel.2.eps &
-#display psthVlevel.3.eps &
+display psthVlevel.0.eps &
+display psthVlevel.1.eps &
+display psthVlevel.2.eps &
+display psthVlevel.3.eps &
 
-
-gnuplot ../psthsingle.gnu
 gnuplot rasters.gnu
-#display rasters.eps &
+display rasters.eps &
 
-rm -f *.log *.dat
