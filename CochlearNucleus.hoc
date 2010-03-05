@@ -759,6 +759,60 @@ proc reset_weights() { local i // 1 arg - weight
   }
 }
 
+proc reset_delays() { local i // 1 arg - delay
+//ANF connections
+   for i = 0,hsr2tsAMPAlist.count()-1 {
+   hsr2tsAMPAlist.object(i).delay = param.delay.x[hsr][ts]
+  }
+   for i = 0,lsr2tsAMPAlist.count()-1 {
+   lsr2tsAMPAlist.object(i).delay = param.delay.x[lsr][ts]
+  }
+   for i = 0,hsr2tvAMPAlist.count()-1 {
+   hsr2tvAMPAlist.object(i).delay = param.delay.x[hsr][tv]
+  }
+   for i = 0,lsr2tvAMPAlist.count()-1 {
+   lsr2tvAMPAlist.object(i).delay = param.delay.x[lsr][tv]
+  }
+
+   for i = 0,lsr2dsAMPAlist.count()-1 {
+   lsr2dsAMPAlist.object(i).delay = param.delay.x[lsr][ds]
+  }
+//hsr2glgAMPAlist = new List()
+//lsr2glgAMPAlist = new List()
+
+//Golgi connections
+   for i = 0,glg2dsGABAlist.count()-1 {
+   glg2dsGABAlist.object(i).delay = param.delay.x[glg][ds]
+  }
+   for i = 0,glg2dsGABAlist.count()-1 {
+   glg2dsGABAlist.object(i).delay = param.delay.x[glg][ds]
+  }
+//Dstellate connections
+   for i = 0,ds2tsGLYlist.count()-1 {
+   ds2tsGLYlist.object(i).delay = param.delay.x[ds][ts]
+  }
+   for i = 0,ds2tvGLYlist.count()-1 {
+   ds2tvGLYlist.object(i).delay = param.delay.x[ds][tv]
+  }
+//TV connections
+   for i = 0,tv2tsGLYlist.count()-1 {
+   tv2tsGLYlist.object(i).delay = param.delay.x[tv][ts]
+  }
+   for i = 0,tv2dsGLYlist.count()-1 {
+   tv2dsGLYlist.object(i).delay = param.delay.x[tv][ds]
+  }
+
+//TS connections
+   for i = 0,ts2tsAMPAlist.count()-1 {
+   ts2tsAMPAlist.object(i).delay = param.delay.x[ts][ts]
+  }
+   for i = 0,ts2dsAMPAlist.count()-1 {
+   ts2dsAMPAlist.object(i).delay = param.delay.x[ts][ds]
+  }
+   for i = 0,ts2tvAMPAlist.count()-1 {
+   ts2tvAMPAlist.object(i).delay  = param.delay.x[ts][tv]
+  }
+}
 
 proc SetRates(){
    an.SetRates()
