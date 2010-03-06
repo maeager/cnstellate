@@ -18,12 +18,12 @@ set terminal postscript eps enhanced defaultplex \
    solid dashlength 1.0 linewidth 1.0 butt noclip \
    palfuncparam 2000,0.003 \
    "Helvetica" 14 
-set output '/media/data/Work/cnstellate/Responses/RateLevel/G_ratelevel.eps'
+set output 'DS_ratelevel.eps'
 unset clip points
 set clip one
 unset clip two
 set bar 1.000000 front
-set border 31 front linetype -1 linewidth 1.000
+set border 3 front linetype -1 linewidth 1.000
 set xdata
 set ydata
 set zdata
@@ -145,5 +145,16 @@ set colorbox vertical origin screen 0.9, 0.2, 0 size screen 0.05, 0.6, 0 front b
 set loadpath 
 set fontpath 
 set fit noerrorvariables
-plot  '/media/data/Work/cnstellate/Responses/RateLevel/G_ratelevel_5810.dat'  using 1:2  notitle with linespoints
+a=1
+b=10
+c=50
+d=0.1
+f(x)=a*atan((x-c)/b)+d
+fit f(x) 'DS_ratelevel_5810.dat' using 1:2 via a,b,c,d
+set label 1 "MR = %.2f sp/s", (a*(pi/2))+d at 60,0.5
+set label 2 "1/2 max = %.2f dBSPL", c at 60,0.45
+set label 3 "THR = %.1f dBSPL", -((pi/2)*0.95*b)+c at 60,0.4
+set label 4 "DR = %.1f ", pi*0.95*b at 60,0.35
+set label 5 "spon = %.2f (sp/s)", d-f(c) at 60,0.3
+plot f(x), 'DS_ratelevel_5810.dat'  using 1:2  notitle with linespoints
 #    EOF

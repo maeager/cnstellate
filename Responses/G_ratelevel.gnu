@@ -13,17 +13,17 @@
 #    	faq, bugs, etc:   type "help seeking-assistance"
 #    	immediate help:   type "help"
 #    	plot window:      hit 'h'
-# set terminal postscript eps enhanced defaultplex \
-   leveldefault color colortext \
-   solid dashlength 1.0 linewidth 1.0 butt noclip \
+set terminal postscript eps enhanced defaultplex \
+   leveldefault mono \
+   solid dashlength 1.0 linewidth 2.0 butt noclip \
    palfuncparam 2000,0.003 \
-   "Helvetica" 14 
-# set output '/media/data/Work/cnstellate/Responses/TS_rateplace_35.eps'
+   "Helvetica" 18 
+set output 'G_ratelevel.eps'
 unset clip points
 set clip one
 unset clip two
 set bar 1.000000 front
-set border 31 front linetype -1 linewidth 1.000
+set border 3 front linetype -1
 set xdata
 set ydata
 set zdata
@@ -81,11 +81,11 @@ set size ratio 0 1,1
 set origin 0,0
 set style data points
 set style function lines
-set xzeroaxis linetype -2 linewidth 1.000
-set yzeroaxis linetype -2 linewidth 1.000
-set zzeroaxis linetype -2 linewidth 1.000
-set x2zeroaxis linetype -2 linewidth 1.000
-set y2zeroaxis linetype -2 linewidth 1.000
+set xzeroaxis linetype -2 linewidth 2.000
+set yzeroaxis linetype -2 linewidth 2.000
+set zzeroaxis linetype -2 linewidth 2.000
+set x2zeroaxis linetype -2 linewidth 2.000
+set y2zeroaxis linetype -2 linewidth 2.000
 set ticslevel 0.5
 set mxtics default
 set mytics default
@@ -111,18 +111,18 @@ set rrange [ * : * ] noreverse nowriteback  # (currently [8.98847e+307:-8.98847e
 set trange [ * : * ] noreverse nowriteback  # (currently [-5.00000:5.00000] )
 set urange [ * : * ] noreverse nowriteback  # (currently [-10.0000:10.0000] )
 set vrange [ * : * ] noreverse nowriteback  # (currently [-10.0000:10.0000] )
-set xlabel "Characteristic Frequency (Hz)" 
-set xlabel  offset character 0, 0, 0 font "" textcolor lt -1 norotate
+set xlabel "Level (dB SPL)" 
+set xlabel  offset character 0, 0, 0 font "Helvetica,28" textcolor lt -1 norotate
 set x2label "" 
 set x2label  offset character 0, 0, 0 font "" textcolor lt -1 norotate
 set xrange [ * : * ] noreverse nowriteback  # (currently [0.00000:100.000] )
-set x2range [ * : * ] noreverse nowriteback  # (currently [0.00000:99.0000] )
+set x2range [ * : * ] noreverse nowriteback  # (currently [0.00000:97.0000] )
 set ylabel "Rate (sp/s)" 
-set ylabel  offset character 0, 0, 0 font "" textcolor lt -1 rotate by -270
+set ylabel  offset character +1, 0, 0 font "Helvetica,28" textcolor lt -1 rotate by -270
 set y2label "" 
 set y2label  offset character 0, 0, 0 font "" textcolor lt -1 rotate by -270
-set yrange [ * : * ] noreverse nowriteback  # (currently [0.00000:14.0000] )
-set y2range [ * : * ] noreverse nowriteback  # (currently [0.960000:13.7200] )
+set yrange [ * : * ] noreverse nowriteback  # (currently [2.00000:16.0000] )
+set y2range [ * : * ] noreverse nowriteback  # (currently [2.56000:14.8800] )
 set zlabel "" 
 set zlabel  offset character 0, 0, 0 font "" textcolor lt -1 norotate
 set zrange [ * : * ] noreverse nowriteback  # (currently [-10.0000:10.0000] )
@@ -145,5 +145,16 @@ set colorbox vertical origin screen 0.9, 0.2, 0 size screen 0.05, 0.6, 0 front b
 set loadpath 
 set fontpath 
 set fit noerrorvariables
-plot  '/media/data/Work/cnstellate/Responses/RateLevel/35/rateplace.0.dat'  using 1:3  notitle with linespoints
+a=1
+b=10
+c=20
+d=1
+f(x)=a*atan((x-c)/b)+d
+fit f(x) 'G_ratelevel_5810.dat' using 1:2 via a,b,c,d
+set label  "MR = %.2f sp/s", (a*(pi/2))+d at graph 0.1, graph 0.9
+set label  "1/2 max = %.2f dBSPL", c at graph 0.1, graph 0.86
+set label  "THR = %.1f dBSPL", -((pi/2)*0.95*b)+c at graph 0.1, graph 0.82
+set label  "DR = %.1f ", pi*0.95*b at graph 0.1, graph 0.78
+set label  "spon = %.2f (sp/s)", d-f(c) at graph 0.1, graph 0.74
+plot  f(x), 'G_ratelevel_5810.dat'  using 1:2  notitle with linespoints ls 3
 #    EOF
