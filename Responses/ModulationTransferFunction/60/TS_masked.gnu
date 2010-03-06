@@ -18,12 +18,12 @@ set terminal postscript eps enhanced defaultplex \
    solid dashlength 1.0 linewidth 1.0 butt noclip \
    palfuncparam 2000,0.003 \
    "Helvetica" 14 
-set output '/media/data/Work/cnstellate/Responses/RateLevel/TV_ratelevel.eps'
+set output 'TS_masked.eps'
 unset clip points
 set clip one
 unset clip two
 set bar 1.000000 front
-set border 31 front linetype -1 linewidth 1.000
+set border 3 front linetype -1 linewidth 1.000
 set xdata
 set ydata
 set zdata
@@ -111,7 +111,7 @@ set rrange [ * : * ] noreverse nowriteback  # (currently [8.98847e+307:-8.98847e
 set trange [ * : * ] noreverse nowriteback  # (currently [-5.00000:5.00000] )
 set urange [ * : * ] noreverse nowriteback  # (currently [-10.0000:10.0000] )
 set vrange [ * : * ] noreverse nowriteback  # (currently [-10.0000:10.0000] )
-set xlabel "Level (dB SPL)" 
+set xlabel "fm (Hz)" 
 set xlabel  offset character 0, 0, 0 font "" textcolor lt -1 norotate
 set x2label "" 
 set x2label  offset character 0, 0, 0 font "" textcolor lt -1 norotate
@@ -144,6 +144,9 @@ set colorbox default
 set colorbox vertical origin screen 0.9, 0.2, 0 size screen 0.05, 0.6, 0 front bdefault
 set loadpath 
 set fontpath 
-set fit noerrorvariables
-plot  '/media/data/Work/cnstellate/Responses/RateLevel/TV_ratelevel_5810.dat'  using 1:2  notitle with linespoints
+set logscale x 10
+set xrange [1000:20000]
+plot  'TS_masked_5810.dat'  using 1:2  notitle with linespoints
 #    EOF
+
+

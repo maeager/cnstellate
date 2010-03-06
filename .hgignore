@@ -20,6 +20,8 @@ i686/*
 $pfebk/*
 *.ps
 *.pdf
+Responses/*/*.dat
+Responses/*/*.eps
 
 syntax: regexp
 .*\#.*\#$
