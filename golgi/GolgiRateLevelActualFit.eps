@@ -1,7 +1,7 @@
 %!PS-Adobe-2.0
 %%Title: GolgiRateLevelActualFit.eps
-%%Creator: gnuplot 4.2 patchlevel 4 
-%%CreationDate: Wed Aug 19 16:41:46 2009
+%%Creator: gnuplot 4.4 patchlevel 0
+%%CreationDate: Tue Jun  8 22:14:43 2010
 %%DocumentFonts: (atend)
 %%BoundingBox: 50 50 554 770
 %%Orientation: Landscape
@@ -11,8 +11,8 @@
 /gnudict 256 dict def
 gnudict begin
 %
-% The following 6 true/false flags may be edited by hand if required
-% The unit line width may also be changed
+% The following true/false flags may be edited by hand if desired.
+% The unit line width and grayscale image gamma correction may also be changed.
 %
 /Color false def
 /Blacktext false def
@@ -21,11 +21,13 @@ gnudict begin
 /Landscape true def
 /Level1 false def
 /Rounded false def
+/ClipToBoundingBox false def
 /TransparentPatterns false def
 /gnulinewidth 5.000 def
 /userlinewidth gnulinewidth def
+/Gamma 1.0 def
 %
-/vshift -40 def
+/vshift -60 def
 /dl1 {
   10.0 Dashlength mul mul
   Rounded { currentlinewidth 0.75 mul sub dup 0 le { pop 0.01 } if } if
@@ -46,16 +48,24 @@ systemdict /pdfmark known not {
 SDict begin [
   /Title (GolgiRateLevelActualFit.eps)
   /Subject (gnuplot plot)
-  /Creator (gnuplot 4.2 patchlevel 4 )
-  /Author (Michael Eager,U-EPC343\\maeager,S-1-5-21-2527326331-3865623594-4081551536-1023)
+  /Creator (gnuplot 4.4 patchlevel 0)
+  /Author (eagerm)
 %  /Producer (gnuplot)
 %  /Keywords ()
-  /CreationDate (Wed Aug 19 16:41:46 2009)
+  /CreationDate (Tue Jun  8 22:14:43 2010)
   /DOCINFO pdfmark
 end
 } ifelse
+/doclip {
+  ClipToBoundingBox {
+    newpath 50 50 moveto 554 50 lineto 554 770 lineto 50 770 lineto closepath
+    clip
+  } if
+} def
 %
-% Gnuplot Prolog Version 4.2 (August 2006)
+% Gnuplot Prolog Version 4.4 (January 2010)
+%
+%/SuppressPDFMark true def
 %
 /M {moveto} bind def
 /L {lineto} bind def
@@ -65,6 +75,7 @@ end
 /Z {closepath} bind def
 /C {setrgbcolor} bind def
 /f {rlineto fill} bind def
+/Gshow {show} def   % May be redefined later in the file to support UTF-8
 /vpt2 vpt 2 mul def
 /hpt2 hpt 2 mul def
 /Lshow {currentpoint stroke M 0 vshift R 
@@ -427,17 +438,18 @@ currentdict end definefont pop
      { 5 get 3 eq {gsave} {grestore} ifelse }
      {dup dup 0 get findfont exch 1 get scalefont setfont
      [ currentpoint ] exch dup 2 get 0 exch R dup 5 get 2 ne {dup dup 6
-     get exch 4 get {show} {stringwidth pop 0 R} ifelse }if dup 5 get 0 eq
+     get exch 4 get {Gshow} {stringwidth pop 0 R} ifelse }if dup 5 get 0 eq
      {dup 3 get {2 get neg 0 exch R pop} {pop aload pop M} ifelse} {dup 5
      get 1 eq {dup 2 get exch dup 3 get exch 6 get stringwidth pop -2 div
      dup 0 R} {dup 6 get stringwidth pop -2 div 0 R 6 get
      show 2 index {aload pop M neg 3 -1 roll neg R pop pop} {pop pop pop
      pop aload pop M} ifelse }ifelse }ifelse }
      ifelse }
-   forall} bind def
+   forall} def
+/Gswidth {dup type /stringtype eq {stringwidth} {pop (n) stringwidth} ifelse} def
 /MFwidth {0 exch { dup 5 get 3 ge { 5 get 3 eq { 0 } { pop } ifelse }
  {dup 3 get{dup dup 0 get findfont exch 1 get scalefont setfont
-     6 get stringwidth pop add} {pop} ifelse} ifelse} forall} bind def
+     6 get Gswidth pop add} {pop} ifelse} ifelse} forall} def
 /MLshow { currentpoint stroke M
   0 exch R
   Blacktext {gsave 0 setgray MFshow grestore} {MFshow} ifelse } bind def
@@ -454,199 +466,402 @@ end
 %%Page: 1 1
 gnudict begin
 gsave
+doclip
 50 50 translate
 0.100 0.100 scale
 90 rotate
 0 -5040 translate
 0 setgray
 newpath
-(Helvetica) findfont 120 scalefont setfont
+(Helvetica) findfont 180 scalefont setfont
 1.000 UL
 LTb
-756 384 M
+990 576 M
 63 0 V
 stroke
-684 384 M
-[ [(Helvetica) 120.0 0.0 true true 0 ( 0)]
-] -40.0 MRshow
+882 576 M
+[ [(Helvetica) 180.0 0.0 true true 0 ( 0)]
+] -60.0 MRshow
 1.000 UL
 LTb
-756 1160 M
+990 1320 M
 63 0 V
 stroke
-684 1160 M
-[ [(Helvetica) 120.0 0.0 true true 0 ( 20)]
-] -40.0 MRshow
+882 1320 M
+[ [(Helvetica) 180.0 0.0 true true 0 ( 20)]
+] -60.0 MRshow
 1.000 UL
 LTb
-756 1936 M
+990 2064 M
 63 0 V
 stroke
-684 1936 M
-[ [(Helvetica) 120.0 0.0 true true 0 ( 40)]
-] -40.0 MRshow
+882 2064 M
+[ [(Helvetica) 180.0 0.0 true true 0 ( 40)]
+] -60.0 MRshow
 1.000 UL
 LTb
-756 2711 M
+990 2808 M
 63 0 V
 stroke
-684 2711 M
-[ [(Helvetica) 120.0 0.0 true true 0 ( 60)]
-] -40.0 MRshow
+882 2808 M
+[ [(Helvetica) 180.0 0.0 true true 0 ( 60)]
+] -60.0 MRshow
 1.000 UL
 LTb
-756 3487 M
+990 3551 M
 63 0 V
 stroke
-684 3487 M
-[ [(Helvetica) 120.0 0.0 true true 0 ( 80)]
-] -40.0 MRshow
+882 3551 M
+[ [(Helvetica) 180.0 0.0 true true 0 ( 80)]
+] -60.0 MRshow
 1.000 UL
 LTb
-756 4263 M
+990 4295 M
 63 0 V
 stroke
-684 4263 M
-[ [(Helvetica) 120.0 0.0 true true 0 ( 100)]
-] -40.0 MRshow
+882 4295 M
+[ [(Helvetica) 180.0 0.0 true true 0 ( 100)]
+] -60.0 MRshow
 1.000 UL
 LTb
-756 5039 M
+990 5039 M
 63 0 V
 stroke
-684 5039 M
-[ [(Helvetica) 120.0 0.0 true true 0 ( 120)]
-] -40.0 MRshow
+882 5039 M
+[ [(Helvetica) 180.0 0.0 true true 0 ( 120)]
+] -60.0 MRshow
 1.000 UL
 LTb
-756 384 M
+990 576 M
 0 63 V
 stroke
-756 264 M
-[ [(Helvetica) 120.0 0.0 true true 0 (-20)]
-] -40.0 MCshow
+990 396 M
+[ [(Helvetica) 180.0 0.0 true true 0 (-20)]
+] -60.0 MCshow
 1.000 UL
 LTb
-1830 384 M
+2025 576 M
 0 63 V
 stroke
-1830 264 M
-[ [(Helvetica) 120.0 0.0 true true 0 ( 0)]
-] -40.0 MCshow
+2025 396 M
+[ [(Helvetica) 180.0 0.0 true true 0 ( 0)]
+] -60.0 MCshow
 1.000 UL
 LTb
-2904 384 M
+3060 576 M
 0 63 V
 stroke
-2904 264 M
-[ [(Helvetica) 120.0 0.0 true true 0 ( 20)]
-] -40.0 MCshow
+3060 396 M
+[ [(Helvetica) 180.0 0.0 true true 0 ( 20)]
+] -60.0 MCshow
 1.000 UL
 LTb
-3978 384 M
+4095 576 M
 0 63 V
 stroke
-3978 264 M
-[ [(Helvetica) 120.0 0.0 true true 0 ( 40)]
-] -40.0 MCshow
+4095 396 M
+[ [(Helvetica) 180.0 0.0 true true 0 ( 40)]
+] -60.0 MCshow
 1.000 UL
 LTb
-5052 384 M
+5129 576 M
 0 63 V
 stroke
-5052 264 M
-[ [(Helvetica) 120.0 0.0 true true 0 ( 60)]
-] -40.0 MCshow
+5129 396 M
+[ [(Helvetica) 180.0 0.0 true true 0 ( 60)]
+] -60.0 MCshow
 1.000 UL
 LTb
-6126 384 M
+6164 576 M
 0 63 V
 stroke
-6126 264 M
-[ [(Helvetica) 120.0 0.0 true true 0 ( 80)]
-] -40.0 MCshow
+6164 396 M
+[ [(Helvetica) 180.0 0.0 true true 0 ( 80)]
+] -60.0 MCshow
 1.000 UL
 LTb
-7200 384 M
+7199 576 M
 0 63 V
 stroke
-7200 264 M
-[ [(Helvetica) 120.0 0.0 true true 0 ( 100)]
-] -40.0 MCshow
+7199 396 M
+[ [(Helvetica) 180.0 0.0 true true 0 ( 100)]
+] -60.0 MCshow
 1.000 UL
 LTb
 1.000 UL
 LTb
-756 5039 M
-756 384 L
-6444 0 V
-0 4655 R
--6444 0 R
+990 5039 M
+990 576 L
+6209 0 V
+0 4463 R
+-6209 0 R
 stroke
 LCb setrgbcolor
-264 2711 M
-currentpoint gsave translate 90 rotate 0 0 moveto
-[ [(Helvetica) 120.0 0.0 true true 0 ( Discharge Rate \(sp/s\))]
-] -40.0 MCshow
+252 2807 M
+currentpoint gsave translate -270 rotate 0 0 moveto
+[ [(Helvetica) 280.0 0.0 true true 0 ( Discharge Rate \(sp/s\))]
+] -93.3 MCshow
 grestore
 LTb
 LCb setrgbcolor
-3978 84 M
-[ [(Helvetica) 120.0 0.0 true true 0 (Tone Loudness \(SPL dB\))]
-] -40.0 MCshow
+4094 126 M
+[ [(Helvetica) 280.0 0.0 true true 0 (Tone Loudness \(SPL dB\))]
+] -93.3 MCshow
 LTb
 1.000 UP
 1.000 UL
 LTb
-1.000 UP
+% Begin plot #1
 2.000 UL
 LT0
-LTb
-6633 4916 M
-[ [(Helvetica) 120.0 0.0 true true 0 (Ghoshal and Kim \(1996\) S03-07)]
-] -40.0 MRshow
+LCb setrgbcolor
+6380 4886 M
+[ [(Helvetica) 180.0 0.0 true true 0 (Fitted Output)]
+] -60.0 MRshow
 LT0
-6705 4916 M
-351 0 V
-1830 710 M
-806 -16 V
-2148 993 V
-5858 2851 L
-537 791 V
-1830 710 CircleF
-2636 694 CircleF
-4784 1687 CircleF
-5858 2851 CircleF
-6395 3642 CircleF
-6880 4916 CircleF
+6488 4886 M
+495 0 V
+2025 808 M
+44 3 V
+45 3 V
+44 4 V
+45 4 V
+44 4 V
+44 5 V
+45 6 V
+44 7 V
+45 7 V
+44 9 V
+45 10 V
+44 12 V
+44 13 V
+45 15 V
+44 16 V
+45 18 V
+44 21 V
+44 22 V
+45 25 V
+44 27 V
+45 28 V
+44 31 V
+45 32 V
+44 34 V
+44 36 V
+45 37 V
+44 38 V
+45 40 V
+44 40 V
+45 42 V
+44 43 V
+44 43 V
+45 45 V
+44 44 V
+45 46 V
+44 46 V
+45 46 V
+44 46 V
+44 47 V
+45 46 V
+44 47 V
+45 46 V
+44 46 V
+45 46 V
+44 45 V
+44 45 V
+45 44 V
+44 43 V
+45 42 V
+44 41 V
+44 40 V
+45 39 V
+44 38 V
+45 36 V
+44 35 V
+45 33 V
+44 32 V
+44 29 V
+45 28 V
+44 26 V
+45 23 V
+44 22 V
+45 19 V
+44 17 V
+44 14 V
+45 12 V
+44 10 V
+45 9 V
+44 7 V
+45 7 V
+44 7 V
+44 6 V
+45 7 V
+44 7 V
+45 9 V
+44 9 V
+45 12 V
+44 13 V
+44 16 V
+45 19 V
+44 22 V
+45 25 V
+44 30 V
+45 33 V
+44 38 V
+44 43 V
+45 49 V
+44 53 V
+45 60 V
+44 64 V
+44 69 V
+45 73 V
+44 76 V
+45 79 V
+44 81 V
+45 84 V
+44 85 V
+44 86 V
+45 87 V
+% End plot #1
+% Begin plot #2
 1.000 UP
+stroke
+5.000 UL
+LT1
+2025 808 Pls
+2801 975 Pls
+4871 2712 Pls
+5905 3133 Pls
+6423 4012 Pls
+% End plot #2
+% Begin plot #3
 2.000 UL
-LT1
-LTb
-6633 4796 M
-[ [(Helvetica) 120.0 0.0 true true 0 (Fitted Output)]
-] -40.0 MRshow
-LT1
-6705 4796 M
-351 0 V
-1830 626 M
-806 174 V
-4784 2611 L
-1074 440 V
-537 917 V
-1830 626 BoxF
-2636 800 BoxF
-4784 2611 BoxF
-5858 3051 BoxF
-6395 3968 BoxF
-6880 4796 BoxF
+LT2
+LCb setrgbcolor
+6380 4706 M
+[ [(Helvetica) 180.0 0.0 true true 0 (Ghoshal and Kim \(1996\) S03-07)]
+] -60.0 MRshow
+LT2
+6488 4706 M
+495 0 V
+2025 888 M
+44 -3 V
+45 -3 V
+44 -2 V
+45 -3 V
+44 -3 V
+44 -2 V
+45 -2 V
+44 -2 V
+45 -1 V
+44 -1 V
+45 -1 V
+44 0 V
+44 0 V
+45 1 V
+44 1 V
+45 2 V
+44 3 V
+44 3 V
+45 5 V
+44 5 V
+45 5 V
+44 6 V
+45 8 V
+44 7 V
+44 9 V
+45 9 V
+44 10 V
+45 11 V
+44 11 V
+45 13 V
+44 13 V
+44 13 V
+45 15 V
+44 15 V
+45 16 V
+44 16 V
+45 18 V
+44 18 V
+44 19 V
+45 19 V
+44 20 V
+45 21 V
+44 22 V
+45 22 V
+44 24 V
+44 23 V
+45 25 V
+44 25 V
+45 27 V
+44 26 V
+44 28 V
+45 28 V
+44 29 V
+45 30 V
+44 30 V
+45 32 V
+44 32 V
+44 32 V
+45 34 V
+44 34 V
+45 35 V
+44 35 V
+45 36 V
+44 37 V
+44 38 V
+45 39 V
+44 39 V
+45 40 V
+44 41 V
+45 42 V
+44 42 V
+44 44 V
+45 44 V
+44 45 V
+45 47 V
+44 47 V
+45 48 V
+44 49 V
+44 50 V
+45 52 V
+44 52 V
+45 54 V
+44 54 V
+45 56 V
+44 57 V
+44 58 V
+45 59 V
+44 61 V
+45 61 V
+44 63 V
+44 64 V
+45 64 V
+44 66 V
+45 66 V
+44 66 V
+45 67 V
+44 67 V
+44 68 V
+45 67 V
+% End plot #3
+% Begin plot #4
+1.000 UP
+stroke
+5.000 UL
+LT3
+2025 888 Crs
+2801 874 Crs
+4871 1826 Crs
+5905 2941 Crs
+6423 3700 Crs
+% End plot #4
 1.000 UL
 LTb
-756 5039 M
-756 384 L
-6444 0 V
-0 4655 R
--6444 0 R
+990 5039 M
+990 576 L
+6209 0 V
+0 4463 R
+-6209 0 R
 1.000 UP
 stroke
 grestore

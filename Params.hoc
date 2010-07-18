@@ -1,8 +1,11 @@
 /***************************************
  * Cochlear Nucleus Stellate Network
  * Default parameters
- * Michael Eager, University of Melbourne, 2007
+ * Michael Eager, University of Melbourne, 2007-2010
  ***************************************/
+strdef cnstellate_dir
+cnstellate_dir = "/home/eagerm/Work/cnstellate"
+
 nchannels = 100
 HSRsperchannel  =   20
 MSRsperchannel  =   0
@@ -127,7 +130,12 @@ celsius=37              //degrees, base model temperature
 ANmodel = 6 //  3  Tan+Carney 2003,
             //  4 Heinz ARLO model 2001
             //  6 Zilany and Bruce 2007/08, default
-
+	    //  7 Zilany, Bruce, Carney, Nelson 2006,2007,2010 
+HighSponFibre=3
+MedSponFibre=2
+LowSponFibre=1
+ZilanyActual=1
+ZilanyApprox=0
 
 /*Bruce Model Parameters Impairment of Inner and Outer Hair cell function
     variables cohc, cihc  are frequency and animal specific
@@ -139,7 +147,7 @@ objref audiogram,cohc,ihc
 species     = 2        // 0  human (as in ARLO paper)
                        // 9  cat, all CFs (as in JASA 2001 Zhang et al., paper)
                        // 1  cat, only low CFs (as in Carney '93 JASA paper - not recommended)
-                       // 2  rat, Michael Eager 2007-9
+                       // 2  rat, implemented in Zilany and Bruce 2007 (6) by Michael Eager 
 
 //----------------------------------------------------------------
 //  The parameter file for any experiment should look like the following lines:
@@ -163,7 +171,7 @@ thresh      = -10       // mV, threshold for detecting spikes
 
 
 strdef fileroot
-sprint(fileroot,"vowel_baseline")  // default root for output filenames
+fileroot="vowel_baseline"  // default root for output filenames
 vowelnumber = 1                    // which vowel
 inputnumber = 1                    // fixed input file
 tstop       = 400                  // ms, total simulation time
@@ -171,8 +179,8 @@ t_ignore_before       = 20                  // ms,  when calculating statistics,
                                    // spikes occuring before this time
 
 cvode.active(0)
-dt        = 0.05
-steps_per_ms = 10                   // NEURON variable
+dt        = 0.05		//NEURON's local integration time step
+steps_per_ms = 10                   // NEURON graphical plotting variable
 setdt()
 dt=0.1                              //ms, integration time step
 celsius = 37                        //degrees C, body  temperature

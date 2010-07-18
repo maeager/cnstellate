@@ -19,16 +19,16 @@ VERBATIM
 static double an_zbcatmodel07(void *vv)
 {
 
-   double *stim;      //Input stimulus vector in pascals
-    double *sout;   //Output vector containing inst. rate for channel
-         double tdres,cf,spont;
-         double cohc,cihc;
-         int species;
-         int ifspike;
-   int nstim, nsout;
-   int nrep;
-   cohc = 1.0;
-   cihc = 1.0;
+  double *stim;      //Input stimulus vector in pascals
+  double *sout;   //Output vector containing inst. rate for channel
+  double tdres,cf,spont;
+  double cohc,cihc;
+  int species;
+  int ifspike;
+  int nstim, nsout;
+  int nrep;
+  cohc = 1.0;
+  cihc = 1.0;
 
 //Get Instance Sout vector for synapse data
    nstim = vector_instance_px(vv, &sout);
@@ -169,7 +169,7 @@ deadtimeRnd = deadtimeIndex*tdres;      // Deadtime rounded down to length of an
 refracMult0 = 1 - tdres/s0;  // If y0(t) = c0*exp(-t/s0), then y0(t+stimtdres) = y0(t)*refracMult0
 refracMult1 = 1 - tdres/s1;  // If y1(t) = c1*exp(-t/s1), then y1(t+stimtdres) = y1(t)*refracMult1
 
-// Calculate effects of a random spike before t=0 on refractoriness and the time-warping sum at t=0
+ // Calculate effects of a random spike before t=0 on refractoriness and the time-warping sum at t=0
 
 endOfLastDeadtime = log( scop_random() ) / sout[0] + abs_refr;  // End of last deadtime before t=0
 

@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 rm -f response_area.0.dat
 {
 for i in `ls */rateplace.0.dat|sort -n`

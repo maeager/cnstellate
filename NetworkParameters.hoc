@@ -1,4 +1,4 @@
-x	/*
+/*
  *  NetworkParameters.hoc
  */
 
@@ -61,5 +61,7 @@ proc saveparameters(){
 }
 endtemplate NetworkParameters
 
+strdef paramfilename
 param = new NetworkParameters(6,4)
-param.getnetparameters("defaultrecurrentparams.dat")
+sprint(paramfilename,"%s/defaultrecurrentparams.dat",cnstellate_dir)
+param.getnetparameters(paramfilename)

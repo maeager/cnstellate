@@ -8,7 +8,7 @@ changescale=1
 scale = 60
 proc ShowInputGraphs() {
    objref stimgr, b1,  gr
-/*graph variables*/
+   /*graph variables*/
    objref  ANFBgr, b2, Sout[nchannels]
 
    /*** Set up Stimulus Graph*/
@@ -52,14 +52,14 @@ proc ShowGolgiGraphs() {
    objref  ANFBgr,  Sout[nchannels]
 
    //Set up Stimulus Graph
-
+ if(object_id(golgi)){
    ANFBgr = new Graph(0)
    ANFBgr.size(0,0.05,0,180000)
    ANFBgr.view(0, 0, 0.05, 180000, 308, 345, 685, 365)
    ANFBgr.label(0.92,0.90, "CF")
    ANFBgr.label(0.1,0.95,"Auditory Filterbank Instantaneous Rate Profiles")
    for icf = 0, nchannels-1 {
-      Sout[icf] = golgi[icf][0].sout.c
+       execute1("Sout[icf] = golgi[icf][0].sout.c")
       Sout[icf].add(icf)
       Sout[icf].plot(ANFBgr,sg_tdres, 1, 0)
       sprint(lbl, "%g ", cf.x[icf])
@@ -67,7 +67,7 @@ proc ShowGolgiGraphs() {
    }
    //system("date")
    ANFBgr.exec_menu("View = plot")
-
+     }
 
 //   ANFBgr.printfile("x.eps")
 }//Dummy Graphs
@@ -138,7 +138,7 @@ proc PlotAudiogram(){
     audiogramgr.label(0.1,0.95, "Audiogram Data - Extrapolated for experimental data")
     audiogramgr.label(0.1,0.90, "File: ")
     audiogramgr.label(0.2,0.90, bruce_impairment_file)
-audiogramgr.exec_menu("View = plot")
+      audiogramgr.exec_menu("View = plot")
 }
 
 
@@ -269,46 +269,46 @@ proc CN_Histograms(){local itype,icf
 }
 
 
-		proc delayspanel(){
-	xpanel("Network Delayss")
-			xvalue("param.delay.x[hsr][ts]")
-			xvalue("param.delay.x[hsr][tv]")
-			xvalue("param.delay.x[hsr][ds]")
-			xvalue("param.delay.x[lsr][ts]")
-			xvalue("param.delay.x[lsr][tv]")
-			xvalue("param.delay.x[lsr][ds]")
-			xvalue("param.delay.x[lsr][glg]")
-			xvalue("param.delay.x[ds][ts]")
-			xvalue("param.delay.x[ds][tv]")
-			xvalue("param.delay.x[glg][ds]")
-xvalue("param.delay.x[glg][ts]")
-			xvalue("param.delay.x[tv][ts]")
-			xvalue("param.delay.x[tv][ds]")
-			xbutton("Reset Delays","reset_delays()")
-			xpanel()
-		}
+proc delayspanel(){
+  xpanel("Network Delayss")
+    xvalue("param.delay.x[hsr][ts]")
+    xvalue("param.delay.x[hsr][tv]")
+    xvalue("param.delay.x[hsr][ds]")
+    xvalue("param.delay.x[lsr][ts]")
+    xvalue("param.delay.x[lsr][tv]")
+    xvalue("param.delay.x[lsr][ds]")
+    xvalue("param.delay.x[lsr][glg]")
+    xvalue("param.delay.x[ds][ts]")
+    xvalue("param.delay.x[ds][tv]")
+    xvalue("param.delay.x[glg][ds]")
+    xvalue("param.delay.x[glg][ts]")
+    xvalue("param.delay.x[tv][ts]")
+    xvalue("param.delay.x[tv][ds]")
+    xbutton("Reset Delays","reset_delays()")
+    xpanel()
+}
 
 
 
 
-		proc weightspanel(){
-	xpanel("Network Weights")
-			xvalue("param.w.x[hsr][ts]")
-			xvalue("param.w.x[hsr][tv]")
-			xvalue("param.w.x[hsr][ds]")
-			xvalue("param.w.x[lsr][ts]")
-			xvalue("param.w.x[lsr][tv]")
-			xvalue("param.w.x[lsr][ds]")
-			xvalue("param.w.x[lsr][glg]")
-			xvalue("param.w.x[ds][ts]")
-			xvalue("param.w.x[ds][tv]")
-			xvalue("param.w.x[glg][ds]")
-xvalue("param.w.x[glg][ts]")
-			xvalue("param.w.x[tv][ts]")
-			xvalue("param.w.x[tv][ds]")
-			xbutton("Reset Weights","reset_weights()")
-			xpanel()
-		}
+proc weightspanel(){
+  xpanel("Network Weights")
+    xvalue("param.w.x[hsr][ts]")
+    xvalue("param.w.x[hsr][tv]")
+    xvalue("param.w.x[hsr][ds]")
+    xvalue("param.w.x[lsr][ts]")
+    xvalue("param.w.x[lsr][tv]")
+    xvalue("param.w.x[lsr][ds]")
+    xvalue("param.w.x[lsr][glg]")
+    xvalue("param.w.x[ds][ts]")
+    xvalue("param.w.x[ds][tv]")
+    xvalue("param.w.x[glg][ds]")
+    xvalue("param.w.x[glg][ts]")
+    xvalue("param.w.x[tv][ts]")
+    xvalue("param.w.x[tv][ds]")
+    xbutton("Reset Weights","reset_weights()")
+    xpanel()
+}
 
 
 /********************************************************************
@@ -316,58 +316,57 @@ xvalue("param.w.x[glg][ts]")
  ********************************************************************/
 
 xpanel("Auditory Model Simulation Parameters")
-   xlabel("Auditory Filterbank Simulation Parameters")
-   xmenu("Stimulus Menu")
-      xbutton("Tone", "stimtype = 1")
-      xbutton("*.Wav File","stimtype = 0")
-      xbutton("Quiet", "stimtype = 2")
-      xbutton("AM tone", "stimtype = 3")
-      xbutton ("Uniform Noise", "stimtype=4")
-      xbutton("AM Noise","stimtype =5")
-      xbutton("Gaussian Noise","stimtype =6")
-      xbutton("Simultaneous Tone and Noise", "stimtype =7")
-      xbutton("Two Tones", "TwoTonePanel()")
+xlabel("Auditory Filterbank Simulation Parameters")
+xmenu("Stimulus Menu")
+  xbutton("Tone", "stimtype = 1")
+  xbutton("*.Wav File","stimtype = 0")
+  xbutton("Quiet", "stimtype = 2")
+  xbutton("AM tone", "stimtype = 3")
+  xbutton ("Uniform Noise", "stimtype=4")
+  xbutton("AM Noise","stimtype =5")
+  xbutton("Gaussian Noise","stimtype =6")
+  xbutton("Simultaneous Tone and Noise", "stimtype =7")
+  xbutton("Two Tones", "TwoTonePanel()")
 
-   xmenu()
-         xvalue("Sound level (dB SPL)","spl")
-         xvalue("Tone Frequency (Hz)","tonefreq")
-         xvalue("Tone Duration (sec)","dur")             //duration of tone segment seconds
-         xvalue("Repetitions ", "nrep")       //dB SPL
-         xvalue("DutyCycle","dutycycle")      //quiet duration = dutycycle*dur
-         xvalue("Ramp Length (sec)", "ramplngth")
-         xvalue("Stim Delay (sec)", "stimdelay")
-         xbutton("Select New Wavfile stimulus","Setwavfile()")
-         xvarlabel(wavefile)
-         xvalue("Modulation Freq (Hz)", "AM_modfreq")
-         xvalue("Depth (%)","AM_depth")
-         xvalue("Sampling Rate (Hz)", "srate")
-      xcheckbox("Add noise",&AdditiveNoise)
-      xvalue("additive noise level", "NoiseLevel")
-   xvalue("Stimtype", "stimtype")
-		xcheckbox("Save to file",&usesavedfilterbanks)
-		xlabel("ANFilterbank - Save Dir & File")
-		xvarlabel(ANpath)
-		xvarlabel(ANstr)
-
-		xpanel()
-		xpanel("Auditory & Cochlear Nucleus Methods")
-   xbutton("Create Cells","create_cells()")
-   xbutton("Connect ANFs","connect_cells(fileroot)")
-   xbutton("Connect CN cells","connect_CNcells(fileroot)")
-   xbutton("Show Audiogram","PlotAudiogram()")
-   xbutton("Refresh Stim and Param", "RefreshParameters()")
-   xbutton("Update Filterbanks","ANFilterBankRun()")
-   xbutton("Reset ANFs","SetRates()")
-   xbutton("Generate Spikes", "GenSpikes()")
-   xbutton("AN Raster","ANSpikes()")
-   xbutton("CN Rasters","CNSpikes()")
-   xbutton("Weights Panel","weightspanel()")
-   xbutton("Delays Panel","delayspanel()")
-    xvalue("reps")
-   xbutton("Multi Run","multi_run()")
-   xbutton("Plot Stim & AN filterbank","ShowInputGraphs()")
-   xbutton("Plot Golgi filterbank","ShowGolgiGraphs()")
-   xbutton("Plot Rate","CNSpikes2()")
+xmenu()
+  xvalue("Sound level (dB SPL)","spl")
+  xvalue("Tone Frequency (Hz)","tonefreq")
+  xvalue("Tone Duration (sec)","dur")             //duration of tone segment seconds
+  xvalue("Repetitions ", "nrep")       //dB SPL
+  xvalue("DutyCycle","dutycycle")      //quiet duration = dutycycle*dur
+  xvalue("Ramp Length (sec)", "ramplngth")
+  xvalue("Stim Delay (sec)", "stimdelay")
+  xbutton("Select New Wavfile stimulus","Setwavfile()")
+  xvarlabel(wavefile)
+  xvalue("Modulation Freq (Hz)", "AM_modfreq")
+  xvalue("Depth (%)","AM_depth")
+  xvalue("Sampling Rate (Hz)", "srate")
+  xcheckbox("Add noise",&AdditiveNoise)
+  xvalue("additive noise level", "NoiseLevel")
+  xvalue("Stimtype", "stimtype")
+  xcheckbox("Save to file",&usesavedfilterbanks)
+  xlabel("ANFilterbank - Save Dir & File")
+  xvarlabel(ANpath)
+  xvarlabel(ANstr)
+xpanel()
+xpanel("Auditory & Cochlear Nucleus Methods")
+  xbutton("Create Cells","create_cells()")
+  xbutton("Connect ANFs","connect_cells(fileroot)")
+  xbutton("Connect CN cells","connect_CNcells(fileroot)")
+  xbutton("Show Audiogram","PlotAudiogram()")
+  xbutton("Refresh Stim and Param", "RefreshParameters()")
+  xbutton("Update Filterbanks","ANFilterBankRun()")
+  xbutton("Reset ANFs","SetRates()")
+  xbutton("Generate Spikes", "GenSpikes()")
+  xbutton("AN Raster","ANSpikes()")
+  xbutton("CN Rasters","CNSpikes()")
+  xbutton("Weights Panel","weightspanel()")
+  xbutton("Delays Panel","delayspanel()")
+  xvalue("reps")
+  xbutton("Multi Run","multi_run()")
+  xbutton("Plot Stim & AN filterbank","ShowInputGraphs()")
+  xbutton("Plot Golgi filterbank","ShowGolgiGraphs()")
+  xbutton("Plot Rate","CNSpikes2()")
    xbutton("Plot Histograms","CN_Histograms()")
 xpanel()
 

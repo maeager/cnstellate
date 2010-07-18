@@ -82,7 +82,7 @@ proc InitRandom() {
     variable_domain(&highindex, 0, 2^32-1)
     if (name_declared("pnm") == 0) print "RNG initialised ",lowindex, " ", highindex
     Rand = new Random(seed)
-    Rand = new Random(2)
+    //Rand = new Random(2)
 }
 InitRandom()
 
@@ -1016,7 +1016,8 @@ Model_Params    = 1
 */
 //install_anmodel()         //Heinz ARLO model
 //install_an_tanmodel()      //Tan and Carney
-install_an_zbcatmodel07()   //Zilany and Bruce
+execute1("install_an_zbcatmodel07()")   //Zilany Bruce EtAl  2007
+execute1("install_an_zilany_v4()")      //Zilany Carney Bruce EtAl c.2010
 
     objref  LSRout[nchannels], HSRout[nchannels],cf, ANfile, MSRout[nchannels]
     cf = new Vector(nchannels)
@@ -1294,7 +1295,7 @@ func GetANfileString() {local i
   if(ANmodel == 4) sprint(ANpath, "%s/arlo",ANpath)
   if(ANmodel == 3) sprint(ANpath, "%s/tan",ANpath)
   if(ANmodel == 6) sprint(ANpath, "%s/bruce",ANpath)
-
+  if(ANmodel == 7) sprint(ANpath, "%s/zbmodelv4",ANpath)
 
     if (stimtype == 1){ //Tone _ Loudness
         sprint(ANstr,"T%.0f_L%g_dur%d_del%d", tonefreq,spl,stimdur, int(stimdelay*1000))
@@ -1446,27 +1447,35 @@ proc GenerateFilterbank(){ local icf
     if (name_declared("pnm") == 0 && say_once!=1) print "Generating AN model instantaneous rate functions"
     for icf = 0, nchannels-1 {
 
- //    if (srate!=500000){
- //       stim.resample(stim,500000/srate)
- //       srate = 500000
- //       stimtdres = 1/srate
- //    }
         LSRout[icf] = new Vector(stim.size)
         HSRout[icf] = new Vector(stim.size)
-        LSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], Lowspont, cohc.x[icf],cihc.x[icf],species, nrep)
 
-        HSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], Highspont, cihc.x[icf],cohc.x[icf],species, nrep)
-        /*sprint(end_sout,"%f",HSRout[icf].x[stim.size-2])
+	if(ANmodel==6){
+	  LSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], Lowspont, cohc.x[icf],cihc.x[icf],species, nrep)
+	  HSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], Highspont, cihc.x[icf],cohc.x[icf],species, nrep)
+	  if (MSRsperchannel>0){
+            MSRout[icf] = new Vector(stim.size)
+            MSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], Medspont, cohc.x[icf],cihc.x[icf],species, nrep)
+	  }
+	}
+
+	if(ANmodel==7){
+	  LSRout[icf].an_zilany_v4(stim, stimtdres, cf.x[icf], LowSponFibre,ZilanyActual, cohc.x[icf],cihc.x[icf],species, nrep)
+	  HSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], HighSponFibre,ZilanyActual,cihc.x[icf],cohc.x[icf],species, nrep)
+	  if (MSRsperchannel>0){
+            MSRout[icf] = new Vector(stim.size)
+            MSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], MedSponFibre, cohc.x[icf],cihc.x[icf],species, nrep)
+	  }
+	}
+
+/*
+	sprint(end_sout,"%f",HSRout[icf].x[stim.size-2])
         if (strcmp(end_sout,"nan")==0){print "detected nan HSR ", icf
             HSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], Highspont, cohc.x[icf],cihc.x[icf],species, nrep)
                     sprint(end_sout,"%f",HSRout[icf].x[stim.size-2])
                     if (strcmp(end_sout,"nan")==0)print "Error creating HSR AN output, channel:", icf
             }
 */
-        if (MSRsperchannel>0){
-            MSRout[icf] = new Vector(stim.size)
-            MSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], Medspont, cohc.x[icf],cihc.x[icf],species, nrep)
-        }
    // print icf, cf.x[icf]
 
     }
