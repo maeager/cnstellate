@@ -20,23 +20,4 @@ set output "psthVlevel.2.eps"
 splot "psth.2.dat" using 1:2:3
 set output "psthVlevel.3.eps"
 splot "psth.3.dat" using 1:2:3
-#
-set yrange [0:100]
-set ylabel "Channel" font "Helvetica,28" 
-set key off
-set output "psthall50.0.eps"
-splot "./50/psth.0.dat" using 2:1:3
-set output "psthall50.1.eps"
-splot "./50/psth.1.dat" using 2:1:3
-set output "psthall50.2.eps"
-splot "./50/psth.2.dat" using 2:1:3
-set output "psthall50.3.eps"
-splot "./50/psth.3.dat" using 2:1:3
-set output "psthall90.0.eps"
-splot "./90/psth.0.dat" using 2:1:3
-set output "psthall90.1.eps"
-splot "./90/psth.1.dat" using 2:1:3
-set output "psthall90.2.eps"
-splot "./90/psth.2.dat" using 2:1:3
-set output "psthall90.3.eps"
-splot "./90/psth.3.dat" using 2:1:3
+

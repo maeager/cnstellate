@@ -3,7 +3,7 @@
 ls [0-9]*| grep :|sed 's/://'| sort -n> level.dat
 
 {
-for i in `ls -rt */rateplace.0.dat`
+for i in `ls */rateplace.0.dat|sort -n`
 do 
 	grep 5810 $i | awk '{print $3}'
 done
@@ -13,7 +13,7 @@ rm -f tstellate.dat
 gnuplot ../TS_ratelevel.gnu
 
 {
-for i in `ls -rt */rateplace.2.dat`
+for i in `ls */rateplace.2.dat|sort -n`
 do 
 	grep 5810 $i | awk '{print $3}'
 done
@@ -23,14 +23,14 @@ rm -f dstellate.dat
 gnuplot ../DS_ratelevel.gnu
 
 {
-for i in `ls -rt */rateplace.1.dat`; do grep 5810 $i | awk '{print $3}'; done
+for i in `ls */rateplace.1.dat|sort -n`; do grep 5810 $i | awk '{print $3}'; done
 }> tuberculo.dat
 paste level.dat tuberculo.dat > TV_ratelevel_5810.dat
 rm -f tuberculo.dat
 gnuplot ../TV_ratelevel.gnu
 
 {
-for i in `ls -rt */rateplace.3.dat`
+for i in `ls */rateplace.3.dat|sort -n`
 do 
 	grep 5810 $i | awk '{print $3}'
 done
@@ -102,6 +102,7 @@ do
 	echo ""
 done
 }>> psth.3.dat
+
 gnuplot ../psth.gnu
 
 #display psthVlevel.0.eps &
@@ -111,7 +112,7 @@ gnuplot ../psth.gnu
 
 
 gnuplot ../psthsingle.gnu
-gnuplot rasters.gnu
+#gnuplot rasters.gnu
 #display rasters.eps &
 
 rm -f *.log *.dat

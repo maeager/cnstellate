@@ -1,0 +1,130 @@
+/*
+ *	zilanycarneyv4.hoc
+ *
+ */
+load_file("nrngui.hoc")
+nrn_load_dll("../i686/.libs/libnrnmech.so")
+thresh=-20
+
+  xopen("../mathslib.hoc")			// mathematical procedures
+  xopen("../Params.hoc")
+  xopen("../Utilities.hoc")
+  xopen("../NetworkParameters.hoc")
+  xopen("../AuditoryNerve.hoc")
+  xopen("../parameters_vowel_baseline.hoc")           // model parameters	
+
+  /*  Setup Auditory model */
+  ANmodel = 7
+  cfhi =40000
+  cflo =200
+ tonefreq= 2000
+  dur 		= 0.08 	//duration of stim (seconds)
+  sg_rate 	= 50000		
+  sg_tdres 	= 1/sg_rate
+  stimdelay 	= 0.02		//sec
+  reps		= 50
+  usesavedfilterbanks=0
+  stimtype = 0  //read stim from file
+  path = "../stim/"
+  wavefile = "../stim/b6t.dat"
+
+  /* Zilany, Bruce, Nelson, Carney Parameters */
+  ANmodel	= 7		//Zilany EtAl Cat model v4
+  species	= 1		//Cat
+  nrep		= 1  		//nrep is number of reps of stimulus
+  srate 	= 100000.0      // 500k is no longer needed
+  stimtdres 	= 1/srate
+  
+stimtype =1
+
+
+proc RescaleStim(){ local rms
+  rms = Decibels(stim)
+  stim.mul(spl2amplNoise(spl)/spl2amplNoise(rms))
+}
+
+
+proc LoadVowel(){
+    RefreshParameters()	//Generate or get stim from file
+    stim.resample(stim,3)
+    srate = 44100*3 
+    stimtdres 	= 1/srate
+    spl=$1
+    RescaleStim()		//Scale the vowel
+    ANFilterBankRun()	//Build the filterbank
+    //an.SetRates()		//Allocate filterbanks to ANFs
+    //DummyGraphs()
+}
+
+objref vfile 
+proc SaveData() {
+  vfile = new File()
+    vfile.wopen("vowels/vowel_b6t_HSR.sout")
+
+    for i=0,99 {
+	for j=0,HSRout[0].size-1 {
+	    vfile.printf("%.2f %d %.0f\n",sg_tdres*j,i, HSRout[i].x[j])
+	}
+      }
+  vfile.close()
+    vfile.wopen("vowels/vowel_b6t_HSR.matrix")
+    for i=0,99 {
+	HSRout[i].printf(vfile,"%.0f\t")
+      }
+  vfile.close()
+}
+
+
+objref stimgr, b1,  gr
+/*graph variables*/
+objref  ANFBgr, b2, Sout[nchannels]
+changescale=1
+scale = 60
+proc ShowInputGraphs() {
+   objref stimgr, b1,  gr
+   /*graph variables*/
+   objref  ANFBgr, b2, Sout[nchannels]
+
+   /*** Set up Stimulus Graph*/
+   b1 = new VBox()
+   b1.intercept(1)
+   stimgr = new Graph(0)
+   stimgr.view(0, -0.01, 0.042, 0.02, 308, 88, 685, 150)
+   stimgr.label(0.1, 0.91, grlbl)
+   stimgr.label(0.0, 0.65, "Amplitude  (uPascals)")
+   stimgr.label(0.85, 0.35, "time (ms)")
+   stim.plot(stimgr, tvec)
+   stimgr.exec_menu("View = plot")
+   //b1.intercept(0)
+   //b1.map("Stimulus waveform",360, 0, 650.7, 193.5)
+
+   /**** Set up AN filterbank graph ***/
+   //b1.intercept(1)
+   ANFBgr = new Graph(0)
+   ANFBgr.size(0,0.05,0,180000)
+   ANFBgr.view(0, 0, 0.05, 180000, 308, 345, 685, 365)
+   ANFBgr.label(0.92,0.90, "CF")
+   ANFBgr.label(0.1,0.95,"Auditory Filterbank Instantaneous Rate Profiles")
+   for icf = 0, nchannels-1 {
+      Sout[icf] = HSRout[icf].c
+      Sout[icf].mul(2).add(100*icf)
+      Sout[icf].plot(ANFBgr,sg_tdres, 1, 0)
+      sprint(lbl, "%g ", cf.x[icf])
+      ANFBgr.label(0.92, 0.810*(icf/(nchannels-1))+0.075, lbl)
+   }
+   //system("date")
+   ANFBgr.exec_menu("View = plot")
+   b1.intercept(0)
+   b1.map("Stimulus and Auditory Filterbank",308, 345, 685, 365)
+
+
+}//Dummy Graphs
+
+//LoadVowel(80)	
+//quit()
+
+
+    RefreshParameters()	//Generate or get stim from file
+    ANFilterBankRun()	//Build the filterbank
+
+ShowInputGraphs()

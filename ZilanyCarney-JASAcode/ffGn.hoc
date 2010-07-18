@@ -1,0 +1,250 @@
+proc FFT(){local n, x
+    if ($1 == 1) { // forward
+        $o3.fft($o2, 1)
+        n = $o3.size()
+            $o3.div(n / 2)
+            $o3.x[0] /= 2 // makes the spectrum appear discontinuous
+                        $o3.x[1] /= 2 // but the amplitudes are intuitive
+
+                                    $o4.copy($o3, 0, 1, -1, 1, 2)   // odd elements
+                                    $o3.copy($o3, 0, 0, -1, 1, 2)   // even elements
+                                    $o3.resize(n / 2 + 1)
+                                    $o4.resize(n / 2 + 1)
+                                    $o3.x[n/2] = $o4.x[0]   //highest cos started in o3.x[1]
+                                    $o4.x[0] = $o4.x[n/2] = 0       // weights for sin(0*i)and sin(PI*i)
+    } else { // inverse
+        // shuffle o3 and o4 into o2
+        n = $o3.size()
+            $o2.copy($o3, 0, 0, n - 2, 2, 1)
+            $o2.x[1] = $o3.x[n-1]
+                       $o2.copy($o4, 3, 1, n - 2, 2, 1)
+                       $o2.x[0] *= 2
+                                   $o2.x[1] *= 2
+                                               $o2.fft($o2, -1)
+                                           }
+                                       }
+                                       objref Rand
+                                       Rand = new Random()
+
+//Persistent global values for ffGn
+Nfft = 0
+       Nlast = 0
+               Hlast = 0
+
+                       objref ffGnvec, Zmag, Z_real, Z_im
+proc ffGn(){local ii, N, tdres, Hinput, mu, sigma localobj tempffGn, k, Ztemp
+    /* FFGN  Fast (exact) fractional Gaussian noise and Brownian motion generator.
+    *
+    * Y = FFGN(N, Hinput, MU, SIGMA) returns a vector containing a sequence of fractional Gaussian
+    * noise or fractional Brownian motion.  The generation process uses an FFT which makes it
+    * very fast.  The input arguments are:
+    *
+    *  N   is the length of the output sequence.
+    *  H   is the "Hurst" index of the resultant noise (0 < H <= 2).  For 0 < H <= 1,
+    *       the output will be fractional Gaussian noise with Hurst index H.  For
+    *       1 < H <= 2, the output will be fractional Brownian motion with Hurst
+    *       index H-1.  Either way, the power spectral density of the output will
+    *       be nominally proportional to 1/f^(2H-1).
+    *  mu   is the mean of the noise. [default = 0]
+    *  sigma  is the standard deviation of the noise. [default = 1]
+    *
+    * FFGN(N, H) returns a sequence of fractional Gaussian noise with a mean of zero
+    * and a standard deviation of one or fractional Brownian motion derived from such
+    * fractional Gaussian noise.
+    *
+    *  References: Davies & Harte (1987); Beran (1994); Bardet et al., 2002
+    * This method is based on an embedding of the covariance matrix in a circulant matrix.
+    *
+    *  Copyright (C) 2003-2005 by B. Scott Jackson
+    *   Revision: 1.3    Date: Aug 28, 2008 by M. S. A. Zilany
+    *                    Sigma is deifined for diff. sponts (mu) and Resampling has been introduced to be compatible with the AN model
+    *   Revision: 1.2    Date: March 14, 2005
+    *   History:
+    *       Rev. 1.2 - 3/14/05 - Added some additional documentation and input argument checking.
+    *       Rev. 1.1 - 9/15/04 - Added the persistent variables and associated "if"-statement.
+     *       Rev. 1.0 - 2/11/03 - Original version.
+     */
+    /*---- Check input arguments ---------- */
+
+    tempffGn = new Vector()
+    k = new Vector()
+    objref ffGnvec, Z_real, Z_im
+    if (numarg() < 3) {
+        return
+        }
+        N = $1
+            tdres = $2
+                    Hinput = $3
+    if (numarg() >= 4) {
+        mu = $4
+    } else {
+        mu = 0
+         }
+    if (numarg() == 5) {
+        sigma = $5
+    } else {
+        if (mu < 0.5) {
+            sigma = 5
+        } else {
+            if (mu < 18) {
+                sigma = 50   // 7 when added after powerlaw
+            } else {
+                sigma = 200  // 40 when added after powerlaw
+                    }
+                }
+            }
+
+
+    if (N <= 0) {
+        printf("Length of the return vector must be positive.")
+        return
+        }
+
+    if (tdres > 1) {
+        printf("Original sampling rate should be checked.")
+        return
+        }
+
+    if ((Hinput < 0) || (Hinput > 2)) {
+        printf("The Hurst parameter must be in the interval (0,2].")
+        return
+        }
+
+
+    if (sigma <= 0) {
+        printf("Standard deviation must be greater than zero.")
+        return
+        }
+
+        /* Downsampling No. of points to match with those of Scott jackson (tau 1e-1)*/
+        printf("1e-1/tdres %g  \t int(1e-1/tdres) %d\n", 1e-1 / tdres, int(1e-1 / tdres))
+        resamp = int(1e-1 / tdres)
+                 nop = N
+                       N = int(N / resamp) + 1
+    if (N < 10) {
+        N = 10
+        }
+        print "N ", N
+
+        /* Determine whether fGn or fBn should be produced.*/
+    if (Hinput <= 1) {
+        H = Hinput
+            fBn = 0
+    } else {
+        H = Hinput - 1
+            fBn = 1
+              }
+
+              /* Calculate the fGn. */
+    if (H == 0.5) {
+        tempffGn = new Vector(N)
+        Rand.normal(0, 1)
+        tempffGn.setrand(Rand)  // If H=0.5, then fGn is equivalent to white Gaussian noise.
+    } else {
+        /* If this function was already in memory before being called this time,
+        * AND the values for N and H are the same as the last time it was
+        * called, then the following (persistent) variables do not need to be
+        * recalculated.  This was done to improve the speed of this function,
+        * especially when many samples of a single fGn (or fBn) process are
+        * needed by the calling function.
+        */
+        if (!object_id(Zmag) || Nfft == 0 || Nlast == 0 || Hlast == 0 || N != Nlast || H != Hlast) {
+            // The persistent variables must be (re-)calculated.
+            printf("log2(2*(N-1)) %g\t 2^int(log2(2*(N-1))) %d\n", log10(2*(N - 1)) / log10(2), 2 ^(int(log10(2*(N - 1)) / log10(2))))
+            Nfft = 2 ^(int(log10(2 * (N - 1)) / log10(2)))
+                   printf(" Nfft  %f   int(Nfft/2) %d\n", Nfft, int(Nfft / 2))
+                   NfftHalf = int(Nfft / 2)
+                              k.resize(Nfft).indgen() //k = [0:NfftHalf, (NfftHalf-1):-1:1]
+            for (ii = NfftHalf + 1; i < Nfft; i = i + 1) {
+                k.x[ii] = Nfft - ii
+
+                      }
+                      Zmag = new Vector(Nfft)
+            print "k.size ", k.size, " Zmag size ", Zmag.size()
+            Zmag.add(k.c.add(1).pow(2*H)).sub(k.c.pow(2*H).mul(2)).add(k.c.sub(1).abs().pow(2*H))
+            Zmag.mul(0.5)
+
+            //     Zmag = 0.5 .* ( (k+1).^(2.*H) - 2.*k.^(2.*H) + (abs(k-1)).^(2.*H) )
+            Z_im = new Vector(Zmag.size(), 0)
+            Ztemp = new Vector(Zmag.size(), 0)
+            //Zmag.fft(Zmag,1)
+            FFT(1, Zmag, Ztemp, Z_im)
+            Zmag = Ztemp.c
+            if (Zmag.indwhere("<", 0) != -1) {
+  printf("The fast Fourier transform of the circulant covariance had negative values.")
+                return
+                }
+
+                Zmag.sqrt()
+
+ // Store N and H values in persistent variables for use during subsequent calls to this function.
+          Nlast = N
+          Hlast = H
+        }
+
+        Z_real = new Vector(Zmag.size())
+        Z_im = new Vector(Zmag.size())
+        Ztemp = new Vector(Zmag.size())
+
+        Z_real = Zmag.c.mul(Ztemp.setrand(Rand))
+        Z_im = Zmag.c.mul(Ztemp.setrand(Rand))
+        Ztemp.mul(0)
+        FFT(-1, Ztemp, Z_real, Z_im)
+        tempffGn = Ztemp.c.mul(sqrt(Nfft))
+        objref Z, Z_real, Z_im
+        tempffGn.resize(N)
+        }
+
+    /* Convert the fGn to fBn, if necessary.*/
+    if (fBn) {
+        tempffGn.integral(1)
+    }
+
+
+    /* Resampling back to original (1/tdres): match with the AN model */
+
+    if (!object_id(ffGnvec)) {
+        ffGnvec = new Vector()
+    }
+
+    ffGnvec.resample(tempffGn, resamp, 1)
+    ii = ffGnvec.stdev()
+    ffGnvec.mul(sigma/ii)
+    ffGnvec.resize(nop)
+}
+
+
+totalstim = 50000
+delaypoint = 100
+tdres = 1 / 100000
+sampFreq = 10000
+N = int((totalstim + 2 * delaypoint) * tdres * sampFreq)
+
+objref g,g1
+
+install_an_zilany_v4()
+
+proc HOC_ffGn(){
+ffGn(N, 1e-1, 0.8, 0, 1)
+g = new Graph()
+ffGnvec.plot(g)
+g.exec_menu("View = plot")
+}
+
+  objref gg, ff, ff2
+proc MODL_ffGn(){
+ff = new Vector(N)
+ff2 = new Vector(N)
+ff.fast_fGn(ff2, N, tdres, 0.8, 0, -1)
+gg = new Graph()
+ff2.plot(gg)
+gg.exec_menu("View = plot")
+
+}
+
+HOC_ffGn()
+MODL_ffGn()
+g1 = new Graph()
+ff.resize(ff2.size())
+ff.an_zilany_v4(ffGnvec,tdres,2e3,3,0,1,1,1,1)
+

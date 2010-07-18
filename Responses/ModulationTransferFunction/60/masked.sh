@@ -7,7 +7,7 @@ touch TS_rate.dat
 for i in `ls  */rateplace.0.dat|sort -n`
 do 
 	grep 5810 $i | awk '{print $3}'
-	awk '{print $3}'$i > /tmp/rate.dat
+	awk '{print $3}' $i > /tmp/rate.dat
 	paste TS_rate.dat /tmp/rate.dat > TS_rate.dat
 done
 } > tstellate.dat
@@ -21,7 +21,7 @@ touch DS_rate.dat
 for i in `ls  */rateplace.2.dat|sort -n`
 do 
 	grep 5810 $i | awk '{print $3}'
-	awk '{print $3}'$i > /tmp/rate.dat
+	awk '{print $3}' $i > /tmp/rate.dat
 	paste DS_rate.dat /tmp/rate.dat > DS_rate.dat
 done
 } > dstellate.dat
@@ -45,7 +45,7 @@ gnuplot TV_rate.gnu
 for i in `ls */rateplace.3.dat|sort -n`
 do 
 	grep 5810 $i | awk '{print $3}'
-	awk '{print $3}'$i > /tmp/rate.dat
+	awk '{print $3}' $i > /tmp/rate.dat
 	paste G_rate.dat /tmp/rate.dat > G_rate.dat
 done
 } > golgi.dat
@@ -63,23 +63,12 @@ do
 done
 } > periodhist5810.0.dat
 
+gnuplot ../periodhist5810.gnu
 
-
-
-
-
-
-
-
-
-
-
-# gnuplot TS_response_area.gnu
-
-display TS_rate.eps &
-display DS_rate.eps &
-display TV_rate.eps &
-display G_rate.eps &
+display TS_rateMTF.eps &
+display DS_rateMTF.eps &
+display TV_rateMTF.eps &
+display G_rateMTF.eps &
 
 rm -f raster.0.dat
 {
@@ -91,8 +80,8 @@ do
 	echo ""
 done
 }>> raster.0.dat
-gnuplot rate_raster.gnu
-display rate_raster.0.eps &
+#gnuplot rate_raster.gnu
+#display rate_raster.0.eps &
 
 rm -f psth.0.dat
 {
@@ -104,9 +93,9 @@ do
 	echo ""
 done
 }>> psth.0.dat
-#gnuplot psth.gnu
-#display psth.0.eps &
+gnuplot psth.gnu
+display psth.0.eps &
 
-gnuplot rasters.gnu
-display rasters.eps &
+#gnuplot rasters.gnu
+#display rasters.eps &
 

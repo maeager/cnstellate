@@ -18,9 +18,9 @@ mv nrn-X.X nrn
 cd nrn
 
 # now make your separate builds
-mkdir gui
-cd gui
-../configure --prefix=`pwd` --with-iv=$HOME/neuron/iv --without-paranrn
+mkdir nrngui
+cd nrngui
+../configure --prefix=`pwd` --with-iv=$HOME/Neuron/iv --without-paranrn
 make && make install
 cd ..
 mkdir mpi
