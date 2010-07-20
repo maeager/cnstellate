@@ -1366,6 +1366,8 @@ proc SaveANFilterBank2File(){local nchan
     objref ANfile
 
     GetANfileString()
+    sprint(tmpANstr,"[ -d %s ] && mkdir -p %s",ANpath,ANpath)
+    system(tmpANstr)
     ANfile = new File()
     sprint(tmpANstr,"%s/%s",ANpath,ANstr)
     ANfile.wopen(tmpANstr)
@@ -1461,10 +1463,10 @@ proc GenerateFilterbank(){ local icf
 
 	if(ANmodel==7){
 	  LSRout[icf].an_zilany_v4(stim, stimtdres, cf.x[icf], LowSponFibre,ZilanyActual, cohc.x[icf],cihc.x[icf],species, nrep)
-	  HSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], HighSponFibre,ZilanyActual,cihc.x[icf],cohc.x[icf],species, nrep)
+	  HSRout[icf].an_zilany_v4(stim, stimtdres, cf.x[icf], HighSponFibre,ZilanyActual,cihc.x[icf],cohc.x[icf],species, nrep)
 	  if (MSRsperchannel>0){
             MSRout[icf] = new Vector(stim.size)
-            MSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], MedSponFibre, cohc.x[icf],cihc.x[icf],species, nrep)
+            MSRout[icf].an_zilany_v4(stim, stimtdres, cf.x[icf], MedSponFibre,ZilanyActual, cohc.x[icf],cihc.x[icf],species, nrep)
 	  }
 	}
 

@@ -247,7 +247,7 @@ double ffGn(double *yffGn,int N, double tdres, double Hinput, double mu, double 
   printf("ffGn 1: N  %d\ttdres  %f\tHinput %f\tmu %f\t sigma %f\n", N,tdres,Hinput,mu,sigma);
 #endif
   //  Downsampling No. of points to match with those of Scott jackson (tau 1e-1)
-  resamp = (int) ceil(1e-1/tdres);
+  resamp = (int) ceil(1e-1 / (tdres * 1000));
   nop = N; 
   N = (int) ceil(N/resamp)+1; 
   if (N<10)
@@ -386,6 +386,7 @@ Zmag->ve[i]= 0.5 * (  pow(k+1.0,2.0*H) -  2.0*pow(k,2.0*H) + pow(abs(k-1.0),2.0*
 	  for (i=0;i<__min(nop,Nfft);i++)
 	    yffGn[i] = y[i];
 	}else {
+	  printf("ffGn 9: resample N %d  resamp %g", N, resamp);
 	  resample(y,yffGn,N,resamp);  //  Resampling to match with the AN model, 
   //N= size of y
 	}

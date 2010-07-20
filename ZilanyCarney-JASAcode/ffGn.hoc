@@ -74,7 +74,7 @@ proc ffGn(){local ii, N, tdres, Hinput, mu, sigma localobj tempffGn, k, Ztemp
         }
         N = $1
             tdres = $2
-                    Hinput = $3
+	    Hinput = $3
     if (numarg() >= 4) {
         mu = $4
     } else {
@@ -118,13 +118,13 @@ proc ffGn(){local ii, N, tdres, Hinput, mu, sigma localobj tempffGn, k, Ztemp
 
         /* Downsampling No. of points to match with those of Scott jackson (tau 1e-1)*/
         printf("1e-1/tdres %g  \t int(1e-1/tdres) %d\n", 1e-1 / tdres, int(1e-1 / tdres))
-        resamp = int(1e-1 / tdres)
-                 nop = N
-                       N = int(N / resamp) + 1
+	    resamp = int(1e-1 / (tdres*1000))
+	nop = N
+	N = int(N / resamp) + 1
     if (N < 10) {
         N = 10
         }
-        print "N ", N
+    print "N ", N
 
         /* Determine whether fGn or fBn should be produced.*/
     if (Hinput <= 1) {
@@ -150,7 +150,7 @@ proc ffGn(){local ii, N, tdres, Hinput, mu, sigma localobj tempffGn, k, Ztemp
         */
         if (!object_id(Zmag) || Nfft == 0 || Nlast == 0 || Hlast == 0 || N != Nlast || H != Hlast) {
             // The persistent variables must be (re-)calculated.
-            printf("log2(2*(N-1)) %g\t 2^int(log2(2*(N-1))) %d\n", log10(2*(N - 1)) / log10(2), 2 ^(int(log10(2*(N - 1)) / log10(2))))
+	  printf("log2(2*(N-1)) %g\t 2^int(log2(2*(N-1))) %d\n", log10(2*(N - 1)) / log10(2), 2 ^(int(log10(2*(N - 1)) / log10(2))))
             Nfft = 2 ^(int(log10(2 * (N - 1)) / log10(2)))
                    printf(" Nfft  %f   int(Nfft/2) %d\n", Nfft, int(Nfft / 2))
                    NfftHalf = int(Nfft / 2)
@@ -206,45 +206,62 @@ proc ffGn(){local ii, N, tdres, Hinput, mu, sigma localobj tempffGn, k, Ztemp
     if (!object_id(ffGnvec)) {
         ffGnvec = new Vector()
     }
-
+    print "tempffGn size ", tempffGn.size
     ffGnvec.resample(tempffGn, resamp, 1)
     ii = ffGnvec.stdev()
+
     ffGnvec.mul(sigma/ii)
     ffGnvec.resize(nop)
 }
 
 
 totalstim = 50000
-delaypoint = 100
+dur = 100 // ms
+delaypoint = 10 // ms
 tdres = 1 / 100000
 sampFreq = 10000
-N = int((totalstim + 2 * delaypoint) * tdres * sampFreq)
+N = int(((dur + 2 * delaypoint)/1000)/tdres)
 
 objref g,g1
 
 install_an_zilany_v4()
 
 proc HOC_ffGn(){
-ffGn(N, 1e-1, 0.8, 0, 1)
+ffGn(N, 1/sampFreq, 0.9, 50)
 g = new Graph()
 ffGnvec.plot(g)
 g.exec_menu("View = plot")
+print "HOC_ffGn mean ", ffGnvec.mean(), " stdev ", ffGnvec.stdev()
 }
 
   objref gg, ff, ff2
 proc MODL_ffGn(){
 ff = new Vector(N)
 ff2 = new Vector(N)
-ff.fast_fGn(ff2, N, tdres, 0.8, 0, -1)
+ff.fast_fGn(ff2, N, 1/sampFreq, 0.9, 100)
 gg = new Graph()
 ff2.plot(gg)
 gg.exec_menu("View = plot")
+}
 
+proc MODL_ffGn2(){
+ff = new Vector(N)
+ff2 = new Vector(N)
+ff2.fast_fGn2( N, 1/sampFreq, 0.9, 100)
+gg = new Graph()
+ff2.plot(gg)
+gg.exec_menu("View = plot")
+}
+
+
+proc TEST_ANmodel(){
+g1 = new Graph()
+ff.resize(ff2.size())
+ff.an_zilany_v4(ffGnvec,tdres,2e3,3,0,1,1,1,1)
+ff.plot(g1)
+g1.exec_menu("View = plot")
 }
 
 HOC_ffGn()
 MODL_ffGn()
-g1 = new Graph()
-ff.resize(ff2.size())
-ff.an_zilany_v4(ffGnvec,tdres,2e3,3,0,1,1,1,1)
-
+TEST_ANmodel()

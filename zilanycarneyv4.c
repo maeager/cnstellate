@@ -56,7 +56,7 @@ double SingleAN(double *px, double cf, int nrep, double tdres, int totalstim, do
 
     /* Allocate dynamic memory for the temporary variables */
     synouttmp  = makevector(totalstim * nrep);
-    sptime  = makevector((long) ceil(totalstim * tdres * nrep / 0.00075));
+    //sptime  = makevector((long) ceil(totalstim * tdres * nrep / 0.00075));
 
     /* Spontaneous Rate of the fiber corresponding to Fibertype */
     if (fibertype == 1) spont = 0.1;
@@ -82,7 +82,8 @@ double SingleAN(double *px, double cf, int nrep, double tdres, int totalstim, do
     */
 
     /* Freeing dynamic memory allocated earlier */
-    freevector(sptime); freevector(synouttmp);
+    //freevector(sptime); 
+    freevector(synouttmp);
     return I;
 } /* End of the SingleAN function */
 
@@ -155,10 +156,19 @@ double Synapse(double *ihcout, double tdres, double cf, int totalstim, int nrep,
       randNums = mxGetPr(randOutputArray[0]);
     */
     randNums = makevector((long) ceil((totalstim * nrep + 2 * delaypoint) * tdres * sampFreq));
-    if(!ffGn(randNums, ceil((totalstim*nrep + 2*delaypoint)*tdres*sampFreq), 1000 / sampFreq, 0.9, spont, -1)){
+    if(!ffGn(randNums, ceil((totalstim*nrep + 2*delaypoint)*tdres*sampFreq), 1 / sampFreq, 0.9, spont, -1)){
       hoc_execerror("Synapse: error calling ffGn",0);
       return 0;
     }
+    double rmean,rstd;
+    int Nrand = ((int) ceil((totalstim * nrep + 2 * delaypoint) * tdres * sampFreq));
+    for (indx=0;indx< Nrand;indx++)  {
+      if(isnan(randNums[i])) return 0;    
+      rmean += randNums[indx];
+    }
+    for (indx=0;indx< Nrand;indx++) rstd += pow((randNums[indx]-rmean),2);
+    printf("Completed ffGn: mean  %g\t stdev %g\n",rmean,sqrt(rstd/Nrand));
+
 
     /*----------------------------------------------------------*/
     /*----- Double Exponential Adaptation ----------------------*/
@@ -253,20 +263,21 @@ double Synapse(double *ihcout, double tdres, double cf, int totalstim, int nrep,
 
 
     /* Simple resampling routine from src/ivoc/ivocvect.cpp */
+    /*** OR libresample implementation ***/
     int len=0;
-    printf("Synapse: calling resample(%d,XX,%d,%g)\n", &powerLawIn[0],  k, 1.0/resamp);
-    len=resample(powerLawIn, sampIHC, k, 1/resamp);
+    //    *sampIHC = NULL;
+    printf("Synapse: calling resample(%d,NULL,%d,%g)\n", &powerLawIn[0],  k, 1.0/resamp);
+    len=resample(powerLawIn, sampIHC, k, 1.0/resamp);
     if ( len==0 || ( sampIHC == NULL) ) {
         printf("Synapse: ivoc_resample return error, copying powerLawIn");
 	len = k;
-	if(sampIHC) freevector(sampIHC); 
+	if(sampIHC) {printf("sampIHC address %x", &sampIHC[0]); freevector(sampIHC);}
 	  sampIHC = makevector(k);
         for (indx = 0;indx < k;indx++) sampIHC[indx] = powerLawIn[indx];
     }
     printf("k %d len %d \t old len %g\n",k,len, (totalstim*nrep + 2*delaypoint)*tdres*sampFreq);
 
 
-    /*** libresample implementation ***/
     //n = (int)(k/resamp);
     //sampIHC = makevector(n);
     //n=resample(powerLawIn,sampIHC,k,n);
@@ -1180,7 +1191,6 @@ int resample(double *source, double *dest, int srclen, double factor)
    dst = (float*) malloc((unsigned) ((dstlen+100)*sizeof(float)));//makevector(dstlen+100);
 
    printf(" source  %x\t src %x\t dst %x\n",&source[0],&src[0],&dst[0]);
-
    handle = resample_open(1, factor, factor);
    fwidth = resample_get_filter_width(handle);
    out = 0;
@@ -1238,10 +1248,11 @@ zero_vector(dest,len);
    return len;
 }
 */
+
 /*  resample apapted from src/ivoc/ivocvect.cpp */
 
  
-int resample(double* v1, double * ans, int capacity, double f)
+int resample(double* v1, double* ans, int capacity, double f)
 {
     //  double * temp;
     int i;
@@ -1249,13 +1260,19 @@ int resample(double* v1, double * ans, int capacity, double f)
     printf("resample: &v1 %x\t capacity %d  factor %g destlen %d\n", &v1[0], capacity, f, (int)(capacity * f));
 
     if (f < 0 || f > capacity / 2) {
-        printf("ivoc_resample: nyquist error with factor");
+        printf("ivoc_resample: nyquist error with factor\n");
         //return 0;
     }
     int n = (int)(capacity * f);
-    ans = makevector(n);
-    for (i = 0; i < n; i++) ans[i] = v1[(int)(i/f)];
-    //*ans = temp;
+    ans = makevector(n); zero_vector(ans,n);
+    for (i = 0; i < n; i++) {
+      if (isnan(v1[(int)(i/f)])){ 
+	printf("nan in v1: ans address %x", &ans[0]);
+	return 0;
+      }
+      ans[i] = v1[(int)(i/f)];
+    }
+
     return n;
 }
 
