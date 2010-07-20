@@ -11,7 +11,7 @@ thresh=-20
   xopen("../Utilities.hoc")
   xopen("../NetworkParameters.hoc")
   xopen("../AuditoryNerve.hoc")
-  xopen("../parameters_vowel_baseline.hoc")           // model parameters	
+//  xopen("../parameters_vowel_baseline.hoc")           // model parameters	
 
   /*  Setup Auditory model */
   ANmodel = 7
@@ -31,11 +31,9 @@ thresh=-20
   /* Zilany, Bruce, Nelson, Carney Parameters */
   ANmodel	= 7		//Zilany EtAl Cat model v4
   species	= 1		//Cat
-  nrep		= 1  		//nrep is number of reps of stimulus
-  srate 	= 100000.0      // 500k is no longer needed
+  srate 	= 100000      // 500k is no longer needed
   stimtdres 	= 1/srate
-  
-stimtype =1
+  stimtype 	= 1
 
 
 proc RescaleStim(){ local rms
@@ -123,8 +121,25 @@ proc ShowInputGraphs() {
 //LoadVowel(80)	
 //quit()
 
+  /* Zilany, Bruce, Nelson, Carney Parameters */
+  ANmodel	= 7		//Zilany EtAl Cat model v4
+  species	= 1		//Cat
+  srate 	= 100000      // 500k is no longer needed
+  stimtdres 	= 1/srate
+  stimtype 	= 1
+  sg_rate 	= 100000		
+  sg_tdres 	= 1/sg_rate
+
+
 
     RefreshParameters()	//Generate or get stim from file
-    ANFilterBankRun()	//Build the filterbank
+//    ANFilterBankRun()	//Build the filterbank
 
-ShowInputGraphs()
+HSRout[67] = new Vector(stim.size)
+	  HSRout[67].an_zilany_v4(stim, stimtdres, cf.x[67], HighSponFibre,ZilanyActual,1,1,species, nrep)
+objref ghsr
+ghsr = new Graph()
+HSRout[67].plot(ghsr,stimtdres)
+ghsr.exec_menu("View = plot")
+
+//ShowInputGraphs()
