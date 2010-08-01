@@ -61,9 +61,9 @@ Lowspont    = 0.1     // Auditory nerve fibre spontaneous discharge rates (sp/se
 Medspont    = 18
 Highspont   = 50.0
 
-totalHSR        =   nchannels*HSRsperchannel
-totalMSR        =   nchannels*MSRsperchannel
-totalLSR        =   nchannels*LSRsperchannel
+totalHSR    = nchannels*HSRsperchannel
+totalMSR    = nchannels*MSRsperchannel
+totalLSR    = nchannels*LSRsperchannel
 
 /****************************************
  ** Stimulus Parameters
@@ -131,30 +131,60 @@ ANmodel = 6 //  3  Tan+Carney 2003,
             //  4 Heinz ARLO model 2001
             //  6 Zilany and Bruce 2007/08, default
 	    //  7 Zilany, Bruce, Carney, Nelson 2006,2007,2010 
-HighSponFibre=3
-MedSponFibre=2
-LowSponFibre=1
-ZilanyActual=1
-ZilanyApprox=0
-
-/*Bruce Model Parameters Impairment of Inner and Outer Hair cell function
-    variables cohc, cihc  are frequency and animal specific
-   See my adaptions to AN model in Utilities.hoc
-*/
-strdef bruce_impairment_file
-bruce_impairment_file="rat_bruce_audiogram.dat"
-objref audiogram,cohc,ihc
 species     = 2        // 0  human (as in ARLO paper)
                        // 9  cat, all CFs (as in JASA 2001 Zhang et al., paper)
                        // 1  cat, only low CFs (as in Carney '93 JASA paper - not recommended)
                        // 2  rat, implemented in Zilany and Bruce 2007 (6) by Michael Eager 
+ifspike     = 1
+    //sout is adjusted so that instant. rate can be fed to spike generator
+    //not neccessary for Bruce model
+delx        = 0.05
+    //"delta x", or spacing of "IHC"s along BM (linearly spaced IHCs in terms of location along BM
+    //  results in approximately logarithmic spacing in terms of frequency.
 
-//----------------------------------------------------------------
-//  The parameter file for any experiment should look like the following lines:
-// Michael Eager, University of Melbourne
-// Cochlear Nucleus network model: parameters file
-// based on parameters_odour_baseline.hoc by Andrew Davison
 
+
+/*  ARLO model and Tan and Carney 2003 parameters
+    refers to the version of the model used, as follows:
+    Model numbers as used in ARLO Heinz et al.,2001 Fig. 4 -
+    1: Nonlinear_w/compression & suppression (model for 'healthy' ear)
+    2: Nonlinear_w/compression, but without off-frequency suppression
+        3: Linear sharp
+        4: Linear broad, low threshold
+        5: Linear broad, high threshold
+*/
+ARLOModel_Params    = 1
+
+
+/*
+  Bruce Model Parameters Impairment of Inner and Outer Hair cell function
+  variables cohc, cihc  are frequency and animal specific
+  See my adaptions to AN model in Utilities.hoc
+*/
+  strdef audiogram_file
+  audiogram_file="rat_bruce_audiogram.dat"  
+  objref audiogram,cohc,ihc
+  species = 2  // setup for rat
+
+/*
+  Cat model Version 4 Parameters (ANmodel=7)
+  Zilany, Bruce, Carney, Nelson 2006,2007,2010 
+*/
+
+  HighSponFibre=3
+  MedSponFibre=2
+  LowSponFibre=1
+  ZilanyActual=1
+  ZilanyApprox=0
+  species = 9   // Cat
+  audiogram_file =  "cat_audiogram.txt"
+
+/*----------------------------------------------------------------
+ * The parameter file for any experiment should look like the following section:
+ * Michael Eager, University of Melbourne
+ * Cochlear Nucleus network model: parameters file
+ * based on parameters_odour_baseline.hoc by Andrew Davison
+ ----------------------------------------------------------------*/
 
 nchannels   = 100       // Total number of frequency channels
 nTSperchannel   = 10    // number of TS cells in each freq channel
@@ -179,7 +209,7 @@ t_ignore_before       = 20                  // ms,  when calculating statistics,
                                    // spikes occuring before this time
 
 cvode.active(0)
-dt        = 0.05		//NEURON's local integration time step
+dt        = 0.05		// NEURON's local integration time step
 steps_per_ms = 10                   // NEURON graphical plotting variable
 setdt()
 dt=0.1                              //ms, integration time step

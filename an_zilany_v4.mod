@@ -2,7 +2,6 @@ NEURON {
    SUFFIX nothing
 }
 VERBATIM
-extern int numarg();
 extern int vector_instance_px();
 extern void vector_resize();
 extern double* vector_vec();
@@ -11,9 +10,14 @@ ENDVERBATIM
 
 :* anmodel Vector Method - sout.an_zilany_v4( stim , tdres,  cf, spontrate, model, species, ifspike)
 VERBATIM
-#include "complex.c"
+//#include "complex.c"  /* uncomment if an_zbcatmodel is not present in folder */
+
+#define DEBUG
+
 #include "zilanycarneyv4.c"
-#include "ZilanyCarney-JASAcode/ffGn2.c"
+#include "resample.c"
+#include "ffGn_test.c"
+
 
 //sout.an_zilay_v4(stim, tdres,cf,spont,model, species,ifspike,wavefile)
 
@@ -21,12 +25,12 @@ static double an_zilany_v4(void *vv)
 {
 
    double *stim;      //Input stimulus vector in pascals
-   double *ihcout,*sout;   //Output vector containing inst. rate for channel
-   double tdres,cf,out;
+   double *randNums,*ihcout,*sout;   //Output vector containing inst. rate for channel
+   double tdres,cf,spont,out;
    double cohc,cihc;
    int species,fibertype,implnt;
    int ifspike;
-   int nstim, nsout;
+   int nstim, nsout,nrand;
    int nrep;
    cohc = 1.0;
    cihc = 1.0;
@@ -36,15 +40,16 @@ static double an_zilany_v4(void *vv)
    nsout = vector_arg_px(1, &stim);
 
 //Get Input arguments
-   if(ifarg(9)!=1){  //Must be changed if more input arguments added
+/*   if(ifarg(9)!=1){  //Must be changed if more input arguments added
       hoc_execerror("ERROR: input syntax must be sout.an_zilany_v4( stim, tdres,  cf, fibertype,implnt,cihc,cohc, species,nrep)", 0);
       return 0;
    }
-   //TDRES  resolution of stim vector
+*/
+ //TDRES  resolution of stim vector
    //Bruce model uses seconds rather than msec
    tdres = (double)(*getarg(2));
-   if (tdres != 1e-5){
-      printf("Note: ZilanyBruceV4 resolution should be between 0.01ms (Fs = 100kHz) for normal usage.\n");
+   if (tdres > 0.01e-3 || tdres < 0.002e-3){
+      //printf("Note: ZilanyBruceV4 resolution should be between 0.01ms (Fs = 100kHz) and 0.002ms (500kHz) for normal usage.\n");
       //tdres = 0.002e-3;
    }
    //CF of fiber
@@ -92,33 +97,36 @@ static double an_zilany_v4(void *vv)
    }
    //Reps
    nrep = (int)(*getarg(9));
+   
+//nrand = vector_arg_px(10, &randNums);
+// ? int totalstim = (int)floor((reptime*1e3)/(tdres*1e3));    
 
    ihcout = makevector(nstim);
    printf("AN model: Zilany, Carney, Bruce, Nelson and others  (version 4 c2010)\n");
    printf("IHCAN(stim,%.0f,%d,%g,%d,%g,%g,ihcout,%d)\n", cf, nrep, tdres, nstim, cohc, cihc, species);
    IHCAN(stim, cf, nrep, tdres, nstim, cohc, cihc, ihcout,species);
-   printf("SingleAN(ihcout,%.0f,%d,%g,%d,%d,%d,sout,%d)",cf,nrep,tdres,nstim,fibertype,implnt,species);
-   out= SingleAN(ihcout,cf,nrep,tdres,nstim,fibertype,implnt,sout,species);
+   printf("SingleAN(ihcout,%.0f,%d,%g,%d,%d,%d,sout,%d)\n",cf,nrep,tdres,nstim,fibertype,implnt,species);
+   out= SingleAN_v4(ihcout,cf,nrep,tdres,nstim,fibertype,implnt,sout,species,randNums);
+
    freevector(ihcout);
    return out; 
 }
 
 static double ihc_zilany_v4(void *vv)
 {
-
    double *stim;      //Input stimulus vector in pascals
    double *ihcout;   //Output vector containing inst. rate for channel
-   double tdres,cf,out;
+double tdres,cf;
    double cohc,cihc;
    int species;
-   int nstim, nsout;
+   int nstim, nihcout;
    int nrep;
    cohc = 1.0;
    cihc = 1.0;
-   out=1;
+
 //Get Instance Sout vector for synapse data
-   nstim = vector_instance_px(vv, &ihcout);
-   nsout = vector_arg_px(1, &stim);
+   nihcout = vector_instance_px(vv, &ihcout);
+   nstim = vector_arg_px(1, &stim);
 
 //Get Input arguments
    if(ifarg(7)!=1){  //Must be changed if more input arguments added
@@ -157,17 +165,17 @@ static double ihc_zilany_v4(void *vv)
 
    //Species
    species = (int)(*getarg(6));
-   if (species != 1){
-     hoc_execerror("an_zilany_v4: species other than cat (1) are not implemented",0);
-     return 0;
+   if ( species != 1 || species != 9 ){
+     printf("an_zilany_v4: species other than cat (1) are not correctly implemented");
+
    }
    //Reps
    nrep = (int)(*getarg(7));
 
-   printf("AN model: Zilany, Carney, Bruce, Nelson and others  (version 4 c2010)\n");
-   printf("IHCAN(stim,%.0f,%d,%g,%d,%g,%g,ihcout,%d)\n", cf, nrep, tdres, nstim, cohc, cihc, ihcout,species);
+   printf("AN model: Zilany, Bruce, Nelson and Carney  (version 4 c2010)\n");
+   printf("IHCAN(stim,%.0f,%d,%g,%d,%g,%g,ihcout,%d)\n", cf, nrep, tdres, nstim, cohc, cihc,species);
    IHCAN(stim, cf, nrep, tdres, nstim, cohc, cihc, ihcout,species);
-   return out; 
+   return (double) nihcout; 
 }
 
 static double syn_zilany_v4(void *vv)
@@ -247,14 +255,14 @@ void** xx;
 
 
    printf("AN model: Zilany, Carney, Bruce, Nelson and others  (version 4 c2010)\n");
-   printf("SingleAN(ihcout,%.0f,%d,%g,%d,%d,%d,sout,%d)",cf,nrep,tdres,nihcout,fibertype,implnt,sout,species);
-   out= SingleAN(ihcout,cf,nrep,tdres,nihcout,fibertype,implnt,sout,species);
+   printf("SingleAN(ihcout,%.0f,%d,%g,%d,%d,%d,sout,%d)\n",cf,nrep,tdres,nihcout,fibertype,implnt,sout,species);
+   //   out= SingleAN_v4(ihcout,cf,nrep,tdres,nihcout,fibertype,implnt,sout,species);
 
 
     /*======  Spike Generations ======*/
       if(ifspike){
 	sptimes  = makevector((long) ceil(out / 0.00075));
-	nspikes = SpikeGenerator(sout, tdres, out, nrep, sptimes);
+	nspikes = SpikeGenerator_v4(sout, tdres, out, nrep, sptimes);
 	spks = *((void**)(&xspikes));
 	if (spks)  vector_resize(spks, nspikes);
      
@@ -428,79 +436,7 @@ static double fast_fGn(void *vv)
 
    if(ifarg(iarg))   mu = (double)(*getarg(iarg++));
    if ( mu < 0 ) {
-      printf("mu must be >= 0");
-      mu=0;
-   }
-
-   if(ifarg(iarg)){
-     sigma = (double)(*getarg(iarg++));
-   }else{
-     sigma = 0;
-       }
-
-    ptr_ffGn = *((void**)(&xspikes));
-    if(ptr_ffGn){
-     vector_resize(ptr_ffGn, nsizemax);
-    }
-    vec_ffGn = ((double*) vector_vec(ptr_ffGn));      //Get array ptr to ptr_ffGn Vector
-
-
-    return ffGn(vec_ffGn,nsizemax,tdres,Hinput,mu,sigma);
-
-}
-
-static double fast_fGn2(void *vv)
-{
-
-  void *ptr_ffGn;
-   double *vec_ffGn;   //Output vector containing inst. rate for channel
-   double tdres,cf,N,Hinput,mu,sigma;
-   double xspikes;
-   int nout,nsizemax;
-   int iarg=1;
-   
-//Get Instance/out vector 
-   void** xx;
-   xx = (void**)(&xspikes);
-   *xx = (void*)0;
-   if (ifarg(1)) {
-     vector_instance_px(vv,(double*)(*xx));
-   }
-   ptr_ffGn = *((void**)(&xspikes));
-   if (ptr_ffGn) {
-      vector_resize(ptr_ffGn, 0);
-   }
-
-   //   nout = vector_instance_px(vv, &vec_ffGn);
- 
-
-//Get Input arguments
-   if( ifarg(5)!=1){
-     if(ifarg(4)!=1){  //Must be changed if more input arguments added
-      hoc_execerror("fast_fGn: input syntax must be vec.fast_fGn(N, tdres, Hinput, mu, sigma (optional))", 0);
-      return 0;
-     }}
-   if(ifarg(iarg))   N = (double)(*getarg(iarg++));
-   nsizemax = (int) N;
-
-   //Bruce model uses seconds rather than msec
-      if(ifarg(iarg)) tdres = (double)(*getarg(iarg++));
-/*   if (tdres > 0 || tdres < 1){
-      printf("Note: ZilanyBruceV4 resolution should be between 0.01ms (Fs = 100kHz) and 0.002ms (500kHz) for normal usage.\n");
-      tdres = 0.01e-3;
-   }
-*/
-
-   if(ifarg(iarg))   Hinput = (double)(*getarg(iarg++));
-
-   if ( ( Hinput <= 0 ) || (Hinput > 2) ){
-      hoc_execerror("fast_fGn ERROR: Hinput must be between 0  and 2\n",0);
-      return 0;
-   }
-
-   if(ifarg(iarg))   mu = (double)(*getarg(iarg++));
-   if ( mu < 0 ) {
-      printf("mu must be >= 0");
+      printf("mu must be >= 0\n");
       mu=0;
    }
 
@@ -508,15 +444,63 @@ static double fast_fGn2(void *vv)
      sigma = (double)(*getarg(iarg++));
    }else{
      sigma = -1;
-   }
+       }
 
     ptr_ffGn = *((void**)(&xspikes));
     if(ptr_ffGn){
-     vector_resize(ptr_ffGn, nsizemax);
+      //vector_resize(ptr_ffGn, nsizemax);
+      vector_resize(ptr_ffGn, 32000);
     }
     vec_ffGn = ((double*) vector_vec(ptr_ffGn));      //Get array ptr to ptr_ffGn Vector
+    printf("fast_fGn: calling ffGn(&%x,%d,%g,%g,%g,%g)\n",&vec_ffGn,nsizemax,tdres,Hinput,mu,sigma);
+    return ffGn(vec_ffGn,nsizemax,tdres,Hinput,mu,sigma);
 
-   return ffGn(vec_ffGn,nsizemax,tdres,Hinput,mu,sigma);
+}
+
+static double rtresample(void *vv)
+{
+  void *ptr_resample;
+  double *vec1_resample;
+   double *vec2_resample;   //Output vector containing inst. rate for channel
+   double tdres,cf,N,Hinput,mu,sigma;
+   double xresample,resamp;
+   int nin,NSizeMax;
+   int iarg=1;
+   
+//Get Instance/out vector 
+   nin = vector_instance_px(vv, &vec1_resample);
+
+   void** xx;
+   xx = (void**)(&xresample);
+   *xx = (void*)0;
+   if (ifarg(1)) {
+      *xx = vector_arg(iarg++);
+   }
+   ptr_resample = *((void**)(&xresample));
+   if (ptr_resample) {
+      vector_resize(ptr_resample, 0);
+   }
+ 
+//Get Input arguments
+   if(!ifarg(2)){  //Must be changed if more input arguments added
+      hoc_execerror("rtresample: input syntax must be vec.rtresample(destvec, resample)", 0);
+      return 0;
+   }
+   if(ifarg(iarg))   resamp = (double)(*getarg(iarg++));
+   NSizeMax = (int) (resamp * (double)nin);
+   if(NSizeMax <=0 ){  //Must be changed if more input arguments added
+      hoc_execerror("rtresample: size not big enough)", 0);
+      return 0;
+   }
+
+    ptr_resample = *((void**)(&xresample));
+    if(ptr_resample){
+     vector_resize(ptr_resample, NSizeMax);
+    }
+
+    vec2_resample = ((double*) vector_vec(ptr_resample));      //Get array ptr to ptr_resample Vector
+
+    return resample(vec1_resample,vec2_resample,nin,resamp);
 
 }
 ENDVERBATIM
@@ -529,8 +513,8 @@ VERBATIM
    install_vector_method("ihc_zilany_v4", ihc_zilany_v4);
    install_vector_method("syn_zilany_v4", syn_zilany_v4);
    install_vector_method("ANFSpikeGenerator3", ANFSpikeGenerator3);
+   install_vector_method("rtresample", rtresample);
    install_vector_method("fast_fGn", fast_fGn);
-   //   install_vector_method("fast_fGn2", fast_fGn2);
 ENDVERBATIM
 }
 

@@ -3,21 +3,20 @@
  *
  */
 load_file("nrngui.hoc")
-nrn_load_dll("../i686/.libs/libnrnmech.so")
 thresh=-20
 
-  xopen("../mathslib.hoc")			// mathematical procedures
-  xopen("../Params.hoc")
-  xopen("../Utilities.hoc")
-  xopen("../NetworkParameters.hoc")
-  xopen("../AuditoryNerve.hoc")
-//  xopen("../parameters_vowel_baseline.hoc")           // model parameters	
+  xopen("mathslib.hoc")			// mathematical procedures
+  xopen("Params.hoc")
+  xopen("Utilities.hoc")
+  xopen("NetworkParameters.hoc")
+  xopen("AuditoryNerve.hoc")
+//  xopen("parameters_vowel_baseline.hoc")           // model parameters	
 
   /*  Setup Auditory model */
   ANmodel = 7
   cfhi =40000
   cflo =200
- tonefreq= 2000
+ tonefreq= 10000
   dur 		= 0.08 	//duration of stim (seconds)
   sg_rate 	= 50000		
   sg_tdres 	= 1/sg_rate
@@ -25,8 +24,8 @@ thresh=-20
   reps		= 50
   usesavedfilterbanks=0
   stimtype = 0  //read stim from file
-  path = "../stim/"
-  wavefile = "../stim/b6t.dat"
+  path = "./stim/"
+  wavefile = "./stim/b6t.dat"
 
   /* Zilany, Bruce, Nelson, Carney Parameters */
   ANmodel	= 7		//Zilany EtAl Cat model v4
@@ -36,42 +35,42 @@ thresh=-20
   stimtype 	= 1
 
 
-proc RescaleStim(){ local rms
-  rms = Decibels(stim)
-  stim.mul(spl2amplNoise(spl)/spl2amplNoise(rms))
-}
+// proc RescaleStim(){ local rms
+//   rms = Decibels(stim)
+//   stim.mul(spl2amplNoise(spl)/spl2amplNoise(rms))
+// }
 
 
-proc LoadVowel(){
-    RefreshParameters()	//Generate or get stim from file
+// proc LoadVowel(){
+//     RefreshParameters()	//Generate or get stim from file
 
-    stim.resample(stim,3)
-    srate = 44100*3 
-    stimtdres 	= 1/srate
-    spl=$1
-    RescaleStim()		//Scale the vowel
-    ANFilterBankRun()	//Build the filterbank
-    //an.SetRates()		//Allocate filterbanks to ANFs
-    //DummyGraphs()
-}
+//     stim.resample(stim,3)
+//     srate = 44100*3 
+//     stimtdres 	= 1/srate
+//     spl=$1
+//     RescaleStim()		//Scale the vowel
+//     ANFilterBankRun()	//Build the filterbank
+//     //an.SetRates()		//Allocate filterbanks to ANFs
+//     //DummyGraphs()
+// }
 
-objref vfile 
-proc SaveData() {
-  vfile = new File()
-    vfile.wopen("vowels/vowel_b6t_HSR.sout")
+// objref vfile 
+// proc SaveData() {
+//   vfile = new File()
+//     vfile.wopen("vowels/vowel_b6t_HSR.sout")
 
-    for i=0,99 {
-	for j=0,HSRout[0].size-1 {
-	    vfile.printf("%.2f %d %.0f\n",sg_tdres*j,i, HSRout[i].x[j])
-	}
-      }
-  vfile.close()
-    vfile.wopen("vowels/vowel_b6t_HSR.matrix")
-    for i=0,99 {
-	HSRout[i].printf(vfile,"%.0f\t")
-      }
-  vfile.close()
-}
+//     for i=0,99 {
+// 	for j=0,HSRout[0].size-1 {
+// 	    vfile.printf("%.2f %d %.0f\n",sg_tdres*j,i, HSRout[i].x[j])
+// 	}
+//       }
+//   vfile.close()
+//     vfile.wopen("vowels/vowel_b6t_HSR.matrix")
+//     for i=0,99 {
+// 	HSRout[i].printf(vfile,"%.0f\t")
+//       }
+//   vfile.close()
+// }
 
 
 objref stimgr, b1,  gr
@@ -79,6 +78,7 @@ objref stimgr, b1,  gr
 objref  ANFBgr, b2, Sout[nchannels]
 changescale=1
 scale = 60
+
 proc ShowInputGraphs() {
    objref stimgr, b1,  gr
    /*graph variables*/
@@ -104,13 +104,15 @@ proc ShowInputGraphs() {
    ANFBgr.view(0, 0, 0.05, 180000, 308, 345, 685, 365)
    ANFBgr.label(0.92,0.90, "CF")
    ANFBgr.label(0.1,0.95,"Auditory Filterbank Instantaneous Rate Profiles")
-   for icf = 0, nchannels-1 {
+/*   for icf = 0, nchannels-1 {
       Sout[icf] = HSRout[icf].c
       Sout[icf].mul(2).add(100*icf)
       Sout[icf].plot(ANFBgr,sg_tdres, 1, 0)
       sprint(lbl, "%g ", cf.x[icf])
       ANFBgr.label(0.92, 0.810*(icf/(nchannels-1))+0.075, lbl)
    }
+*/
+      HSRout[67].plot(ANFBgr,sg_tdres, 1, 0)
    //system("date")
    ANFBgr.exec_menu("View = plot")
    b1.intercept(0)
@@ -123,6 +125,7 @@ proc ShowInputGraphs() {
 //quit()
 
   /* Zilany, Bruce, Nelson, Carney Parameters */
+ spl=10
   ANmodel	= 7		//Zilany EtAl Cat model v4
   species	= 1		//Cat
   srate 	= 100000      // 500k is no longer needed
@@ -130,22 +133,35 @@ proc ShowInputGraphs() {
   stimtype 	= 1
   sg_rate 	= 100000		
   sg_tdres 	= 1/sg_rate
-  tonefreq = 10e3
- spl=70
-
+  fibertype = HighSponFibre
+  implnt =   ZilanyApprox
 
     RefreshParameters()	//Generate or get stim from file
 //    ANFilterBankRun()	//Build the filterbank
 
+  objref ghsr,rr,grr
+  rr = new Vector(stim.size)
+
+proc plotrand(){
+grr = new Graph()
+rr.plot(grr)
+grr.exec_menu("View = plot")
+}
+
+
+
+proc runzilany(){
 HSRout[67] = new Vector(stim.size)
-HSRout[67].an_zilany_v4(stim, stimtdres, 10e3, HighSponFibre,ZilanyActual,1,1,species, 1)
-HSRout[0] = new Vector(stim.size)
-HSRout[0].an_zbcatmodel07(stim, stimtdres, 10000, 50, 1,1,1, 1)
+HSRout[67].an_zilany_v4(stim, stimtdres, 10000, fibertype,implnt,1,1,1, 1,rr)
+ShowInputGraphs()
+}
 
-objref ghsr
-ghsr = new Graph()
-HSRout[67].plot(ghsr,stimtdres)
-HSRout[0].plot(ghsr,stimtdres)
-ghsr.exec_menu("View = plot")
+proc runzilany2(){
+HSRout[67] = new Vector(stim.size)
+HSRout[67].ihc_zilany_v4(stim, stimtdres, 10000,1,1,1,1)
+ShowInputGraphs()
+}
 
-//ShowInputGraphs()
+
+
+runzilany()
