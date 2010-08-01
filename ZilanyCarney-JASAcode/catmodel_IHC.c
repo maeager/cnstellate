@@ -131,7 +131,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	
 	/* Create an array for the return argument */
 	
-    outsize[0] = 1;
+	outsize[0] = 1;
 	outsize[1] = totalstim*nrep;
     
 	plhs[0] = mxCreateNumericArray(2, outsize, mxDOUBLE_CLASS, mxREAL);
@@ -144,7 +144,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 	IHCAN(px,cf,nrep,tdres,totalstim,cohc,cihc,ihcout);
 
- mxFree(px);
+	mxFree(px);
 
 }
 

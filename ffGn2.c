@@ -50,11 +50,18 @@
 
 
 /* scoplib.h random functions allows control of default random functions in NEURON*/
-double randn(){ return normrand(0,1);}
+double randn(){ return normrand(0.0,1.0);}
 
-double * yffGn;
 
-double* ffGn(int N, double tdres, double Hinput, double mu, double sigma)
+/* 
+ static double *Zmag=NULL;
+ static int Nlast=0;
+ static int Hlast=0;
+ static int Nfft=0;
+*/
+
+
+double ffGn(double *yffGn,int N, double tdres, double Hinput, double mu, double sigma)
 {
 /* persistent matlab variables converted to static C variables */
 //static double * Zmag;
@@ -69,22 +76,22 @@ double* ffGn(int N, double tdres, double Hinput, double mu, double sigma)
 
  int i,nsize,nop,resamp,NfftHalf;	
  double k,H,fBn;
- double *y;
- VEC *Z_real,*Z_im,*Zmag,*iZmag;
+ double *y,*ytmp;
+ VEC *Z_real=VNULL,*Z_im=VNULL,*Zmag=VNULL,*iZmag=VNULL;
   /*---- Check input arguments ---------- */
   
  if (N <= 0){
     hoc_execerror("Length of the return vector must be positive.",0);
-    return NULL;
+    return 0.;
  }
   if (tdres > 1){
     hoc_execerror("Original sampling rate should be checked.",0);
-    return NULL;
+    return 0.;
   }
  
   if ((Hinput < 0) || (Hinput >= 1)){
     hoc_execerror("The Hurst parameter must be in the interval (0,1].",0);
-    return NULL;
+    return 0.;
   }
 	
   /* See last statement regarding default sigma value
@@ -122,7 +129,7 @@ double* ffGn(int N, double tdres, double Hinput, double mu, double sigma)
 
   //  Calculate the fGn.
   if (H == 0.5){
-    y = (double*)makevector(N);
+    y = makevector(N);
     for (i=0;i<N;i++) y[i] = randn();  //  If H=0.5, then fGn is equivalent to white Gaussian noise.
   } else {
     //  If this function was already in memory before being called this time,
@@ -139,11 +146,11 @@ double* ffGn(int N, double tdres, double Hinput, double mu, double sigma)
 #ifdef DEBUG
     printf("ffGn 2: N %d\t Nfft %d\t NfftHalf %d\n",N, Nfft, NfftHalf);
 #endif
-    if ( N==0 || Nfft == 0) return NULL; 
+    if ( N==0 || Nfft == 0) return 0; 
     //k=[0:NfftHalf, (NfftHalf-1):-1:1];
-    if(Zmag) V_FREE(Zmag);
+    if(Zmag == VNULL) V_FREE(Zmag);
     Zmag = v_get(Nfft);// v_zero(Zmag); 
-    if ( N==0 || Nfft == 0) return NULL;      
+    if ( N==0 || Nfft == 0) return 0;      
     for (i =0;i<NfftHalf*2;i++){
       k= (i<NfftHalf) ? i : 2*NfftHalf-1-i;
       Zmag->ve[i]= 0.5 * (  pow(k+1.0,2.0*H) -  2.0*pow(k,2.0*H) + pow(abs(k-1.0),2.0*H) );
@@ -151,14 +158,14 @@ double* ffGn(int N, double tdres, double Hinput, double mu, double sigma)
 #ifdef DEBUG
     printf("ffGn 3: N %d\tNfft %d\t NfftHalf %d\n", N,Nfft, NfftHalf);
 #endif
-    if ( N==0 || Nfft == 0) return NULL; 
+    if ( N==0 || Nfft == 0) return 0; 
     iZmag = v_get(Nfft); //v_zero(iZmag);
-    // fft(Zmag,iZmag);
+    fft(Zmag,iZmag);
     for(i=0;i<Nfft-1;i++){
-      //	printf("Zmag[%d]   %g\n",i,Zmag->ve[i]);
+      	printf("Zmag %g\t",Zmag->ve[i]);
       if ( Zmag->ve[i] < 0 ) {
 	hoc_execerror("The fast Fourier transform of the circulant covariance had negative values.",0); 
-	return NULL;
+	return 0;
       }
       Zmag->ve[i] = sqrt(Zmag->ve[i]);
     }
@@ -169,48 +176,49 @@ double* ffGn(int N, double tdres, double Hinput, double mu, double sigma)
 #ifdef DEBUG
     printf("ffGn 4a: N %d\tNfft %d, NfftHalf %d\n",N, Nfft, NfftHalf);
 #endif
-    if ( (N == 0) || (Nfft == 0)) return NULL; 
+    if ( (N == 0) || (Nfft == 0)) return 0; 
     Z_real = v_get(Nfft); 
-#ifdef DEBUG
-    printf("ffGn 4b: N %d\tNfft %d, NfftHalf %d\n",N, Nfft, NfftHalf);
-#endif
-    if ( (N == 0) || (Nfft == 0)) return NULL; 
-    //      v_zero(Z_real);
-#ifdef DEBUG
-    printf("ffGn 4c: N %d\tNfft %d, NfftHalf %d\n",N, Nfft, NfftHalf);
-#endif
-    if ( (N == 0) || (Nfft == 0)) return NULL; 
+    v_zero(Z_real);
     Z_im = v_get(Nfft); 
- // v_zero(Z_im);
+    v_zero(Z_im);
     
     for(i=0;i<Nfft;i++) {
-      Z_real->ve[i] = Zmag->ve[i]*randn(); 
-      Z_im->ve[i] = Zmag->ve[i]*randn();	
-  //  printf("Z[%d]   %g\ti%g\n",i,Z_real->ve[i],Z_im->ve[i]);
+      /* Z_real->ve[i] = Zmag->ve[i]*randn();  */
+      /* Z_im->ve[i] = Zmag->ve[i]*randn();	 */
+       Z_real->ve[i] = Zmag->ve[i];  
+       Z_im->ve[i] = Zmag->ve[i];	 
     }
 
 #ifdef DEBUG
-    printf("ffGn 5a: N %d\tNfft %d, NfftHalf %d\n",N, Nfft, NfftHalf);
-#endif
-    if ( (N == 0) || (Nfft == 0)) return NULL; 
-    //    ifft(Z_real,Z_im);
-#ifdef DEBUG
-    printf("ffGn 5b:  N %d\tNfft %d, NfftHalf %d\n",N, Nfft, NfftHalf);
-#endif
-    if ( (N == 0) || (Nfft == 0)) return NULL; 
-    y = (double*)makevector(Nfft);
-#ifdef DEBUG
-    printf("ffGn 5c: N  %d Nfft %d, NfftHalf %d\n", N,Nfft, NfftHalf);
-#endif
-    if ( (N == 0) || (Nfft == 0)) return NULL; 
-    for(i=0;i<Nfft-1;i++) {
-      y[i] =  Z_real->ve[i] * sqrt(Nfft);
-      //      printf("y[%d]\t %g\n",i,y[i]);
+    for(i=0;i<Nfft;i++) {
+      printf("Z[%d]   %g\ti%g\t Zmag %g\n",i,Z_real->ve[i],Z_im->ve[i],Zmag->ve[i]);
     }
+#endif
+
+    ifft(Z_real,Z_im);
+
 #ifdef DEBUG
+    printf("After ifft, %g",sqrt(Nfft));
+    for(i=0;i<Nfft;i++) {
+      printf("Z[%d]   %g\ti%g\t Zmag %g\n",i,Z_real->ve[i],Z_im->ve[i],Zmag->ve[i]);
+    }
+
+#endif
+
+
+    y = (double*)makevector(N);//fft);
+
+    for(i=0;i<N;i++){//fft-1;i++) {
+    y[i] =  (Z_real->ve[i]) * sqrt(Nfft);
+    }
+
+#ifdef DEBUG
+    for(i=0;i<Nfft;i++) {
+      printf("Z[%d] %g\t y %g\n",i,Z_real->ve[i],y[i]);
+    }
     printf("ffGn 6:  N %d\tNfft %d, NfftHalf %d\n", N,Nfft, NfftHalf);
 #endif
-    if ( (N == 0) || (Nfft == 0)) return NULL; 
+
     V_FREE(Z_im);
     V_FREE(Z_real);
     V_FREE(Zmag);
@@ -219,27 +227,33 @@ double* ffGn(int N, double tdres, double Hinput, double mu, double sigma)
 #ifdef DEBUG
     printf("ffGn 7:  N %d\tNfft %d, NfftHalf %d\n",N, Nfft, NfftHalf);
 #endif
-    if ( (N == 0) || (Nfft == 0)) return NULL; 
+
    //	y((N+1):end) = [];
   }
 
 
   //  Convert the fGn to fBn, if necessary.
-  // if (fBn){ for (i=1;i<N;i++) y[i] = y[i]+y[i-1]; }
+  if (fBn){ for (i=1;i<N;i++) y[i] = y[i]+y[i-1]; }
   
 #ifdef DEBUG
   printf("ffGn 8: Resampling back to original (1/tdres): match with the AN model  N %d\t resamp %d\t nop %d\t Nfft %d\n",N,resamp,nop,Nfft);
 #endif
-  if ( (N == 0) || (Nfft == 0)) return NULL; 
+  if ( (N == 0) || (Nfft == 0)) return 0; 
 
-  if( resamp == 1){
+  if(resamp == 1){
     for (i=0;i<__min(nop,Nfft);i++)
       yffGn[i] = y[i];
+    freevector(y);
+    return __min(nop,Nfft);
   }else {
-    printf("ffGn 9: resample N %d  resamp %g", N, resamp);
-    resample(y,yffGn,N,resamp);  //  Resampling to match with the AN model, 
+    ytmp = makevector((int)(N*resamp));
+    printf("ffGn 9: calling resample(%x,%x,%d,%d)\n",&y,&ytmp,N,resamp);
+
+    resample(y,ytmp,N,resamp);  //  Resampling to match with the AN model, 
   //N= size of y
   }
+
+
 //  define standard deviation
 
 if (sigma <= 0){
@@ -254,14 +268,25 @@ if (sigma <= 0){
   }
  }
 
-    double ystd=0;
-    //correction to small values, assume mean y = 0
+    int ystd=0;
+
+    /*    //correction to small values, assume mean y = 0
     for (i=0;i<nop;i++) ystd = pow(yffGn[i],2.0);
     ystd = sqrt(ystd/nop);
-    for (i=0;i<nop;i++)
-      yffGn[i] = yffGn[i]*sigma/ystd;
-
+    */
+    printf("ffGn 9: ytmp size %d  nop %d\n",(int)(N*resamp),nop);
+    for (i=0;i<nop;i++){ 
+      if (ytmp[i] == 0) ystd++;
+      yffGn[i] = ytmp[i]*sigma;
+    }
     freevector(y);
-    return yffGn;
+    freevector(ytmp);
+
+
+#ifdef DEBUG
+    printf("ffGn: done! ystd %d\t %x\n",ystd, &yffGn);
+#endif
+
+    return nop;
 }
 

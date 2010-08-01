@@ -28,7 +28,7 @@ tempfactor = Q10()
 /********************************************************************
  ** BM Functions adapted from CMPA.C of Heinz et al. 1999
  **     Implemented in hoc by Michael Eager 21/7/2004
- **     Rat model added 0./2007
+ **     Rat model added 2007
  ** Calculate the location on Basilar Membrane from best frequency
  *******************************************************************/
 func cochlea_f2x() { local species, f, dist
@@ -991,7 +991,7 @@ objref rampx, offramp, onramp, middle, quiet, envelope, inputsound,initquiet
  *   GetANfileString()
  *   SaveANFilterBank2File()
  *   RetrieveANFilterBank()
- *   GetRatAudiogramData()
+ *   GetAudiogramData()
  *   GenerateFilterbank()
  *   ANFilterBankRun()
  **********************************************************/
@@ -1002,22 +1002,12 @@ ifspike     = 1
 delx        = 0.05
     //"delta x", or spacing of "IHC"s along BM (linearly spaced IHCs in terms of location along BM
     //  results in approximately logarithmic spacing in terms of frequency.
-Model_Params    = 1
-/*  refers to the version of the model used, as follows:
-    Model numbers as used in ARLO Heinz et al.,2001 Fig. 4 -
-    1: Nonlinear_w/compression & suppression (model for 'healthy' ear)
-    2: Nonlinear_w/compression, but without off-frequency suppression
-        3: Linear sharp
-        4: Linear broad, low threshold
-        5: Linear broad, high threshold
 
-    Tan and Carney 2003
-    same as ARLO model
-*/
+
 //install_anmodel()         //Heinz ARLO model
 //install_an_tanmodel()      //Tan and Carney
-execute1("install_an_zbcatmodel07()")   //Zilany Bruce EtAl  2007
-execute1("install_an_zilany_v4()")      //Zilany Carney Bruce EtAl c.2010
+execute1("install_an_zbcatmodel07()")   //Zilany Bruce EtAl  2006,2007
+execute1("install_an_zilany_v4()")      //Zilany Bruce Nelson Carney 2009,2010
 
     objref  LSRout[nchannels], HSRout[nchannels],cf, ANfile, MSRout[nchannels]
     cf = new Vector(nchannels)
@@ -1122,19 +1112,17 @@ proc RefreshParameters() {local aa localobj tmprand
       grlbl=""
     }
 
+
     //Tone
         if (stimtype == 1){
-           srate = 500000
-            stimtdres = 1/srate   //1/50000 sampling rate
-            //Generate Stimulus, must have stim available
-            SPLTone(tonefreq, srate, dur, spl, dutycycle, ramplngth,nrep, stimdelay)
-            sprint( grlbl, "Tonefreq Stimulus %d Hz, Sound Level %d dBSPL", tonefreq, spl)
+	  if((srate != 1e5) || ((tonefreq > 20e3) && srate != 200000)) print "You should be using a better srate"
+	  //Generate Stimulus, must have stim available
+	  SPLTone(tonefreq, srate, dur, spl, dutycycle, ramplngth,nrep, stimdelay)
+          sprint( grlbl, "Tonefreq Stimulus %d Hz, Sound Level %d dBSPL", tonefreq, spl)
         }
     //Quiet
         if (stimtype == 2){
             objref stim
-       srate=500000
-            stimtdres =  1/srate   //1/50000 sampling rate
             stimdur = 0.05     //50 ms
             stim  = new Vector(int(stimdur/stimtdres), 0 )
             if (nrep > 1) { for i=2,nrep { stim.append(new Vector(int(stimdur/stimtdres), 0 ))} }
@@ -1142,8 +1130,7 @@ proc RefreshParameters() {local aa localobj tmprand
         }
     //AM tone
         if(stimtype == 3) {
-            srate = 500000
-            stimtdres = 1/srate  //1/50000 sampling rate
+	  if((srate != 1e5) || ((tonefreq > 20e3) && srate != 200000)) print "You should be using a better srate"
             //Generate Stimulus, must have stim available
             AMtone(tonefreq, srate, dur, spl, dutycycle, ramplngth,nrep, stimdelay, AM_modfreq, AM_depth)
             sprint( grlbl, "AM Stimulus fc %d Hz fm %d Hz m %f %d dB SPL", tonefreq, AM_modfreq,AM_depth,spl)
@@ -1151,8 +1138,7 @@ proc RefreshParameters() {local aa localobj tmprand
     //WB noise
         if(stimtype ==4) {
             objref stim
-       srate = 500000
-            stimtdres   = 1/srate
+	  if((srate != 1e5) || ((tonefreq > 20e3) && srate != 200000)) print "You should be using a better srate"
             WBnoise(srate, dur, spl, dutycycle, ramplngth,nrep, stimdelay)
 
             sprint( grlbl, "Wide-band Noise:  %d dB SPL Sampling freq %5.0f", spl, srate)
@@ -1160,8 +1146,7 @@ proc RefreshParameters() {local aa localobj tmprand
     //AM noise
         if(stimtype ==5) {
             objref stim
-       srate = 500000
-            stimtdres   = 1/srate
+	  if((srate != 1e5) || ((tonefreq > 20e3) && srate != 200000)) print "You should be using a better srate"
             AMnoise(srate,AM_modfreq, AM_depth, nrep, spl, stimdelay)
 
             sprint( grlbl, "Wide-band Noise with Amplitude Modulation  fm %d (Hz) m %f %d (dB SPL) Sampling freq %5.0f (Hz)", AM_modfreq,AM_depth, spl, srate)
@@ -1169,43 +1154,34 @@ proc RefreshParameters() {local aa localobj tmprand
     //Gaussian noise
         if(stimtype ==6) {
             objref stim
-           srate = 500000
-            stimtdres   = 1/srate
+	  if((srate != 1e5) || ((tonefreq > 20e3) && srate != 200000)) print "You should be using a better srate"
             GaussianNoise(srate, dur, spl, dutycycle, ramplngth,nrep, stimdelay, Gaussmean, Gaussvar)
-
             sprint( grlbl, "Gaussian Noise:  mean %f, variance %d, %d dB SPL, Sampling freq %5.0f", Gaussmean,Gaussvar,spl, 1/stimtdres)
         }
     //Tone and Noise
         if(stimtype ==7) {
             objref stim
-   srate = 500000
-       stimtdres   = 1/srate
+	  if((srate != 1e5) || ((tonefreq > 20e3) && srate != 200000)) print "You should be using a better srate"
             ToneplusNoise(tonefreq, srate, dur, spl, dutycycle, ramplngth,nrep, stimdelay, NoiseLevel)
-
             sprint( grlbl, "Tone + Noise:  %g dB SPL, %g Hz tone plus %g dB SPL noise, Sampling freq %5.0f", spl,tonefreq,NoiseLevel, 1/stimtdres)
         }
     //Notch Noise
         if(stimtype ==8) {
             objref stim
-            srate = 50000
-            stimtdres   = 1/srate
-
-            NotchNoise( dur, spl, dutycycle, ramplngth, stimdelay)
-
-            sprint( grlbl, "Notch Noise:  Stopband centred on 5kHz, 1/2 octave bandwidth, Sampling freq %g", srate)
+	  if(srate != 1e5) print "You should be using a better srate"
+          NotchNoise( dur, spl, dutycycle, ramplngth, stimdelay)
+	  sprint( grlbl, "Notch Noise:  Stopband centred on 5kHz, 1/2 octave bandwidth, Sampling freq %g", srate)
         }
     //Two Tone
         if (stimtype == 9){
-           srate = 500000
-            stimtdres = 1/srate   //1/50000 sampling rate
+	  if((srate != 1e5) || ((tonefreq > 20e3  || tone2freq> 20e3) && srate != 2e5)) print "You should be using a better srate"
             //Generate Stimulus, must have stim available
             TwoTone()
             sprint( grlbl, "Two-Tone Stimulus: %dHz, %ddBSPL &%dHz, %ddBSPL ", tonefreq, spl,tone2freq,tone2spl)
         }
     //Ramp Tone
         if (stimtype == 10){
-            srate = 500000
-            stimtdres = 1/srate   //1/50000 sampling rate
+	  if((srate != 1e5) || ((tonefreq > 20e3) && srate != 200000)) print "You should be using a better srate"
             //Generate Stimulus, must have stim available
             RampTone(tonefreq, srate, dur, spl, dutycycle, nrep, stimdelay)
             sprint( grlbl, "RampTone at %dHz, 0dB to %ddB SPL in %g msec ", tonefreq, spl,dur*1000)
@@ -1213,12 +1189,7 @@ proc RefreshParameters() {local aa localobj tmprand
     //Click Recovery
         if (stimtype == 11){
             objref stim
-           //srate=500000
-            stimtdres =  1/srate   //1/50000 sampling rate
-//Allow user to control clicktimes
-//          objref clicktimes
-//          clicktimes = new Vector()
-//          clicktimes.append(20,22,70,74,130,138).mul(srate/1000)
+	  if(srate <= 1e5) print "You should be using a better srate"
             stim = new Vector(int(dur/stimtdres),0)
             for i=0,clicktimes.size-1{
                 for j=0,20 stim.x[clicktimes.x[i]+j] = spl2ampl(120)
@@ -1233,7 +1204,7 @@ proc RefreshParameters() {local aa localobj tmprand
         }
         if (stimtype ==0){
     //Get Stimulus from Wavefile
-   file = new File()
+	file = new File()
         file.ropen(wavefile)
         Readfile(stim,file)
         file.close()
@@ -1241,10 +1212,13 @@ proc RefreshParameters() {local aa localobj tmprand
         stimtdres   = 1/srate
         dur=stim.size*(stimtdres)
         stimdelay=0
-            stimdur = stim.size*(stimtdres*1000)
-        if (stimdur < 50) {
-            stim.resize(int(50/(stimtdres*1000)))}  //Pad with zeroes if too small
-
+        stimdur = stim.size*(stimtdres*1000)
+        if (stimdur < 50) stim.resize(int(50/(stimtdres*1000)))  //Pad with zeroes if too small
+	stim.resample(1e5/srate)
+	srate   = 1e5   //Hz
+        stimtdres   = 1/srate
+	
+	
         sprint( grlbl, "Wavefile Stimulus %s", wavefile)
         if (nrep > 1) {
             objref tobj
@@ -1424,15 +1398,15 @@ func RetrieveANFilterBank(){local nsize, nchan, temp
 }
 objref audiogram,cohc,cihc
 
-proc GetRatAudiogramData(){
+proc GetAudiogramData(){
    objref audiogram,file
    file = new File()
    audiogram = new Matrix()
    cohc = new Vector()
    cihc = new Vector()
-   file.ropen(bruce_impairment_file)
+   file.ropen(audiogram_file)
    if (file.isopen()){
-   if (name_declared("pnm") == 0 && say_once!=1)   print "Loading Rat Audiogram Data"
+   if (name_declared("pnm") == 0 && say_once!=1)   print "Loading Audiogram Data ", audiogram_file
       audiogram.scanf(file,13,4)
       file.close()
    } else {  audiogram.resize(13,4) }
@@ -1441,7 +1415,7 @@ proc GetRatAudiogramData(){
    cohc.interpolate(cf, audiogram.getcol(0).c, audiogram.getcol(2).c)
    cihc.interpolate(cf, audiogram.getcol(0).c, audiogram.getcol(3).c)
 }
-GetRatAudiogramData()
+GetAudiogramData()
 
 strdef end_sout
 proc GenerateFilterbank(){ local icf
@@ -1487,11 +1461,13 @@ proc GenerateFilterbank(){ local icf
 }
 
 proc CheckFilterbank(){local icf
+
 //stim.resample(stim,100000/srate)
 //srate=100000
 //stimtdres=1/srate
 //sg_rate=50000
 //sg_tdres=1/sg_rate
+
     for icf = 0, nchannels-1 {
         sprint(end_sout,"%f",HSRout[icf].x[HSRout[0].size-1])
         if (strcmp(end_sout,"nan")==0){print "detected nan HSR ", icf
@@ -1521,7 +1497,7 @@ proc ANFilterBankRun() {local x
     objref  LSRout[nchannels], HSRout[nchannels] , MSRout[nchannels]
     
     RefreshCF()
-    GetRatAudiogramData()
+    GetAudiogramData()
 
     /********Generate Filterbank of ANF Instantaneous rate profiles*******/
 

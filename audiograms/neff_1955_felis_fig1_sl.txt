@@ -1,4 +1,5 @@
 Frequency (Hz)	Sound Pressure Level (DB RE 0.0002 DYNES/cm^2)
+Neff (1955) Behavioral audiogram of Felis catus (cat).	
 66.563051	45.78125
 128.8601	32.03125
 254.214566	10.15625
@@ -12,5 +13,3 @@ Frequency (Hz)	Sound Pressure Level (DB RE 0.0002 DYNES/cm^2)
 43122.96634	8.90625
 53072.86859	24.53125
 60568.88948	34.53125
-
-Neff (1955) Behavioral audiogram of Felis catus (cat).	

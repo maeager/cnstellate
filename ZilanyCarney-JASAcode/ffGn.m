@@ -71,7 +71,7 @@ end
 % Downsampling No. of points to match with those of Scott jackson (tau 1e-1)
 resamp = ceil(1e-1/tdres);
 nop = N; N = ceil(N/resamp)+1; 
-if (N<10)
+if (N<10) 
     N = 10;
 end
 
@@ -98,16 +98,17 @@ else
     if isempty(Zmag) || isempty(Nfft) || isempty(Nlast) ||isempty(Hlast) || N ~= Nlast || H ~= Hlast
 		% The persistent variables must be (re-)calculated.
         Nfft = 2^ceil(log2(2*(N-1)))
-		NfftHalf = round(Nfft/2)
+	NfftHalf = round(Nfft/2)
 		
-		k = [0:NfftHalf, (NfftHalf-1):-1:1];
-		Zmag = 0.5 .* ( (k+1).^(2.*H) - 2.*k.^(2.*H) + (abs(k-1)).^(2.*H) );
-		clear k
+	k = [0:NfftHalf, (NfftHalf-1):-1:1]
+	Zmag = 0.5 .* ( (k+1).^(2.*H) - 2.*k.^(2.*H) + (abs(k-1)).^(2.*H) )
+	clear k
 		
-		Zmag = real(fft(Zmag));
-		if ( any(Zmag < 0) )
-			error('The fast Fourier transform of the circulant covariance had negative values.');
-		end
+	printf("Zmag size %d  %d\n",size(Zmag)(0),size(Zmag)(1));
+	Zmag = real(fft(Zmag));
+	if ( any(Zmag < 0) )
+	  error('The fast Fourier transform of the circulant covariance had negative values.');
+	end
         Zmag = sqrt(Zmag);
         
         % Store N and H values in persistent variables for use during subsequent calls to this function.
@@ -115,22 +116,22 @@ else
         Hlast = H;
     end
     
-	Z = Zmag.*(randn(1,Nfft) + i.*randn(1,Nfft));
-	
-	y = real(ifft(Z)) .* sqrt(Nfft);
+    Z = Zmag.*(randn(1,Nfft) + i.*randn(1,Nfft));
+   printf("Z size %d  %d\n",size(Z)(0),size(Z)(1));
+    y = real(ifft(Z)) .* sqrt(Nfft);
 	%clear Z
-	
-	y((N+1):end) = [];
+   printf("y size %d  %d\n",size(y)(0),size(y)(1));	
+    y((N+1):end) = [];
 end
 
 % Convert the fGn to fBn, if necessary.
 %if (fBn)
 %	y = cumsum(y);
 %end
-
+   printf("y size %d  %d\n",size(y)(0),size(y)(1));
 % Resampling back to original (1/tdres): match with the AN model
 y = resample(y,resamp,1);  % Resampling to match with the AN model
-
+   printf("y size %d  %d\n",size(y)(0),size(y)(1));
 % define standard deviation
 if (nargin < 5)
     if mu<0.5
@@ -146,3 +147,4 @@ end
 y = y*sigma;
 
 y = y(1:nop);
+   printf("y size %d  %d\n",size(y)(0),size(y)(1));

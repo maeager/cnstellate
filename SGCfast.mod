@@ -27,7 +27,7 @@ PARAMETER {
    nrep      =1
     spont       = 65.0  <0,150>    : Spontaneous Rate
     cf       = 1000    (Hz) <20, 40000>
-    stimtdres     = 2e-5 (ms)        <1e-9,1>
+    stimtdres     = 2e-5 (s)        <1e-9,1>
     seed        = 1            : default variable seed for rand num generator
    reset      = 0
    realtime   = 0.0         :seconds

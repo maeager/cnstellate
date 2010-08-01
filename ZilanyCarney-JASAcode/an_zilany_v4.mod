@@ -11,9 +11,11 @@ ENDVERBATIM
 
 :* anmodel Vector Method - sout.an_zilany_v4( stim , tdres,  cf, spontrate, model, species, ifspike)
 VERBATIM
-#include "../complex.c"
-#include "../zilanycarneyv4.c"
+#include "complex.c"
+#include "resample.c"
 #include "ffGn2.c"
+#include "zilanycarneyv4.c"
+
 
 //sout.an_zilay_v4(stim, tdres,cf,spont,model, species,ifspike,wavefile)
 
