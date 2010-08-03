@@ -23,7 +23,7 @@
 
 #include "complex.h"
 
-#define DEBUG
+
 
 #define MAXSPIKES 1000000
 #ifndef TWOPI
@@ -58,7 +58,7 @@ extern double cochlea_x2f(int , double);
 extern double delay_cat(double , int);
 
     /* Declarations of the functions used in the SingleAN_v4 program */
-double Synapse_v4(double *, double, double, int, int, double, double, double, double *, double,double*);
+double Synapse_v4(double *, double, double, int, int, double, double, double, double *, double);
 int    SpikeGenerator_v4(double *, double, int, int, double *);
 double dbl_exp_adaptation(double cf, double spont);
 double ffGn(double *yffGn, int N, double tdres, double Hinput, double mu, double sigma);
@@ -239,7 +239,33 @@ delay      = delay_cat(cf,species);
 } /* End of the IHCAN function */
 
 
-double SingleAN_v4(double *px, double cf, int nrep, double tdres, int totalstim, double fibertype, double implnt, double *synout, double species,double *r)
+double SingleAN_v4_1(double *px, double cf, int nrep, double tdres, int totalstim, double spont, double implnt, double *synout, double species)
+{
+
+    /*variables for the signal-path, control-path and onward */
+    double *synouttmp;
+    int    i, nspikes, ipst;
+    double nsout;
+    double sampFreq = 10e3; /* Sampling frequency used in the synapse */
+
+    /* Allocate dynamic memory for the temporary variables */
+    synouttmp  = makevector(totalstim * nrep);
+
+    /*====== Run the synapse model ======*/
+    nsout = Synapse_v4(px, tdres, cf, totalstim, nrep, spont, implnt, sampFreq, synouttmp, species);
+
+    /* Wrapping up the unfolded (due to no. of repetitions) Synapse Output */
+    for (i = 0; i < nsout ; i++) {
+        ipst = (int)(fmod(i, totalstim));
+        synout[ipst] = synout[ipst] + synouttmp[i] / nrep;
+    };
+
+    /* Freeing dynamic memory allocated earlier */
+    freevector(synouttmp);
+    return nsout;
+} /* End of the SingleAN function */
+
+double SingleAN_v4(double *px, double cf, int nrep, double tdres, int totalstim, double fibertype, double implnt, double *synout, double species)
 {
 
     /*variables for the signal-path, control-path and onward */
@@ -261,7 +287,7 @@ double SingleAN_v4(double *px, double cf, int nrep, double tdres, int totalstim,
     else if (fibertype == 3){ spont = 100.0;}
 
     /*====== Run the synapse model ======*/
-    I = Synapse_v4(px, tdres, cf, totalstim, nrep, spont, implnt, sampFreq, synouttmp, species,r);
+    I = Synapse_v4(px, tdres, cf, totalstim, nrep, spont, implnt, sampFreq, synouttmp, species);
 
     /* Wrapping up the unfolded (due to no. of repetitions) Synapse Output */
     for (i = 0; i < I ; i++) {
@@ -275,14 +301,17 @@ double SingleAN_v4(double *px, double cf, int nrep, double tdres, int totalstim,
     return I;
 } /* End of the SingleAN function */
 
+
+
 /*-------------------------------------------------------------------------------
   Synapse model: if the time resolution is not small enough, the concentration of
   the immediate pool could be as low as negative, at this time there is an alert
   message print out and the concentration is set at saturated level
  -------------------------------------------------------------------------------*/
-double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nrep, double spont, double implnt, double sampFreq, double *synouttmp, double species,double* rvec)
+double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nrep, double spont, double implnt, double sampFreq, double *synouttmp, double species)
 {
     /* Initalize Variables */
+    double rmean, rstd;
     int z, b, n;
     int resamp = (int) ceil(1 / (tdres * sampFreq)); //sampFreq is not the same as 1/tdres
     double incr = 0.0;
@@ -334,32 +363,40 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
     /*------- Generating a random sequence ---------------------*/
     /*----------------------------------------------------------*/
 #ifdef DEBUG
-    printf("Generating a random sequence\n");
+    printf("Synapse: Generating a random sequence\n");
 #endif
     int Nrand = ((int) ceil((totalstim * nrep + 2 * delaypoint) * tdres * sampFreq));
 
-    randNums = makevector(Nrand); //zero_vector(randNums);
+    randNums = makevector(Nrand*2); zero_vector(randNums,Nrand);
     
-    if (!(ffGn(randNums, Nrand, 1 / sampFreq, 0.9, spont, -1))) {
+#ifdef _FFGN_ 
+
+   if (!(ffGn(randNums, Nrand, 1 / sampFreq, 0.9, spont, -1.0))) {
         hoc_execerror("Synapse: error calling ffGn", 0);
         return 0;
     }
-    double rmean, rstd;
+    printf("Synapse: Completed ffGn\n");
+
     for (indx = 0;indx < Nrand;indx++)  {
-        if (isnan(randNums[i])) return 0;
+      if (isnan(randNums[indx])){
+	printf("Synapse: found NaN  %d\n",indx);
+	return 0;
+      }
         rmean += randNums[indx];
-	rvec[indx] = randNums[indx];
+
     }
     for (indx = 0;indx < Nrand;indx++) rstd += pow((randNums[indx] - rmean), 2);
-    printf("Completed ffGn: mean  %g\t stdev %g\n", rmean, sqrt(rstd / Nrand));
-    
+    printf("Synapse: Completed ffGn: mean  %g\t stdev %g\n", rmean, sqrt(rstd / Nrand));
+
+#endif
 
     /*----------------------------------------------------------*/
     /*----- Double Exponential Adaptation -----(Replacement)----*/
     /*----------------------------------------------------------*/
     cf_factor = dbl_exp_adaptation(cf,spont);
+
 #ifdef DEBUG
-    printf("Generating parameters\n");
+    printf("Synapse: Generating parameters\n");
 #endif
 
     /*----------------------------------------------------------*/
@@ -407,7 +444,7 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
     synslope = Prest / log(2) * synstrength;
 
 #ifdef DEBUG
-    printf("Generating exponOut\n");
+    printf("Synapse: Generating exponOut\n");
 #endif
 
     k = 0;
@@ -428,7 +465,7 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
         k = k + 1;
     }
 #ifdef DEBUG
-    printf("Generating powerLawIn\n");
+    printf("Synapse: Generating powerLawIn\n");
 #endif
 
     for (k = 0; k < delaypoint; k++)
@@ -442,17 +479,16 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
     /*------ Downsampling to sampFreq (Low) sampling rate ------*/
     /*----------------------------------------------------------*/
 #ifdef DEBUG
-    printf("Downsampling to sampFreq (Low) sampling rate\n");
+    printf("Synapse: Downsampling to sampFreq (Low) sampling rate\n");
 #endif
 
-    /* Simple resampling routine from src/ivoc/ivocvect.cpp */
-    /*** OR libresample implementation ***/
+    /* Resampling routine from libresample examples ***/
     int len = 0;
     printf("Synapse: calling resample(%d,NULL,%d,%g)\n", &powerLawIn[0],  k, 1.0 / resamp);
     sampIHC = makevector( (int)((double)k / resamp) );
     len = resample(powerLawIn, sampIHC, k, 1.0/resamp);
     if (len == 0 || (sampIHC == NULL)) {
-        printf("Synapse: ivoc_resample return error, copying powerLawIn\n");
+        printf("Synapse: resample return error, copying powerLawIn\n");
         len = k;
         if (sampIHC) {
             printf("sampIHC address %x", &sampIHC[0]); freevector(sampIHC);
@@ -460,19 +496,14 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
         sampIHC = makevector( (int)(k / resamp) );
         for (indx = 0;indx < (int)(k / resamp);indx++) sampIHC[indx] = powerLawIn[(int)round(indx /resamp)];
     }
-    printf("k %d len %d \t old len %d\n", k, len, floor((totalstim*nrep + 2*delaypoint)*tdres*sampFreq));
-
-
-    //n = (int)(k/resamp);
-    //sampIHC = makevector(n);
-    //n=resample(powerLawIn,sampIHC,k,n);
+    printf("Synapse: resample done, k %d len %d \t old len %d\n", k, len, floor((totalstim*nrep + 2*delaypoint)*tdres*sampFreq));
 
     freevector(powerLawIn); freevector(exponOut);
     /*----------------------------------------------------------*/
     /*----- Running Power-law Adaptation -----------------------*/
     /*----------------------------------------------------------*/
 #ifdef DEBUG
-    printf("Running Power-law Adaptation\n");
+    printf("Synapse: Running Power-law Adaptation\n");
 #endif
 
     k = 0;
@@ -535,7 +566,7 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
     /*----- Upsampling to original (High 100 kHz) sampling rate */
     /*----------------------------------------------------------*/
 #ifdef DEBUG
-    printf("Upsampling to original (High 100 kHz) sampling rate\n");
+    printf("Synapse: Upsampling to original (High 100 kHz) sampling rate\n");
 #endif
 
     for (z = 0; z < k - 1; ++z) {
@@ -566,7 +597,7 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
 int SpikeGenerator_v4(double *synouttmp, double tdres, int totalstim, int nrep, double *sptime)
 {
     double  c0, s0, c1, s1, dead;
-    int     nspikes, k, NoutMax, Nout, deadtimeIndex, randBufIndex;
+    long     nspikes, k, NoutMax, Nout, deadtimeIndex, randBufIndex;
     double deadtimeRnd, endOfLastDeadtime, refracMult0, refracMult1, refracValue0, refracValue1;
     double Xsum, unitRateIntrvl, countTime, DT;
 

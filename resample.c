@@ -85,7 +85,7 @@ int resample(double *source, double *dest, int srclen, double factor)
 
  printf("lresample  3:  len %d \tdest[0] %g\t dest[len] %g src %x dst %x\n",len,dest[0],dest[len-1], &src,&dst);
 
-    if (src!=NULL) free(src); //(char*)
+   if (src!=NULL) free(src); //(char*)
    printf("lresample closed\n");
    if (dst!=NULL) free(dst);
    printf("lresample closed\n");

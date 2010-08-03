@@ -16,7 +16,7 @@ VERBATIM
 
 #include "zilanycarneyv4.c"
 #include "resample.c"
-#include "ffGn_test.c"
+#include "ffGn.c"
 
 
 //sout.an_zilay_v4(stim, tdres,cf,spont,model, species,ifspike,wavefile)
@@ -25,12 +25,12 @@ static double an_zilany_v4(void *vv)
 {
 
    double *stim;      //Input stimulus vector in pascals
-   double *randNums,*ihcout,*sout;   //Output vector containing inst. rate for channel
+   double *ihcout,*sout;   //Output vector containing inst. rate for channel
    double tdres,cf,spont,out;
    double cohc,cihc;
    int species,fibertype,implnt;
    int ifspike;
-   int nstim, nsout,nrand;
+   int nstim, nsout,nihcout;
    int nrep;
    cohc = 1.0;
    cihc = 1.0;
@@ -41,7 +41,7 @@ static double an_zilany_v4(void *vv)
 
 //Get Input arguments
 /*   if(ifarg(9)!=1){  //Must be changed if more input arguments added
-      hoc_execerror("ERROR: input syntax must be sout.an_zilany_v4( stim, tdres,  cf, fibertype,implnt,cihc,cohc, species,nrep)", 0);
+      hoc_execerror("ERROR: input syntax must be sout.an_zilany_v4( stim, tdres,  cf, fibertype,implnt,cihc,cohc, species,nrep,ihcout[optional])", 0);
       return 0;
    }
 */
@@ -98,17 +98,112 @@ static double an_zilany_v4(void *vv)
    //Reps
    nrep = (int)(*getarg(9));
    
-//nrand = vector_arg_px(10, &randNums);
-// ? int totalstim = (int)floor((reptime*1e3)/(tdres*1e3));    
+if(ifarg(10)) {
+  nihcout = vector_arg_px(10, &ihcout);
+  if(nihcout != nstim){
+    printf("ihcout must be the same size as stim, sout\n"); return 0;}
+ } else {
+  ihcout = makevector(nstim);
+ }
 
-   ihcout = makevector(nstim);
    printf("AN model: Zilany, Carney, Bruce, Nelson and others  (version 4 c2010)\n");
    printf("IHCAN(stim,%.0f,%d,%g,%d,%g,%g,ihcout,%d)\n", cf, nrep, tdres, nstim, cohc, cihc, species);
    IHCAN(stim, cf, nrep, tdres, nstim, cohc, cihc, ihcout,species);
    printf("SingleAN(ihcout,%.0f,%d,%g,%d,%d,%d,sout,%d)\n",cf,nrep,tdres,nstim,fibertype,implnt,species);
-   out= SingleAN_v4(ihcout,cf,nrep,tdres,nstim,fibertype,implnt,sout,species,randNums);
+   out= SingleAN_v4(ihcout,cf,nrep,tdres,nstim,fibertype,implnt,sout,species);
 
-   freevector(ihcout);
+   if( !ifarg(10) ) freevector(ihcout);
+   return out; 
+}
+
+static double an_zilany_v4(void *vv)
+{
+
+   double *stim;      //Input stimulus vector in pascals
+   double *ihcout,*sout;   //Output vector containing inst. rate for channel
+   double tdres,cf,spont,out;
+   double cohc,cihc;
+   int species,implnt;
+   int ifspike;
+   int nstim, nsout,nihcout;
+   int nrep;
+   cohc = 1.0;
+   cihc = 1.0;
+
+//Get Instance Sout vector for synapse data
+   nstim = vector_instance_px(vv, &sout);
+   nsout = vector_arg_px(1, &stim);
+
+//Get Input arguments
+/*   if(ifarg(9)!=1){  //Must be changed if more input arguments added
+      hoc_execerror("ERROR: input syntax must be sout.an_zilany_v4( stim, tdres,  cf, fibertype,implnt,cihc,cohc, species,nrep,ihcout[optional])", 0);
+      return 0;
+   }
+*/
+ //TDRES  resolution of stim vector
+   //Bruce model uses seconds rather than msec
+   tdres = (double)(*getarg(2));
+   if (tdres > 0.01e-3 || tdres < 0.002e-3){
+      //printf("Note: ZilanyBruceV4 resolution should be between 0.01ms (Fs = 100kHz) and 0.002ms (500kHz) for normal usage.\n");
+      //tdres = 0.002e-3;
+   }
+   //CF of fiber
+   cf = (double)(*getarg(3));
+
+   if ((cf<80)||(cf>70e3))
+   {
+      hoc_execerror("ERROR: cf must be between 80 Hz and 70 kHz\n",0);
+      return 0;
+   }
+   //Spontaneous rate of ANF
+   spont = (double)(*getarg(4));
+   
+   //implnt new variable in version 4
+   implnt = (long)(*getarg(5));
+   if ((implnt<0)||(implnt>1))
+   {
+      printf("an_zbcatmodel: implnt  must be 0 (actual) or 1 (approx)\n");
+      implnt=1;
+   }
+   
+   //Model
+   cihc = (double)(*getarg(6));
+   if ((cihc<0)||(cihc>1))
+   {
+      printf("an_zilany_v4: cihc  must be between 0 and 1\n");
+      cihc=1;
+   }
+   cohc = (double)(*getarg(7));
+   if ((cohc<0)||(cohc>1))
+   {
+      printf("an_zilany_v4: cohc  must be between 0 and 1\n");
+      cohc=1;
+   }
+
+   //Species
+   species = (int)(*getarg(8));
+   if (species != 1){
+     hoc_execerror("an_zilany_v4: species other than cat (1) are not implemented",0);
+     return 0;
+   }
+   //Reps
+   nrep = (int)(*getarg(9));
+   
+if(ifarg(10)) {
+  nihcout = vector_arg_px(10, &ihcout);
+  if(nihcout != nstim){
+    printf("ihcout must be the same size as stim, sout\n"); return 0;}
+ } else {
+  ihcout = makevector(nstim);
+ }
+
+   printf("AN model: Zilany, Carney, Bruce, Nelson and others  (version 4 c2010)\n");
+   printf("IHCAN(stim,%.0f,%d,%g,%d,%g,%g,ihcout,%d)\n", cf, nrep, tdres, nstim, cohc, cihc, species);
+   IHCAN(stim, cf, nrep, tdres, nstim, cohc, cihc, ihcout,species);
+   printf("SingleAN(ihcout,%.0f,%d,%g,%d,%d,%d,sout,%d)\n",cf,nrep,tdres,nstim,spont,implnt,species);
+   out= SingleAN_v4_1(ihcout,cf,nrep,tdres,nstim,spont,implnt,sout,species);
+
+   if( !ifarg(10) ) freevector(ihcout);
    return out; 
 }
 
@@ -187,7 +282,7 @@ void** xx;
    double tdres,cf,out;
    double xspikes;
    int species,fibertype,implnt;
-   int ifspike;
+   int ifspike = 0;
    int nihcout,nspikes, nsout;
    int nrep,i;
    out=0;
@@ -197,8 +292,8 @@ void** xx;
    nihcout = vector_arg_px(1, &ihcout);
 
 //Get Input arguments
-   if(ifarg(9)!=1  || ifarg(7)!=1){  //Must be changed if more input arguments added
-      hoc_execerror("ERROR: input syntax must be sout.syn_zilany_v4( ihcout, tdres,  cf, fibertype,implnt,cihc,cohc, species,nrep)\n or  spks.syn_zilany_v4( ihcout, tdres,  cf, fibertype,implnt,cihc,cohc, species,nrep,ifspike,spks)", 0);
+   if(ifarg(8)!=1  || ifarg(7)!=1){  //Must be changed if more input arguments added
+      hoc_execerror("ERROR: input syntax must be sout.syn_zilany_v4( ihcout, tdres,  cf, fibertype,implnt,cihc,cohc, species,nrep)\n or  sout.syn_zilany_v4( ihcout, tdres,  cf, fibertype,implnt,cihc,cohc, species,nrep,spks)", 0);
       return 0;
    }
    //TDRES  resolution of stim vector
@@ -217,14 +312,14 @@ void** xx;
       return 0;
    }
    //Spontaneous rate of ANF
-   fibertype = (long)(*getarg(4));
+   fibertype = (int)(*getarg(4));
    if ((fibertype<=0)||(fibertype>3))
    {
       printf("an_zilany_v4: fibertype  must be 1, 2, or 3 \n Default fibertype = 3 (HSR)");
       fibertype=3;
    }
    //New variable in version 4
-   implnt = (long)(*getarg(5));
+   implnt = (int)(*getarg(5));
    if ((implnt<0)||(implnt>1))
    {
       printf("an_zbcatmodel: implnt  must be 0 (actual) or 1 (approx)\n");
@@ -241,22 +336,23 @@ void** xx;
    nrep = (int)(*getarg(7));
 
    if(ifarg(8)) {
-       ifspike =  (int)(*getarg(8));
+     ifspike = 1;
    
        xx = (void**)(&xspikes);
        *xx = (void*)0;
        if (ifarg(9)) {
-	 *xx = vector_arg(9);
+	 *xx = vector_arg(8);
        }
        spks = *((void**)(&xspikes));
        if (spks) 
 	 vector_resize(spks,0);
-     }
+
+   }
 
 
    printf("AN model: Zilany, Carney, Bruce, Nelson and others  (version 4 c2010)\n");
    printf("SingleAN(ihcout,%.0f,%d,%g,%d,%d,%d,sout,%d)\n",cf,nrep,tdres,nihcout,fibertype,implnt,sout,species);
-   //   out= SingleAN_v4(ihcout,cf,nrep,tdres,nihcout,fibertype,implnt,sout,species);
+    out= SingleAN_v4(ihcout,cf,nrep,tdres,nihcout,fibertype,implnt,sout,species);
 
 
     /*======  Spike Generations ======*/
@@ -448,8 +544,8 @@ static double fast_fGn(void *vv)
 
     ptr_ffGn = *((void**)(&xspikes));
     if(ptr_ffGn){
-      //vector_resize(ptr_ffGn, nsizemax);
-      vector_resize(ptr_ffGn, 32000);
+      vector_resize(ptr_ffGn, nsizemax);
+      //      vector_resize(ptr_ffGn, 32000);
     }
     vec_ffGn = ((double*) vector_vec(ptr_ffGn));      //Get array ptr to ptr_ffGn Vector
     printf("fast_fGn: calling ffGn(&%x,%d,%g,%g,%g,%g)\n",&vec_ffGn,nsizemax,tdres,Hinput,mu,sigma);

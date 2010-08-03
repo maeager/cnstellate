@@ -75,12 +75,37 @@ thresh=-20
 
 objref stimgr, b1,  gr
 /*graph variables*/
-objref  ANFBgr, b2, Sout[nchannels]
+objref  ihcgr,soutgr, b2, Sout[nchannels]
 changescale=1
 scale = 60
 
+//LoadVowel(80)	
+//quit()
+
+  /* Zilany, Bruce, Nelson, Carney Parameters */
+ spl=10
+  ANmodel	= 7		//Zilany EtAl Cat model v4
+  species	= 1		//Cat
+  srate 	= 100000      // 500k is no longer needed
+  stimtdres 	= 1/srate
+  stimtype 	= 1
+	dutycycle 	= 1		//quiet duration = dutycycle*dur
+	ramplngth 	= 0.005
+
+  sg_rate 	= 100000		
+  sg_tdres 	= 1/sg_rate
+  fibertype = HighSponFibre
+  implnt =   ZilanyApprox
+
+    RefreshParameters()	//Generate or get stim from file
+//    ANFilterBankRun()	//Build the filterbank
+
+  objref ghsr,rr,grr
+  rr = new Vector(stim.size)
+
+
 proc ShowInputGraphs() {
-   objref stimgr, b1,  gr
+  objref ihcgr,soutgr,stimgr, b1,  gr
    /*graph variables*/
    objref  ANFBgr, b2, Sout[nchannels]
 
@@ -97,50 +122,34 @@ proc ShowInputGraphs() {
    //b1.intercept(0)
    //b1.map("Stimulus waveform",360, 0, 650.7, 193.5)
 
+   ihcgr = new Graph(0)
+   ihcgr.size(0,0.05,0,180000)
+   ihcgr.view(0, 0, 0.05, 180000, 308, 345, 685, 365)
+   ihcgr.label(0.92,0.90, "CF")
+   ihcgr.label(0.1,0.95,"Auditory Filterbank Instantaneous Rate Profiles")
+
+   if(object_id(HSRout[0])) HSRout[0].plot(ihcgr,sg_tdres, 1, 0)
+   //system("date")
+   ihcgr.exec_menu("View = plot")
    /**** Set up AN filterbank graph ***/
    //b1.intercept(1)
-   ANFBgr = new Graph(0)
-   ANFBgr.size(0,0.05,0,180000)
-   ANFBgr.view(0, 0, 0.05, 180000, 308, 345, 685, 365)
-   ANFBgr.label(0.92,0.90, "CF")
-   ANFBgr.label(0.1,0.95,"Auditory Filterbank Instantaneous Rate Profiles")
-/*   for icf = 0, nchannels-1 {
-      Sout[icf] = HSRout[icf].c
-      Sout[icf].mul(2).add(100*icf)
-      Sout[icf].plot(ANFBgr,sg_tdres, 1, 0)
-      sprint(lbl, "%g ", cf.x[icf])
-      ANFBgr.label(0.92, 0.810*(icf/(nchannels-1))+0.075, lbl)
-   }
-*/
-      HSRout[67].plot(ANFBgr,sg_tdres, 1, 0)
+   soutgr = new Graph(0)
+   soutgr.size(0,0.05,0,180000)
+   soutgr.view(0, 0, 0.05, 180000, 308, 345, 685, 365)
+   soutgr.label(0.92,0.90, "CF")
+   soutgr.label(0.1,0.95,"Auditory Filterbank Instantaneous Rate Profiles")
+
+   if(object_id(HSRout[67])) HSRout[67].plot(soutgr,sg_tdres, 1, 0)
    //system("date")
-   ANFBgr.exec_menu("View = plot")
-   b1.intercept(0)
+   soutgr.exec_menu("View = plot")
+   
+b1.intercept(0)
    b1.map("Stimulus and Auditory Filterbank",308, 345, 685, 365)
 
 
 }//Dummy Graphs
 
-//LoadVowel(80)	
-//quit()
 
-  /* Zilany, Bruce, Nelson, Carney Parameters */
- spl=10
-  ANmodel	= 7		//Zilany EtAl Cat model v4
-  species	= 1		//Cat
-  srate 	= 100000      // 500k is no longer needed
-  stimtdres 	= 1/srate
-  stimtype 	= 1
-  sg_rate 	= 100000		
-  sg_tdres 	= 1/sg_rate
-  fibertype = HighSponFibre
-  implnt =   ZilanyApprox
-
-    RefreshParameters()	//Generate or get stim from file
-//    ANFilterBankRun()	//Build the filterbank
-
-  objref ghsr,rr,grr
-  rr = new Vector(stim.size)
 
 proc plotrand(){
 grr = new Graph()
@@ -152,16 +161,24 @@ grr.exec_menu("View = plot")
 
 proc runzilany(){
 HSRout[67] = new Vector(stim.size)
-HSRout[67].an_zilany_v4(stim, stimtdres, 10000, fibertype,implnt,1,1,1, 1,rr)
+HSRout[67].an_zilany_v4(stim, stimtdres, 10000, fibertype,implnt,1,1,1, 1)
 ShowInputGraphs()
 }
 
 proc runzilany2(){
-HSRout[67] = new Vector(stim.size)
-HSRout[67].ihc_zilany_v4(stim, stimtdres, 10000,1,1,1,1)
+HSRout[0] = new Vector(stim.size)
+HSRout[0].ihc_zilany_v4(stim, stimtdres, 10000,1,1,1,1)
 ShowInputGraphs()
 }
 
 
 
-runzilany()
+runzilany2()
+
+
+proc runzilany3(){
+HSRout[0] = new Vector(stim.size)
+HSRout[67] = new Vector(stim.size)
+HSRout[67].an_zilany_v4(stim, stimtdres, 10000, fibertype,implnt,1,1,1,1,HSRout[0])
+ShowInputGraphs()
+}

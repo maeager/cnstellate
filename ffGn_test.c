@@ -266,14 +266,14 @@ int rFFT(int inv,double *v1,double *v2,double *v3,int Nsize)
     // shuffle o3 and o4 into o2
     //n = v2.size()
     n = Nsize/2 + 1 ;
-    for (i=0; i<=n-1; i+=1) v1[i] = v3[i]; //v1=v3
-    for (i=0, j=0; i<=n-2; i+=1, j+=2) v3[j] = v2[i]; //v1.copy(v2, 0, 0, n-2, 2, 1)
-    v3[1] = v2[n-1];
-    for (i=1, j=3; i<=n-1; i+=1, j+=2) v3[j] = v1[i]; //v1.copy(v3, 3, 1, n-2, 2, 1)
-    v3[0] *= 2;
-    v3[1] *= 2; 
+    for (i=0; i<=Nsize-1; i+=1) v1[i] = v3[i]; //v1=v3
+    for (i=0, j=0; i<=Nsize-2; i+=1, j+=2) v3[j] = v2[i]; //v1.copy(v2, 0, 0, n-2, 2, 1)
+    v3[1] = v2[Nsize-1];
+    for (i=1, j=3; i<=Nsize-1; i+=1, j+=2) v3[j] = v1[i]; //v1.copy(v3, 3, 1, n-2, 2, 1)
+    //    v3[0] *= 2;
+    //v3[1] *= 2; 
 
-    n = ivoc_fft(v1,v3,Nsize,n, -1);
+    n = ivoc_fft(v1,v3,Nsize,n,-1);
     printf("\tFFT: done (%d,%x,%x,%x,%d)\n",inv,&v1[0],&v2[0],&v3[0],Nsize);
     return n;
   }
@@ -309,6 +309,7 @@ double ffGn(double *yffGn,int N, double tdres, double Hinput, double mu, double 
  double *Ztemp=NULL,*Z_real=NULL,*Z_im=NULL;
   /*---- Check input arguments ---------- */
  Nfft=N;
+       double Zmean= 0.75861280038226286404068332558381371200084686279296875;
  
  if (N <= 0){
     hoc_execerror("Length of the return vector must be positive.",0);
@@ -426,9 +427,9 @@ double ffGn(double *yffGn,int N, double tdres, double Hinput, double mu, double 
        /* Z_real[i] = randn() * Zmag[i];   */
        /* Z_im[i] =  randn() * Zmag[i];	  */
 #ifdef DEBUG 
-       Z_real[i] = Zmag[i];
-       Z_im[i] = -Zmag[i];
-       printf("Z[%d]  %g + i %g\t Zmag %g\n",i,Z_real[i],Z_im[i],Zmag[i]); 
+       Z_real[i] = Zmag[i] - Zmean;
+       Z_im[i] = -Zmag[i] + Zmean;
+       printf("Z[%d]  %.15g + i %.15g\t Zmag %g\n",i,Z_real[i],Z_im[i],Zmag[i]); 
 #endif 
      }
 
@@ -436,7 +437,7 @@ double ffGn(double *yffGn,int N, double tdres, double Hinput, double mu, double 
      zero_vector(Ztemp,Nfft*2);
     // Inverse FFT
 //    rFFT(-1,Ztemp,Z_real,Z_im, Nfft);      
-     /*TEST*/    FFT(1,Z_real,Ztemp,Z_im,Nfft);      
+     /*TEST*/    FFT(-1,Ztemp,Z_real,Z_im,Nfft);      
     y = makevector(NfftHalf); 
     for(i=0;i<NfftHalf;i++)
       y[i] =  (Ztemp[i]) * sqrt(Nfft)  / 2.0;
@@ -448,14 +449,14 @@ double ffGn(double *yffGn,int N, double tdres, double Hinput, double mu, double 
 #endif    
 
      zero_vector(Ztemp,Nfft*2);
-     zero_vector(Z_im,Nfft);for (i = 0; i < Nfft; ++i)  Z_im[i] = -Zmag[i]/(i+1);
+     zero_vector(Z_im,Nfft);for (i = 0; i < Nfft; ++i)  Z_im[i] = Zmean-Zmag[i];
      FFT(1,Z_real,Ztemp,Z_im,Nfft);      
-    for(i=0;i<(Nfft*2);i++) printf("FFT(1) %g %g %g\n",Ztemp[i],Z_real[i],Z_im[i]);
+    for(i=0;i<(Nfft*2);i++) printf("FFT(1) %.15g %g %g\n",Ztemp[i]*2.0,Z_real[i],Z_im[i]);
 
      zero_vector(Ztemp,Nfft*2);
-     zero_vector(Z_im,Nfft);for (i = 0; i < Nfft; ++i){Z_real[i] = Zmag[i];  Z_im[i] = -Zmag[i]/(i+1);}
+     zero_vector(Z_im,Nfft);for (i = 0; i < Nfft; ++i){Z_real[i] = Zmag[i]-Zmean;  Z_im[i] = Zmean-Zmag[i];}
      rFFT(-1,Ztemp,Z_real,Z_im,Nfft);      
-    for(i=0;i<(Nfft*2);i++) printf("rFFT(-1) %g %g %g\n",Ztemp[i],Z_real[i],Z_im[i]);
+    for(i=0;i<(Nfft*2);i++) printf("rFFT(-1) %.15g %g %g\n",Ztemp[i],Z_real[i],Z_im[i]);
 
     y = makevector(Nfft); 
     for(i=0;i<Nfft;i++)
@@ -469,10 +470,11 @@ double ffGn(double *yffGn,int N, double tdres, double Hinput, double mu, double 
 
 
   //  Convert the fGn to fBn, if necessary.
-  // if (fBn){ for (i=1;i<N;i++) y[i] = y[i]+y[i-1]; }
+  if (fBn){ for (i=1;i<N;i++) y[i] = y[i]+y[i-1]; }
   ytmp = makevector((int)(NfftHalf*resamp));  
   printf("ffGn: Resampling %d\t%d\t%d\n",resamp,N,nop);
   resample(y,ytmp,NfftHalf,resamp);  //  Resampling to match with the AN model, 
+  printf("\tffGn: Resampling done\n");
   //N= size of y
 
 //  define standard deviation
@@ -489,23 +491,26 @@ double ffGn(double *yffGn,int N, double tdres, double Hinput, double mu, double 
       }
     }
 
+#ifdef DEBUG
+    printf("\tffGn: sigma %g",sigma);
+#endif    
   
     //  for (i=0;i<nop;i++)
-      for (i=0;i<NfftHalf*resamp;i++)
+
+      for (i=0;i<nop;i++)
 	yffGn[i] = ytmp[i]*sigma;
+
 #ifdef DEBUG
   printf("\tffGn: Freeing vectors");
 #endif    
 
 
-
-  if(y) freevector(y); 
-  if(ytmp) freevector(ytmp);
-
-    if(Ztemp) freevector(Ztemp);
-    if(Z_im) freevector(Z_im);
-    if(Z_real) freevector(Z_real);
-    if(Zmag) freevector(Zmag);
-    
-  return nop;
+  /*
+ freevector(y); freevector(ytmp);
+ freevector(Ztemp);
+ freevector(Z_im);
+ freevector(Z_real);
+ freevector(Zmag);
+  */
+ return (double) nop;
 }

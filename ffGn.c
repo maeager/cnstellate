@@ -306,7 +306,7 @@ double ffGn(double *yffGn,int N, double tdres, double Hinput, double mu, double 
   int Nfft=0;
  int i,n,nsize,nop,resamp,k;	
  double H,fBn,NfftHalf;
- double *y,*ytmp;
+ double *y=NULL,*ytmp=NULL;
  double *Ztemp=NULL,*Z_real=NULL,*Z_im=NULL;
   /*---- Check input arguments ---------- */
  Nfft=N;
@@ -437,14 +437,14 @@ double ffGn(double *yffGn,int N, double tdres, double Hinput, double mu, double 
      zero_vector(Ztemp,Nfft*2);
     // Inverse FFT
 //    rFFT(-1,Ztemp,Z_real,Z_im, Nfft);      
-     /*TEST*/    
-    FFT(-1,Ztemp,Z_real,Z_im,Nfft);      
-    for(i=0;i<(Nfft*2);i++) printf("FFT(-1) %g %g %g\n",Ztemp[i],Z_real[i],Z_im[i]);
+
+     FFT(1,Z_real,Ztemp,Z_im,Nfft);      
+    for(i=0;i<(Nfft*2);i++) printf("Inverse FFT(1) %g %g %g\n",Ztemp[i],Z_real[i],Z_im[i]);
 
     y = makevector(N); 
     for(i=0;i<N;i++)
       y[i] =  (Ztemp[i]) * sqrt(Nfft)  / 2.0;
-    y[0]*=2.0;
+        y[0]*=2.0;
     for(i=0;i<Nfft;i++) printf("y %.15g\n",y[i]);
 
    //	y((N+1):end) = [];
@@ -452,8 +452,15 @@ double ffGn(double *yffGn,int N, double tdres, double Hinput, double mu, double 
 
 
   //  Convert the fGn to fBn, if necessary.
-  // if (fBn){ for (i=1;i<N;i++) y[i] = y[i]+y[i-1]; }
+  if (fBn){ for (i=1;i<N;i++) y[i] = y[i]+y[i-1]; }
+  
+
+
   ytmp = makevector((int)(N*resamp));  
+
+#ifdef DEBUG
+  for (i=1;i<N;i++) printf("\ty %.15g\n",y[i]);
+#endif
   printf("ffGn: Resampling %d\t%d\t%d\n",resamp,N,nop);
   resample(y,ytmp,N,resamp);  //  Resampling to match with the AN model, 
   //N= size of y
@@ -478,18 +485,20 @@ double ffGn(double *yffGn,int N, double tdres, double Hinput, double mu, double 
 
 
 #ifdef DEBUG
-    printf("\tffGn: Freeing vectors\n");
+    printf("\tffGn: Freeing vectors");
 #endif    
 
+    if(y){ freevector(y);     printf("\tFreeing y"); }
+    if(ytmp){ freevector(ytmp); printf("\tFreeing ytmp"); }
+    if(Ztemp){ freevector(Ztemp); printf("\tFreeing Ztemp"); }
+    if(Z_im) {freevector(Z_im); printf("\tFreeing Z_im"); }
+    if(Z_real){ freevector(Z_real); printf("\tFreeing Z_real"); }
+    if(Zmag) {freevector(Zmag); printf("\tFreeing Zmag"); }
 
+#ifdef DEBUG
+    printf("\tffGn: done\n");
+#endif    
 
-    if(y) freevector(y); 
-    if(ytmp) freevector(ytmp);
-
-    if(Ztemp) freevector(Ztemp);
-    if(Z_im) freevector(Z_im);
-    if(Z_real) freevector(Z_real);
-    if(Zmag) freevector(Zmag);
     
   return nop;
 }
