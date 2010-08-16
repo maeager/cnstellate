@@ -327,7 +327,6 @@ g[2] = new Graph()
 ff = new Vector(13)
 ff2 = new Vector()
 ff.indgen()
-
 ff.rtresample(ff2,1000)
 ff2.plot(g[2])
 g[2].exec_menu("View = plot")

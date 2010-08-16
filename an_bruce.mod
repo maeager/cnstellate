@@ -142,7 +142,7 @@ double   c0,c1,s0,s1,abs_refr,tdres,stimdur;
 
 
 // Create output buffer for spike times;
-   NspksMax = (int)(meanRate * stimdur * nrep)+1;
+   NspksMax = (int)(meanRate * stimdur * nrep / 1000)+1;
    //printf("NspksMax = %d\n", NspksMax);
    if (NspksMax < 10)  NspksMax = 10;
 
@@ -155,7 +155,7 @@ double   c0,c1,s0,s1,abs_refr,tdres,stimdur;
       vector_resize(spks, NspksMax);
    }
    spktimes = ((double*) vector_vec(spks));      //Get array ptr to spks Vector
-   //printf("Spike Generator: NspksMax %d\t capacity %d\n", NspksMax,vector_capacity(spks));
+   printf("Spike Generator: NspksMax %d\n", NspksMax);
 
    Nspks = 0;
 

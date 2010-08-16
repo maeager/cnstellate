@@ -50,7 +50,6 @@
 #define __min(a,b) (((a) < (b))? (a): (b))
 #endif
 
-
 /* Declarations of the functions used in the program */
 double C1ChirpFilt(double, double, double, int, double, double);
 double C2ChirpFilt(double, double, double, int, double, double);
@@ -65,13 +64,13 @@ double Boltzman(double, double, double, double, double);
 double NLafterohc(double, double, double, double);
 double ControlSignal(double, double, double, double, double);
 double NLogarithm(double, double, double);
-double Synapse(double, double, double, double, int);
-//int    SpikeGenerator(double *, double, int, double, double *);
-
 
 double cochlea_f2x(int , double);
 double cochlea_x2f(int , double);
 double delay_cat(double , int);
+
+double Synapse(double, double, double, double, int);
+//int    SpikeGenerator(double *, double, int, double, double *);
 
 
 int an_zilanybruce2007(double binwidth, double cf, double spont, double cihc, double cohc, int species, int nrep, double *px, double *synout, int totalstim)
@@ -402,7 +401,7 @@ double cochlea_x2f(int species, double x)
     double f;
     switch (species) {
     case 0: /* human */
-       if((x>35)||(x<0)) error("BM distance out of human range, [in cochlea_x2f(...)]"); 
+      if((x>35)||(x<0)) hoc_execerror("BM distance out of human range, [in cochlea_x2f(...)]",0); 
         f = 165.4 * (pow(10, (0.06 * x)) - 0.88);
         break;
     case 2: //rat

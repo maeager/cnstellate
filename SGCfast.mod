@@ -16,6 +16,11 @@ extern int vector_capacity();
 extern void* vector_arg();
 
 extern void vector_resize();
+
+#ifndef __max
+#define __max(a,b) (((a) > (b))? (a): (b))
+#endif
+
 #define USE_RANDOM_VECTOR 0
 int nstim;
 ENDVERBATIM
@@ -49,7 +54,7 @@ ASSIGNED {
    spkindex
    eventtime (ms)
    ratein
-   spiketimes
+   spiketimesAddress
 
 }
 
@@ -83,7 +88,7 @@ VERBATIM
    i = (int)spkindex;
    trigger =0;
    if (i >= 0) {
-      vv = *((void**)(&spiketimes));
+      vv = *((void**)(&spiketimesAddress));
       if (vv) {
          size = (int)spikecount;
          spksout = vector_vec(vv);
@@ -117,7 +122,7 @@ VERBATIM
    double max;
    extern void* vector_arg();
    max = 0;
-//   printf("Setting Fibre Rate %g  \n",  &spiketimes);
+//   printf("Setting Fibre Rate %g  \n",  &spiketimesAddress);
    if (ifarg(3)) {
 
       vv = (void**)(&ratein);
@@ -132,7 +137,7 @@ VERBATIM
       maxsout = max;
 
    */
-      vv = (void**)(&spiketimes);
+      vv = (void**)(&spiketimesAddress);
       *vv = (void*)0;
       *vv = vector_arg(2);
       stimtdres = *getarg(3);
@@ -151,7 +156,7 @@ PROCEDURE SetSpikes()
 VERBATIM
 
    void** vv;
-   vv = (void**)(&spiketimes);
+   vv = (void**)(&spiketimesAddress);
    *vv = (void*)0;
    if (ifarg(1)) {
       *vv = vector_arg(1);
@@ -182,7 +187,7 @@ VERBATIM
 
 //   printf("In SpkGen : \n");
    spks  = NULL;
-   spks = *((void**)(&spiketimes));     //void pointer to spiketimes vector
+   spks = *((void**)(&spiketimesAddress));     //void pointer to spiketimesAddress vector
    vector_resize(spks, 0);         //delete all previous spikes
    stimdur  = nstim*stimtdres*1000;
    nout = 0;
@@ -286,7 +291,7 @@ long      deadtimeIndex;
 
 //Get "Spks" vector object
    spks  = NULL;
-   spks = *((void**)(&spiketimes));     //void pointer to spiketimes vector
+   spks = *((void**)(&spiketimesAddress));     //void pointer to spiketimes vector
    vector_resize(spks, 0);         //delete all previous spikes
 
 // Get the "rate" vector object
@@ -437,6 +442,131 @@ for (; (Nout>0)&&(spktimes[Nout-1]>stimdur); )  --Nout;
 #if USE_RANDOM_VECTOR
 freevector(randNums);
 #endif
+
+//printf("Total spikes = %d\n", Nout);
+vector_resize(spks, Nout);
+spikecount=Nout;
+return Nout;
+ENDVERBATIM
+
+}
+
+
+
+PROCEDURE SGfast2()
+{
+VERBATIM
+/* Pass the output of Synapse model through the Spike Generator 
+   The spike generator now uses a method coded up by B. Scott Jackson
+   (bsj22@cornell.edu) Scott's original code is available from Laurel
+   Carney's web site at:
+   http://www.urmc.rochester.edu/smd/Nanat/faculty-research/lab-pages/LaurelCarney/auditory-models.cfm
+*/
+
+ void *spks, *vrate;
+ long NoutMax, i;
+ double   *rate,  deadtime,tdres,totalstim;
+ int      j, k, numRate, nrep;
+
+ long     nspikes, Nout, deadtimeIndex, randBufIndex;
+ double deadtimeRnd, endOfLastDeadtime, refracMult0, refracMult1, refracValue0, refracValue1;
+ double Xsum, unitRateIntrvl, countTime, DT;
+
+ double *randNums,*spktimes;
+
+
+//Get "Spks" vector object
+   spks  = NULL;
+   spks = *((void**)(&spiketimesAddress));     //void pointer to spike times vector
+   vector_resize(spks, 0);         //delete all previous spikes
+
+// Get the "rate" vector object
+   vrate = *((void**)(&ratein));       //Set vrate to ratein Vector
+   rate = vector_vec(vrate);      //Get array ptr
+   if (rate == NULL || spks == NULL ) hoc_execerror("SGfast2: Unable to locate Rate or Spks",0);
+
+//Get number of Reps
+   if (ifarg(1)){
+     nrep = (int) (*getarg(1));
+   }else nrep = 1; 
+
+// Get module parameters
+   deadtime = abs_refr;
+   numRate = nstim;
+   stimdur = nstim*stimtdres*1000;
+   spikecount    = 0;
+   tdres = stimtdres;
+   totalstim=nstim;
+    
+    DT = totalstim * tdres * nrep;  /* Total duration of the rate function */
+    Nout = 0;
+    NoutMax = (long) ceil(DT / deadtime);
+    randNums = makevector(NoutMax + 10);
+
+    vector_resize(spks,NoutMax + nrep);
+    spktimes = vector_vec(spks);      //set spiketimes ptr to resized vector
+
+    for (k=0;k<=NoutMax;k++) randNums[k] = scop_random();  //replace MATLAB call rand(1,N)
+    randBufIndex = 0;
+
+    /* Calculate useful constants */
+    deadtimeIndex = (long) floor(deadtime / tdres);  /* Integer number of discrete time bins within deadtime */
+    deadtimeRnd = deadtimeIndex * tdres;   /* Deadtime rounded down to length of an integer number of discrete time bins */
+
+    refracMult0 = 1 - tdres / s0;  /* If y0(t) = c0*exp(-t/s0), then y0(t+tdres) = y0(t)*refracMult0 */
+    refracMult1 = 1 - tdres / s1;  /* If y1(t) = c1*exp(-t/s1), then y1(t+tdres) = y1(t)*refracMult1 */
+
+    /* Calculate effects of a random spike before t=0 on refractoriness and the time-warping sum at t=0 */
+    endOfLastDeadtime = __max(0, log(randNums[randBufIndex++]) / rate[0] + deadtime); /* End of last deadtime before t=0 */
+    refracValue0 = c0 * exp(endOfLastDeadtime / s0); /* Value of first exponential in refractory function */
+    refracValue1 = c1 * exp(endOfLastDeadtime / s1); /* Value of second exponential in refractory function */
+    Xsum = rate[0] * (-endOfLastDeadtime + c0 * s0 * (exp(endOfLastDeadtime / s0) - 1) + c1 * s1 * (exp(endOfLastDeadtime / s1) - 1));
+    /* Value of time-warping sum */
+    /*  ^^^^ This is the "integral" of the refractory function ^^^^ (normalized by 'tdres') */
+
+    /* Calculate first interspike interval in a homogeneous, unit-rate Poisson process (normalized by 'tdres') */
+    unitRateIntrvl = -log(randNums[randBufIndex++]) / tdres;
+    /* NOTE: Both 'unitRateInterval' and 'Xsum' are divided (or normalized) by 'tdres' in order to reduce calculation time.
+       This way we only need to divide by 'tdres' once per spike (when calculating 'unitRateInterval'), instead of
+       multiplying by 'tdres' once per time bin (when calculating the new value of 'Xsum').                         */
+    countTime = tdres;
+
+    // printf(" c0 %g\ts0 %g\tc1 %g\ts1 %g\tdead %g\n",c0, s0, c1, s1, deadtime);
+    // printf(" nspikes %ld\tk %ld\tNoutMax %ld\tNout %ld\tdeadtimeIndex %ld\trandBufIndex %ld\n", nspikes, k, NoutMax, Nout, deadtimeIndex, randBufIndex);
+    // printf("deadtimeRnd %g\tendOfLastDeadtime %g\trefracMult0 %g\trefracMult1 %g\trefracValue0 %g\trefracValue1 %g\n", deadtimeRnd, endOfLastDeadtime, refracMult0, refracMult1, refracValue0, refracValue1);
+    // printf("Xsum %g\tunitRateIntrvl %g\tcountTime %g\tDT %g\n",Xsum, unitRateIntrvl, countTime, DT);
+
+    for (j=0;j<nrep;j++){
+      for (k = 0; (k < totalstim) && (countTime < DT); ++k, countTime += tdres, refracValue0 *= refracMult0, refracValue1 *= refracMult1) { /* Loop through rate vector */
+        if (rate[k] > 0) { /* Nothing to do for non-positive rates, i.e. Xsum += 0 for non-positive rates. */
+	  Xsum += rate[k] * (1 - refracValue0 - refracValue1);  /* Add synout*(refractory value) to time-warping sum */
+
+	  if (Xsum >= unitRateIntrvl) {  /* Spike occurs when time-warping sum exceeds interspike "time" in unit-rate process */
+	    spktimes[Nout] = countTime*1000.0;
+	    Nout = Nout + 1;
+	    unitRateIntrvl = -log(randNums[randBufIndex++]) / tdres;
+	    Xsum = 0;
+
+	    /* Increase index and time to the last time bin in the deadtime, and reset (relative) refractory function */
+	    k += deadtimeIndex;
+	    countTime += deadtimeRnd;
+	    refracValue0 = c0;
+	    refracValue1 = c1;
+	  }
+        }
+      } /* End of rate vector loop */
+	countTime = tdres;
+	spktimes[Nout++] = 0.0;
+    }
+
+
+    freevector(randNums);
+
+    
+    
+//printf("Total spikes before = %d\n", Nout);
+// Delete spike(s) that occur after the last repetition of the rate function ends
+//for (; (Nout>0)&&(spktimes[Nout-1]>stimdur); )  --Nout;
 
 //printf("Total spikes = %d\n", Nout);
 vector_resize(spks, Nout);

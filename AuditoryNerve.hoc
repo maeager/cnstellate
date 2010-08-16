@@ -64,9 +64,11 @@ for j=0,HSRsperchannel-1 {
 for j=0,LSRsperchannel-1 {
         LSR[i][j].SGfast(1)
     }
-    }
+}
 
 }
+
+
 
 proc PrintSpikes() {local i,j
 
@@ -129,10 +131,58 @@ proc GenSpikes2(){local i,j,k
       for j=0,LSRsperchannel-1 {
        LSR[i][j].SetSpikes(LSRspiketimes[i][j])
    }
+   
+   
+}
+}
+proc GenSpikes4(){local i,j,k
+
+
+  for i=0,nchannels-1  {
+   spikes = new Vector()
+   HSRout[i].ANFSpikeGenerator(spikes,HSRsperchannel,sg_tdres)
+   tobj = new Vector()
+   //tobj.append(spikes.get(k))
+   j=0
+   for(k=1;k < spikes.size();k+=1){
+      if (spikes.get(k) != 0 ){
+         tobj.append(spikes.get(k))
+      } else {
+      //tobj.printf
+      HSRspiketimes[i][j] = tobj.c
+      j+=1
+      tobj = new Vector()
+      }
+   }
+   HSRspiketimes[i][j] = tobj.c
+   print "HSR ", i, j
+       for j=0,HSRsperchannel-1 {
+       HSR[i][j].SetSpikes(HSRspiketimes[i][j])
+       }
+   spikes = new Vector()
+   LSRout[i].ANFSpikeGenerator(spikes,LSRsperchannel,sg_tdres)
+   tobj = new Vector()
+   j=0
+   for(k=1;k < spikes.size();k+=1){
+      if (spikes.get(k) != 0 ){
+         tobj.append(spikes.get(k))
+      } else {
+      LSRspiketimes[i][j] = tobj.c
+      j+=1
+      tobj = new Vector()
+      }
+   }
+   LSRspiketimes[i][j] = tobj.c
+   print "LSR ", i, j
+      for j=0,LSRsperchannel-1 {
+       LSR[i][j].SetSpikes(LSRspiketimes[i][j])
+   }
 
 
   }
 }
+
+
 
 proc ClearSpikes() {local i,j
 
