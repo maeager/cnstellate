@@ -1,5 +1,5 @@
 /*
- *	par_golgi_test.hoc
+ *	par_golgi_test2.hoc
  *
  */
 load_file("nrngui.hoc")
@@ -7,20 +7,13 @@ load_file("nrngui.hoc")
 //load_file("par_init.hoc")
 thresh=-20
 
-		xopen("mathslib.hoc")			// mathematical procedures
-		xopen("Params.hoc")
-		xopen("Utilities.hoc")
-		xopen("NetworkParameters.hoc")
-		xopen("AuditoryNerve.hoc")
-		xopen("par_CNcell.tem")		// CN cell template
-		xopen("parameters_ClickDelay.hoc")           // model parameters	
-//		if (pnm.myid == 0)  print "Creating network"
-//		xopen("par_CochlearNucleus.hoc")			// model set-up
-//		if (pnm.myid == 0)  print "Reading input procedures"
-//		xopen("par_input.hoc")		// define procedures to set-up input
-//		if (pnm.myid == 0)  print "Setting-up experiment"
-//		xopen("par_experiment_SAM.hoc")
-//		xopen(filename)
+xopen("mathslib.hoc")// mathematical procedures
+xopen("Params.hoc")
+xopen("Utilities.hoc")
+xopen("NetworkParameters.hoc")
+xopen("AuditoryNerve.hoc")
+xopen("par_CNcell.tem")	// CN cell template
+xopen("parameters_ClickDelay.hoc") // model parameters	
 
 objref an,golgi[nchannels][1],g
 
@@ -34,8 +27,6 @@ scale = 60
 proc ShowInputGraphs() {
 	objref stimgr, b1, gr
 	objref  ANFBgr, b2, Sout[nchannels]
-
-
 	b1 = new VBox()
 	b1.intercept(1)
 	stimgr = new Graph(0)
@@ -56,11 +47,11 @@ proc ShowInputGraphs() {
 	ANFBgr.label(0.92,0.90, "CF")
 	ANFBgr.label(0.1,0.95,"Auditory Filterbank Instantaneous Rate Profiles")
 	for icf = 0, nchannels-1 {
-		Sout[icf] = HSRout[icf].c
-		Sout[icf].mul(2).add(6000*icf)
-		Sout[icf].plot(ANFBgr,sg_tdres, 1, 0)
-		sprint(lbl, "%g ", cf.x[icf])
-		ANFBgr.label(0.92, 0.810*(icf/(nchannels-1))+0.075, lbl)
+Sout[icf] = HSRout[icf].c
+Sout[icf].mul(2).add(6000*icf)
+Sout[icf].plot(ANFBgr,sg_tdres, 1, 0)
+sprint(lbl, "%g ", cf.x[icf])
+ANFBgr.label(0.92, 0.810*(icf/(nchannels-1))+0.075, lbl)
 	}
 	//system("date")
 	ANFBgr.exec_menu("View = plot")
@@ -69,7 +60,7 @@ proc ShowInputGraphs() {
 	
 
 }//Dummy Graphs
-/*
+
 proc ShowGolgiGraphs() {
 	objref  ANFBgr,  Sout[nchannels]
 	ANFBgr = new Graph(0)
@@ -88,45 +79,40 @@ proc ShowGolgiGraphs() {
 	ANFBgr.exec_menu("View = plot")
 	print "To save graph type: ANFBgr.printfile(\"x.eps\")"
 }//Dummy Graphs
-*/
-
-
-
-
-//Setup Auditory model
-
-	cfhi=64000
-	cflo=200
 
 	count = 0
-	tonefreq = cf.x[76]
-	dur 		= 0.049 	//duration of tone segment (seconds)	
-	dutycycle 	= 0.2		//quiet duration = dutycycle*dur
-	ramplngth 	= 0.001
-	srate 		= 500000.0
-	stimtdres 	= 1/srate
+
+//Setup Auditory model
+	ANmodel= 7//Zilany et al 2009,2010 v4  model
+	species= 1	//Cat
+
+	cfhi=40000
+	cflo=120
+	tonefreq = 22700
+	dur= 0.045 //duration of tone segment (seconds)	
+	dutycycle= 0.2	//quiet duration = dutycycle*dur
+	ramplngth= 0.005
+	stimdelay= 0.05	//sec
+	srate = 100000.0
+	stimtdres = 1/srate
 	sg_rate = 50000		
 	sg_tdres = 1/sg_rate
-	stimdelay 	= 0.02		//sec
-	stimtype=1	//tone
+	stimtype=1 //tone stimulus
 	reps=25
-	ANmodel     = 6		//Zilany Bruce model
-	species     = 2		//Rat
-	nrep		= 1  		//nrep is number of reps of stimulus
-
-
-
-ANFBgr = new Graph()
-usesavedfilterbanks=1
-
-reps=25
-binsize=0.1
+	nrep = 1 //nrep is number of reps of stimulus
+	
+	ANFBgr = new Graph()
+	usesavedfilterbanks=1
+	
+	reps=25
+	binsize=0.1
 
 	objref ANFBgr
+	RefreshCF()	
 	RefreshParameters()
-	ANFilterBankRun()
-	//an.SetRates()
-	//ShowInputGraphs()
+//	ANFilterBankRun()
+//	an.SetRates()
+//	ShowInputGraphs()
 
 objref an,golgi[nchannels][1],g, ANFBgr
 an = new AuditoryNerve()
@@ -222,13 +208,14 @@ proc RatelevelGolgi1(){local ispl,i,j,count,sum,runtime,cell,xtime localobj tmp
    //objref Notchgr,results[sp.cells.count], Notch
 
    count = 0
-   tonefreq = cf.x[76]
+   tonefreq = 22700 
    dur       = 0.049    //duration of tone segment (seconds)
-
    dutycycle    = 0.2      //quiet duration = dutycycle*dur
    ramplngth    = 0.001
-   srate       = 500000.0  stimtdres    = 1/srate
-   sg_rate = 50000      sg_tdres = 1/sg_rate
+   srate       = 100000.0  
+   stimtdres    = 1/srate
+   sg_rate = 50000      
+   sg_tdres = 1/sg_rate
    stimdelay = 0.02      //sec
    stimtype=1   //tone
    reps=250
@@ -290,15 +277,16 @@ level = new Vector(22)
 level.indgen().mul(5).add(-15)
 targetrl = new Vector()
 targetrl.append(2.53,	2.14,	4.28,	6.24,	7.80,	12.10,	10.73,	13.47,	17.96,27.92,30.27,	32.81,	39.84,	51.75,	57.42,	58.00,	58.79,	62.11,	68.75,	82.62,	92.38,	100.78)
-//gr = new Graph()
+gr = new Graph()
 rlst = new List()
-//targetrl.plot(gr,level,2,2)
-//gr.size(-20,100,0,150)
-//gr.exec_menu("Keep Lines")
+targetrl.plot(gr,level,2,2)
+gr.size(-20,100,0,150)
+gr.exec_menu("Keep Lines")
 
 
 objref g, dvec, fvec,ivec
 //g = new Graph()
+
 //g.size(0,3,0,3)
 
 func fun() {local f
@@ -312,25 +300,26 @@ func fun() {local f
 	weight_sum=$2
 	golgi_spon=$3
 	runtime = startsw()
-		golgi[76][0].ClearSpikes()
-		RefreshParameters()
-		sg_rate=50000
-		ANFilterBankRun()
-		sg_rate = 50000
-		sg_tdres = 1/sg_rate
-		golgi[76][0].SetRate()
-		
-/*		for j=0, reps-1{
-			//golgi[76][0].GenSpikes()
-			print j
-			//golgi[76][0].SaveSpikes()
-			//print startsw()-x, "secs"
-		}
-		runtime = startsw()-runtime
-		print "Simulation took ",runtime, " secs "
+	golgi[76][0].ClearSpikes()
+	RefreshParameters()
+	sg_rate=50000
+	ANFilterBankRun()
+	sg_rate = 50000
+	sg_tdres = 1/sg_rate
+	golgi[76][0].SetRate()
+	
+	/*		
+	for j=0, reps-1{
+	    //golgi[76][0].GenSpikes()
+	    print j
+	    //golgi[76][0].SaveSpikes()
+	    //print startsw()-x, "secs"
+	}
+	runtime = startsw()-runtime
+	print "Simulation took ",runtime, " secs "
 	
 	return golgi[76][0].spikes.size()/(reps*0.05)
-*/
+	*/
     return golgi[76][0].sout.mean(2000,3000)
 }
 
@@ -427,11 +416,11 @@ func err(){local ii,pp
     //print "Parameters: ", weight_sum,golgi_spon, golgi_syn_filter_scale_factor //golgi_spatial_filter_stdev,
 
     //Modify Parameters
-//
-golgi_spatial_filter_variance_LSR=$&2[0]
+    //
+    golgi_spatial_filter_variance_LSR=$&2[0]
     weight_sum_LSR = $&2[1]
     weight_sum_HSR= $&2[2]
- golgi_spon=$&2[3]
+    golgi_spon=$&2[3]
 
     // check for bad values
    for pp=0,NPARAMS-1 {
@@ -440,15 +429,15 @@ golgi_spatial_filter_variance_LSR=$&2[0]
      }
     }
     //show variables
-      /*      {
-                tgr[0].line($&2[0], $&2[1])
-                tgr[0].flush()
-                tgr[1].line($&2[1], $&2[2])
-                tgr[1].flush()
-		doNotify()
-		print $1, $&2[0], $&2[2], $&2[3]
-		}
-*/
+    /*      {
+        tgr[0].line($&2[0], $&2[1])
+        tgr[0].flush()
+        tgr[1].line($&2[1], $&2[2])
+        tgr[1].flush()
+	doNotify()
+	print $1, $&2[0], $&2[2], $&2[3]
+    }
+    */
     fvec = new Vector(level.size(),0)
     for ii = 0,level.size()-1 {
         spl=level.x[ii]
@@ -478,8 +467,7 @@ ANFilterBankRun()
 golgi_spatial_filter_variance_HSR=0.5
 golgi_spatial_filter_variance_LSR=2.5
 
-proc StartPraxis(){
-	
+proc StartPraxis(){	
 attr_praxis(1, 0.1, 3)
 for k = 0,10 fit_praxis(NPARAMS,"err",&pvec.x[0])
 //
@@ -541,4 +529,4 @@ for k = 0,5 fit_praxis(NPARAMS,"err",&pvec.x[0])
     for i=0,level.size()-1 { file.printf("%d\t%.3f\t%.3f\t%.3f\t%.3f\n",level.x[i],grate[76].x[i],gstdev[76].x[i],fvec.x[i], targetrl.x[i]) }
     file.close()
 }
-PrintFinalResults()
+//PrintFinalResults()

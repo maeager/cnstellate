@@ -24,7 +24,7 @@
 #include "complex.h"
 
 
-
+#define _FFGN_
 #define MAXSPIKES 1000000
 #ifndef TWOPI
 #define TWOPI 6.28318530717959
@@ -38,7 +38,7 @@
 #define __min(a,b) (((a) < (b))? (a): (b))
 #endif
 
-    /* Declarations of the functions used in the program */
+/* Declarations of the functions used in the program */
 extern double C1ChirpFilt(double, double, double, int, double, double);
 extern double C2ChirpFilt(double, double, double, int, double, double);
 extern double WbGammaTone(double, double, double, int, double, double, int);
@@ -51,7 +51,7 @@ extern double IhcLowPass(double, double, double, int, double, int);
 extern double Boltzman(double, double, double, double, double);
 extern double NLafterohc(double, double, double, double);
 extern double ControlSignal(double, double, double, double, double);
-extern double NLogarithm(double, double, double); // extra double does nothing in v4
+extern double NLogarithm(double, double, double); // extra double does nothing in this version
 
 extern double cochlea_f2x(int , double);
 extern double cochlea_x2f(int , double);
@@ -86,7 +86,7 @@ void IHCAN(double *px, double cf, int nrep, double tdres, int totalstim,
 
 
     /* Allocate dynamic memory for the temporary variables */
-    ihcouttmp  = makevector(totalstim * nrep);
+    ihcouttmp  = makevector(totalstim);
 
     mey1 = makevector(totalstim);
     mey2 = makevector(totalstim);
@@ -101,7 +101,7 @@ void IHCAN(double *px, double cf, int nrep, double tdres, int totalstim,
     /** Calculate the center frequency for the control-path wideband filter
     from the location on basilar membrane */
 
-    centerfreq = cochlea_x2f(species, bmplace);//456.0 * (pow(10, (bmplace + 1.2) / 11.9) - 0.80); /* shift the center freq */
+    centerfreq = cochlea_x2f(species, bmplace + 1.2); /* shift the center freq */
 
     /*==================================================================*/
     /*====== Parameters for the gain ===========*/
@@ -132,7 +132,6 @@ void IHCAN(double *px, double cf, int nrep, double tdres, int totalstim,
     /* Nonlinear asymmetry of OHC function and IHC C1 transduction function*/
     ohcasym  = 7.0;
     ihcasym  = 3.0;
-    /*===============================================================*/
     /*===============================================================*/
     /* Prewarping and related constants for the middle ear */
     fp = 1e3;  /* prewarping frequency 1 kHz */
@@ -173,7 +172,7 @@ void IHCAN(double *px, double cf, int nrep, double tdres, int totalstim,
         tauc1    = cohc * (tmptauc1 - bmTaumin[0]) + bmTaumin[0];  /* time -constant for the signal-path C1 filter */
         rsigma   = 1 / tauc1 - 1 / bmTaumax[0]; /* shift of the location of poles of the C1 filter from the initial positions */
 
-        if (1 / tauc1 < 0.0) printf("IHCAN: The poles are in the right-half plane; system is unstable.\n");
+        if (1 / tauc1 < 0.0) printf("\tIHCAN: The poles are in the right-half plane; system is unstable.\n");
 
         tauwb = TauWBMax + (tauc1 - bmTaumax[0]) * (TauWBMax - TauWBMin) / (bmTaumax[0] - bmTaumin[0]);
 
@@ -201,30 +200,31 @@ void IHCAN(double *px, double cf, int nrep, double tdres, int totalstim,
 
         c1vihctmp  = NLogarithm(cihc * c1filterouttmp, 0.1, ihcasym); // no need for cf
 
-        c2vihctmp = -NLogarithm(c2filterouttmp * fabs(c2filterouttmp) * cf / 10 * cf / 2e3, 0.2, 1.0); /* C2 transduction output */ //removed cf from NLogarithm
+        c2vihctmp = -NLogarithm(c2filterouttmp * fabs(c2filterouttmp) * cf / 10 * cf / 2e3, 0.2, 1.0); /* C2 transduction output EDIT removed cf in NLog function*/
 
         ihcouttmp[n] = IhcLowPass(c1vihctmp + c2vihctmp, tdres, 3000, n, 1.0, 7);
-    }
-    ;  /* End of the loop */
 
-    for (i = 0;i < totalstim;i++) {
       if (isnan(ihcouttmp[i])) {
-	printf("IHCAN: nan at %d",i);
+	printf("\tIHCAN: nan at %d",i);
 	break;
       }
-    };
 
+    }
+    ;  /* End of the loop */
+    printf("\tIHCAN: End of the loop.\n");
 
     /* Stretched out the IHC output according to nrep (number of repetitions) */
 
-    for (i = 0;i < totalstim*nrep;i++) {
-        ihcouttmp[i] = ihcouttmp[(int)(fmod(i,totalstim))];
-    };
+    /* for (i = 0;i < totalstim*nrep;i++) { */
+    /*     ihcouttmp[i] = ihcouttmp[(int)(fmod(i,totalstim))]; */
+    /* }; */
+
     /* Adjust total path delay to IHC output signal */
-delay      = delay_cat(cf,species);
+
+    delay      = delay_cat(cf,species);
     delaypoint = __max(0, (int) ceil(delay / tdres));
 
-    for (i = delaypoint;i < totalstim*nrep;i++) {
+    for (i = delaypoint;i < totalstim;i++) {
         ihcout[i] = ihcouttmp[i - delaypoint];
     };
 
@@ -235,73 +235,8 @@ delay      = delay_cat(cf,species);
     freevector(mey2);
     freevector(mey3);
     freevector(tmpgain);
-
+printf("\tIHCAN: done.\n");
 } /* End of the IHCAN function */
-
-
-double SingleAN_v4_1(double *px, double cf, int nrep, double tdres, int totalstim, double spont, double implnt, double *synout, double species)
-{
-
-    /*variables for the signal-path, control-path and onward */
-    double *synouttmp;
-    int    i, nspikes, ipst;
-    double nsout;
-    double sampFreq = 10e3; /* Sampling frequency used in the synapse */
-
-    /* Allocate dynamic memory for the temporary variables */
-    synouttmp  = makevector(totalstim * nrep);
-
-    /*====== Run the synapse model ======*/
-    nsout = Synapse_v4(px, tdres, cf, totalstim, nrep, spont, implnt, sampFreq, synouttmp, species);
-
-    /* Wrapping up the unfolded (due to no. of repetitions) Synapse Output */
-    for (i = 0; i < nsout ; i++) {
-        ipst = (int)(fmod(i, totalstim));
-        synout[ipst] = synout[ipst] + synouttmp[i] / nrep;
-    };
-
-    /* Freeing dynamic memory allocated earlier */
-    freevector(synouttmp);
-    return nsout;
-} /* End of the SingleAN function */
-
-double SingleAN_v4(double *px, double cf, int nrep, double tdres, int totalstim, double fibertype, double implnt, double *synout, double species)
-{
-
-    /*variables for the signal-path, control-path and onward */
-    double *synouttmp, *sptime;
-
-    int    i, nspikes, ipst;
-    double I, spont;
-    double sampFreq = 10e3; /* Sampling frequency used in the synapse */
-
-    /* Allocate dynamic memory for the temporary variables */
-    synouttmp  = makevector(totalstim * nrep);
-    //sptime  = makevector((long) ceil(totalstim * tdres * nrep / 0.00075));
-
-    /* Spontaneous Rate of the fiber corresponding to Fibertype */
-    
-    if(fibertype < 0){ spont = fabs(fibertype);}
-    else if (fibertype == 1){ spont = 0.1;}
-    else if (fibertype == 2){ spont = 5.0;}
-    else if (fibertype == 3){ spont = 100.0;}
-
-    /*====== Run the synapse model ======*/
-    I = Synapse_v4(px, tdres, cf, totalstim, nrep, spont, implnt, sampFreq, synouttmp, species);
-
-    /* Wrapping up the unfolded (due to no. of repetitions) Synapse Output */
-    for (i = 0; i < I ; i++) {
-        ipst = (int)(fmod(i, totalstim));
-        synout[ipst] = synout[ipst] + synouttmp[i] / nrep;
-    };
-
-    /* Freeing dynamic memory allocated earlier */
-    //freevector(sptime);
-    freevector(synouttmp);
-    return I;
-} /* End of the SingleAN function */
-
-
 
 /*-------------------------------------------------------------------------------
   Synapse model: if the time resolution is not small enough, the concentration of
@@ -334,6 +269,8 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
 
     // mxArray *IhcInputArray[3], *IhcOutputArray[1];
     double *sampIHC, *ihcDims;
+
+    nrep=1; /* do overlapping in the input stimulus vector */
 
     exponOut = makevector((long) ceil(totalstim * nrep));
     powerLawIn = makevector((long) ceil(totalstim * nrep + 3 * delaypoint));
@@ -370,7 +307,6 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
     randNums = makevector(Nrand*2); zero_vector(randNums,Nrand);
     
 #ifdef _FFGN_ 
-
    if (!(ffGn(randNums, Nrand, 1 / sampFreq, 0.9, spont, -1.0))) {
         hoc_execerror("Synapse: error calling ffGn", 0);
         return 0;
@@ -387,7 +323,8 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
     }
     for (indx = 0;indx < Nrand;indx++) rstd += pow((randNums[indx] - rmean), 2);
     printf("Synapse: Completed ffGn: mean  %g\t stdev %g\n", rmean, sqrt(rstd / Nrand));
-
+#else
+    for (indx = 0;indx < Nrand;indx++)  randNums[indx]=spont;
 #endif
 
     /*----------------------------------------------------------*/
@@ -586,6 +523,115 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
     return((long) ceil(totalstim*nrep));
 }
 
+
+double SingleAN_v4_1(double *px, double cf, int nrep, double tdres, int totalstim, double spont, double implnt, double *synout, double species)
+{
+
+    /*variables for the signal-path, control-path and onward */
+    double *synouttmp;
+    int    i, nspikes, ipst;
+    double nsout;
+    double sampFreq = 10e3; /* Sampling frequency used in the synapse */
+
+    /* Allocate dynamic memory for the temporary variables */
+    synouttmp  = makevector(totalstim * nrep);
+
+    /*====== Run the synapse model ======*/
+    nsout = Synapse_v4(px, tdres, cf, totalstim, nrep, spont, implnt, sampFreq, synouttmp, species);
+
+    /* Wrapping up the unfolded (due to no. of repetitions) Synapse Output */
+    for (i = 0; i < nsout ; i++) {
+        ipst = (int)(fmod(i, totalstim));
+        synout[ipst] = synout[ipst] + synouttmp[i] / nrep;
+    };
+
+    /* Freeing dynamic memory allocated earlier */
+    freevector(synouttmp);
+    return nsout;
+} /* End of the SingleAN function */
+
+double SingleAN_v4(double *px, double cf, int nrep, double tdres, int totalstim, double fibertype, double implnt, double *synout, double species)
+{
+
+    /*variables for the signal-path, control-path and onward */
+    double *synouttmp, *sptime;
+
+    int    i, nspikes, ipst;
+    double I, spont;
+    double sampFreq = 10e3; /* Sampling frequency used in the synapse */
+
+    /* Allocate dynamic memory for the temporary variables */
+    synouttmp  = makevector(totalstim * nrep);
+    //sptime  = makevector((long) ceil(totalstim * tdres * nrep / 0.00075));
+
+    /* Spontaneous Rate of the fiber corresponding to Fibertype */
+    
+    if(fibertype < 0){ spont = fabs(fibertype);}
+    else if (fibertype == 1){ spont = 0.1;}
+    else if (fibertype == 2){ spont = 5.0;}
+    else if (fibertype == 3){ spont = 100.0;}
+
+    /*====== Run the synapse model ======*/
+    I = Synapse_v4(px, tdres, cf, totalstim, nrep, spont, implnt, sampFreq, synouttmp, species);
+
+    /* Wrapping up the unfolded (due to no. of repetitions) Synapse Output */
+    for (i = 0; i < I ; i++) {
+        ipst = (int)(fmod(i, totalstim));
+        synout[ipst] = synout[ipst] + synouttmp[i] / nrep;
+    };
+
+    /* Freeing dynamic memory allocated earlier */
+    //freevector(sptime);
+    freevector(synouttmp);
+    return I;
+} /* End of the SingleAN function */
+
+void PsthAN(double *px, double cf, int nrep, double tdres, int totalstim, double fibertype, double implnt, double species,double *synout, double *psth)
+{	
+  
+  /*variables for the signal-path, control-path and onward */
+  double *synouttmp,*sptime;
+  int    i,nspikes,ipst;
+  double I,spont;
+  double sampFreq = 10e3; /* Sampling frequency used in the synapse */
+        
+    
+  /* Allocate dynamic memory for the temporary variables */
+  synouttmp  = makevector(totalstim*nrep);
+  sptime  = makevector((long) ceil(totalstim*tdres*nrep/0.00075));  	
+	   
+  /* Spontaneous Rate of the fiber corresponding to Fibertype */    
+  if (fibertype==1) spont = 0.1;
+  if (fibertype==2) spont = 5.0;
+  if (fibertype==3) spont = 100.0;
+    
+  /*====== Run the synapse model ======*/    
+  I = Synapse_v4(px, tdres, cf, totalstim, nrep, spont, implnt, sampFreq, synouttmp,species);
+            
+  /* Wrapping up the unfolded (due to no. of repetitions) Synapse Output */
+  for(i = 0; i <I ; i++)
+    {
+      // ipst = (int) (fmod(i,totalstim));
+      // synout[ipst] = synout[ipst] + synouttmp[i]/nrep;
+      synout[i] = synouttmp[i];
+    };    
+    /*======  Spike Generations ======*/
+  printf("PsthAN: calling SpikeGenerator_v4");
+    nspikes = SpikeGenerator_v4(synouttmp, tdres, totalstim, nrep, sptime);
+    for(i = 0; i < nspikes; i++)
+      {        
+	//	ipst = (int) (fmod(sptime[i],tdres*totalstim) / tdres);
+	ipst = (int) (fmod(sptime[i],tdres*totalstim) * sampFreq);
+	psth[ipst] = psth[ipst] + 1;       
+      };
+
+    /* Freeing dynamic memory allocated earlier */
+
+    freevector(sptime); freevector(synouttmp); 
+
+} /* End of the SingleAN function */
+
+
 /* ------------------------------------------------------------------------------------ */
 /* Pass the output of Synapse model through the Spike Generator */
 
@@ -597,11 +643,12 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
 int SpikeGenerator_v4(double *synouttmp, double tdres, int totalstim, int nrep, double *sptime)
 {
     double  c0, s0, c1, s1, dead;
+    int j;
     long     nspikes, k, NoutMax, Nout, deadtimeIndex, randBufIndex;
     double deadtimeRnd, endOfLastDeadtime, refracMult0, refracMult1, refracValue0, refracValue1;
     double Xsum, unitRateIntrvl, countTime, DT;
 
-    double *randNums, *randDims;
+    double *randNums;
 
     c0      = 0.5;
     s0      = 0.001;
@@ -612,7 +659,7 @@ int SpikeGenerator_v4(double *synouttmp, double tdres, int totalstim, int nrep, 
     DT = totalstim * tdres * nrep;  /* Total duration of the rate function */
     Nout = 0;
     NoutMax = (long) ceil(totalstim * nrep * tdres / dead);
-    randNums = makevector(NoutMax + 1);
+    randNums = makevector(NoutMax + 10);
 
     for (k=0;k<=NoutMax;k++) randNums[k] = scop_random();  //replace MATLAB call rand(1,N)
     randBufIndex = 0;
@@ -637,25 +684,37 @@ int SpikeGenerator_v4(double *synouttmp, double tdres, int totalstim, int nrep, 
     /* NOTE: Both 'unitRateInterval' and 'Xsum' are divided (or normalized) by 'tdres' in order to reduce calculation time.
        This way we only need to divide by 'tdres' once per spike (when calculating 'unitRateInterval'), instead of
        multiplying by 'tdres' once per time bin (when calculating the new value of 'Xsum').                         */
-
     countTime = tdres;
-    for (k = 0; (k < totalstim*nrep) && (countTime < DT); ++k, countTime += tdres, refracValue0 *= refracMult0, refracValue1 *= refracMult1) { /* Loop through rate vector */
+
+    printf(" c0 %g\ts0 %g\tc1 %g\ts1 %g\tdead %g\n",c0, s0, c1, s1, dead);
+    printf(" nspikes %ld\tk %ld\tNoutMax %ld\tNout %ld\tdeadtimeIndex %ld\trandBufIndex %ld\n", nspikes, k, NoutMax, Nout, deadtimeIndex, randBufIndex);
+    printf("deadtimeRnd %g\tendOfLastDeadtime %g\trefracMult0 %g\trefracMult1 %g\trefracValue0 %g\trefracValue1 %g\n", deadtimeRnd, endOfLastDeadtime, refracMult0, refracMult1, refracValue0, refracValue1);
+    printf("Xsum %g\tunitRateIntrvl %g\tcountTime %g\tDT %g\n",Xsum, unitRateIntrvl, countTime, DT);
+
+
+
+    for (j=0;j<nrep;j++){
+      countTime = tdres;
+      sptime[Nout++] = 0.0;
+      for (k = 0; (k < totalstim) && (countTime < DT); ++k, countTime += tdres, refracValue0 *= refracMult0, refracValue1 *= refracMult1) { /* Loop through rate vector */
         if (synouttmp[k] > 0) { /* Nothing to do for non-positive rates, i.e. Xsum += 0 for non-positive rates. */
-            Xsum += synouttmp[k] * (1 - refracValue0 - refracValue1);  /* Add synout*(refractory value) to time-warping sum */
+	  Xsum += synouttmp[k] * (1 - refracValue0 - refracValue1);  /* Add synout*(refractory value) to time-warping sum */
 
-            if (Xsum >= unitRateIntrvl) {  /* Spike occurs when time-warping sum exceeds interspike "time" in unit-rate process */
-                sptime[Nout] = countTime; Nout = Nout + 1;
-                unitRateIntrvl = -log(randNums[randBufIndex++]) / tdres;
-                Xsum = 0;
+	  if (Xsum >= unitRateIntrvl) {  /* Spike occurs when time-warping sum exceeds interspike "time" in unit-rate process */
+	    sptime[Nout] = countTime;
+	    Nout = Nout + 1;
+	    unitRateIntrvl = -log(randNums[randBufIndex++]) / tdres;
+	    Xsum = 0;
 
-                /* Increase index and time to the last time bin in the deadtime, and reset (relative) refractory function */
-                k += deadtimeIndex;
-                countTime += deadtimeRnd;
-                refracValue0 = c0;
-                refracValue1 = c1;
-            }
+	    /* Increase index and time to the last time bin in the deadtime, and reset (relative) refractory function */
+	    k += deadtimeIndex;
+	    countTime += deadtimeRnd;
+	    refracValue0 = c0;
+	    refracValue1 = c1;
+	  }
         }
-    } /* End of rate vector loop */
+      } /* End of rate vector loop */
+    }
 
 
     freevector(randNums);

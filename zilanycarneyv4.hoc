@@ -13,12 +13,13 @@ thresh=-20
 //  xopen("parameters_vowel_baseline.hoc")           // model parameters	
 
   /*  Setup Auditory model */
+mycf =10000
   ANmodel = 7
   cfhi =40000
   cflo =200
- tonefreq= 10000
-  dur 		= 0.08 	//duration of stim (seconds)
-  sg_rate 	= 50000		
+ tonefreq= mycf
+  dur 		= 0.06 	//duration of stim (seconds)
+  sg_rate 	= 10000		
   sg_tdres 	= 1/sg_rate
   stimdelay 	= 0.02		//sec
   reps		= 50
@@ -91,7 +92,6 @@ scale = 60
   stimtype 	= 1
 	dutycycle 	= 1		//quiet duration = dutycycle*dur
 	ramplngth 	= 0.005
-
   sg_rate 	= 100000		
   sg_tdres 	= 1/sg_rate
   fibertype = HighSponFibre
@@ -125,8 +125,7 @@ proc ShowInputGraphs() {
    ihcgr = new Graph(0)
    ihcgr.size(0,0.05,0,180000)
    ihcgr.view(0, 0, 0.05, 180000, 308, 345, 685, 365)
-   ihcgr.label(0.92,0.90, "CF")
-   ihcgr.label(0.1,0.95,"Auditory Filterbank Instantaneous Rate Profiles")
+   ihcgr.label(0.1,0.95,"IHC Output Profiles")
 
    if(object_id(HSRout[0])) HSRout[0].plot(ihcgr,sg_tdres, 1, 0)
    //system("date")
@@ -136,8 +135,7 @@ proc ShowInputGraphs() {
    soutgr = new Graph(0)
    soutgr.size(0,0.05,0,180000)
    soutgr.view(0, 0, 0.05, 180000, 308, 345, 685, 365)
-   soutgr.label(0.92,0.90, "CF")
-   soutgr.label(0.1,0.95,"Auditory Filterbank Instantaneous Rate Profiles")
+   soutgr.label(0.1,0.95,"Instantaneous Rate Profile")
 
    if(object_id(HSRout[67])) HSRout[67].plot(soutgr,sg_tdres, 1, 0)
    //system("date")
@@ -161,24 +159,107 @@ grr.exec_menu("View = plot")
 
 proc runzilany(){
 HSRout[67] = new Vector(stim.size)
-HSRout[67].an_zilany_v4(stim, stimtdres, 10000, fibertype,implnt,1,1,1, 1)
+HSRout[67].an_zilany_v4(stim, stimtdres, mycf, fibertype,implnt,1,1,1, 1)
 ShowInputGraphs()
 }
 
 proc runzilany2(){
-HSRout[0] = new Vector(stim.size)
-HSRout[0].ihc_zilany_v4(stim, stimtdres, 10000,1,1,1,1)
+    HSRout[0] = new Vector(stim.size)
+    HSRout[67] = new Vector(stim.size)
+    HSRout[1] = new Vector()
+    
+HSRout[0].ihc_zilany_v4(stim, stimtdres, mycf,1,1,1,1)
+HSRout[67].syn_zilany_v4(HSRout[0], stimtdres, mycf, fibertype,implnt,nrep,1,HSRout[1])
+    HSRout[0] = HSRout[1].histogram(0,stim.size*stimtdres*1000,0.2)
 ShowInputGraphs()
 }
 
 
 
-runzilany2()
 
+
+spont=100
 
 proc runzilany3(){
 HSRout[0] = new Vector(stim.size)
 HSRout[67] = new Vector(stim.size)
-HSRout[67].an_zilany_v4(stim, stimtdres, 10000, fibertype,implnt,1,1,1,1,HSRout[0])
+HSRout[67].an_zilany_v4(stim, stimtdres, mycf,fibertype,implnt,1,1,1,1,HSRout[0])
 ShowInputGraphs()
 }
+
+proc runzilany4(){
+HSRout[0] = new Vector(stim.size)
+HSRout[67] = new Vector(stim.size)
+HSRout[67].an_zilany_v4_1(stim, stimtdres, mycf,spont,implnt,1,1,1,nrep,HSRout[0])
+ShowInputGraphs()
+}
+
+proc runzilany5(){
+HSRout[0] = new Vector(stim.size/10)
+HSRout[67] = new Vector(stim.size)
+//psth_zilany_v4( stim, tdres,cf,fibertype,implnt,cihc,cohc,species,nrep,psth)
+HSRout[67].psth_zilany_v4(stim, stimtdres, mycf,fibertype,implnt,1,1,1,reps,HSRout[0])
+ShowInputGraphs()
+}
+
+
+
+proc getspikes(){local x
+    HSRout[1] = new Vector()
+    x = startsw()
+    HSRout[67].ANFSpikeGenerator3(HSRout[1],reps,stimtdres)
+    print "SpikeGenerator3 reps ", reps, " time ", startsw()-x
+    HSRout[0] = HSRout[1].histogram(0,stim.size*stimtdres*1000,0.2)
+    HSRout[0].x[1] -= reps
+    ShowInputGraphs()
+     
+}
+ 
+proc getspikes1(){local x
+     HSRout[1] = new Vector()
+     x = startsw()
+    HSRout[67].ANFSpikeGenerator(HSRout[1],reps,stimtdres)
+    print "SpikeGenerator reps ", reps, " time ", startsw()-x
+    HSRout[0] = HSRout[1].histogram(0,stim.size*stimtdres*1000,0.2)
+     HSRout[0].x[1] = 0
+    ShowInputGraphs()
+}
+
+create a 
+access a
+objref sgc
+sgc = new SGC_fast(0.5)
+proc getsgc(){local x
+     HSRout[1] = new Vector()
+     sgc.cf=mycf
+     sgc.spont=50
+    sgc.SetFibreRate(HSRout[67],HSRout[1],stimtdres)
+    x = startsw()
+    sgc.SGfast(reps)
+    print "SGfast reps", reps, " time ", startsw()-x
+    
+    HSRout[0] = HSRout[1].histogram(0,stim.size*stimtdres*1000,0.2)
+    HSRout[0].x[1] = 0
+    ShowInputGraphs()
+}
+proc getsgc2(){local x
+     
+     HSRout[1] = new Vector()
+     sgc.cf=mycf
+     sgc.spont=50
+     sgc.SetFibreRate(HSRout[67],HSRout[1],stimtdres)
+     x = startsw()
+     sgc.SGfast2(reps)
+     print "SGfast2 reps", reps, " time ", startsw()-x
+     HSRout[0] = HSRout[1].histogram(0,stim.size*stimtdres*1000,0.2)
+     HSRout[0].x[1] = 0
+     
+     ShowInputGraphs()
+     
+}
+
+
+runzilany4()
+reps=50
+getsgc2()
+

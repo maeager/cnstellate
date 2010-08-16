@@ -195,27 +195,29 @@ golgi_spatial_filter_variance = 4
 golgi_syn_filter_tau = 0.0005  // s
 golgi_syn_filter_scale_factor=1
 objref golgi_synfilter
+
 func alpha(){//Alpha function synaptic/membrane filter
 return $1*sg_tdres*exp(-($1*sg_tdres)/golgi_syn_filter_tau)
 }
 proc CreateGolgiSynFilter(){
-golgi_synfilter = new Vector(sg_rate*10*golgi_syn_filter_tau)
-
-golgi_synfilter.indgen().apply("alpha")  //apply alpha function
-golgi_synfilter.mul(golgi_syn_filter_scale_factor/golgi_synfilter.sum()) //scale and normalise
-
+  golgi_synfilter = new Vector(sg_rate*10*golgi_syn_filter_tau)
+  //create alpha function
+  golgi_synfilter.indgen().apply("alpha")  
+  //scale and normalise
+  golgi_synfilter.mul(golgi_syn_filter_scale_factor/golgi_synfilter.sum()) 
 }
 CreateGolgiSynFilter()
 proc convolve(){local x1,x2,wsize
-	for x1=0,$o1.size -1 {
-		wsize = $o2.size
-		if(x1 < wsize) wsize=x1+1
-		for x2=0,wsize-1 $o3.x[x1]+=$o1.x[x1-x2]*$o2.x[x2]
-	}
-	//correct for initial response
-	//SGfast does not like first element to be zero
-	for x1 = 0,$o2.size $o3.x[x1] = $o3.x[$o2.size]
+   for x1=0,$o1.size -1 {
+       wsize = $o2.size
+       if(x1 < wsize) wsize=x1+1
+       for x2=0,wsize-1 $o3.x[x1]+=$o1.x[x1-x2]*$o2.x[x2]
+   }
+   //correct for initial response
+   //SGfast does not like first element to be zero
+   for x1 = 0,$o2.size $o3.x[x1] = $o3.x[$o2.size]
 }
+
 begintemplate Golgicell
   public s,w, spiketimes, spikecount,sout,SetRate,GenSpikes,SaveSpikes,ClearSpikes
   public connect2target, synlist,cf,model,channel,spikes
