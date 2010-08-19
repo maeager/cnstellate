@@ -259,7 +259,7 @@ proc getsgc2(){local x
 }
 
 
-runzilany4()
+//runzilany3()
 reps=50
-getsgc2()
+  //getsgc2()
 

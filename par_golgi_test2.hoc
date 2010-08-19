@@ -87,7 +87,7 @@ proc ShowGolgiGraphs() {
 	species= 1	//Cat
 
 	cfhi=40000
-	cflo=120
+	cflo=200
 	tonefreq = 22700
 	dur= 0.045 //duration of tone segment (seconds)	
 	dutycycle= 0.2	//quiet duration = dutycycle*dur
@@ -212,7 +212,7 @@ proc RatelevelGolgi1(){local ispl,i,j,count,sum,runtime,cell,xtime localobj tmp
    dur       = 0.049    //duration of tone segment (seconds)
    dutycycle    = 0.2      //quiet duration = dutycycle*dur
    ramplngth    = 0.001
-   srate       = 100000.0  
+   srate       = 200000.0  
    stimtdres    = 1/srate
    sg_rate = 50000      
    sg_tdres = 1/sg_rate
@@ -460,7 +460,7 @@ func err(){local ii,pp
 }
 
 RefreshParameters()
-ANFilterBankRun()
+//ANFilterBankRun()
 
 //for i=0,1 tgr[i].beginline()
 
@@ -530,3 +530,34 @@ for k = 0,5 fit_praxis(NPARAMS,"err",&pvec.x[0])
     file.close()
 }
 //PrintFinalResults()
+
+
+load_file("cngui.hoc")
+
+// install_an_zilany_v4_v4()
+HSRout[0].resize(20000)
+HSRout[1].resize(20000)
+HSRout[2].resize(20000)
+dur=0.2
+stimtype=2
+	usesavedfilterbanks=1
+objref mygr[4],ihc
+RefreshParameters()
+ihc = new Vector(stim.size,0)
+HSRout[0].an_zilany_v4(stim,stimtdres,120,3,0,cihc.x[0],cohc.x[0],9,1,ihc)
+mygr[0] = new Graph()
+HSRout[0].plot(mygr[0],stimtdres)
+mygr[0].exec_menu("View = plot")
+ HSRout[1].an_zilany_v4(stim,stimtdres,cf.x[1],3,1,cihc.x[1],cohc.x[1],9,1)
+ mygr[1] = new Graph()
+ HSRout[1].plot(mygr[1],stimtdres)
+ mygr[1].exec_menu("View = plot")
+ HSRout[2].an_zilany_v4(stim,stimtdres,cf.x[2],3,1,cihc.x[2],cohc.x[2],9,1)
+ mygr[2] = new Graph()
+ HSRout[2].plot(mygr[2],stimtdres)
+ mygr[2].exec_menu("View = plot")
+
+ mygr[3] = new Graph()
+ ihc.plot(mygr[3],stimtdres)
+ mygr[3].exec_menu("View = plot")
+

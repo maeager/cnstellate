@@ -11,6 +11,7 @@ ENDVERBATIM
 VERBATIM
 
 #define DEBUG
+/* #define _FFGN_ */ 
 
 #include "zilanycarneyv4.c"
 #include "resample.c"
@@ -22,25 +23,27 @@ static double an_zilany_v4(void *vv)
 
    double *stim;      /*Input stimulus vector in pascals*/
    double *ihcout,*sout;   /*Output vector containing inst. rate for channel*/
-   double tdres,cf,spont,out;
-   double cohc,cihc;
-   int species,fibertype,implnt;
-   int ifspike;
-   int nstim, nsout,nihcout;
-   int nrep;
-   cohc = 1.0;
-   cihc = 1.0;
+   double tdres=0.0,cf=0.0,spont=0.0;
+   double cohc=1.0,cihc=1.0;
+   int species=0,fibertype=0,implnt=0;
+   int ifspike=0,nrep=0,out=0;
+   int nstim=0, nsout=0,nihcout=0;
+
 
 /*Get Instance Sout vector for synapse data*/
    nstim = vector_instance_px(vv, &sout);
    nsout = vector_arg_px(1, &stim);
-
+   if (nstim != nsout){
+       printf ("an_zilany_v4: sout must be the same size as stim.\n");
+       return 0;
+   }
+   
 /*Get Input arguments*/
-/*   if(ifarg(9)!=1){  //Must be changed if more input arguments added
-      hoc_execerror("ERROR: input syntax must be sout.an_zilany_v4( stim, tdres,  cf, fibertype,implnt,cihc,cohc, species,nrep,ihcout[optional])", 0);
+   if( ifarg(9)!=1 && ifarg(10)!=1 ){  /*Must be changed if more input arguments added*/
+      hoc_execerror("an_zilany_v4: input syntax must be sout.an_zilany_v4( stim, tdres,  cf, fibertype,implnt,cihc,cohc, species,nrep,ihcout[optional])", 0);
       return 0;
    }
-*/
+
  /*TDRES  resolution of stim vector*/
    /*Bruce model uses seconds rather than msec*/
    tdres = (double)(*getarg(2));
@@ -57,7 +60,7 @@ static double an_zilany_v4(void *vv)
       return 0;
    }
    /*Spontaneous rate of ANF*/
-   fibertype = (long)(*getarg(4));
+   fibertype = (int) round(*getarg(4));
    if ((fibertype<=0)||(fibertype>3))
    {
       printf("an_zilany_v4: fibertype  must be 1, 2, or 3 \n Default fibertype = 3 (HSR)");
@@ -87,9 +90,8 @@ static double an_zilany_v4(void *vv)
 
    /*Species*/
    species = (int)(*getarg(8));
-   if (species != 1){
-     hoc_execerror("an_zilany_v4: species other than cat (1) are not implemented",0);
-     return 0;
+   if (species != 1 && species !=9){
+     printf("an_zilany_v4: species other than cat (1 or 9) are not fully implemented");
    }
    /*Reps*/
    nrep = (int)(*getarg(9));
@@ -141,7 +143,7 @@ static double an_zilany_v4_1(void *vv)
    /*Bruce model uses seconds rather than msec*/
    tdres = (double)(*getarg(2));
    if (tdres > 0.01e-3 || tdres < 0.002e-3){
-      printf("Note: Zilany Bruce V4 resolution should be between 0.01ms (Fs = 100kHz) for normal usage and 0.002ms (200kHz) for stim above 40kHz.\n");      /*printf("Note: ZilanyBruceV4 resolution should be between 0.01ms (Fs = 100kHz) and 0.002ms (500kHz) for normal usage.\n");*/
+      printf("Note: Zilany Bruce V4 resolution should be between 0.01ms (Fs = 100kHz) for normal usage and 0.002ms (200kHz) for stim above 40kHz.\n");  
       /*tdres = 0.002e-3;*/
    }
    /*CF of fiber*/
@@ -398,8 +400,6 @@ static double syn_zilany_v4(void *vv)
   
 static double psth_zilany_v4(void *vv)
 {
-//  void** xx;
-//  void *spks,*pst;
    double *stim;      /*Input stimulus vector in pascals*/
    double *ihcout,*sout, *psth;   /*Output vector containing inst. rate for channel*/
    double tdres,cf,spont,out;
@@ -490,9 +490,7 @@ static double psth_zilany_v4(void *vv)
 }
 
 
-/* The spike generator now uses a method coded up by B. Scott Jackson (bsj22@cornell.edu) 
-   Scott's original code is available from Laurel Carney's web site at:
-   http://www.urmc.rochester.edu/smd/Nanat/faculty-research/lab-pages/LaurelCarney/auditory-models.cfm
+/* The spike generator now uses a method coded up by B. Scott Jackson (bsj22@cornell.edu) Scott's original code is available from Laurel Carney's web site at: http://www.urmc.rochester.edu/smd/Nanat/faculty-research/lab-pages/LaurelCarney/auditory-models.cfm
 */
 /* int SpikeGenerator(double *synouttmp, double tdres, int totalstim, int nrep, double *sptime) 
 */
@@ -549,10 +547,6 @@ static double ANFSpikeGenerator3(void *vv)
     Nout= SpikeGenerator_v4(sout, tdres, totalstim, nrep, sptime);
   
     vector_resize(spks, Nout);
-//    for ( k = 0; k < Nout; ++k){
-//      sptime[k]*=1000.0;
-//      printf("sptime[%d]\t %g\n",k,sptime[k]);
-//    }
     nspikes = Nout;  /* Number of spikes that occurred. */
     return(nspikes);
 }

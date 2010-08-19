@@ -185,17 +185,23 @@ int ivoc_fft(double *v1, double *v2,int v1size,int v2size,int inv)
 {
   int n = 1;
   while(n < v2size) n*=2;
+#ifdef DEBUG
   printf("\t\tivoc_fft: recv (%x,%x,%d,%d)\n",&v1[0],&v2[0],v1size,v2size);
+#endif
   double *data;
   data = makevector(n); zero_vector(data,n);
   int i;
   for (i=0;i<v2size;++i) data[i] = v2[i];
+#ifdef DEBUG
   printf("\t\tivoc_fft: data %x\n", &data[0]);
+#endif 
   realft(&data[0]-1,n,inv);
 
   if (v1size != n) {printf("\t\tivoc_fft: v1 must be %d",n);}
   for (i=0;i<n;++i) v1[i]=data[i];
+#ifdef DEBUG
   printf("\t\tivoc_fft: done n %d\n", n);
+#endif
   freevector(data);
  return n;
 }
@@ -206,7 +212,9 @@ int FFT(int inv,double *v1,double *v2,double *v3,int Nsize)
 {
   int n, x,i,j;
   if (inv == 1) { // forward  
+#ifdef DEBUG
     printf("\tFFT: forward (%d,%x,%x,%x,%d)\n",inv,&v1[0],&v2[0],&v3[0],Nsize);
+#endif
     n =ivoc_fft(v2,v1,Nsize,Nsize,1);
     for(x=0;x<n;x++) v2[x] = v2[x]/((double)n/2.0);
     v2[0] = v2[0] / 2.0;	// makes the spectrum appear discontinuous
@@ -218,11 +226,15 @@ int FFT(int inv,double *v1,double *v2,double *v3,int Nsize)
     //v3.resize(n/2+1);
     v2[(int)(n/2)] = v3[0];   //highest cos started in o3.x[1
     v3[0] = v3[n/2] = 0;       // weights for sin(0*i)and sin(PI*i)
+#ifdef DEBUG
     printf("\tFFT: done (%d,%x,%x,%x,%d)\n",inv,&v1[0],&v2[0],&v3[0],Nsize);
+#endif
     return (int)(n/2)+1;
 
   }else{ // inverse
+#ifdef DEBUG
     printf("\tFFT: inverse (%d,%x,%x,%x,%d)\n",inv,&v1[0],&v2[0],&v3[0],Nsize);
+#endif
     // shuffle o3 and o4 into o2
     //n = v2.size()
     n = Nsize/2 + 1 ;
@@ -234,7 +246,9 @@ int FFT(int inv,double *v1,double *v2,double *v3,int Nsize)
     v3[1] *= 2;     
     for (i=0; i<Nsize; i+=1) printf("%g\t",v3[i]); //v1=v3
     n = ivoc_fft(v1,v3,Nsize,n,-1);
+#ifdef DEBUG
     printf("\n\tFFT: done (%d,%x,%x,%x,%d)\n",inv,&v1[0],&v2[0],&v3[0],Nsize);
+#endif
     return n;
   }
 }
