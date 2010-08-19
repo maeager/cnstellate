@@ -35,6 +35,7 @@
 #include <time.h>
 
 #include "complex.h"
+
 //#include "spikegen.h"
 //#include "gsl_rng.h"
 
@@ -288,7 +289,7 @@ int an_zilanybruce2007(double binwidth, double cf, double spont, double cihc, do
  --------------------------------------------------------------------------------*/
 double Synapse(double x, double binwidth, double cf, double spont, int n)
 {
-    static double synstrength, synslope, CI, CL, PG, CG, VL, PL, VI;
+  static double synstrength, synslope, CI, CL, PG, CG, VL, PL, VI;
 
     double cf_factor, PImax, kslope, Ass, Asp, TauR, TauST, Ar_Ast, PTS, Aon, AR, AST, Prest, gamma1, gamma2, k1, k2;
     double VI0, VI1, alpha, beta, theta1, theta2, theta3, vsat, tmpst, tmp, PPI, CIlast, temp, out;
@@ -459,8 +460,8 @@ double Get_taubm(double cf, double CAgain, double taumax, double *bmTaumax, doub
 
 double C1ChirpFilt(double x, double binwidth, double cf, int n, double taumax, double rsigma)
 {
-    static double C1gain_norm, C1initphase;
-    static double C1input[12][4], C1output[12][4];
+  static double C1gain_norm, C1initphase;
+  static double C1input[12][4], C1output[12][4];
 
     double ipw, ipb, rpa, pzero, rzero;
     double sigma0, fs_bilinear, CF, norm_gain, phase, c1filterout;
@@ -472,8 +473,8 @@ double C1ChirpFilt(double x, double binwidth, double cf, int n, double taumax, d
     /* Defining initial locations of the poles and zeros */
     /*======== setup the locations of poles and zeros =======*/
     sigma0 = 1 / taumax;
-    ipw    = 1.01 * cf * TWOPI - 50;
-    ipb    = 0.2343 * TWOPI * cf - 1104;
+    ipw    = 1.01 * cf * TWOPI-50;
+    ipb    = 0.2343 * TWOPI * cf-1104;
     rpa    = pow(10, log10(cf) * 0.9 + 0.55) + 2000;
     pzero  = pow(10, log10(cf) * 0.7 + 1.6) + 500;
 
@@ -490,7 +491,6 @@ double C1ChirpFilt(double x, double binwidth, double cf, int n, double taumax, d
     if (n == 0) 
       {
         p[1].x = -sigma0;
-
         p[1].y = ipw;
 
         p[5].x = p[1].x - rpa; p[5].y = p[1].y - ipb;
@@ -601,8 +601,8 @@ double C1ChirpFilt(double x, double binwidth, double cf, int n, double taumax, d
 
 double C2ChirpFilt(double xx, double binwidth, double cf, int n, double taumax, double fcohc)
 {
-    static double C2gain_norm, C2initphase;
-    static double C2input[12][4];  static double C2output[12][4];
+  static double C2gain_norm, C2initphase;
+  static double C2input[12][4];  static double C2output[12][4];
 
     double ipw, ipb, rpa, pzero, rzero;
 
@@ -739,8 +739,8 @@ double C2ChirpFilt(double xx, double binwidth, double cf, int n, double taumax, 
 
 double WbGammaTone(double x, double binwidth, double centerfreq, int n, double tau, double gain, int order)
 {
-    static double wbphase;
-    static COMPLEX wbgtf[4], wbgtfl[4];
+  static double wbphase;
+  static COMPLEX wbgtf[4], wbgtfl[4];
 
     double delta_phase, dtmp, c1LP, c2LP, out;
     int i, j;
@@ -805,10 +805,12 @@ double delay_cat(double cf, int species)
     switch (species){
     case 0: /*Human*/
     x = cochlea_f2x(species, cf); /* human mapping */
+    if ((x<5)||(x>35)) printf("delay_cat: x out of range.\n");
     delay = 4.915 + 0.3631*exp(0.11324*x);   /* 5<x<35 m */
     break;
-      
-    case 1: /* Cat */
+
+    case 9: /* Cat */
+    case 1:
     default:
 /*  
    delay (msec) = A0 * exp( -x /A1 ) * 1e-3 - 1.0/CF 
@@ -842,7 +844,7 @@ double Boltzman(double x, double asym, double s0, double s1, double x1)
 
 double OhcLowPass(double x, double binwidth, double Fc, int n, double gain, int order)
 {
-    static double ohc[4], ohcl[4];
+  static double ohc[4], ohcl[4];
 
     double c, c1LP, c2LP;
     int i, j;
@@ -869,7 +871,7 @@ double OhcLowPass(double x, double binwidth, double Fc, int n, double gain, int 
 
 double IhcLowPass(double x, double binwidth, double Fc, int n, double gain, int order)
 {
-    static double ihc[8], ihcl[8];
+  static double ihc[8], ihcl[8];
 
     double C, c1LP, c2LP;
     int i, j;

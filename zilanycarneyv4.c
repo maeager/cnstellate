@@ -13,18 +13,15 @@
    %%% © Muhammad S.A. Zilany (msazilany@gmail.com), Ian C. Bruce, Paul C. Nelson, and laurel H. Carney October 2008 %%%
 
 */
-
 #include <stdio.h>
-//#include <stdlib.h>
+#include <stdlib.h>
 #include <string.h>
-//#include <math.h>     /* Added for MS Visual C++ compatability, by Ian Bruce, 1999 */
+#include <math.h>     /* Added for MS Visual C++ compatability, by Ian Bruce, 1999 */
 //#include <mex.h>
 //#include <time.h>
 
 #include "complex.h"
 
-
-#define _FFGN_
 #define MAXSPIKES 1000000
 #ifndef TWOPI
 #define TWOPI 6.28318530717959
@@ -43,7 +40,7 @@ extern double C1ChirpFilt(double, double, double, int, double, double);
 extern double C2ChirpFilt(double, double, double, int, double, double);
 extern double WbGammaTone(double, double, double, int, double, double, int);
 extern double gain_groupdelay(double, double, double, double, int *);
-extern double Get_tauwb(double,double, int, double *, double *);
+extern double Get_tauwb(double,double, int, double *, double *); /* Calc gain in IHCAN then pass to tauwb*/
 extern double Get_taubm(double,double, double, double *, double *, double *);
 
 extern double OhcLowPass(double, double, double, int, double, int);
@@ -83,10 +80,10 @@ void IHCAN(double *px, double cf, int nrep, double tdres, int totalstim,
     int    i, n, delaypoint, grdelay[1], bmorder, wborder;
     double wbout1, wbout, ohcnonlinout, ohcout, tmptauc1, tauc1, rsigma, wb_gain;
 
-
+    nrep = 1; /* stim should be what you want */
 
     /* Allocate dynamic memory for the temporary variables */
-    ihcouttmp  = makevector(totalstim);
+    ihcouttmp  = makevector(totalstim*nrep);
 
     mey1 = makevector(totalstim);
     mey2 = makevector(totalstim);
@@ -205,8 +202,8 @@ void IHCAN(double *px, double cf, int nrep, double tdres, int totalstim,
         ihcouttmp[n] = IhcLowPass(c1vihctmp + c2vihctmp, tdres, 3000, n, 1.0, 7);
 
       if (isnan(ihcouttmp[i])) {
-	printf("\tIHCAN: nan at %d",i);
-	break;
+	printf("\tIHCAN: nan at %d\n\tError in an_zilany V4\n",i);
+// return ;
       }
 
     }
@@ -215,16 +212,16 @@ void IHCAN(double *px, double cf, int nrep, double tdres, int totalstim,
 
     /* Stretched out the IHC output according to nrep (number of repetitions) */
 
-    /* for (i = 0;i < totalstim*nrep;i++) { */
-    /*     ihcouttmp[i] = ihcouttmp[(int)(fmod(i,totalstim))]; */
-    /* }; */
+    for (i = 0;i < totalstim*nrep;i++) {
+        ihcouttmp[i] = ihcouttmp[(int)(fmod(i,totalstim))];
+    };
 
     /* Adjust total path delay to IHC output signal */
 
     delay      = delay_cat(cf,species);
     delaypoint = __max(0, (int) ceil(delay / tdres));
 
-    for (i = delaypoint;i < totalstim;i++) {
+    for (i = delaypoint;i < totalstim*nrep;i++) {
         ihcout[i] = ihcouttmp[i - delaypoint];
     };
 
@@ -238,6 +235,34 @@ void IHCAN(double *px, double cf, int nrep, double tdres, int totalstim,
 printf("\tIHCAN: done.\n");
 } /* End of the IHCAN function */
 
+
+double SingleAN_v4_1(double *px, double cf, int nrep, double tdres, int totalstim, double spont, double implnt, double *synout, double species)
+{
+
+    /*variables for the signal-path, control-path and onward */
+    double *synouttmp;
+    int    i, nspikes, ipst;
+    double nsout;
+    double sampFreq = 10e3; /* Sampling frequency used in the synapse */
+
+    /* Allocate dynamic memory for the temporary variables */
+    synouttmp  = makevector(totalstim * nrep);
+
+    /*====== Run the synapse model ======*/
+    nsout = Synapse_v4(px, tdres, cf, totalstim, nrep, spont, implnt, sampFreq, synouttmp, species);
+
+    /* Wrapping up the unfolded (due to no. of repetitions) Synapse Output */
+    for (i = 0; i < nsout ; i++) {
+        ipst = (int)(fmod(i, totalstim));
+        synout[ipst] = synout[ipst] + synouttmp[i] / nrep;
+    };
+
+    /* Freeing dynamic memory allocated earlier */
+    freevector(synouttmp);
+    return nsout;
+} /* End of the SingleAN function */
+
+
 /*-------------------------------------------------------------------------------
   Synapse model: if the time resolution is not small enough, the concentration of
   the immediate pool could be as low as negative, at this time there is an alert
@@ -249,11 +274,12 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
     double rmean, rstd;
     int z, b, n;
     int resamp = (int) ceil(1 / (tdres * sampFreq)); //sampFreq is not the same as 1/tdres
-    double incr = 0.0;
-    //int delaypoint = floor(7500 / (cf / 1e3));   //is this for Cat only
+    double incr = 0.0;    // int delaypoint = floor(7500 / (cf / 1e3));   
+    
     double delay      = delay_cat(cf, species);
     int delaypoint = __max(0, (int) ceil(delay / tdres));  // from version 2
-    printf("Synapse_v4: delaypoint %d\n",delaypoint);
+    
+    printf("Synapse_v4: resamp %d delaypoint %d\n",resamp,delaypoint);
     double alpha1, beta1, I1, alpha2, beta2, I2, binwidth;
     int    k, j, indx, i;
     double synstrength, synslope, CI, CL, PG, CG, VL, PL, VI;
@@ -304,7 +330,7 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
 #endif
     int Nrand = ((int) ceil((totalstim * nrep + 2 * delaypoint) * tdres * sampFreq));
 
-    randNums = makevector(Nrand*2); zero_vector(randNums,Nrand);
+    randNums = makevector(Nrand); zero_vector(randNums,Nrand);
     
 #ifdef _FFGN_ 
    if (!(ffGn(randNums, Nrand, 1 / sampFreq, 0.9, spont, -1.0))) {
@@ -324,7 +350,7 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
     for (indx = 0;indx < Nrand;indx++) rstd += pow((randNums[indx] - rmean), 2);
     printf("Synapse: Completed ffGn: mean  %g\t stdev %g\n", rmean, sqrt(rstd / Nrand));
 #else
-    for (indx = 0;indx < Nrand;indx++)  randNums[indx]=spont;
+      for (indx = 0;indx < Nrand;indx++)  randNums[indx]=spont;
 #endif
 
     /*----------------------------------------------------------*/
@@ -524,31 +550,97 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
 }
 
 
-double SingleAN_v4_1(double *px, double cf, int nrep, double tdres, int totalstim, double spont, double implnt, double *synout, double species)
+
+/* ------------------------------------------------------------------------------------ */
+/* Pass the output of Synapse model through the Spike Generator */
+
+/* The spike generator now uses a method coded up by B. Scott Jackson (bsj22@cornell.edu)
+   Scott's original code is available from Laurel Carney's web site at:
+   http://www.urmc.rochester.edu/smd/Nanat/faculty-research/lab-pages/LaurelCarney/auditory-models.cfm
+*/
+
+int SpikeGenerator_v4(double *synouttmp, double tdres, int totalstim, int nrep, double *sptime)
 {
+    double  c0, s0, c1, s1, dead;
+    int j;
+    int     nspikes, k, NoutMax, Nout, deadtimeIndex, randBufIndex;
+    double deadtimeRnd, endOfLastDeadtime, refracMult0, refracMult1, refracValue0, refracValue1;
+    double Xsum, unitRateIntrvl, countTime, DT;
 
-    /*variables for the signal-path, control-path and onward */
-    double *synouttmp;
-    int    i, nspikes, ipst;
-    double nsout;
-    double sampFreq = 10e3; /* Sampling frequency used in the synapse */
+    double *randNums;
 
-    /* Allocate dynamic memory for the temporary variables */
-    synouttmp  = makevector(totalstim * nrep);
+    c0      = 0.5;
+    s0      = 0.001;
+    c1      = 0.5;
+    s1      = 0.0125;
+    dead    = 0.00075;
 
-    /*====== Run the synapse model ======*/
-    nsout = Synapse_v4(px, tdres, cf, totalstim, nrep, spont, implnt, sampFreq, synouttmp, species);
+    DT = totalstim * tdres * nrep;  /* Total duration of the rate function */
+    Nout = 0;
+    NoutMax = (long) ceil(totalstim * nrep * tdres / dead);
+    randNums = makevector(NoutMax + 1);
 
-    /* Wrapping up the unfolded (due to no. of repetitions) Synapse Output */
-    for (i = 0; i < nsout ; i++) {
-        ipst = (int)(fmod(i, totalstim));
-        synout[ipst] = synout[ipst] + synouttmp[i] / nrep;
-    };
+    for (k=0;k<=NoutMax;k++) randNums[k] = scop_random();  //replace mexCallMATLAB to rand(1,NoutMax)
+    randBufIndex = 0;
 
-    /* Freeing dynamic memory allocated earlier */
-    freevector(synouttmp);
-    return nsout;
-} /* End of the SingleAN function */
+    /* Calculate useful constants */
+    deadtimeIndex = (long) floor(dead / tdres);  /* Integer number of discrete time bins within deadtime */
+    deadtimeRnd = deadtimeIndex * tdres;   /* Deadtime rounded down to length of an integer number of discrete time bins */
+
+    refracMult0 = 1 - tdres / s0;  /* If y0(t) = c0*exp(-t/s0), then y0(t+tdres) = y0(t)*refracMult0 */
+    refracMult1 = 1 - tdres / s1;  /* If y1(t) = c1*exp(-t/s1), then y1(t+tdres) = y1(t)*refracMult1 */
+
+    /* Calculate effects of a random spike before t=0 on refractoriness and the time-warping sum at t=0 */
+    endOfLastDeadtime = __max(0, log(randNums[randBufIndex++]) / synouttmp[0] + dead); /* End of last deadtime before t=0 */
+    refracValue0 = c0 * exp(endOfLastDeadtime / s0); /* Value of first exponential in refractory function */
+    refracValue1 = c1 * exp(endOfLastDeadtime / s1); /* Value of second exponential in refractory function */
+    Xsum = synouttmp[0] * (-endOfLastDeadtime + c0 * s0 * (exp(endOfLastDeadtime / s0) - 1) + c1 * s1 * (exp(endOfLastDeadtime / s1) - 1));
+    /* Value of time-warping sum */
+    /*  ^^^^ This is the "integral" of the refractory function ^^^^ (normalized by 'tdres') */
+
+    /* Calculate first interspike interval in a homogeneous, unit-rate Poisson process (normalized by 'tdres') */
+    unitRateIntrvl = -log(randNums[randBufIndex++]) / tdres;
+    /* NOTE: Both 'unitRateInterval' and 'Xsum' are divided (or normalized) by 'tdres' in order to reduce calculation time.
+       This way we only need to divide by 'tdres' once per spike (when calculating 'unitRateInterval'), instead of
+       multiplying by 'tdres' once per time bin (when calculating the new value of 'Xsum').                         */
+    countTime = tdres;
+
+    printf(" c0 %g\ts0 %g\tc1 %g\ts1 %g\tdead %g\n",c0, s0, c1, s1, dead);
+    printf(" nspikes %ld\tk %ld\tNoutMax %ld\tNout %ld\tdeadtimeIndex %ld\trandBufIndex %ld\n", nspikes, k, NoutMax, Nout, deadtimeIndex, randBufIndex);
+    printf("deadtimeRnd %g\tendOfLastDeadtime %g\trefracMult0 %g\trefracMult1 %g\trefracValue0 %g\trefracValue1 %g\n", deadtimeRnd, endOfLastDeadtime, refracMult0, refracMult1, refracValue0, refracValue1);
+    printf("Xsum %g\tunitRateIntrvl %g\tcountTime %g\tDT %g\n",Xsum, unitRateIntrvl, countTime, DT);
+
+
+
+    for (j=0;j<nrep;j++){
+      countTime = tdres;
+      for (k = 0; (k < totalstim) && (countTime < DT); ++k, countTime += tdres, refracValue0 *= refracMult0, refracValue1 *= refracMult1) { /* Loop through rate vector */
+        if (synouttmp[k] > 0) { /* Nothing to do for non-positive rates, i.e. Xsum += 0 for non-positive rates. */
+	  Xsum += synouttmp[k] * (1 - refracValue0 - refracValue1);  /* Add synout*(refractory value) to time-warping sum */
+
+	  if (Xsum >= unitRateIntrvl) {  /* Spike occurs when time-warping sum exceeds interspike "time" in unit-rate process */
+	    sptime[Nout] = countTime;
+	    Nout = Nout + 1;
+	    unitRateIntrvl = -log(randNums[randBufIndex++]) / tdres;
+	    Xsum = 0;
+
+	    /* Increase index and time to the last time bin in the deadtime, and reset (relative) refractory function */
+	    k += deadtimeIndex;
+	    countTime += deadtimeRnd;
+	    refracValue0 = c0;
+	    refracValue1 = c1;
+	  }
+        }
+      } /* End of rate vector loop */
+      sptime[Nout++] = 0.0;
+    }
+
+
+    freevector(randNums);
+    nspikes = Nout;  /* Number of spikes that occurred. */
+    return(nspikes);
+}
+
 
 double SingleAN_v4(double *px, double cf, int nrep, double tdres, int totalstim, double fibertype, double implnt, double *synout, double species)
 {
@@ -629,98 +721,9 @@ void PsthAN(double *px, double cf, int nrep, double tdres, int totalstim, double
 
     freevector(sptime); freevector(synouttmp); 
 
-} /* End of the SingleAN function */
+} /* End of the PSTH version of SingleAN function */
 
 
-/* ------------------------------------------------------------------------------------ */
-/* Pass the output of Synapse model through the Spike Generator */
-
-/* The spike generator now uses a method coded up by B. Scott Jackson (bsj22@cornell.edu)
-   Scott's original code is available from Laurel Carney's web site at:
-   http://www.urmc.rochester.edu/smd/Nanat/faculty-research/lab-pages/LaurelCarney/auditory-models.cfm
-*/
-
-int SpikeGenerator_v4(double *synouttmp, double tdres, int totalstim, int nrep, double *sptime)
-{
-    double  c0, s0, c1, s1, dead;
-    int j;
-    long     nspikes, k, NoutMax, Nout, deadtimeIndex, randBufIndex;
-    double deadtimeRnd, endOfLastDeadtime, refracMult0, refracMult1, refracValue0, refracValue1;
-    double Xsum, unitRateIntrvl, countTime, DT;
-
-    double *randNums;
-
-    c0      = 0.5;
-    s0      = 0.001;
-    c1      = 0.5;
-    s1      = 0.0125;
-    dead    = 0.00075;
-
-    DT = totalstim * tdres * nrep;  /* Total duration of the rate function */
-    Nout = 0;
-    NoutMax = (long) ceil(totalstim * nrep * tdres / dead);
-    randNums = makevector(NoutMax + 10);
-
-    for (k=0;k<=NoutMax;k++) randNums[k] = scop_random();  //replace MATLAB call rand(1,N)
-    randBufIndex = 0;
-
-    /* Calculate useful constants */
-    deadtimeIndex = (long) floor(dead / tdres);  /* Integer number of discrete time bins within deadtime */
-    deadtimeRnd = deadtimeIndex * tdres;   /* Deadtime rounded down to length of an integer number of discrete time bins */
-
-    refracMult0 = 1 - tdres / s0;  /* If y0(t) = c0*exp(-t/s0), then y0(t+tdres) = y0(t)*refracMult0 */
-    refracMult1 = 1 - tdres / s1;  /* If y1(t) = c1*exp(-t/s1), then y1(t+tdres) = y1(t)*refracMult1 */
-
-    /* Calculate effects of a random spike before t=0 on refractoriness and the time-warping sum at t=0 */
-    endOfLastDeadtime = __max(0, log(randNums[randBufIndex++]) / synouttmp[0] + dead); /* End of last deadtime before t=0 */
-    refracValue0 = c0 * exp(endOfLastDeadtime / s0); /* Value of first exponential in refractory function */
-    refracValue1 = c1 * exp(endOfLastDeadtime / s1); /* Value of second exponential in refractory function */
-    Xsum = synouttmp[0] * (-endOfLastDeadtime + c0 * s0 * (exp(endOfLastDeadtime / s0) - 1) + c1 * s1 * (exp(endOfLastDeadtime / s1) - 1));
-    /* Value of time-warping sum */
-    /*  ^^^^ This is the "integral" of the refractory function ^^^^ (normalized by 'tdres') */
-
-    /* Calculate first interspike interval in a homogeneous, unit-rate Poisson process (normalized by 'tdres') */
-    unitRateIntrvl = -log(randNums[randBufIndex++]) / tdres;
-    /* NOTE: Both 'unitRateInterval' and 'Xsum' are divided (or normalized) by 'tdres' in order to reduce calculation time.
-       This way we only need to divide by 'tdres' once per spike (when calculating 'unitRateInterval'), instead of
-       multiplying by 'tdres' once per time bin (when calculating the new value of 'Xsum').                         */
-    countTime = tdres;
-
-    printf(" c0 %g\ts0 %g\tc1 %g\ts1 %g\tdead %g\n",c0, s0, c1, s1, dead);
-    printf(" nspikes %ld\tk %ld\tNoutMax %ld\tNout %ld\tdeadtimeIndex %ld\trandBufIndex %ld\n", nspikes, k, NoutMax, Nout, deadtimeIndex, randBufIndex);
-    printf("deadtimeRnd %g\tendOfLastDeadtime %g\trefracMult0 %g\trefracMult1 %g\trefracValue0 %g\trefracValue1 %g\n", deadtimeRnd, endOfLastDeadtime, refracMult0, refracMult1, refracValue0, refracValue1);
-    printf("Xsum %g\tunitRateIntrvl %g\tcountTime %g\tDT %g\n",Xsum, unitRateIntrvl, countTime, DT);
-
-
-
-    for (j=0;j<nrep;j++){
-      countTime = tdres;
-      sptime[Nout++] = 0.0;
-      for (k = 0; (k < totalstim) && (countTime < DT); ++k, countTime += tdres, refracValue0 *= refracMult0, refracValue1 *= refracMult1) { /* Loop through rate vector */
-        if (synouttmp[k] > 0) { /* Nothing to do for non-positive rates, i.e. Xsum += 0 for non-positive rates. */
-	  Xsum += synouttmp[k] * (1 - refracValue0 - refracValue1);  /* Add synout*(refractory value) to time-warping sum */
-
-	  if (Xsum >= unitRateIntrvl) {  /* Spike occurs when time-warping sum exceeds interspike "time" in unit-rate process */
-	    sptime[Nout] = countTime;
-	    Nout = Nout + 1;
-	    unitRateIntrvl = -log(randNums[randBufIndex++]) / tdres;
-	    Xsum = 0;
-
-	    /* Increase index and time to the last time bin in the deadtime, and reset (relative) refractory function */
-	    k += deadtimeIndex;
-	    countTime += deadtimeRnd;
-	    refracValue0 = c0;
-	    refracValue1 = c1;
-	  }
-        }
-      } /* End of rate vector loop */
-    }
-
-
-    freevector(randNums);
-    nspikes = Nout;  /* Number of spikes that occurred. */
-    return(nspikes);
-}
 
 
 double dbl_exp_adaptation(double cf, double spont)
@@ -728,9 +731,10 @@ double dbl_exp_adaptation(double cf, double spont)
     /*----------------------------------------------------------*/
     /*----- Double Exponential Adaptation ----------------------*/
     /*----------------------------------------------------------*/
-    if (spont > 18) return  __min(800.0, pow(10, 0.29 * cf / 1e3 + 0.7));
-    if (spont > 2)  return __min(50.0, 2.5e-4 * cf * 4 + 0.2);
-    return  __min(1.0, 2.5e-4 * cf * 0.1 + 0.15);
+  if (spont >= 18){ return  __min(800.0, pow(10, 0.29 * cf / 1e3 + 0.7));
+  } else if (spont > 2) { return __min(50.0, 2.5e-4 * cf * 4 + 0.2);
+  } else return  __min(1.0, 2.5e-4 * cf * 0.1 + 0.15);
+
 }
 
 

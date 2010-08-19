@@ -176,7 +176,7 @@ ARLOModel_Params    = 1
   LowSponFibre=1
   ZilanyActual=1
   ZilanyApprox=0
-ZilanyImplmnt = ZilanyApprox //default  
+  ZilanyImplmnt = ZilanyApprox //default  
   species = 9   // Cat
   audiogram_file =  "cat_audiogram.txt"
 

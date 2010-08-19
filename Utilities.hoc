@@ -1123,10 +1123,9 @@ proc RefreshParameters() {local aa localobj tmprand
     //Quiet
         if (stimtype == 2){
             objref stim
-            stimdur = 0.05     //50 ms
-            stim  = new Vector(int(stimdur/stimtdres), 0 )
+            stim  = new Vector(int(dur/stimtdres), 0 )
             if (nrep > 1) { for i=2,nrep { stim.append(new Vector(int(stimdur/stimtdres), 0 ))} }
-            sprint(grlbl,"Silence")
+            sprint(grlbl,"Silence %g ms", dur*1000)
         }
     //AM tone
         if(stimtype == 3) {
@@ -1269,7 +1268,7 @@ func GetANfileString() {local i
   if(ANmodel == 4) sprint(ANpath, "%s/arlo",ANpath)
   if(ANmodel == 3) sprint(ANpath, "%s/tan",ANpath)
   if(ANmodel == 6) sprint(ANpath, "%s/bruce",ANpath)
-  if(ANmodel == 7) sprint(ANpath, "%s/zbmodelv4",ANpath)
+  if(ANmodel == 7) sprint(ANpath, "%s/zbmodelv4_%d",ANpath,ZilanyImplmnt)
   
   sprint(tmpANstr,"mkdir -p %s",ANpath)
   system(tmpANstr)
@@ -1278,7 +1277,7 @@ func GetANfileString() {local i
       sprint(ANstr,"T%.0f_L%g_dur%d_del%d", tonefreq,spl,stimdur, int(stimdelay*1000))
   }
   if (stimtype == 2){
-      sprint(ANstr,"Silence_Spont%.0f_dur%d", Highspont,int(dur*1000))
+      sprint(ANstr,"Silence_dur%d",int(dur*1000))
   }
   //AM tone
   if(stimtype == 3) {// Carrier freq, Mod frequency, Modulation depth, Loudness (peak)
@@ -1436,7 +1435,7 @@ proc GenerateFilterbank(){ local icf
 	}
 
 	if(ANmodel==7){
-	  LSRout[icf].an_zilany_v4(stim, stimtdres, cf.x[icf], LowSponFibre,ZilanyImplmnt, cohc.x[icf],cihc.x[icf],species, nrep)
+	  LSRout[icf].an_zilany_v4(stim, stimtdres, cf.x[icf], LowSponFibre,ZilanyImplmnt,cohc.x[icf],cihc.x[icf],species, nrep)
 	  HSRout[icf].an_zilany_v4(stim, stimtdres, cf.x[icf], HighSponFibre,ZilanyImplmnt,cihc.x[icf],cohc.x[icf],species, nrep)
 	  if (MSRsperchannel>0){
             MSRout[icf] = new Vector(stim.size)
