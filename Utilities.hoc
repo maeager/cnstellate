@@ -1422,8 +1422,8 @@ proc GenerateFilterbank(){ local icf
     if (name_declared("pnm") == 0 && say_once!=1) print "Generating AN model instantaneous rate functions"
     for icf = 0, nchannels-1 {
 
-        LSRout[icf] = new Vector(stim.size)
-        HSRout[icf] = new Vector(stim.size)
+        LSRout[icf] = new Vector(stim.size,0)
+        HSRout[icf] = new Vector(stim.size,0)
 
 	if(ANmodel==6){
 	  LSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], Lowspont, cohc.x[icf],cihc.x[icf],species, nrep)
@@ -1436,7 +1436,9 @@ proc GenerateFilterbank(){ local icf
 
 	if(ANmodel==7){
 	  LSRout[icf].an_zilany_v4(stim, stimtdres, cf.x[icf], LowSponFibre,ZilanyImplmnt,cohc.x[icf],cihc.x[icf],species, nrep)
+doNotify() 
 	  HSRout[icf].an_zilany_v4(stim, stimtdres, cf.x[icf], HighSponFibre,ZilanyImplmnt,cihc.x[icf],cohc.x[icf],species, nrep)
+doNotify()
 	  if (MSRsperchannel>0){
             MSRout[icf] = new Vector(stim.size)
             MSRout[icf].an_zilany_v4(stim, stimtdres, cf.x[icf], MedSponFibre,ZilanyActual, cohc.x[icf],cihc.x[icf],species, nrep)

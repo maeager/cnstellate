@@ -208,8 +208,9 @@ void IHCAN(double *px, double cf, int nrep, double tdres, int totalstim,
 
     }
     ;  /* End of the loop */
+#ifdef DEBUG
     printf("\tIHCAN: End of the loop.\n");
-
+#endif
     /* Stretched out the IHC output according to nrep (number of repetitions) */
 
     for (i = 0;i < totalstim*nrep;i++) {
@@ -232,7 +233,9 @@ void IHCAN(double *px, double cf, int nrep, double tdres, int totalstim,
     freevector(mey2);
     freevector(mey3);
     freevector(tmpgain);
+#ifdef DEBUG
 printf("\tIHCAN: done.\n");
+#endif
 } /* End of the IHCAN function */
 
 
@@ -278,8 +281,9 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
     
     double delay      = delay_cat(cf, species);
     int delaypoint = __max(0, (int) ceil(delay / tdres));  // from version 2
-    
+#ifdef DEBUG    
     printf("Synapse_v4: resamp %d delaypoint %d\n",resamp,delaypoint);
+#endif
     double alpha1, beta1, I1, alpha2, beta2, I2, binwidth;
     int    k, j, indx, i;
     double synstrength, synslope, CI, CL, PG, CG, VL, PL, VI;
@@ -447,20 +451,23 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
 
     /* Resampling routine from libresample examples ***/
     int len = 0;
+#ifdef DEBUG
     printf("Synapse: calling resample(%d,NULL,%d,%g)\n", &powerLawIn[0],  k, 1.0 / resamp);
+#enidf
     sampIHC = makevector( (int)((double)k / resamp) );
     len = resample(powerLawIn, sampIHC, k, 1.0/resamp);
     if (len == 0 || (sampIHC == NULL)) {
         printf("Synapse: resample return error, copying powerLawIn\n");
         len = k;
         if (sampIHC) {
-            printf("sampIHC address %x", &sampIHC[0]); freevector(sampIHC);
+	  /* printf("sampIHC address %x", &sampIHC[0]); */ freevector(sampIHC);
         }
         sampIHC = makevector( (int)(k / resamp) );
         for (indx = 0;indx < (int)(k / resamp);indx++) sampIHC[indx] = powerLawIn[(int)round(indx /resamp)];
     }
+#ifdef DEBUG
     printf("Synapse: resample done, k %d len %d \t old len %d\n", k, len, floor((totalstim*nrep + 2*delaypoint)*tdres*sampFreq));
-
+#endif
     freevector(powerLawIn); freevector(exponOut);
     /*----------------------------------------------------------*/
     /*----- Running Power-law Adaptation -----------------------*/

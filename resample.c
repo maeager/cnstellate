@@ -30,7 +30,7 @@ int resample(double *source, double *dest, int srclen, double factor)
    int dstlen = expectedlen + 1000;
 #ifdef DEBUG
    printf("-- srclen: %d  factor: %g srcblk: %d dstblk: %d expected %d\n",srclen,  factor, srcblocksize, dstblocksize,expectedlen);
-#end
+#endif
    src = (float*)malloc((unsigned) (srclen*sizeof(float))); // makevector(srclen);//
    for (i=0;i<srclen;i++) src[i] =  source[i];
    dst = (float*)malloc((unsigned) ((dstlen+100)*sizeof(float)));//makevector(dstlen+100);
@@ -40,7 +40,7 @@ int resample(double *source, double *dest, int srclen, double factor)
    fwidth = resample_get_filter_width(handle);
 #ifdef DEBUG
    printf("lresample:  starting loop\n");
-#end 
+#endif 
    out = 0;
    srcpos = 0;
    for(;;) {
@@ -65,7 +65,7 @@ int resample(double *source, double *dest, int srclen, double factor)
    }else {
 #ifdef DEBUG
 printf("lresample: resample done o %d out %d\n",o);
-#end 
+#endif 
    }	   
 
    if (out <= 0) {
@@ -82,7 +82,7 @@ printf("lresample: resample done o %d out %d\n",o);
    }
 #ifdef DEBUG   
    printf("lresample  1: dst[0] %g\t dst[end] %g\t dstlen %d\n",dst[0],dst[dstlen+99], dstlen);
-#end
+#endif
    int len =(int)(srclen * factor);
  for (i=0;i<len;i++) {
    if ( isnan(dst[i]) ) {len = i-1; break;}
@@ -92,7 +92,7 @@ printf("lresample: resample done o %d out %d\n",o);
 
 #ifdef DEBUG
  printf("lresample  3:  len %d \tdest[0] %g\t dest[len] %g src %x dst %x\n",len,dest[0],dest[len-1], &src,&dst);
-#end
+#endif
    if (src!=NULL) free(src); //(char*)
    if (dst!=NULL) free(dst);
    
