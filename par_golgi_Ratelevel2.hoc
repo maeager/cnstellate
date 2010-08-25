@@ -13,7 +13,7 @@ thresh=-20
       xopen("NetworkParameters.hoc")
       xopen("AuditoryNerve.hoc")
       xopen("par_CNcell.tem")      // CN cell template
-      xopen("parameters_ClickDelay.hoc")           // model parameters
+      xopen("parameters_golgi_Ratelevel2.hoc")           // model parameters
 //      if (pnm.myid == 0)  print "Creating network"
 //      xopen("par_CochlearNucleus.hoc")         // model set-up
 //      if (pnm.myid == 0)  print "Reading input procedures"

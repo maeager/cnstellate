@@ -1006,7 +1006,7 @@ delx        = 0.05
 
 //install_anmodel()         //Heinz ARLO model
 //install_an_tanmodel()      //Tan and Carney
-execute1("install_an_zbcatmodel07()")   //Zilany Bruce EtAl  2006,2007
+//execute1("install_an_zbcatmodel07()")   //Zilany Bruce EtAl  2006,2007
 execute1("install_an_zilany_v4()")      //Zilany Bruce Nelson Carney 2009,2010
 
     objref  LSRout[nchannels], HSRout[nchannels],cf, ANfile, MSRout[nchannels]
@@ -1417,31 +1417,40 @@ proc GetAudiogramData(){
 GetAudiogramData()
 
 strdef end_sout
-proc GenerateFilterbank(){ local icf
-
+proc GenerateFilterbank(){ local icf, mycf, myohc,myihc,ZilanyImplmnt_orig localobj ihc
+    ihc = new Vector(stim.size,0)
+    //    ZilanyImplmnt_orig = ZilanyImplmnt
     if (name_declared("pnm") == 0 && say_once!=1) print "Generating AN model instantaneous rate functions"
     for icf = 0, nchannels-1 {
 
         LSRout[icf] = new Vector(stim.size,0)
         HSRout[icf] = new Vector(stim.size,0)
 
+	mycf = cf.x[icf]
+	myohc = cohc.x[icf]
+	myihc = cihc.x[icf]
+//	print "Generating AN filter: CF ", mycf, " CIHC ",myihc, " COHC ",myohc
+	
 	if(ANmodel==6){
-	  LSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], Lowspont, cohc.x[icf],cihc.x[icf],species, nrep)
-	  HSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], Highspont, cihc.x[icf],cohc.x[icf],species, nrep)
+	  LSRout[icf].an_zbcatmodel07(stim, stimtdres, mycf, Lowspont, myihc,myohc,species, nrep)
+	  HSRout[icf].an_zbcatmodel07(stim, stimtdres, mycf, Highspont, myihc,myohc,species, nrep)
 	  if (MSRsperchannel>0){
             MSRout[icf] = new Vector(stim.size)
-            MSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], Medspont, cohc.x[icf],cihc.x[icf],species, nrep)
+            MSRout[icf].an_zbcatmodel07(stim, stimtdres, mycf, Medspont, myihc,myohc,species, nrep)
 	  }
 	}
 
 	if(ANmodel==7){
-	  LSRout[icf].an_zilany_v4(stim, stimtdres, cf.x[icf], LowSponFibre,ZilanyImplmnt,cohc.x[icf],cihc.x[icf],species, nrep)
-doNotify() 
-	  HSRout[icf].an_zilany_v4(stim, stimtdres, cf.x[icf], HighSponFibre,ZilanyImplmnt,cihc.x[icf],cohc.x[icf],species, nrep)
-doNotify()
+	  //	  if (mycf > 8000) ZilanyImplmnt = ZilanyActual
+	  ihc.mul(0)
+	  LSRout[icf].an_zilany_v4(stim, stimtdres, mycf, LowSponFibre,ZilanyImplmnt,myihc,myohc,species, nrep,ihc)
+	  ihc.mul(0) 
+	  flushf()
+	  HSRout[icf].an_zilany_v4(stim, stimtdres, mycf, HighSponFibre,ZilanyImplmnt,myihc,myohc,species, nrep,ihc)
+			      flushf()
 	  if (MSRsperchannel>0){
             MSRout[icf] = new Vector(stim.size)
-            MSRout[icf].an_zilany_v4(stim, stimtdres, cf.x[icf], MedSponFibre,ZilanyActual, cohc.x[icf],cihc.x[icf],species, nrep)
+            MSRout[icf].an_zilany_v4(stim, stimtdres, mycf, MedSponFibre,ZilanyActual, myihc,myohc,species, nrep)
 	  }
 	}
 
@@ -1455,10 +1464,13 @@ doNotify()
 */
    // print icf, cf.x[icf]
 
-    }
+      }
+  
+  //    ZilanyImplmnt = ZilanyImplmnt_orig
 
     // Resampling rate should be set prior to calling GenerateFilterbank eg. sg_rate = 50000
     ResampleANFilterBank(sg_rate/srate)
+
 }
 
 proc CheckFilterbank(){local icf
@@ -1504,8 +1516,8 @@ proc ANFilterBankRun() {local x
 
     if (usesavedfilterbanks) {
         if (!RetrieveANFilterBank()) {
-            GenerateFilterbank()
-			SaveANFilterBank2File()
+	  GenerateFilterbank()     
+	    SaveANFilterBank2File()
         }
     } else {
         GenerateFilterbank()

@@ -13,34 +13,20 @@
    %%% © Muhammad S.A. Zilany (msazilany@gmail.com), Ian C. Bruce, Paul C. Nelson, and laurel H. Carney October 2008 %%%
 
 */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>     /* Added for MS Visual C++ compatability, by Ian Bruce, 1999 */
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <string.h>
+//#include <math.h>     /* Added for MS Visual C++ compatability, by Ian Bruce, 1999 */
 //#include <mex.h>
 //#include <time.h>
 
-#include "complex.h"
-
-#define MAXSPIKES 1000000
-#ifndef TWOPI
-#define TWOPI 6.28318530717959
-#endif
-
-#ifndef __max
-#define __max(a,b) (((a) > (b))? (a): (b))
-#endif
-
-#ifndef __min
-#define __min(a,b) (((a) < (b))? (a): (b))
-#endif
 
 /* Declarations of the functions used in the program */
-extern double C1ChirpFilt(double, double, double, int, double, double);
+/*extern double C1ChirpFilt(double, double, double, int, double, double);
 extern double C2ChirpFilt(double, double, double, int, double, double);
 extern double WbGammaTone(double, double, double, int, double, double, int);
 extern double gain_groupdelay(double, double, double, double, int *);
-extern double Get_tauwb(double,double, int, double *, double *); /* Calc gain in IHCAN then pass to tauwb*/
+extern double Get_tauwb(double,double, int, double *, double *); // Calc gain in IHCAN then pass to tauwb
 extern double Get_taubm(double,double, double, double *, double *, double *);
 
 extern double OhcLowPass(double, double, double, int, double, int);
@@ -53,7 +39,7 @@ extern double NLogarithm(double, double, double); // extra double does nothing i
 extern double cochlea_f2x(int , double);
 extern double cochlea_x2f(int , double);
 extern double delay_cat(double , int);
-
+*/
     /* Declarations of the functions used in the SingleAN_v4 program */
 double Synapse_v4(double *, double, double, int, int, double, double, double, double *, double);
 int    SpikeGenerator_v4(double *, double, int, int, double *);
@@ -282,7 +268,7 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
     double delay      = delay_cat(cf, species);
     int delaypoint = __max(0, (int) ceil(delay / tdres));  // from version 2
 #ifdef DEBUG    
-    printf("Synapse_v4: resamp %d delaypoint %d\n",resamp,delaypoint);
+    printf("Synapse_av4: resamp %d delaypoint %d\n",resamp,delaypoint);
 #endif
     double alpha1, beta1, I1, alpha2, beta2, I2, binwidth;
     int    k, j, indx, i;
@@ -354,7 +340,8 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
     for (indx = 0;indx < Nrand;indx++) rstd += pow((randNums[indx] - rmean), 2);
     printf("Synapse: Completed ffGn: mean  %g\t stdev %g\n", rmean, sqrt(rstd / Nrand));
 #else
-      for (indx = 0;indx < Nrand;indx++)  randNums[indx]=spont;
+    //     for (indx = 0;indx < Nrand;indx++)  randNums[indx]=-spont;
+     for (indx = 0;indx < Nrand;indx++)  randNums[indx]=0.0;//spont+exp(-indx);
 #endif
 
     /*----------------------------------------------------------*/
@@ -431,6 +418,7 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
         exponOut[k] = CI * PPI;
         k = k + 1;
     }
+
 #ifdef DEBUG
     printf("Synapse: Generating powerLawIn\n");
 #endif
@@ -453,7 +441,7 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
     int len = 0;
 #ifdef DEBUG
     printf("Synapse: calling resample(%d,NULL,%d,%g)\n", &powerLawIn[0],  k, 1.0 / resamp);
-#enidf
+#endif
     sampIHC = makevector( (int)((double)k / resamp) );
     len = resample(powerLawIn, sampIHC, k, 1.0/resamp);
     if (len == 0 || (sampIHC == NULL)) {
@@ -466,7 +454,8 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
         for (indx = 0;indx < (int)(k / resamp);indx++) sampIHC[indx] = powerLawIn[(int)round(indx /resamp)];
     }
 #ifdef DEBUG
-    printf("Synapse: resample done, k %d len %d \t old len %d\n", k, len, floor((totalstim*nrep + 2*delaypoint)*tdres*sampFreq));
+    printf("Synapse: resample done, k %d len %d \t old len %d sampIHC[0] %g\n", k, len, floor((totalstim*nrep + 2*delaypoint)*tdres*sampFreq), sampIHC[0]);
+
 #endif
     freevector(powerLawIn); freevector(exponOut);
     /*----------------------------------------------------------*/
@@ -529,9 +518,6 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
         k = k + 1;
     }   /* end of all samples */
 
-    freevector(sout1); freevector(sout2);
-    freevector(m1); freevector(m2); freevector(m3); freevector(m4); freevector(m5); 
-    freevector(n1); freevector(n2); freevector(n3);
     /*----------------------------------------------------------*/
     /*----- Upsampling to original (High 100 kHz) sampling rate */
     /*----------------------------------------------------------*/
@@ -545,11 +531,28 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
             TmpSyn[z*resamp+b] = synSampOut[z] + b * incr;
         }
     }
+
     for (i = 0;i < totalstim*nrep;++i)
         synouttmp[i] = TmpSyn[i+delaypoint];
+
 #ifdef DEBUG
     printf("Synapse_v4: done!\n");
+    printf(" alpha1 %g beta1 %g I1 %g alpha2 %g beta2 %g I2 %g binwidth %g\n",alpha1, beta1, I1, alpha2, beta2, I2, binwidth);
+    printf(" synstrength %g synslope %g CI %g CL %g PG %g CG %g VL %g PL %g VI %g\n", synstrength, synslope, CI, CL, PG, CG, VL, PL, VI);
+    printf(" cf_factor %g PImax %g kslope %g Ass %g Asp %g TauR %g TauST %g Ar_Ast %g PTS %g Aon %g AR %g AST %g Prest %g gamma1 %g gamma2 %g k1 %g k2 %g\n",      cf_factor, PImax, kslope, Ass, Asp, TauR, TauST, Ar_Ast, PTS, Aon, AR, AST, Prest, gamma1, gamma2, k1, k2);
+    printf(" VI0 %g VI1 %g alpha %g beta %g theta1 %g theta2 %g theta3 %g vsat %g tmpst %g tmp %g PPI %g CIlast %g temp %g\n",     VI0, VI1, alpha, beta, theta1, theta2, theta3, vsat, tmpst, tmp, PPI, CIlast, temp);
+
+    printf("sout1[0] %g sout2[0] %g \
+    m1[0] %g m2[0] %g m3[0] %g m4[0] %g m5[0] %g \ 
+    n1[0] %g n2[0] %g n3[0] %g synSampOut[0] %g TmpSyn[0] %g\n ",
+	   sout1[0],sout2[0],
+	   m1[0],m2[0],m3[0],m4[0],m5[0],
+	   n1[0],n2[0],n3[0],synSampOut[0],TmpSyn[0]) ;
+
 #endif
+    freevector(sout1); freevector(sout2);
+    freevector(m1); freevector(m2); freevector(m3); freevector(m4); freevector(m5); 
+    freevector(n1); freevector(n2); freevector(n3);
 
     freevector(synSampOut); freevector(TmpSyn);
     freevector(randNums);

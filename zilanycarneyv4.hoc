@@ -42,18 +42,20 @@ mycf =10000
 // }
 
 
-// proc LoadVowel(){
-//     RefreshParameters()	//Generate or get stim from file
-
-//     stim.resample(stim,3)
-//     srate = 44100*3 
-//     stimtdres 	= 1/srate
-//     spl=$1
-//     RescaleStim()		//Scale the vowel
-//     ANFilterBankRun()	//Build the filterbank
-//     //an.SetRates()		//Allocate filterbanks to ANFs
-//     //DummyGraphs()
-// }
+proc LoadVowel(){
+ stimtype = 0  //read stim from file
+ path = "./stim/"
+ wavefile = "./stim/b6t.dat"
+    RefreshParameters()	//Generate or get stim from file
+    stim.resample(stim,3)
+    srate = 44100*3 
+    stimtdres 	= 1/srate
+    spl=$1
+    RescaleStim()		//Scale the vowel
+    ANFilterBankRun()	//Build the filterbank
+    //an.SetRates()		//Allocate filterbanks to ANFs
+    //DummyGraphs()
+}
 
 // objref vfile 
 // proc SaveData() {
@@ -259,7 +261,16 @@ proc getsgc2(){local x
 }
 
 
-//runzilany3()
+runzilany3()
 reps=50
-  //getsgc2()
+//getsgc2()
 
+objref ihc 
+ihc = new Vector(stim.size,0)
+for icf=0,99{  
+mycf = cf.x[icf]
+HSRout[icf] = new Vector(stim.size,0)
+HSRout[icf].an_zilany_v4(stim, stimtdres, mycf,3,0,cihc.x[icf],cohc.x[icf],1,1,ihc) 
+ihc.mul(0)
+}
+for icf=0,99{  HSRout[icf].plot(Graph[2],stimtdres) }
