@@ -10,15 +10,17 @@ ENDVERBATIM
 :* anmodel Vector Method - sout.an_zilany_v4( stim , tdres,  cf, spontrate, model, species, ifspike)
 VERBATIM
 
-/* #define DEBUG  */
+ #define DEBUG  
 /* #define _FFGN_ */ 
 
+#include "complex.c"
+#include "carneymodel.c"
 #include "zilanycarneyv4.c"
 #include "resample.c"
 #include "ffGn.c"
 
 
-static double an_zilany_v4(void *vv)
+static double an_zilany_v4(void  *vv)
 {
 
    double *stim;      /*Input stimulus vector in pascals*/
@@ -48,7 +50,7 @@ static double an_zilany_v4(void *vv)
    /*Bruce model uses seconds rather than msec*/
    tdres = (double)(*getarg(2));
    if (tdres > 0.01e-3 || tdres < 0.002e-3){
-      printf("Note: Zilany Bruce V4 resolution should be between 0.01ms (Fs = 100kHz) for normal usage and 0.002ms (200kHz) for stim above 40kHz.\n");      /*printf("Note: ZilanyBruceV4 resolution should be between 0.01ms (Fs = 100kHz) and 0.002ms (500kHz) for normal usage.\n");*/
+      printf("\tNote: Zilany Bruce V4 resolution should be between 0.01ms (Fs = 100kHz) for normal usage and 0.002ms (200kHz) for stim above 40kHz.\n");      /*printf("\tNote: ZilanyBruceV4 resolution should be between 0.01ms (Fs = 100kHz) and 0.002ms (500kHz) for normal usage.\n");*/
       /*tdres = 0.002e-3;*/
    }
    /*CF of fiber*/
@@ -67,7 +69,7 @@ static double an_zilany_v4(void *vv)
       fibertype=3;
    }
    /*New variable in version 4*/
-   implnt = (long)(*getarg(5));
+   implnt = (int)round(*getarg(5));
    if ((implnt<0)||(implnt>1))
    {
       printf("an_zbcatmodel: implnt  must be 0 (actual) or 1 (approx)\n");
@@ -89,12 +91,12 @@ static double an_zilany_v4(void *vv)
    }
 
    /*Species*/
-   species = (int)(*getarg(8));
+   species = (int)round(*getarg(8));
    if (species != 1 && species !=9){
      printf("an_zilany_v4: species other than cat (1 or 9) are not fully implemented");
    }
    /*Reps*/
-   nrep = (int)(*getarg(9));
+   nrep = (int)round(*getarg(9));
    if (nrep < 1) {printf("an_zilany_v4: nrep must be 1 or greater"); return 0;}
    
 if(ifarg(10)) {
@@ -105,10 +107,10 @@ if(ifarg(10)) {
   ihcout = makevector(nstim);
  }
 
-   printf("AN model: Zilany, Carney, Bruce, Nelson and others  (version 4 c2010)\n");
-   printf("IHCAN(stim,%.0f,%d,%g,%d,%g,%g,ihcout,%d)\n", cf, nrep, tdres, nstim, cohc, cihc, species);
+   printf("AN model: Zilany et al., 2009  (version 4 c2010)\n");
+   printf("  IHCAN(stim,%.0f,%d,%g,%d,%g,%g,ihcout,%d)\n", cf, nrep, tdres, nstim, cohc, cihc, species);
    IHCAN(stim, cf, nrep, tdres, nstim, cohc, cihc, ihcout,species);
-   printf("SingleAN(ihcout,%.0f,%d,%g,%d,%d,%d,sout,%d)\n",cf,nrep,tdres,nstim,fibertype,implnt,species);
+   printf("  SingleAN(ihcout,%.0f,%d,%g,%d,%d,%d,sout,%d)\n",cf,nrep,tdres,nstim,fibertype,implnt,species);
    out= SingleAN_v4(ihcout,cf,nrep,tdres,nstim,fibertype,implnt,sout,species);
 
    if( !ifarg(10) ) freevector(ihcout);
@@ -197,10 +199,10 @@ if(ifarg(10)) {
   ihcout = makevector(nstim);
  }
 
-   printf("AN model: Zilany, Carney, Bruce, Nelson and others  (version 4 c2010)\n");
-   printf("IHCAN(stim,%.0f,%d,%g,%d,%g,%g,ihcout,%d)\n", cf, nrep, tdres, nstim, cohc, cihc, species);
+   printf("\tAN model: Zilany, Carney, Bruce, Nelson and others  (version 4 c2010)\n");
+   printf("\tIHCAN(stim,%.0f,%d,%g,%d,%g,%g,ihcout,%d)\n", cf, nrep, tdres, nstim, cohc, cihc, species);
    IHCAN(stim, cf, nrep, tdres, nstim, cohc, cihc, ihcout,species);
-   printf("SingleAN(ihcout,%.0f,%d,%g,%d,%d,%d,sout,%d)\n",cf,nrep,tdres,nstim,spont,implnt,species);
+   printf("\tSingleAN(ihcout,%.0f,%d,%g,%d,%d,%d,sout,%d)\n",cf,nrep,tdres,nstim,spont,implnt,species);
    out= SingleAN_v4_1(ihcout,cf,nrep,tdres,nstim,spont,implnt,sout,species);
 
    if( !ifarg(10) ) freevector(ihcout);
@@ -268,8 +270,8 @@ double tdres,cf;
    nrep = (int)(*getarg(7));
    if (nrep < 1) {printf("an_zilany_v4: nrep must be 1 or greater"); return 0;}
 
-   printf("AN model: Zilany, Bruce, Nelson and Carney  (version 4 c2010)\n");
-   printf("IHCAN(stim,%.0f,%d,%g,%d,%g,%g,ihcout,%d)\n", cf, nrep, tdres, nstim, cohc, cihc,species);
+   printf("\tAN model: Zilany, Bruce, Nelson and Carney  (version 4 c2010)\n");
+   printf("\tIHCAN(stim,%.0f,%d,%g,%d,%g,%g,ihcout,%d)\n", cf, nrep, tdres, nstim, cohc, cihc,species);
    IHCAN(stim, cf, nrep, tdres, nstim, cohc, cihc, ihcout,species);
    return (double) nihcout; 
 }
@@ -366,8 +368,8 @@ static double syn_zilany_v4(void *vv)
    }
 
 
-   printf("AN model: Zilany, Carney, Bruce, Nelson and others  (version 4 c2010)\n");
-   printf("SingleAN(ihcout,%.0f,%d,%g,%d,%d,%d,sout,%d)\n",cf,nrep,tdres,nihcout,fibertype,implnt,sout,species);
+   printf("\tAN model: Zilany, Carney, Bruce, Nelson and others  (version 4 c2010)\n");
+   printf("\tSingleAN(ihcout,%.0f,%d,%g,%d,%d,%d,sout,%d)\n",cf,nrep,tdres,nihcout,fibertype,implnt,sout,species);
     out= SingleAN_v4(ihcout,cf,nrep,tdres,nihcout,fibertype,implnt,sout,species);
 
 
@@ -479,10 +481,10 @@ static double psth_zilany_v4(void *vv)
    }
   ihcout = makevector(nstim);
 
-   printf("AN model: Zilany, Carney, Bruce, Nelson and others  (version 4 c2010)\n");
-   printf("IHCAN(stim,%.0f,%d,%g,%d,%g,%g,ihcout,%d)\n", cf, nrep, tdres, nstim, cohc, cihc, species);
+   printf("\tAN model: Zilany, Carney, Bruce, Nelson and others  (version 4 c2010)\n");
+   printf("\tIHCAN(stim,%.0f,%d,%g,%d,%g,%g,ihcout,%d)\n", cf, nrep, tdres, nstim, cohc, cihc, species);
    IHCAN(stim, cf, nrep, tdres, nstim, cohc, cihc, ihcout,species);
-   printf("PsthAN(ihcout,%.0f,%d,%g,%d,%d,%d,sout,%d)\n",cf,nrep,tdres,nstim,fibertype,implnt,species);
+   printf("\tPsthAN(ihcout,%.0f,%d,%g,%d,%d,%d,sout,%d)\n",cf,nrep,tdres,nstim,fibertype,implnt,species);
    PsthAN(ihcout,cf,nrep,tdres,nstim,fibertype,implnt,species,sout,psth);
 
    freevector(ihcout);
@@ -536,8 +538,8 @@ static double ANFSpikeGenerator3(void *vv)
     Nout = 0;
     NoutMax = (long) ceil(DT/dead);    
     
-/*printf("SpikeGenerator: nsout %d,\t nreps %d,\ttdres %f\n",nsout,nrep,tdres);*/
-    printf("ANFSpikeGenerator3: resizing spks to %d, nrep %d stimdur %g DT %g\n",NoutMax,nrep,stimdur,DT);
+/*printf("\tSpikeGenerator: nsout %d,\t nreps %d,\ttdres %f\n",nsout,nrep,tdres);*/
+    printf("\tANFSpikeGenerator3: resizing spks to %d, nrep %d stimdur %g DT %g\n",NoutMax,nrep,stimdur,DT);
     spks = *((void**)(&xspikes));
     if(spks){
      vector_resize(spks, NoutMax + nrep);
@@ -617,7 +619,7 @@ static double fast_fGn(void *vv)
       /*      vector_resize(ptr_ffGn, 32000);*/
     }
     vec_ffGn = ((double*) vector_vec(ptr_ffGn));      /*Get array ptr to ptr_ffGn Vector*/
-    printf("fast_fGn: calling ffGn(&%x,%d,%g,%g,%g,%g)\n",&vec_ffGn,nsizemax,tdres,Hinput,mu,sigma);
+    printf("\tfast_fGn: calling ffGn(&%x,%d,%g,%g,%g,%g)\n",&vec_ffGn,nsizemax,tdres,Hinput,mu,sigma);
     return ffGn(vec_ffGn,nsizemax,tdres,Hinput,mu,sigma);
 
 }

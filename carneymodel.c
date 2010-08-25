@@ -1,6 +1,8 @@
 
 
-/*/ --------------------------------------------------------------------------------
+#include "carneymodel.h"
+
+/* --------------------------------------------------------------------------
 ** Calculate the location on Basilar Membrane from best frequency
 */
 double cochlea_f2x(int species, double f)
