@@ -135,7 +135,7 @@ proc SetRates(){local i
 }
 
 proc GenInputSpikes(){local j
-  // an.GenSpikes()
+   an.GenSpikes()
   for i=0,99 golgi[i][0].GenSpikes()
 }
 
@@ -253,8 +253,6 @@ proc RatelevelGolgi1(){local ispl,i,j,count,sum,runtime,cell,xtime localobj tmp
          anrate[j].append(sum/(LSRsperchannel))
       }
       fvec.append(golgi[ghoshalkim_position][0].sout.mean(2000,3000))
-
-
       count+=1
       runtime = startsw()-runtime
       print "Simulation took ",runtime, " secs "
@@ -267,6 +265,66 @@ proc RatelevelGolgi1(){local ispl,i,j,count,sum,runtime,cell,xtime localobj tmp
    rate_level_graph.exec_menu("View = plot")
 
 }//RatelevelGolgi1
+
+proc NoiseRatelevelGolgi1(){local ispl,i,j,count,sum,runtime,cell,xtime localobj tmp
+   //objref Notchgr,results[sp.cells.count], Notch
+
+   count = 0
+
+   dur       = 0.049    //duration of tone segment (seconds)
+   dutycycle    = 0.2      //quiet duration = dutycycle*dur
+   ramplngth    = 0.001
+   srate       = 200000.0  
+   stimtdres    = 1/srate
+   sg_rate = 50000      
+   sg_tdres = 1/sg_rate
+   stimdelay = 0.02      //sec
+   stimtype=6   //tone
+   reps=250
+   gpstlist = new List()
+   for i=0,99 {
+      grate[i] = new Vector()
+      anrate[i] = new Vector()
+      gstdev[i] = new Vector()
+   }
+   fvec = new Vector()
+   //RefreshParameters()
+   //ANFilterBankRun()
+   for ispl=0,level.size-1 {
+   spl = level.x[ispl]
+      runtime = startsw()
+//      ClearSpikes()
+      RefreshParameters()
+      ANFilterBankRun()
+      SetRates()
+
+//      for j=0, reps-1{
+//         GenInputSpikes()
+//         print j
+//         SaveSpikes()
+         //print startsw()-x, "secs"
+//      }
+
+      for j=0,99 {
+      sum=0
+         grate[j].append(golgi[j][0].sout.mean(1000,3500))
+//         gstdev[j].append(isistdev)
+         anrate[j].append(LSRout[j].sout.mean(1000,3500))
+
+      }
+      fvec.append(golgi[ghoshalkim_position][0].sout.mean(1000,3500))
+      count+=1
+      runtime = startsw()-runtime
+      print "Simulation took ",runtime, " secs "
+   }
+
+   rate_level_graph = new Graph()
+   fvec.plot(rate_level_graph,2,2)
+   grate[ghoshalkim_position].plot(rate_level_graph)
+   anrate[ghoshalkim_position].plot(rate_level_graph)
+   rate_level_graph.exec_menu("View = plot")
+
+}//NoiseRatelevelGolgi1
 
 
 
@@ -307,7 +365,7 @@ func fun() {local f
 	ANFilterBankRun()
 	sg_rate = 50000
 	sg_tdres = 1/sg_rate
-	golgi[ghoshalkim_position][0].SetRate()
+	golgi[ghoshalkim_position][0].SetRate2()
 	
 	/*		
 	for j=0, reps-1{
@@ -384,7 +442,6 @@ func fun2() {local j
     //an.LSRspikes[ghoshalkim_position][0].resize(0)
 	//golgi[ghoshalkim_position][0].ClearSpikes()
 	RefreshParameters()
-	sg_rate=50000
 	ANFilterBankRun()
     SetRates()
     CreateGolgiSynFilter()
@@ -488,10 +545,10 @@ gg.flush()
 
 //Final praxis results (attr -> 1,0.1,3) 8/9/09
 proc PrintFinalResults(){
-golgi_spatial_filter_variance_LSR= 2.48372
-weight_sum_LSR = 0.516646
-weight_sum_HSR= 0.04872
-golgi_spon=3.7271
+  //golgi_spatial_filter_variance_LSR= 2.48372
+  //weight_sum_LSR = 0.516646
+  //weight_sum_HSR= 0.04872
+  //golgi_spon=3.7271
 
  RatelevelGolgi1()
    if (file.isopen()) file.close()
@@ -536,12 +593,9 @@ golgi_spon=3.7271
 load_file("cngui.hoc")
 
 
-HSRout[0].resize(20000)
-HSRout[1].resize(20000)
-HSRout[2].resize(20000)
 //dur=0.2
 //stimtype=2
 usesavedfilterbanks=1
 objref mygr[4],ihc
 RefreshParameters()
- RatelevelGolgi1()
+// RatelevelGolgi1()

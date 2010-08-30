@@ -1416,15 +1416,18 @@ proc GetAudiogramData(){
 }
 GetAudiogramData()
 
-strdef end_sout
-proc GenerateFilterbank(){ local icf, mycf, myohc,myihc,ZilanyImplmnt_orig localobj ihc
-    ihc = new Vector(stim.size,0)
+strdef end_sout,s
+objref IHC[nchannels]
+proc GenerateFilterbank(){ local ii,out,icf, mycf, myohc,myihc,ZilanyImplmnt_orig localobj ihc
+objref IHC[nchannels]
     //    ZilanyImplmnt_orig = ZilanyImplmnt
     if (name_declared("pnm") == 0 && say_once!=1) print "Generating AN model instantaneous rate functions"
     for icf = 0, nchannels-1 {
 
         LSRout[icf] = new Vector(stim.size,0)
         HSRout[icf] = new Vector(stim.size,0)
+    	IHC[icf] = new Vector(stim.size,0)
+	ihc = new Vector(stim.size)
 
 	mycf = cf.x[icf]
 	myohc = cohc.x[icf]
@@ -1441,13 +1444,16 @@ proc GenerateFilterbank(){ local icf, mycf, myohc,myihc,ZilanyImplmnt_orig local
 	}
 
 	if(ANmodel==7){
-	  //	  if (mycf > 8000) ZilanyImplmnt = ZilanyActual
-	  ihc.mul(0)
-	  LSRout[icf].an_zilany_v4(stim, stimtdres, mycf, LowSponFibre,ZilanyImplmnt,myihc,myohc,species, nrep,ihc)
-	  ihc.mul(0) 
-	  flushf()
-	  HSRout[icf].an_zilany_v4(stim, stimtdres, mycf, HighSponFibre,ZilanyImplmnt,myihc,myohc,species, nrep,ihc)
-			      flushf()
+	  out = LSRout[icf].an_zilany_v4(stim, stimtdres, mycf, LowSponFibre,ZilanyImplmnt,myihc,myohc,species, nrep,IHC[icf])
+	    if (out != LSRout[icf].size) {
+	      printf("out not equal to nstim")
+	      return 0
+	    }
+	    for ii=0,out-1 { sprint(s,"%g",IHC[icf].x[ii]) if (strcmp(s,"nan") != -1) {print "found NaN in IHC"} }
+	    for ii=0,out-1 { sprint(s,"%g",LSRout[icf].x[ii]) if (strcmp(s,"nan") != -1) {print "found NaN"} }
+	  out = HSRout[icf].an_zilany_v4(stim, stimtdres, mycf, HighSponFibre,ZilanyImplmnt,myihc,myohc,species, nrep)
+	  ihc.mul(0)  flushf()  doNotify()
+	    for ii=0,out-1 { sprint(s,"%g",HSRout[icf].x[ii]) if (strcmp(s,"nan") != -1) {print "found NaN"}}
 	  if (MSRsperchannel>0){
             MSRout[icf] = new Vector(stim.size)
             MSRout[icf].an_zilany_v4(stim, stimtdres, mycf, MedSponFibre,ZilanyActual, myihc,myohc,species, nrep)
