@@ -27,22 +27,22 @@ proc ShowInputGraphs() {
    /**** Set up AN filterbank graph ***/
    //b1.intercept(1)
    ANFBgr = new Graph(0)
-   ANFBgr.size(0,0.05,0,180000)
-   ANFBgr.view(0, 0, 0.05, 180000, 308, 345, 685, 365)
+//   ANFBgr.size(0,0.05,0,14000)
+   ANFBgr.view(0, 0, 0.05, 14000, 308, 345, 685, 365)
    ANFBgr.label(0.92,0.90, "CF")
    ANFBgr.label(0.1,0.95,"Auditory Filterbank Instantaneous Rate Profiles")
    for icf = 0, nchannels-1 {
       Sout[icf] = HSRout[icf].c
-      Sout[icf].mul(2).add(100*icf)
+      Sout[icf].mul(2).add(300*icf)
       Sout[icf].plot(ANFBgr,sg_tdres, 1, 0)
       sprint(lbl, "%g ", cf.x[icf])
       ANFBgr.label(0.92, 0.810*(icf/(nchannels-1))+0.075, lbl)
    }
    //system("date")
-   ANFBgr.exec_menu("View = plot")
+   //ANFBgr.exec_menu("View = plot")
+   ANFBgr.size(0,stimdur/1000,0,32000)
    b1.intercept(0)
    b1.map("Stimulus and Auditory Filterbank",308, 345, 685, 365)
-
 
 }//Dummy Graphs
 

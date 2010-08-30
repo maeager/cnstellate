@@ -10,7 +10,7 @@ ENDVERBATIM
 :* anmodel Vector Method - sout.an_zilany_v4( stim , tdres,  cf, spontrate, model, species, ifspike)
 VERBATIM
 
- #define DEBUG  
+ /* #define DEBUG   */
 /* #define _FFGN_ */ 
 
 #include "complex.c"

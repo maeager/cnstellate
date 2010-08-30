@@ -543,8 +543,8 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
     printf(" VI0 %g VI1 %g alpha %g beta %g theta1 %g theta2 %g theta3 %g vsat %g tmpst %g tmp %g PPI %g CIlast %g temp %g\n",     VI0, VI1, alpha, beta, theta1, theta2, theta3, vsat, tmpst, tmp, PPI, CIlast, temp);
 
     printf("sout1[0] %g sout2[0] %g \
-    m1[0] %g m2[0] %g m3[0] %g m4[0] %g m5[0] %g \ 
-    n1[0] %g n2[0] %g n3[0] %g synSampOut[0] %g TmpSyn[0] %g\n ",
+    m1[0] %g m2[0] %g m3[0] %g m4[0] %g m5[0] %g \
+    n1[0] %g n2[0] %g n3[0] %g synSampOut[0] %g TmpSyn[0] %g\n",
 	   sout1[0],sout2[0],
 	   m1[0],m2[0],m3[0],m4[0],m5[0],
 	   n1[0],n2[0],n3[0],synSampOut[0],TmpSyn[0]) ;

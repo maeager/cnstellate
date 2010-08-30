@@ -20,6 +20,7 @@ thresh=-20
 //previous optimisation parameters
 	  xopen("pvec_Golgi_RateLevel.hoc")
 
+// Input rate and spike procedures
 proc SetRates(){
    an.SetRates()
     for i=0,99 golgi[i][0].SetRate()
@@ -44,7 +45,7 @@ proc GenSpikes(){local i
 }
 
 
-
+// Replacement of connect_cells in Cochlear Nucleus.hoc
 
 proc connect_cells(){local i,p,target,source,low,high,range,channel,sourcechannel
 

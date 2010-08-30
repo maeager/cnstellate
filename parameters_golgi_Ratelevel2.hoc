@@ -31,8 +31,11 @@ dt 	    = 0.05	//ms
 steps_per_ms = 10
 setdt()
 celsius = 37
-secondorder=2
+secondorder = 2  // Crank-Nicholson method 
 
+cfhi = 40000
+cflo = 200
+species = 1
 	count = 0
 	tonefreq = 22700
 	ramplngth 	= 0.002		//

@@ -36,7 +36,7 @@ secondorder=2
 	count = 0
 	tonefreq = 8489
 	dur 		= 0.049 	//duration of tone segment (seconds)
-		
+	
 	dutycycle 	= 0.2		//quiet duration = dutycycle*dur
 	ramplngth 	= 0.001
 	srate 		= 500000.0  
