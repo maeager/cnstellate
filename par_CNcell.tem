@@ -330,6 +330,61 @@ proc connect2target() {
 
 endtemplate Golgicell
 
+objref golgi[nchannels][1]
+
+proc SaveGolgiFilterBank2File(){local nchan
+    objref ANfile
+
+    GetANfileString()
+    sprint(tmpANstr,"[ -d %s ] && mkdir -p %s/golgi",ANpath,ANpath)
+    system(tmpANstr)
+    ANfile = new File()
+    sprint(tmpANstr,"%s/golgi/%s",ANpath,ANstr)
+    ANfile.wopen(tmpANstr)
+    if (ANfile.isopen()){
+    ANfile.printf("%d\n%d\n%d\n%d\n%d\n%d\n", sg_rate, golgi[0][0].sout.size, nchannels,cflo,cfhi,species)
+    for icf = 0, nchannels-1 {
+        ANfile.printf("%d\n%d\n", icf, cf.x[icf])
+        golgi[icf][0].sout.printf(ANfile,"%.3f\t")
+        ANfile.printf("\n")
+    }
+
+    ANfile.close()
+    } else print "Unable to Save golgi file ", tmpANstr
+
+}
+
+func RetrieveGolgiFilterBank(){local nsize, nchan, temp
+    objref ANfile
+
+    GetANfileString()
+    ANfile = new File()
+    sprint(tmpANstr,"%s/golgi/%s",ANpath,ANstr)
+    ANfile.ropen(tmpANstr)
+    if (ANfile.isopen()){
+        if (name_declared("pnm") == 0 && say_once!=1) print "Retrieving AN Filterbank: ", ANstr
+        sg_rate = ANfile.scanvar()
+        nsize = ANfile.scanvar()
+   nchannels = ANfile.scanvar()
+   cflo = ANfile.scanvar()
+   cfhi = ANfile.scanvar()
+   species = ANfile.scanvar()
+
+     for icf = 0, nchannels-1 {
+        if (ANfile.scanvar() == icf){
+        cf.x[icf] = ANfile.scanvar()
+        golgi[icf][0].sout.scanf(ANfile,nsize)
+        }
+     }
+     sg_tdres = 1/sg_rate
+     ANfile.close()
+     return 1
+    } else {
+        print "Unable to load golgi file ", tmpANstr
+        return 0
+    }
+}
+
 /*
 objref x
 x = new Vector()
