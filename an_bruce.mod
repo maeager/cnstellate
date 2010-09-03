@@ -10,9 +10,9 @@ ENDVERBATIM
 
 :* anmodel Vector Method - sout.an4( stim/*wavefile*/, tdres,  cf, spontrate, model, species, ifspike)
 VERBATIM
-#include "complex.c"
-#include "zbcatmodelv2.c"
-
+#include "complex.h"
+// #include "zbcatmodelv2.c"
+#include "carneymodel.h"
 
 //sout.an_zbcatmodel07(tdres,cf,spont,model, species,ifspike,wavefile)
 
