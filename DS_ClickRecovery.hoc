@@ -681,6 +681,7 @@ objref aapvec,mypvec
 //astar=0
 //bb=1e9
 //aa=1e9
+proc April12(){
 for iprax=21,40 {
     Rand.uniform(pvec_ranges.x[0][0]*2,pvec_ranges.x[0][1]/10)
     pvec.setrand(Rand)
@@ -738,4 +739,5 @@ runprax2()
 sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery_result.eps DS_ClickRecovery/DS_ClickRecovery_result.%d.eps",iprax)
 system(cmd)
 lineno+=9
+}
 }

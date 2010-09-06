@@ -11,8 +11,8 @@ set output "ANF_histogram.eps"
 # set tmargin 0
 # set rmargin 0
 # set size noratio
-set xlabel "time (ms)"
-set ylabel "Freq. Channel"
+set xlabel "time (ms)" font "Helvetica,22"
+set ylabel "Freq. Channel" font "Helvetica,22"
 set xrange [0:100]
 set yrange [0:1500]
 
