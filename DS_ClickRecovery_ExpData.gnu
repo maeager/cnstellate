@@ -12,8 +12,9 @@ unset x2tics
 set tmargin 0
 set rmargin 0
 set size noratio
-set xlabel "Delay (ms)"
-set ylabel " Normalised Rate"
+set key top left
+set xlabel "Probe-Masker Delay (ms)" font "Helvetica,22"
+set ylabel "Normalised Discharge Rate (unitless)" font "Helvetica,22"
 set xrange [0:16]
 set yrange [0:1.1]
 
