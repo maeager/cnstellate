@@ -673,7 +673,7 @@ static double rtresample(void *vv)
 ENDVERBATIM
 
 
-PROCEDURE install_an_zilany_v4()
+PROCEDURE install_an_zbcatmodel_v4()
 {
 VERBATIM
    install_vector_method("an_zilany_v4", an_zilany_v4);

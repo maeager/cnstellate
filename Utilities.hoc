@@ -1006,8 +1006,8 @@ delx        = 0.05
 
 //install_anmodel()         //Heinz ARLO model
 //install_an_tanmodel()      //Tan and Carney
-//execute1("install_an_zbcatmodel07()")   //Zilany Bruce EtAl  2006,2007
-execute1("install_an_zilany_v4()")      //Zilany Bruce Nelson Carney 2009,2010
+execute1("install_an_zbcatmodel_v3()")   //Zilany Bruce  2006,2007
+execute1("install_an_zbcatmodel_v4()")      //Zilany Bruce Nelson Carney 2009,2010
 
     objref  LSRout[nchannels], HSRout[nchannels],cf, ANfile, MSRout[nchannels]
     cf = new Vector(nchannels)

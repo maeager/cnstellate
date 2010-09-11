@@ -23,12 +23,12 @@ whichcell=50
 
 proc SetRates(){
   an.SetRates()
-  for i=0,99 golgi[i][0].SetRate()
+  for i=0,99 golgi[i][0].SetRate2()
 }
 
 proc GenSpikes2(){local i
   startsw()
-      //Only generate spikes from stimulators that have a connecting synapse
+    //Only generate spikes from stimulators that have a connecting synapse
   for i=0,hsr2dsAMPAlist.count-1 {hsr2dsAMPAlist.object(i).pre.SGfast(1)}
   for i=0,lsr2dsAMPAlist.count-1 {lsr2dsAMPAlist.object(i).pre.SGfast(1)}
   for i=0,glg2dsGABAlist.count-1 {glg2dsGABAlist.object(i).pre.SGfast(1)}
@@ -39,7 +39,7 @@ proc GenSpikes(){local i,j,count
     startsw()
     for i=0,nchannels-1 {for j=0,HSRsperchannel-1 {an.HSR[i][j].SGfast(1)}}
     for i=0,nchannels-1 {for j=0,HSRsperchannel-1 count+=an.HSRspiketimes[i][j].size}
-  // if (count/(nchannels*HSRsperchannel) > 10) system("sleep 0.5")
+    // if (count/(nchannels*HSRsperchannel) > 10) system("sleep 0.5")
     for i=0,nchannels-1 {for j=0,LSRsperchannel-1 an.LSR[i][j].SGfast(1)}
     for i=0,nchannels-1 {golgi[i][0].s.SGfast(1)}
     print "GenSpikes time:", stopsw()
@@ -117,7 +117,7 @@ objref golgi[nchannels][1],g, dstellate[nchannels][1], tuberculoventral[nchannel
   cflo     =1000
   tstop	=85
   dur      = 0.049    //duration of stim (seconds)
-  spl      = 100
+  spl      = 100-50
   stimdelay= 0.02      //sec
   stimtype = 12      //Notch
   reps     = 50 //25
@@ -152,7 +152,7 @@ objref golgi[nchannels][1],g, dstellate[nchannels][1], tuberculoventral[nchannel
   reps=25
 
   notchwidth=1
-  for (spl=15;spl<=100;spl+=5){
+  /*  for (spl=15;spl<=100;spl+=5){
     RefreshParameters()
     ANFilterBankRun()   //Build the filterbank
     CheckFilterbank()
@@ -171,7 +171,7 @@ objref golgi[nchannels][1],g, dstellate[nchannels][1], tuberculoventral[nchannel
       ANSpikes()
       SaveMultiRun()
       }
-
+  */
 //xopen("cngui.hoc")
 
 
