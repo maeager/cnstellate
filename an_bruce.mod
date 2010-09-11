@@ -11,7 +11,7 @@ ENDVERBATIM
 :* anmodel Vector Method - sout.an4( stim/*wavefile*/, tdres,  cf, spontrate, model, species, ifspike)
 VERBATIM
 #include "complex.h"
-// #include "zbcatmodelv2.c"
+#include "zbcatmodelv2.c"
 #include "carneymodel.h"
 
 //sout.an_zbcatmodel07(tdres,cf,spont,model, species,ifspike,wavefile)
@@ -242,7 +242,7 @@ return Nspks;
 ENDVERBATIM
 
 
-PROCEDURE install_an_zbcatmodel07()
+PROCEDURE install_an_zbcatmodel_v3()
 {
 VERBATIM
 
