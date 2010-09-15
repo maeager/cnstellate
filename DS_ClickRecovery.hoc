@@ -7,30 +7,30 @@ load_file("nrngui.hoc")
 //load_file("par_init.hoc")
 thresh=-20
 
-      xopen("mathslib.hoc")         // mathematical procedures
-      xopen("Params.hoc")
-      xopen("Utilities.hoc")
-      xopen("NetworkParameters.hoc")
-      xopen("AuditoryNerve.hoc")
-      xopen("par_CNcell.tem")      // CN cell template
-      xopen("parameters_DS_ClickRecovery.hoc")           // model parameters
-      xopen("CochlearNucleus.hoc")         // model set-up
-      xopen("cngui.hoc")
+  xopen("mathslib.hoc")         // mathematical procedures
+  xopen("Params.hoc")
+  xopen("Utilities.hoc")
+  xopen("NetworkParameters.hoc")
+  xopen("AuditoryNerve.hoc")
+  xopen("par_CNcell.tem")      // CN cell template
+  xopen("parameters_DS_ClickRecovery.hoc")           // model parameters
+  xopen("CochlearNucleus.hoc")         // model set-up
+  xopen("cngui.hoc")
 
 //previous optimisation parameters
-	  xopen("pvec_Golgi_RateLevel.hoc")
+  xopen("pvec_Golgi_RateLevel.hoc")
 
 // Input rate and spike procedures
 proc SetRates(){
-   an.SetRates()
-    for i=0,99 golgi[i][0].SetRate()
+  an.SetRates()
+  for i=0,99 golgi[i][0].SetRate()
 }
 
 proc GenSpikes2(){local i
    // startsw()
-    for i=0,hsr2dsAMPAlist.count-1 hsr2dsAMPAlist.object(i).pre.SGfast(1)
-    for i=0,lsr2dsAMPAlist.count-1 lsr2dsAMPAlist.object(i).pre.SGfast(1)
-    for i=0,glg2dsGABAlist.count-1 glg2dsGABAlist.object(i).pre.SGfast(1)
+  for i=0,hsr2dsAMPAlist.count-1 hsr2dsAMPAlist.object(i).pre.SGfast(1)
+  for i=0,lsr2dsAMPAlist.count-1 lsr2dsAMPAlist.object(i).pre.SGfast(1)
+  for i=0,glg2dsGABAlist.count-1 glg2dsGABAlist.object(i).pre.SGfast(1)
    //     print stopsw()
 }
 
@@ -53,20 +53,20 @@ proc connect_cells(){local i,p,target,source,low,high,range,channel,sourcechanne
     sprint(filename,"%s.connect",$s1)
     outfile.wopen(filename)
 
-hsr2tsAMPAlist.remove_all()
-lsr2tsAMPAlist.remove_all()
-hsr2tvAMPAlist.remove_all()
-lsr2tvAMPAlist.remove_all()
-hsr2dsAMPAlist.remove_all()
-lsr2dsAMPAlist.remove_all()
-hsr2glgAMPAlist.remove_all()
-lsr2glgAMPAlist.remove_all()
-glg2dsGABAlist.remove_all()
-glg2tsGABAlist.remove_all()
-ds2tsGLYlist.remove_all()
-ds2tvGLYlist.remove_all()
-tv2tsGLYlist.remove_all()
-ts2tsAMPAlist.remove_all()
+    hsr2tsAMPAlist.remove_all()
+    lsr2tsAMPAlist.remove_all()
+    hsr2tvAMPAlist.remove_all()
+    lsr2tvAMPAlist.remove_all()
+    hsr2dsAMPAlist.remove_all()
+    lsr2dsAMPAlist.remove_all()
+    hsr2glgAMPAlist.remove_all()
+    lsr2glgAMPAlist.remove_all()
+    glg2dsGABAlist.remove_all()
+    glg2tsGABAlist.remove_all()
+    ds2tsGLYlist.remove_all()
+    ds2tvGLYlist.remove_all()
+    tv2tsGLYlist.remove_all()
+    ts2tsAMPAlist.remove_all()
  print "HSR->DS"
 if( ( param.n.getval(hsr,ds) > 0 ) && ( nDSperchannel != 0 ) ){
  outfile.printf("\n%d %d\n",hsr,ds)
@@ -227,34 +227,34 @@ proc reset_weights() { local i // 1 arg - weight
 // Simplex Method Optimisation function
 //D-stellate Click train PSTH   (Backoff et al. 1997)
 
- a1 =   param.w.x[glg][ds]
- a2  =     param.w.x[hsr][ds]
- // a3 =     param.n.x[hsr][ds]
+  a1 =   param.w.x[glg][ds]
+  a2  =     param.w.x[hsr][ds]
+  // a3 =     param.n.x[hsr][ds]
 
-objref errorvec, DSvec
+  objref errorvec, DSvec
 func fun() {local f
-objref errorvec, DSvec
-DSvec  = new Vector()
-        {
-                g.line($2, $3)
-                g.flush()
-                doNotify()
-      print $1, $2 , $3
-      }
+  objref errorvec, DSvec
+  DSvec  = new Vector()
+  {
+    g.line($2, $3)
+    g.flush()
+    doNotify()
+    print $1, $2 , $3
+  }
         //Modify Variables
-        param.w.x[glg][ds] = $2
-        param.w.x[hsr][ds] = $3
-        param.w.x[lsr][ds] = $3
+  param.w.x[glg][ds] = $2
+  param.w.x[hsr][ds] = $3
+  param.w.x[lsr][ds] = $3
         //param.n.x[hsr][ds] = $4
-        {reset_weights()}
-      for j=0, reps-1{
-         print j
-         GenSpikes()
-         run()
-         DSvec.append(dstellate[50][0].spiketimes)
-         //print startsw()-x, "secs"
-      }
-      DSvec = DSvec.histogram(0,tstop,0.1)
+  reset_weights()
+  for j=0, reps-1{
+      print j
+      GenSpikes()
+      run()
+      DSvec.append(dstellate[50][0].spiketimes)
+      //print startsw()-x, "secs"
+    }
+  DSvec = DSvec.histogram(0,tstop,0.1)
 
 objref errorvec
 errorvec = new Vector()

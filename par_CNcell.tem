@@ -29,7 +29,7 @@ func gaussian(){local mean,var
 begintemplate CNcell
   public soma, dend, AMPA, GlyR, GABAA, spiketimes, spikecount
   public spikes,connect2target, synlist,cf,model,channel
-  external thresh,Erest
+  external thresh,Erest,dstellate_gleak_rm
   external ampa_decay,ampa_erev,gly_decay,gly_erev,gly_rise, gaba_decay, gaba_erev,gaba_rise//,acell_home_
 
   create soma
@@ -41,8 +41,9 @@ channel=0
   create soma
    synlist = new List()
     spiketimes = new Vector()
+    spikes = new Vector()
     lastspikecount = 0
-	spikes = new Vector()
+
 
     if($1 == 0) set_tstellate() //Tstellate cell
     if($1 == 1) set_tuberc() //Tubervuloventral cell
@@ -65,7 +66,7 @@ channel=0
         GlyR = new Exp2Syn(0.5)
         synlist.append(GlyR)
         GlyR.tau2 	= gly_decay
-	GlyR.tau1	= gly_rise
+		GlyR.tau1	= gly_rise
         GlyR.e 		= gly_erev
 //	}
 //    if (model==1 || model ==3){
@@ -211,22 +212,22 @@ func alpha(){//Alpha function synaptic/membrane filter
 return $1*sg_tdres*exp(-($1*sg_tdres)/golgi_syn_filter_tau)
 }
 proc CreateGolgiSynFilter(){
-golgi_synfilter = new Vector(sg_rate*10*golgi_syn_filter_tau)
-
-golgi_synfilter.indgen().apply("alpha")  //apply alpha function
-golgi_synfilter.mul(golgi_syn_filter_scale_factor/golgi_synfilter.sum()) //scale and normalise
-
+  golgi_synfilter = new Vector(sg_rate*10*golgi_syn_filter_tau)
+  //create alpha function
+  golgi_synfilter.indgen().apply("alpha")  
+  //scale and normalise
+  golgi_synfilter.mul(golgi_syn_filter_scale_factor/golgi_synfilter.sum()) 
 }
 CreateGolgiSynFilter()
 proc convolve(){local x1,x2,wsize
-	for x1=0,$o1.size -1 {
-		wsize = $o2.size
-		if(x1 < wsize) wsize=x1+1
-		for x2=0,wsize-1 $o3.x[x1]+=$o1.x[x1-x2]*$o2.x[x2]
-	}
-	//correct for initial response
-	//SGfast does not like first element to be zero
-	for x1 = 0,$o2.size $o3.x[x1] = $o3.x[$o2.size]
+   for x1=0,$o1.size -1 {
+       wsize = $o2.size
+       if(x1 < wsize) wsize=x1+1
+       for x2=0,wsize-1 $o3.x[x1]+=$o1.x[x1-x2]*$o2.x[x2]
+   }
+   //correct for initial response
+   //SGfast does not like first element to be zero
+   for x1 = 0,$o2.size $o3.x[x1] = $o3.x[$o2.size]
 }
 
 begintemplate Golgicell

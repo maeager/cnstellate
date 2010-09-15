@@ -1,3 +1,15 @@
+
+
+
+## function [ampl]=dB2ampl(dB)
+## 	ampl = 10^(dB/20)
+## endfunction
+	
+## function [ampl]=dBSPL2ampl(dB)
+## 	ampl = 2e-5*10^(dB/20)
+## endfunction
+
+
 %function getnotch()
 close all
 
@@ -16,12 +28,3 @@ m = [1 1 depth depth 1 1]
   [h, w] = freqz(b,a);
   plot(f,m,';target response;',w/pi,abs(h),';filter response;');
 
-
-%
-function ampl = dB2ampl(dB)
-	ampl = 10^(dB/20)
-endfunction
-	
-function ampl = dBSPL2ampl(dB)
-	ampl = 2e-5*10^(dB/20)
-endfunction
