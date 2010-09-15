@@ -59,21 +59,21 @@ channel=0
 
       AMPA = new ExpSyn(0.5)
 	   synlist.append(AMPA)
-      AMPA.tau = ampa_decay
+      AMPA.tau      = ampa_decay
       AMPA.e 		= ampa_erev
 
    //   if (model==1 || model ==2){
         GlyR = new Exp2Syn(0.5)
         synlist.append(GlyR)
         GlyR.tau2 	= gly_decay
-	GlyR.tau1	= gly_rise
-        GlyR.e = gly_erev
+		GlyR.tau1	= gly_rise
+        GlyR.e 		= gly_erev
 //	}
 //    if (model==1 || model ==3){
         GABAA = new Exp2Syn(0.5)
 	    synlist.append(GABAA)
-        GABAA.tau2 = gaba_decay
-        GABAA.tau1 = gaba_rise
+        GABAA.tau2 	= gaba_decay
+        GABAA.tau1 	= gaba_rise
         GABAA.e 	= gaba_erev
  //     }
     }
@@ -189,11 +189,24 @@ proc set_golgi() {
 
 endtemplate CNcell
 
+
+//Default parameters
 weight_sum = 1
 golgi_spon = 1
 golgi_spatial_filter_variance = 4
 golgi_syn_filter_tau = 0.0005  // s
 golgi_syn_filter_scale_factor=1
+// Adding MSR and HSR to golgi
+weight_sum_LSR = 0.5
+golgi_spatial_filter_variance_LSR=1
+weight_sum_MSR=0.5
+golgi_spatial_filter_variance_MSR=1
+weight_sum_HSR=0.5
+golgi_spatial_filter_variance_HSR=1
+
+
+
+
 objref golgi_synfilter
 
 func alpha(){//Alpha function synaptic/membrane filter
@@ -219,12 +232,14 @@ proc convolve(){local x1,x2,wsize
 }
 
 begintemplate Golgicell
-  public s,w, spiketimes, spikecount,sout,SetRate,GenSpikes,SaveSpikes,ClearSpikes
-  public connect2target, synlist,cf,model,channel,spikes
+  public connect2target,SetRate,SetRate2,GenSpikes,SaveSpikes,ClearSpikes
+  public s,w, spiketimes, spikecount,sout, synlist,cf,model,channel,spikes
+  public wLSR,wHSR,wMSR
   external thresh,LSRout,nchannels,sg_tdres,weight_sum, golgi_spon,golgi_spatial_filter_variance
-  external gaussian,gaussian_mean,gaussian_variance,golgi_synfilter,convolve
-
+  external gaussian,gaussian_mean,gaussian_variance,golgi_synfilter,convolve, MSRsperchannel, Lowspont,Highspont,Medspont
+  external param,lsr,glg,sg_rate,HSRout, MSRout, weight_sum_LSR, golgi_spatial_filter_variance_LSR, weight_sum_MSR, golgi_spatial_filter_variance_MSR, weight_sum_HSR, golgi_spatial_filter_variance_HSR
   objref s,w, spiketimes, spikecount,sout,synlist,spikes
+  objref wLSR,wHSR,wMSR
   cf=1E3
   channel=0
  inputchannelvariance=1
@@ -256,6 +271,42 @@ proc SetRate() {local i,j,spon_factor
 	spon_factor = LSRout[0].x[0]/tempsout.x[0]
 	tempsout.mul(spon_factor).add(golgi_spon)
 	convolve(tempsout,golgi_synfilter,sout)
+	s.SetFibreRate(sout,spiketimes,sg_tdres)
+//print "golgi[",i,"][",j,"]: Process ",pnm.myid," mean ", sout.mean()
+	objref tempsout
+}
+proc SetRate2() {local i,j,spon_factor
+	tempsout = new Vector(LSRout[0].size)
+	sout = new Vector(LSRout[0].size)
+
+	wLSR = new Vector(nchannels)
+	wLSR.indgen()
+    wHSR = wLSR.c
+	gaussian_mean = channel
+	gaussian_variance = golgi_spatial_filter_variance_LSR
+	wLSR.apply("gaussian").mul(weight_sum_LSR)
+	if(MSRsperchannel>0){
+        gaussian_variance = golgi_spatial_filter_variance_MSR
+	    wMSR.apply("gaussian").mul(weight_sum_MSR)
+	}
+    gaussian_variance = golgi_spatial_filter_variance_HSR
+	wHSR.apply("gaussian").mul(weight_sum_HSR)
+
+
+	for i=0,nchannels-1  {
+	   if (wLSR.x[i]>0.01) tempsout.add(LSRout[i].c.add(-Lowspont).mul(wLSR.x[i]))
+	   if(MSRsperchannel>0) tempsout.add(MSRout[i].c.add(-Medspont).mul(wMSR.x[i]))
+	   if (wHSR.x[i]>0.01)tempsout.add(HSRout[i].c.add(-Highspont).mul(wHSR.x[i]))
+	}
+	tempsout.add(golgi_spon)
+	//Smooth AN input with alpha-function to simulate dendritic filtering
+    convolve(tempsout,golgi_synfilter,sout)
+    //Add conduction delay to inst. rate profile to ensure accurate FSL
+    for i = 0, param.delay.x[lsr][glg]*sg_rate/1000{
+        sout.insrt(0,golgi_spon)
+        sout.remove(sout.size-1)
+    }
+
 	s.SetFibreRate(sout,spiketimes,sg_tdres)
 //print "golgi[",i,"][",j,"]: Process ",pnm.myid," mean ", sout.mean()
 	objref tempsout

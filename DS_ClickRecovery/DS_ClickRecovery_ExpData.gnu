@@ -2,7 +2,7 @@
 #
 # gnuplot is available from http://www.gnuplot.info
 
-set term postscript enhanced color solid "Helvetica" 12
+set term postscript enhanced color solid "Helvetica" 16
 
 set border 3
 set ytics nomirror
@@ -12,8 +12,8 @@ unset x2tics
 set tmargin 0
 set rmargin 0
 set size noratio
-set xlabel "Delay (ms)"
-set ylabel " Normalised Rate"
+set xlabel "Delay (ms)" font "Helvetica,22"
+set ylabel " Normalised Rate" "Helvetica,22"
 set xrange [0:20]
 set yrange [0:1.2]
 
