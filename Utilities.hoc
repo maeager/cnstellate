@@ -1373,11 +1373,23 @@ func RetrieveANFilterBank(){local nsize, nchan, temp
         if (name_declared("pnm") == 0 && say_once!=1) print "Retrieving AN Filterbank: ", ANstr
         sg_rate = ANfile.scanvar()
         nsize = ANfile.scanvar()
-   nchannels = ANfile.scanvar()
-   cflo = ANfile.scanvar()
-   cfhi = ANfile.scanvar()
-   species = ANfile.scanvar()
-
+   if ((temp = ANfile.scanvar()) != nchannels){
+        print "nchannels not the same in ", tmpANstr
+        return 0
+    }
+   if ((temp = ANfile.scanvar()) != cflo){
+        print "cflo not the same in ", tmpANstr
+        return 0
+    }
+   if ((temp = ANfile.scanvar()) != cfhi){
+        print "cfhi not the same in ", tmpANstr
+        return 0
+    }
+    if ((temp = ANfile.scanvar()) != species){
+        print "species not the same in ", tmpANstr
+        return 0
+    }
+   
      for icf = 0, nchannels-1 {
         LSRout[icf] = new Vector(nsize)
         HSRout[icf] = new Vector(nsize)
