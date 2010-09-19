@@ -34,3 +34,50 @@ setdt()
 celsius = 37
 secondorder=2		//Crank-Nicholson Integration method 
 
+
+//Optimisation parameters
+print "Optimisation parameters for TV Notch"
+NPARAMS=8
+objref pvec,fvec,pvec_ranges,pvec_name,pvec_factor
+pvec = new Vector(NPARAMS) //contains the parameters to be fitted
+pvec_ranges= new Matrix(NPARAMS,2) // (min,max) pairs for each param
+pvec_name = new List() //names of parameters in String list
+pvec_factor = new Vector(NPARAMS,1)
+
+  //Names                                               //Initial values	
+pvec_name.append(new String("param.w.x[ds][tv]"))	pvec.x[0] = 0.0017	 
+pvec_name.append(new String("param.n.x[ds][tv]"))	pvec.x[1] = 20		
+pvec_name.append(new String("param.w.x[hsr][tv]"))	pvec.x[2] = 0.0013	
+pvec_name.append(new String("param.n.x[hsr][tv]"))	pvec.x[3] = 8		
+pvec_name.append(new String("param.w.x[lsr][tv]"))	pvec.x[4] = 0.0019	
+pvec_name.append(new String("param.n.x[lsr][tv]"))	pvec.x[5] = 12		
+pvec_name.append(new String("param.s.x[lsr][tv]"))	pvec.x[6] = 0.8	
+pvec_name.append(new String("param.offset.x[lsr][tv]"))	pvec.x[7] = 2.1
+
+//mul factor
+ for i=0,NPARAMS-1 pvec_factor.x[i] = 1	
+//min
+ for i=0,NPARAMS-1 pvec_ranges.x[i][0]= 0.000001
+//max
+ for i=0,NPARAMS-1 pvec_ranges.x[i][1]= 0.03
+
+// cmd is a strdef variable that should be used in local routines and not passed across procedures
+proc set_pvec(){local pp
+    for pp=0,NPARAMS-1 {
+        sprint(cmd,"pvec.x[%d] = %s / pvec_factor.x[%d]\n",pp,pvec_name.object(pp).s,pp)
+        execute1(cmd)
+    }
+}
+
+// Reiss and Young Type 2 units
+// CF=12.5kHz, spon rate is zero
+  objref tempmat,RY_fig9E1[2], RY_fig10Ai[2]  
+file.ropen("TV_notch/Reiss_Fig9_E_1oct.png.dat") //22dB notch, falling edge 1 oct
+
+  file.ropen("TV_notch/Reiss_Fig9_C_halfoct.png.dat") //rising edge 1/2 oct
+
+  file.ropen("Reiss_Fig10_RisingEdgeMeanType2_halfoct_mean.png.dat")  
+  tempmat = new Matrix()
+  tempmat.scanf(file,59,2) //data is 59 rows
+  // centre point is at 25th row
+  RY_fig10Ai[0] = tempmat.getcol(0)
