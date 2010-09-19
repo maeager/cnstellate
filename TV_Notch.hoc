@@ -182,7 +182,7 @@ objref golgi[nchannels][1],g, dstellate[nchannels][1], tuberculoventral[nchannel
 
 //ShowGolgiGraphs()
 
-//D-stellate Click train PSTH   (Backoff et al. 1997)
+//TV Optimisation
 objref gr,target_notch, dslist, fvec,dvec,ivec,weighting
 
 objref gpstlist, grate[nchannels],anrate[nchannels],rate_level_graph
