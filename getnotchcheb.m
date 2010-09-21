@@ -1,4 +1,4 @@
-%function getnotchcheb(Fs,fstop1,notchwidth,Rs
+%function getnotchcheb(Fs,fstop1,notchwidth,Rs)
 close all;
 Fs = 100e3
 x = 2e-5*10^(100/20)*randn(1,Fs/10);
@@ -7,7 +7,7 @@ window=ceil(10*Fs/1000); # 10 ms data window
 subplot(3,1,1);
 specgram(x, 2^nextpow2(window), Fs, window, window-xstep);
 
-%notchwidth=1; n=9
+notchwidth=1; n=9
 %notchwidth=1/2; n=9
 %notchwidth=1/4; n=7
 
