@@ -1265,11 +1265,19 @@ proc ResampleANFilterBank() {local smpl_ratio
 strdef tmpANstr
 func GetANfileString() {local i
   sprint(ANpath, "%s",ANsoundspath)
-  if(ANmodel == 4) sprint(ANpath, "%s/arlo",ANpath)
+
+
+//Subfolder ANmodel
   if(ANmodel == 3) sprint(ANpath, "%s/tan",ANpath)
+  if(ANmodel == 4) sprint(ANpath, "%s/arlo",ANpath)
   if(ANmodel == 6) sprint(ANpath, "%s/bruce",ANpath)
   if(ANmodel == 7) sprint(ANpath, "%s/zbmodelv4_%d",ANpath,ZilanyImplmnt)
-  
+  //Subfolder Species
+  if(species == 2) { sprint(ANpath, "%s/Rat",ANpath)  
+  } else if(species == 0) {sprint(ANpath, "%s/Human",ANpath)
+  } else { /* Default Cat  (species ==1 || species == 9)*/ 
+    sprint(ANpath, "%s/Cat",ANpath) 
+  }
   sprint(tmpANstr,"mkdir -p %s",ANpath)
   system(tmpANstr)
   
