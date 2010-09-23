@@ -86,7 +86,7 @@ wavefile = "../PVSyllables/be.dat"
 usesavedfilterbanks=1
 
 
-sg_rate = 10000
+sg_rate = 20000
 sg_tdres = 1/sg_rate
 /*
 proc LoadVowel(){
