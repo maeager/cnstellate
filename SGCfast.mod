@@ -555,11 +555,10 @@ VERBATIM
 	  }
         }
       } /* End of rate vector loop */
-	countTime = tdres;
-	spktimes[Nout++] = 0.0;
+      if (nrep ==1) break;
+      countTime = tdres;
+      spktimes[Nout++] = 0.0;
     }
-
-
     freevector(randNums);
 
     

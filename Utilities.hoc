@@ -73,16 +73,20 @@ objref Rand
 strdef seedstr
 proc InitRandom() {
     objref Rand
-    system("date +%s", seedstr)
+    
     seed = 0
-    sscanf(seedstr, "%f", &seed)
-    if (name_declared("pnm") == 0) print "Random seed:" , seed
-    highindex = 2  //seed
-    lowindex = mcell_ran4_init()
-    variable_domain(&highindex, 0, 2^32-1)
-    if (name_declared("pnm") == 0) print "RNG initialised ",lowindex, " ", highindex
-    Rand = new Random(seed)
-    //Rand = new Random(2)
+    if (use_seed) {
+      system("date +%s", seedstr)
+      sscanf(seedstr, "%f", &seed)
+      if (name_declared("pnm") == 0) print "Random seed:" , seed
+      Rand = new Random(seed)
+    } else{
+      highindex = 0
+      lowindex = mcell_ran4_init()
+      variable_domain(&highindex, 0, 2^32-1)
+      if (name_declared("pnm") == 0) print "RNG initialised ",lowindex, " ", highindex
+      Rand = new Random()
+    }
 }
 InitRandom()
 
@@ -129,11 +133,11 @@ func mycos(){
  **   AMtone
  **   ToneplusNoise (simultaneous)
  **   GaussianNoise
- **    AMnoise
+ **   AMnoise
  **   Twotone
  **   Ramptone
  **   GetWavfile - functions to retreive stim from file
- **    NotchNoise - pregenerated in MATLAB
+ **   NotchNoise - pregenerated in MATLAB
  *******************************************************/
 objref stim,file,modulation,bbnoise,clicktimes
 objref rampx, offramp, onramp, middle, quiet, envelope, inputsound,initquiet
@@ -504,7 +508,7 @@ objref rampx, offramp, onramp, middle, quiet, envelope, inputsound,initquiet
 
 
 }
-
+strdef tmpstr
 proc FilteredNoise() {local rampts, rstep, totalpts, steadypts, duration,spl,cycle, ramplength, aa, nrep,delay
 //FilteredNoise( dur, spl, dutycycle, ramplngth, stimdelay,stopband,notchwidth,30)
 	objref stim
@@ -524,11 +528,15 @@ proc FilteredNoise() {local rampts, rstep, totalpts, steadypts, duration,spl,cyc
     sprint(wavefile,"./TV_notch/Notch-sb%d-%goct.dat",stopband1,notchwidth)
     print wavefile
     file.ropen(wavefile)
+    if (file.isopen() == 0){
+       sprint(tmpstr,"octave --eval \"getnotchcheb(%d,%g,%g,%g,%s)\" 2> /dev/null",int(srate),stopband1,notchwidth,notchdepth,wavefile)
+       system(tmpstr)
+        file.ropen(wavefile)
+	}
+
     Readfile(inputsound,file)
     srate=100000 //sampling rate (Hz)  determined in MATLAB/Octave
     stimtdres=1/srate
-    sg_rate=50000
-    sg_tdres=1/sg_rate
 	rampts = ramplength * srate
 	steadypts = duration * srate - rampts
 	totalpts = steadypts + (rampts*2)
@@ -987,13 +995,14 @@ objref rampx, offramp, onramp, middle, quiet, envelope, inputsound,initquiet
 /************************************************************
  * Stimulus and filterbank generation  and refresh functions
  *   RefreshParameters()
- *   ResampleANFilterBank()
- *   GetANfileString()
- *   SaveANFilterBank2File()
- *   RetrieveANFilterBank()
- *   GetAudiogramData()
- *   GenerateFilterbank()
+ *    RefreshCF()
+ *    GetAudiogramData()
  *   ANFilterBankRun()
+ *    ResampleANFilterBank()
+ *    GetANfileString()
+ *    SaveANFilterBank2File()
+ *    RetrieveANFilterBank()
+ *    GenerateFilterbank()
  **********************************************************/
 objref stim, file, tvec, cf
 ifspike     = 1
@@ -1125,14 +1134,14 @@ proc RefreshParameters() {local aa localobj tmprand
             objref stim
             stim  = new Vector(int(dur/stimtdres), 0 )
             if (nrep > 1) { for i=2,nrep { stim.append(new Vector(int(stimdur/stimtdres), 0 ))} }
-            sprint(grlbl,"Silence %g ms", dur*1000)
+            sprint(grlbl,"Silence %.0f ms", dur*1000)
         }
     //AM tone
         if(stimtype == 3) {
 	  if((srate != 1e5) && ((tonefreq > 20e3) && srate != 200000)) print "You should be using a better sampling rate"
             //Generate Stimulus, must have stim available
             AMtone(tonefreq, srate, dur, spl, dutycycle, ramplngth,nrep, stimdelay, AM_modfreq, AM_depth)
-            sprint( grlbl, "AM Stimulus fc %d Hz fm %d Hz m %f %d dB SPL", tonefreq, AM_modfreq,AM_depth,spl)
+            sprint( grlbl, "AM Stimulus fc %d Hz fm %d Hz m %.2f %d dB SPL", tonefreq, AM_modfreq,AM_depth,spl)
         }
     //WB noise
         if(stimtype ==4) {
@@ -1148,14 +1157,14 @@ proc RefreshParameters() {local aa localobj tmprand
 	  if((srate != 1e5) && ((tonefreq > 20e3) && srate != 200000)) print "You should be using a better sampling rate"
             AMnoise(srate,AM_modfreq, AM_depth, nrep, spl, stimdelay)
 
-            sprint( grlbl, "Wide-band Noise with Amplitude Modulation  fm %d (Hz) m %f %d (dB SPL) Sampling freq %5.0f (Hz)", AM_modfreq,AM_depth, spl, srate)
+            sprint( grlbl, "Wide-band Noise with Amplitude Modulation  fm %d (Hz) m %.3f %d (dB SPL) Sampling freq %.0f (Hz)", AM_modfreq,AM_depth, spl, srate)
         }
     //Gaussian noise
         if(stimtype ==6) {
             objref stim
 	  if((srate != 1e5) && ((tonefreq > 20e3) && srate != 200000)) print "You should be using a better sampling rate"
             GaussianNoise(srate, dur, spl, dutycycle, ramplngth,nrep, stimdelay, Gaussmean, Gaussvar)
-            sprint( grlbl, "Gaussian Noise:  mean %f, variance %d, %d dB SPL, Sampling freq %5.0f", Gaussmean,Gaussvar,spl, 1/stimtdres)
+            sprint( grlbl, "Gaussian Noise:  mean %.2f, variance %.2, %d dB SPL, Sampling freq %d", Gaussmean,Gaussvar,spl, int(srate))
         }
     //Tone and Noise
         if(stimtype ==7) {
@@ -1199,7 +1208,7 @@ proc RefreshParameters() {local aa localobj tmprand
         if(stimtype ==12) {
             objref stim
             FilteredNoise( dur, spl, dutycycle, ramplngth, stimdelay,stopband,notchwidth,30)
-            sprint( grlbl, "Notch Noise: %f dB SPL, Stopband falling edge %fkHz, %f octave bandwidth, Sampling freq %g",spl,stopband,notchwidth, srate)
+            sprint( grlbl, "Notch Noise: %d dB SPL, Stopband falling edge %d kHz, %.3f octave bandwidth, Sampling freq %d",int(spl),int(stopband),notchwidth, int(srate))
         }
         if (stimtype ==0){
     //Get Stimulus from Wavefile
@@ -1245,7 +1254,7 @@ proc RefreshParameters() {local aa localobj tmprand
         aa = Decibels(tmprand)
         tmprand.mul(spl2amplNoise(NoiseLevel)/aa)
         stim.add(tmprand)
-        sprint(grlbl, "%s with %f dB Noise", grlbl, NoiseLevel)
+        sprint(grlbl, "%s with %d dB Noise", grlbl, int(NoiseLevel))
 
     }
   print grlbl
@@ -1559,3 +1568,6 @@ proc GenerateMSRs(){ local icf
         MSRout[icf].resample(MSRout[icf],sg_rate/srate)
     }
 }
+
+// see GUIs in cngui.hoc
+

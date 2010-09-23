@@ -1,10 +1,10 @@
 /***************************************
  * Cochlear Nucleus Stellate Network
- * Default parameters
+ * Declaration and initialtion of the core global parameters
  * Michael Eager, University of Melbourne, 2007-2010
  ***************************************/
 strdef cnstellate_dir
-cnstellate_dir = "/home/eagerm/Work/cnstellate"
+cnstellate_dir = getcwd()
 
 nchannels = 100
 HSRsperchannel  =   20
@@ -177,15 +177,17 @@ ARLOModel_Params    = 1
   ZilanyActual=1
   ZilanyApprox=0
   ZilanyImplmnt = ZilanyApprox //default  
-  species = 9   // Cat
+  species = 9                  //Cat
   audiogram_file =  "cat_audiogram.txt"
 
-/*----------------------------------------------------------------
+
+
+/*
  * The parameter file for any experiment should look like the following section:
  * Michael Eager, University of Melbourne
  * Cochlear Nucleus network model: parameters file
  * based on parameters_odour_baseline.hoc by Andrew Davison
- ----------------------------------------------------------------*/
+ */
 
 nchannels   = 100       // Total number of frequency channels
 nTSperchannel   = 10    // number of TS cells in each freq channel
@@ -202,17 +204,18 @@ thresh      = -10       // mV, threshold for detecting spikes
 
 
 strdef fileroot
-fileroot="vowel_baseline"  // default root for output filenames
-vowelnumber = 1                    // which vowel
-inputnumber = 1                    // fixed input file
-tstop       = 400                  // ms, total simulation time
-t_ignore_before       = 20                  // ms,  when calculating statistics, ignore
-                                   // spikes occuring before this time
+fileroot="vowel_baseline"   // default root for output filenames
+vowelnumber = 1             // which vowel
+inputnumber = 1             // fixed input file
+tstop       = 400           // ms, total simulation time
+t_ignore_before       = 20  // ms,  when calculating statistics, ignore
+                            // spikes occuring before this time
 
 cvode.active(0)
-dt        = 0.05		// NEURON's local integration time step
-steps_per_ms = 10                   // NEURON graphical plotting variable
+dt        = 0.05	   // NEURON's local integration time step
+steps_per_ms = 10          // NEURON graphical plotting variable
 setdt()
-dt=0.1                              //ms, integration time step
-celsius = 37                        //degrees C, body  temperature
-secondorder=2                       //Crank-Nickolson integration, correct to second order
+dt=0.1                     //ms, integration time step
+celsius = 37               //degrees C, body  temperature
+secondorder=2              //Crank-Nickolson integration, correct to second order
+use_seed=0                 // Random number generator initialise flag

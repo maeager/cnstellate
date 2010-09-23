@@ -17,7 +17,7 @@ proc ShowInputGraphs() {
    stimgr = new Graph(0)
    stimgr.view(0, -0.01, 0.042, 0.02, 308, 88, 685, 150)
    stimgr.label(0.1, 0.91, grlbl)
-   stimgr.label(0.0, 0.65, "Amplitude  (uPascals)")
+   stimgr.label(0.0, 0.65, "Amp")
    stimgr.label(0.85, 0.35, "time (ms)")
    stim.plot(stimgr, tvec)
    stimgr.exec_menu("View = plot")
@@ -311,11 +311,38 @@ proc weightspanel(){
 
 
 /********************************************************************
+ *   Utility Menu
+ ********************************************************************/
+ 
+xpanel("Utility Menu")
+  xvalue("CF upper bound","cfhi")  
+  xvalue("CF lower bound","cflo")  
+  xvalue("No. Channels","nchannels")  
+  xvalue("AN model", "ANmodel")
+  xvalue("Species", "species")
+  xbutton("Generate MSR","GenerateMSRs()")
+  xbutton("Check AN filters","CheckFilterbank()")
+  xbutton("Simple Generate Filterbanks","GenerateFilterbank()")
+  xbutton("Refresh Stim and Param", "RefreshParameters()")
+  xbutton("Update Filterbanks","ANFilterBankRun()")
+  xbutton("Reload Audiograms","GetAudiogramData()")
+  xbutton("Regenerate CF", "RefreshCF()")
+  xbutton("Show Audiogram","PlotAudiogram()")
+  xbutton("Refresh Stim and Param", "RefreshParameters()")
+  xbutton("Update Filterbanks","ANFilterBankRun()")
+  xbutton("Reset ANFs","SetRates()")
+  xbutton("Reset Golgis","SetGolgiRates()")
+  xbutton("Plot Stim & AN filterbank","ShowInputGraphs()")  
+  xbutton("Plot Golgi filterbank","ShowGolgiGraphs()")
+  
+  xpanel()
+ 
+ 
+/********************************************************************
  *   Stimulus Menu
  ********************************************************************/
-
-xpanel("Auditory Model Simulation Parameters")
-xlabel("Auditory Filterbank Simulation Parameters")
+ 
+xpanel("Auditory Input Parameters")
 xmenu("Stimulus Menu")
   xbutton("Tone", "stimtype = 1")
   xbutton("*.Wav File","stimtype = 0")
@@ -326,8 +353,8 @@ xmenu("Stimulus Menu")
   xbutton("Gaussian Noise","stimtype =6")
   xbutton("Simultaneous Tone and Noise", "stimtype =7")
   xbutton("Two Tones", "TwoTonePanel()")
-
 xmenu()
+
   xvalue("Sound level (dB SPL)","spl")
   xvalue("Tone Frequency (Hz)","tonefreq")
   xvalue("Tone Duration (sec)","dur")             //duration of tone segment seconds
@@ -347,24 +374,23 @@ xmenu()
   xlabel("ANFilterbank - Save Dir & File")
   xvarlabel(ANpath)
   xvarlabel(ANstr)
-xpanel()
-xpanel("Auditory & Cochlear Nucleus Methods")
+ xpanel()
+ 
+ /********************************************************************
+ *   Model Menu
+ ********************************************************************/
+
+  xpanel("Auditory & Cochlear Nucleus Methods")
   xbutton("Create Cells","create_cells()")
   xbutton("Connect ANFs","connect_cells(fileroot)")
   xbutton("Connect CN cells","connect_CNcells(fileroot)")
-  xbutton("Show Audiogram","PlotAudiogram()")
-  xbutton("Refresh Stim and Param", "RefreshParameters()")
-  xbutton("Update Filterbanks","ANFilterBankRun()")
-  xbutton("Reset ANFs","SetRates()")
   xbutton("Generate Spikes", "GenSpikes()")
   xbutton("AN Raster","ANSpikes()")
   xbutton("CN Rasters","CNSpikes()")
   xbutton("Weights Panel","weightspanel()")
   xbutton("Delays Panel","delayspanel()")
-  xvalue("reps")
+  xvalue("Repetitions","reps")
   xbutton("Multi Run","multi_run()")
-  xbutton("Plot Stim & AN filterbank","ShowInputGraphs()")
-  xbutton("Plot Golgi filterbank","ShowGolgiGraphs()")
   xbutton("Plot Rate","CNSpikes2()")
    xbutton("Plot Histograms","CN_Histograms()")
 xpanel()

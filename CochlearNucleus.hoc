@@ -1,13 +1,16 @@
 // cn.hoc
 // Cochlear Nucleus network model: network specification file
-// Michael Eager
+// Michael Eager, 2006-2010
 // University of Melbourne
 //
+
 objref cvode, random
-cvode = new CVode(0)    // start with CVode inactive
-random = new Random(seed)
+cvode = new CVode(0)        // start with CVode inactive
+random = new Random(seed)   //seed is generated in Utilities, dependant on use_seed flag
 random.MCellRan4(seed+1)
 
+
+//define the cell objects
 if (nTSperchannel > 0) { objref tstellate[nchannels][nTSperchannel]
 }else objref tstellate[1][1]
 if (nTVperchannel > 0) {objref tuberculoventral[nchannels][nTVperchannel]
@@ -18,7 +21,7 @@ if (nGperchannel > 0) { objref golgi[nchannels][nGperchannel]
 } else objref golgi[1][1]
 
 
-
+//define the 'connector' lists, use synapse type in name
 objref hsr2tsAMPAlist, lsr2tsAMPAlist,hsr2tvAMPAlist, lsr2tvAMPAlist, \
 hsr2dsAMPAlist, lsr2dsAMPAlist, hsr2glgAMPAlist, lsr2glgAMPAlist, \
 glg2dsGABAlist, glg2tsGABAlist, ds2tsGLYlist, ds2tvGLYlist, \
@@ -50,11 +53,11 @@ strdef filename, celltype
 //objref param
 //param = new NetworkParameters(6,4)
 //param.getnetparameters("defaultrecurrentparams.dat")
-//
+
+// Create Auditory Nerve object
 objref an
 an = new AuditoryNerve()
 
-//xopen("cngui.hoc")
 // Create cells --------------------------------------------------------
 strdef cmd
 //Having trouble with local variables when using execute1
@@ -67,7 +70,7 @@ proc create_cells() { local p,i_chan,j_cell
     i_chan=0
     j_cell=0
   quitmodel = 0
- print "Creating cells."
+ print "Creating cells...."
   for i_chan = 0, nchannels-1 {
     if (nTSperchannel > 0) for j_cell = 0, nTSperchannel-1 {
         sprint(cmd, "tstellate[%d][%d] = new CNcell(0,cf.x[%d],%d)",i_chan,j_cell,i_chan,i_chan)
@@ -153,7 +156,7 @@ ts2tsAMPAlist.remove_all()
 ts2tvAMPAlist.remove_all()
 ts2dsAMPAlist.remove_all()
 
-printf("HSR->TS")
+
 if( ( param.n.getval(hsr,ts) > 0 ) && ( nTSperchannel != 0 ) ){
 outfile.printf("\n%d %d\n",hsr,ts)
  for channel = 0, nchannels-1{
@@ -177,7 +180,7 @@ outfile.printf("\n%d %d\n",hsr,ts)
    }
   }
     p = 100*(channel)/(nchannels)
-    printf("\r=== %3d%% ===",p)
+    printf("\rHSR->TS === %3d%% ===",p)
     flushf()
     doNotify() // Although this slows down cell creation, the
                // process is so long that we have to allow the
@@ -185,7 +188,7 @@ outfile.printf("\n%d %d\n",hsr,ts)
  }
  printf("\n")
 }
-printf("LSR->TS")
+
 if( ( param.n.getval(lsr,ts) > 0 ) && ( nTSperchannel != 0 ) ){
  outfile.printf("\n%d %d\n",lsr,ts)
  for channel = 0, nchannels-1{
@@ -208,7 +211,7 @@ if( ( param.n.getval(lsr,ts) > 0 ) && ( nTSperchannel != 0 ) ){
    }
   }
     p = 100*(channel)/(nchannels)
-    printf("\r=== %3d%% ===",p)
+    printf("\rLSR->TS=== %3d%% ===",p)
     flushf()
     doNotify() // Although this slows down cell creation, the
                // process is so long that we have to allow the
@@ -216,7 +219,7 @@ if( ( param.n.getval(lsr,ts) > 0 ) && ( nTSperchannel != 0 ) ){
  }
  printf("\n")
 }
-printf("HSR->TV")
+
 if( ( param.n.getval(hsr,tv) > 0 ) && ( nTVperchannel != 0 ) ){
  outfile.printf("\n%d %d\n",hsr,tv)
  for channel = 0, nchannels-1{
@@ -239,7 +242,7 @@ if( ( param.n.getval(hsr,tv) > 0 ) && ( nTVperchannel != 0 ) ){
    }
   }
     p = 100*(channel)/(nchannels)
-    printf("\r=== %3d%% ===",p)
+    printf("\rHSR->TV=== %3d%% ===",p)
     flushf()
     doNotify() // Although this slows down cell creation, the
                // process is so long that we have to allow the
@@ -248,7 +251,7 @@ if( ( param.n.getval(hsr,tv) > 0 ) && ( nTVperchannel != 0 ) ){
  }
  printf("\n")
 }
- printf("LSR->TV")
+
 if( ( param.n.getval(lsr,tv) > 0 ) && ( nTVperchannel != 0 ) ){
  outfile.printf("\n%d %d\n",lsr,tv)
  for channel = 0, nchannels-1{
@@ -273,7 +276,7 @@ sprint(cmd, "tuberculoventral[%d][%d].soma lsr2tvAMPAlist.append( new NetCon( an
    }
   }
       p = 100*(channel)/(nchannels)
-    printf("\r=== %3d%% ===",p)
+    printf("\rLSR->TV=== %3d%% ===",p)
     flushf()
     doNotify() // Although this slows down cell creation, the
                // process is so long that we have to allow the
@@ -282,7 +285,7 @@ sprint(cmd, "tuberculoventral[%d][%d].soma lsr2tvAMPAlist.append( new NetCon( an
  }
  printf("\n")
 }
- printf("HSR->DS")
+
 if( ( param.n.getval(hsr,ds) > 0 ) && ( nDSperchannel != 0 ) ){
  outfile.printf("\n%d %d\n",hsr,ds)
  for channel = 0, nchannels-1{
@@ -305,7 +308,7 @@ if( ( param.n.getval(hsr,ds) > 0 ) && ( nDSperchannel != 0 ) ){
    }
   }
       p = 100*(channel)/(nchannels)
-    printf("\r=== %3d%% ===",p)
+    printf("\rHSR->DS=== %3d%% ===",p)
     flushf()
     doNotify() // Although this slows down cell creation, the
                // process is so long that we have to allow the
@@ -314,7 +317,7 @@ if( ( param.n.getval(hsr,ds) > 0 ) && ( nDSperchannel != 0 ) ){
  }
  printf("\n")
 }
- printf("LSR->DS")
+
 if( ( param.n.getval(lsr,ds) > 0 ) && ( nDSperchannel != 0 ) ){
  outfile.printf("\n%d %d\n",lsr,ds)
  for channel = 0, nchannels-1{
@@ -337,7 +340,7 @@ if( ( param.n.getval(lsr,ds) > 0 ) && ( nDSperchannel != 0 ) ){
    }
   }
       p = 100*(channel)/(nchannels)
-    printf("\r=== %3d%% ===",p)
+    printf("\rLSR->DS=== %3d%% ===",p)
     flushf()
     doNotify() // Although this slows down cell creation, the
                // process is so long that we have to allow the
@@ -346,9 +349,8 @@ if( ( param.n.getval(lsr,ds) > 0 ) && ( nDSperchannel != 0 ) ){
  }
  printf("\n")
 }
-if (LSR2GLG == 1){  //Only for Conductance based golgi cell
- printf("LSR->GLG")
-if( ( param.n.getval(lsr,glg) > 0 ) && ( nGperchannel != 0 ) ){
+if ((LSR2GLG == 1) && ( param.n.getval(lsr,glg) > 0 ) && ( nGperchannel != 0 ) ){
+      //Only for Conductance based golgi cell
  outfile.printf("\n%d %d\n",lsr,glg)
  for channel = 0, nchannels-1{
   for target = 0, nGperchannel-1 {
@@ -370,7 +372,7 @@ if( ( param.n.getval(lsr,glg) > 0 ) && ( nGperchannel != 0 ) ){
    }
   }
       p = 100*(channel)/(nchannels)
-    printf("\r=== %3d%% ===",p)
+    printf("\rLSR->GLG=== %3d%% ===",p)
     flushf()
     doNotify() // Although this slows down cell creation, the
                // process is so long that we have to allow the
@@ -378,7 +380,6 @@ if( ( param.n.getval(lsr,glg) > 0 ) && ( nGperchannel != 0 ) ){
 
  }
  printf("\n")
-}
 }//LSR2GLG
 outfile.close()
 }//connect_cells
@@ -388,7 +389,7 @@ proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechanne
   outfile.aopen(filename)
 
  print "Connecting CN network cells"
- print "TS->TS"
+
 if( ( param.n.getval(ts,ts) > 0 ) && ( nTSperchannel > 1 ) ){
  outfile.printf("%d %d\n",ts,ts)
  for channel = 0, nchannels-1{
@@ -406,7 +407,7 @@ if( ( param.n.getval(ts,ts) > 0 ) && ( nTSperchannel > 1 ) ){
    }
   }
         p = 100*(channel)/(nchannels)
-    printf("\r=== %3d%% ===",p)
+    printf("\rTS->TS=== %3d%% ===",p)
     flushf()
     doNotify() // Although this slows down cell creation, the
                // process is so long that we have to allow the
@@ -414,7 +415,7 @@ if( ( param.n.getval(ts,ts) > 0 ) && ( nTSperchannel > 1 ) ){
  }
   printf("\n")
 }
- print "TV->TS"
+
 if( ( param.n.getval(tv,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nTVperchannel != 0 ) ){
  outfile.printf("\n%d %d\n",tv,ts)
  for channel = 0, nchannels-1{
@@ -437,7 +438,7 @@ if( ( param.n.getval(tv,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nTVperchannel !
    }
   }
         p = 100*(channel)/(nchannels)
-    printf("\r=== %3d%% ===",p)
+    printf("\rTV->TS=== %3d%% ===",p)
     flushf()
     doNotify() // Although this slows down cell creation, the
                // process is so long that we have to allow the
@@ -445,7 +446,7 @@ if( ( param.n.getval(tv,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nTVperchannel !
  }
   printf("\n")
 }
- print "DS->TS"
+
 if( ( param.n.getval(ds,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nDSperchannel != 0 ) ){
  outfile.printf("\n%d %d\n",ds,ts)
  for channel = 0, nchannels-1{
@@ -467,7 +468,7 @@ if( ( param.n.getval(ds,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nDSperchannel !
   }
   }
         p = 100*(channel)/(nchannels)
-    printf("\r=== %3d%% ===",p)
+    printf("\rDS->TS=== %3d%% ===",p)
     flushf()
     doNotify() // Although this slows down cell creation, the
                // process is so long that we have to allow the
@@ -475,7 +476,7 @@ if( ( param.n.getval(ds,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nDSperchannel !
  }
   printf("\n")
 }
- print "DS->TV"
+
 if( ( param.n.getval(ds,tv) > 0 ) && ( nTVperchannel != 0 ) && ( nDSperchannel != 0 ) ){
  outfile.printf("\n%d %d\n",ds,tv)
  for channel = 0, nchannels-1{
@@ -497,7 +498,7 @@ if( ( param.n.getval(ds,tv) > 0 ) && ( nTVperchannel != 0 ) && ( nDSperchannel !
    }
   }
         p = 100*(channel)/(nchannels)
-    printf("\r=== %3d%% ===",p)
+    printf("\rDS->TV=== %3d%% ===",p)
     flushf()
     doNotify() // Although this slows down cell creation, the
                // process is so long that we have to allow the
@@ -505,7 +506,7 @@ if( ( param.n.getval(ds,tv) > 0 ) && ( nTVperchannel != 0 ) && ( nDSperchannel !
  }
   printf("\n")
 }
- print "GLG->DS"
+
 if( ( param.n.getval(glg,ds) > 0 ) && ( nDSperchannel != 0 ) && ( nGperchannel != 0 ) ){
  outfile.printf("\n%d %d\n",glg,ds)
  for channel = 0, nchannels-1{
@@ -532,7 +533,7 @@ if( ( param.n.getval(glg,ds) > 0 ) && ( nDSperchannel != 0 ) && ( nGperchannel !
    }
   }
         p = 100*(channel)/(nchannels)
-    printf("\r=== %3d%% ===",p)
+    printf("\rGLG->DS=== %3d%% ===",p)
     flushf()
     doNotify() // Although this slows down cell creation, the
                // process is so long that we have to allow the
@@ -541,7 +542,7 @@ if( ( param.n.getval(glg,ds) > 0 ) && ( nDSperchannel != 0 ) && ( nGperchannel !
   printf("\n")
 }
 
- print "GLG->TS"
+
 if( ( param.n.getval(glg,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nGperchannel != 0 ) ){
  outfile.printf("\n%d %d\n",glg,ts)
  for channel = 0, nchannels-1{
@@ -569,7 +570,7 @@ if( ( param.n.getval(glg,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nGperchannel !
   }
   }
         p = 100*(channel)/(nchannels)
-    printf("\r=== %3d%% ===",p)
+    printf("\rGLG->TS=== %3d%% ===",p)
     flushf()
     doNotify() // Although this slows down cell creation, the
                // process is so long that we have to allow the
@@ -651,174 +652,175 @@ proc SaveSpikes(){local i,j
 	for i=0,nchannels-1{
          for j=0,nTSperchannel-1{
             sprint(cmd, "tstellate[%d][%d].spikes.append(tstellate[%d][%d].spiketimes)",i,j,i,j)
-         execute1(cmd)
+            execute1(cmd)
          }
          for j=0,nTVperchannel-1{
             sprint(cmd, "tuberculoventral[%d][%d].spikes.append(tuberculoventral[%d][%d].spiketimes)",i,j,i,j)
-		     execute1(cmd)
+	    execute1(cmd)
          }
          for j=0,nDSperchannel-1{
             sprint(cmd, "dstellate[%d][%d].spikes.append(dstellate[%d][%d].spiketimes)",i,j,i,j)
-         execute1(cmd)
+            execute1(cmd)
          }
          for j=0,nGperchannel-1{
             sprint(cmd, "golgi[%d][%d].spikes.append(golgi[%d][%d].spiketimes)",i,j,i,j)
-         execute1(cmd)
+            execute1(cmd)
          }
          for j=0,HSRsperchannel-1{
-			 an.HSRspikes[i][j].append(an.HSRspiketimes[i][j])
+	     an.HSRspikes[i][j].append(an.HSRspiketimes[i][j])
          }
          for j=0,LSRsperchannel-1{
-			 an.LSRspikes[i][j].append(an.LSRspiketimes[i][j])
+	     an.LSRspikes[i][j].append(an.LSRspiketimes[i][j])
          }
       }
 }
 
 proc ClearSpikes(){local i,j
     an.ClearSpikes()
-	for i=0,nchannels-1{
-         for j=0,nTSperchannel-1{
- sprint(cmd, "tstellate[%d][%d].spikes.resize(0)",i,j)
-         execute1(cmd)
-         }
-         for j=0,nTVperchannel-1{
- sprint(cmd, "tuberculoventral[%d][%d].spikes.resize(0)",i,j)
-         execute1(cmd)
-         }
-         for j=0,nDSperchannel-1{
-
- sprint(cmd, "dstellate[%d][%d].spikes.resize(0)",i,j)
-         execute1(cmd)
-
-         }
-         for j=0,nGperchannel-1{
-
- sprint(cmd, "golgi[%d][%d].spikes.resize(0)",i,j)
-         execute1(cmd)
-
-         }
-      }
+    for i=0,nchannels-1{
+        for j=0,nTSperchannel-1{
+	    sprint(cmd, "tstellate[%d][%d].spikes.resize(0)",i,j)
+            execute1(cmd)
+        }
+        for j=0,nTVperchannel-1{
+	    sprint(cmd, "tuberculoventral[%d][%d].spikes.resize(0)",i,j)
+            execute1(cmd)
+        }
+        for j=0,nDSperchannel-1{
+	    sprint(cmd, "dstellate[%d][%d].spikes.resize(0)",i,j)
+            execute1(cmd)
+        }
+        for j=0,nGperchannel-1{
+	    sprint(cmd, "golgi[%d][%d].spikes.resize(0)",i,j)
+            execute1(cmd)
+        }
+    }
 }
 
 
 
 proc reset_weights() { local i // 1 arg - weight
 //ANF connections
-   for i = 0,hsr2tsAMPAlist.count()-1 {
-   hsr2tsAMPAlist.object(i).weight = param.w.x[hsr][ts]
-  }
-   for i = 0,lsr2tsAMPAlist.count()-1 {
-   lsr2tsAMPAlist.object(i).weight = param.w.x[lsr][ts]
-  }
-   for i = 0,hsr2tvAMPAlist.count()-1 {
-   hsr2tvAMPAlist.object(i).weight = param.w.x[hsr][tv]
-  }
-   for i = 0,lsr2tvAMPAlist.count()-1 {
-   lsr2tvAMPAlist.object(i).weight = param.w.x[lsr][tv]
-  }
-  for i = 0,hsr2dsAMPAlist.count()-1 {
-   hsr2dsAMPAlist.object(i).weight = param.w.x[hsr][ds]
-  }
-   for i = 0,lsr2dsAMPAlist.count()-1 {
-   lsr2dsAMPAlist.object(i).weight = param.w.x[lsr][ds]
-  }
-//hsr2glgAMPAlist = new List()
-//lsr2glgAMPAlist = new List()
+for i = 0,hsr2tsAMPAlist.count()-1 {
+    hsr2tsAMPAlist.object(i).weight = param.w.x[hsr][ts]
+}
+for i = 0,lsr2tsAMPAlist.count()-1 {
+    lsr2tsAMPAlist.object(i).weight = param.w.x[lsr][ts]
+}
+for i = 0,hsr2tvAMPAlist.count()-1 {
+    hsr2tvAMPAlist.object(i).weight = param.w.x[hsr][tv]
+}
+for i = 0,lsr2tvAMPAlist.count()-1 {
+    lsr2tvAMPAlist.object(i).weight = param.w.x[lsr][tv]
+}
+for i = 0,hsr2dsAMPAlist.count()-1 {
+    hsr2dsAMPAlist.object(i).weight = param.w.x[hsr][ds]
+}
+for i = 0,lsr2dsAMPAlist.count()-1 {
+    lsr2dsAMPAlist.object(i).weight = param.w.x[lsr][ds]
+}
 
 //Golgi connections
-   for i = 0,glg2dsGABAlist.count()-1 {
-   glg2dsGABAlist.object(i).weight = param.w.x[glg][ds]
-  }
-   for i = 0,glg2dsGABAlist.count()-1 {
-   glg2dsGABAlist.object(i).weight = param.w.x[glg][ds]
-  }
+for i = 0,glg2dsGABAlist.count()-1 {
+    glg2dsGABAlist.object(i).weight = param.w.x[glg][ds]
+}
+for i = 0,glg2dsGABAlist.count()-1 {
+    glg2dsGABAlist.object(i).weight = param.w.x[glg][ds]
+}
 //Dstellate connections
-   for i = 0,ds2tsGLYlist.count()-1 {
-   ds2tsGLYlist.object(i).weight = param.w.x[ds][ts]
-  }
-   for i = 0,ds2tvGLYlist.count()-1 {
-   ds2tvGLYlist.object(i).weight = param.w.x[ds][tv]
-  }
+for i = 0,ds2tsGLYlist.count()-1 {
+    ds2tsGLYlist.object(i).weight = param.w.x[ds][ts]
+}
+for i = 0,ds2tvGLYlist.count()-1 {
+    ds2tvGLYlist.object(i).weight = param.w.x[ds][tv]
+}
 //TV connections
-   for i = 0,tv2tsGLYlist.count()-1 {
-   tv2tsGLYlist.object(i).weight = param.w.x[tv][ts]
-  }
-   for i = 0,tv2dsGLYlist.count()-1 {
-   tv2dsGLYlist.object(i).weight = param.w.x[tv][ds]
-  }
+for i = 0,tv2tsGLYlist.count()-1 {
+    tv2tsGLYlist.object(i).weight = param.w.x[tv][ts]
+}
+for i = 0,tv2dsGLYlist.count()-1 {
+    tv2dsGLYlist.object(i).weight = param.w.x[tv][ds]
+}
 
 //TS connections
-   for i = 0,ts2tsAMPAlist.count()-1 {
-   ts2tsAMPAlist.object(i).weight = param.w.x[ts][ts]
-  }
-   for i = 0,ts2dsAMPAlist.count()-1 {
-   ts2dsAMPAlist.object(i).weight = param.w.x[ts][ds]
-  }
-   for i = 0,ts2tvAMPAlist.count()-1 {
-   ts2tvAMPAlist.object(i).weight = param.w.x[ts][tv]
-  }
+for i = 0,ts2tsAMPAlist.count()-1 {
+    ts2tsAMPAlist.object(i).weight = param.w.x[ts][ts]
+}
+for i = 0,ts2dsAMPAlist.count()-1 {
+    ts2dsAMPAlist.object(i).weight = param.w.x[ts][ds]
+}
+for i = 0,ts2tvAMPAlist.count()-1 {
+    ts2tvAMPAlist.object(i).weight = param.w.x[ts][tv]
+}
 }
 
 proc reset_delays() { local i // 1 arg - delay
 //ANF connections
-   for i = 0,hsr2tsAMPAlist.count()-1 {
-   hsr2tsAMPAlist.object(i).delay = param.delay.x[hsr][ts]
-  }
-   for i = 0,lsr2tsAMPAlist.count()-1 {
-   lsr2tsAMPAlist.object(i).delay = param.delay.x[lsr][ts]
-  }
-   for i = 0,hsr2tvAMPAlist.count()-1 {
-   hsr2tvAMPAlist.object(i).delay = param.delay.x[hsr][tv]
-  }
-   for i = 0,lsr2tvAMPAlist.count()-1 {
-   lsr2tvAMPAlist.object(i).delay = param.delay.x[lsr][tv]
-  }
+for i = 0,hsr2tsAMPAlist.count()-1 {
+    hsr2tsAMPAlist.object(i).delay = param.delay.x[hsr][ts]
+}
+for i = 0,lsr2tsAMPAlist.count()-1 {
+    lsr2tsAMPAlist.object(i).delay = param.delay.x[lsr][ts]
+}
+for i = 0,hsr2tvAMPAlist.count()-1 {
+    hsr2tvAMPAlist.object(i).delay = param.delay.x[hsr][tv]
+}
+for i = 0,lsr2tvAMPAlist.count()-1 {
+    lsr2tvAMPAlist.object(i).delay = param.delay.x[lsr][tv]
+}
 
-   for i = 0,lsr2dsAMPAlist.count()-1 {
-   lsr2dsAMPAlist.object(i).delay = param.delay.x[lsr][ds]
-  }
-//hsr2glgAMPAlist = new List()
-//lsr2glgAMPAlist = new List()
+for i = 0,lsr2dsAMPAlist.count()-1 {
+    lsr2dsAMPAlist.object(i).delay = param.delay.x[lsr][ds]
+}
+
 
 //Golgi connections
-   for i = 0,glg2dsGABAlist.count()-1 {
+  for i = 0,glg2dsGABAlist.count()-1 {
    glg2dsGABAlist.object(i).delay = param.delay.x[glg][ds]
   }
-   for i = 0,glg2dsGABAlist.count()-1 {
+  for i = 0,glg2dsGABAlist.count()-1 {
    glg2dsGABAlist.object(i).delay = param.delay.x[glg][ds]
   }
 //Dstellate connections
-   for i = 0,ds2tsGLYlist.count()-1 {
+  for i = 0,ds2tsGLYlist.count()-1 {
    ds2tsGLYlist.object(i).delay = param.delay.x[ds][ts]
   }
-   for i = 0,ds2tvGLYlist.count()-1 {
+  for i = 0,ds2tvGLYlist.count()-1 {
    ds2tvGLYlist.object(i).delay = param.delay.x[ds][tv]
   }
 //TV connections
-   for i = 0,tv2tsGLYlist.count()-1 {
+  for i = 0,tv2tsGLYlist.count()-1 {
    tv2tsGLYlist.object(i).delay = param.delay.x[tv][ts]
   }
-   for i = 0,tv2dsGLYlist.count()-1 {
+  for i = 0,tv2dsGLYlist.count()-1 {
    tv2dsGLYlist.object(i).delay = param.delay.x[tv][ds]
   }
 
 //TS connections
-   for i = 0,ts2tsAMPAlist.count()-1 {
-   ts2tsAMPAlist.object(i).delay = param.delay.x[ts][ts]
-  }
-   for i = 0,ts2dsAMPAlist.count()-1 {
-   ts2dsAMPAlist.object(i).delay = param.delay.x[ts][ds]
-  }
-   for i = 0,ts2tvAMPAlist.count()-1 {
-   ts2tvAMPAlist.object(i).delay  = param.delay.x[ts][tv]
-  }
+for i = 0,ts2tsAMPAlist.count()-1 {
+    ts2tsAMPAlist.object(i).delay = param.delay.x[ts][ts]
 }
+for i = 0,ts2dsAMPAlist.count()-1 {
+    ts2dsAMPAlist.object(i).delay = param.delay.x[ts][ds]
+}
+for i = 0,ts2tvAMPAlist.count()-1 {
+    ts2tvAMPAlist.object(i).delay  = param.delay.x[ts][tv]
+}
+}
+
 
 proc SetRates(){
-   an.SetRates()
-   for i=0,99 golgi[i][0].SetRate()
+    an.SetRates()
+    for i=0,nchannels-1 golgi[i][0].SetRate()
+}
+proc SetRates2(){
+    an.SetRates()
+    for i=0,nchannels-1 golgi[i][0].SetRate2()
 }
 
+proc SetGolgiRates(){
+   for i=0,nchannels-1 golgi[i][0].SetRate2()
+}
 proc GenSpikesB(){local i
     startsw()
 	//Only generate spikes from stimulators that have a connecting synapse
@@ -830,7 +832,7 @@ proc GenSpikesB(){local i
 proc GenSpikesA(){local i,j,count
   startsw()
     for i=0,nchannels-1 for j=0,HSRsperchannel-1 an.HSR[i][j].SGfast(1)
-    for i=0,99 for j=0,HSRsperchannel-1 count+=an.HSRspiketimes[i][j].size
+    for i=0,nchannels-1 for j=0,HSRsperchannel-1 count+=an.HSRspiketimes[i][j].size
    // if (count/(nchannels*HSRsperchannel) > 10) system("sleep 0.5")
     for i=0,nchannels-1 for j=0,LSRsperchannel-1 an.LSR[i][j].SGfast(1)
     for i=0,nchannels-1  golgi[i][0].s.SGfast(1)
@@ -845,7 +847,17 @@ proc GenSpikes(){local i
   print "GenSpikes time:", stopsw()
 }
 
-proc multi_run(){
+proc GenSpikes2(){local i
+    //Use version 4 spike generator in SGC_fast
+  startsw()
+    for i=0,nchannels-1 for j=0,HSRsperchannel-1 an.HSR[i][j].SGfast2(1)
+    for i=0,nchannels-1 for j=0,LSRsperchannel-1 an.LSR[i][j].SGfast2(1)
+    for i=0,nchannels-1  golgi[i][0].s.SGfast2(1)
+  print "GenSpikes time:", stopsw()
+}
+
+
+proc multi_run(){local ireps
     ClearSpikes()
     for ireps = 0, reps-1 {
         GenSpikes()
@@ -855,9 +867,9 @@ proc multi_run(){
 }
 
 
-proc ClearInputSpikes(){local i
+proc ClearInputSpikes(){local ii
    an.ClearSpikes()
-   for i=0,99 golgi[i][0].ClearSpikes()
+   for ii=0,nchannels-1 golgi[i][0].ClearSpikes()
 }
 
 
