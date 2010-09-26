@@ -380,6 +380,7 @@ if ((LSR2GLG == 1) && ( param.n.getval(lsr,glg) > 0 ) && ( nGperchannel != 0 ) )
 
  }
  printf("\n")
+
 }//LSR2GLG
 outfile.close()
 }//connect_cells

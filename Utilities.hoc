@@ -525,15 +525,15 @@ proc FilteredNoise() {local rampts, rstep, totalpts, steadypts, duration,spl,cyc
 	notchdepth=$8
 	inputsound = new Vector()
 
-    sprint(wavefile,"./TV_notch/Notch-sb%d-%goct.dat",stopband1,notchwidth)
+    sprint(wavefile,"./TV_notch/Notch-sb%g-%goct.dat",stopband1,notchwidth)
     print wavefile
     file.ropen(wavefile)
     if (file.isopen() == 0){
        sprint(tmpstr,"octave --eval \"getnotchcheb(%d,%g,%g,%g,%s)\" 2> /dev/null",int(srate),stopband1,notchwidth,notchdepth,wavefile)
        system(tmpstr)
         file.ropen(wavefile)
-	}
-
+    }
+    if (file.isopen() == 0){ printf("Unusable filter file.") return}
     Readfile(inputsound,file)
     srate=100000 //sampling rate (Hz)  determined in MATLAB/Octave
     stimtdres=1/srate

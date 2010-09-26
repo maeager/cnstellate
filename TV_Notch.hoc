@@ -29,11 +29,12 @@ xopen("pvec_DS_ClickRecovery.hoc")
 xopen("par_experiment_TV_Notch.hoc")
 
 
+  xopen("cngui.hoc")
+
 proc SetRates(){
   an.SetRates()
   for i=0,99 golgi[i][0].SetRate2() //enable H and L ANFs in golgi cells
 }
-
 
 proc GenSpikes2(){local i,j,count
     startsw()
@@ -44,10 +45,18 @@ proc GenSpikes2(){local i,j,count
     for i=0,nchannels-1 {golgi[i][0].s.SGfast2(1)}
     print "GenSpikes time:", stopsw()
 }
+proc multi_run(){local irep
+    startsw()
+    ClearSpikes()
+    for irep=0,reps-1{
+	GenSpikes2()
+	run()
+        SaveSpikes()
+    }
+    print "Multi_run time:", stopsw()
+    }
 
 
-
-  xopen("cngui.hoc")
 
 
 proc SaveMultiRun(){
@@ -70,33 +79,44 @@ proc SaveMultiRun(){
 
 
   //////////Default Parameters for TV_Notch///////////////
-  ANsoundspath="../../sounds"
-  cfhi     =48000
-  cflo     =200
-
-  tstop = 100       //ms
-  dur      = 0.095    //duration of stim (seconds)
-  spl      = 70     //dB SPL
-  stimdelay= 0.01   //sec
-  stimtype = 12     //Notch
+  ANsoundspath = "../../sounds"
+  cfhi     = 48000
+  cflo     = 200
+  ramplngth = 0.002
+  tstop    = 100    // ms
+  dur      = 0.048  // duration of stim (seconds)
+  spl      = 60     // dB SPL
+  stimdelay= 0.01   // sec
+  stimtype = 12     // Notch
   reps     = 50     //
-  ANmodel  = 6      //Zilany Bruce model version 3
-  species  = 1      //Cat
-  nrep     = 1        //nrep is number of reps of stimulus
-  stopband = 6.5 //kHz
+  ANmodel  = 6      // Zilany Bruce model version 3
+  species  = 1      // Cat
+
+  stopband = 6      // kHz
   notchwidth = 1
-  srate
+
   ANFBgr = new Graph()
   usesavedfilterbanks=1
-  srate=100000
-  stimtdres=1/srate
-  sg_rate=50000
-  sg_tdres=1/sg_rate
- // RefreshCF()
- // GetAudiogramData()
- // RefreshParameters()
- // ANFilterBankRun()
-
+  srate     = 100000
+  stimtdres = 1/srate
+  sg_rate   = 50000
+  sg_tdres  = 1/sg_rate
+ RefreshCF()
+ GetAudiogramData()
+ RefreshParameters()
+ ANFilterBankRun()
+ SetRates()
+ SaveGolgiFilterBank2File()
+ multi_run()
+ CNSpikes()
+ centrepoint=stopband
+ GenNotchResponsePlots()
+ 
+ objref fitgr
+ fitgr = new Graph()
+ expected_notch[1].div(expected_notch[1].max()).plot(fitgr,freq1_notch,4,1)
+ CNrate[tv].div(CNrate[tv].max()).plot(fitgr,cf,3,1)
+ 
   //wavefile="./TV_notch/Notch-sb10-0.5oct.dat"
   //file.ropen("./TV_notch/Notch-sb10-1oct.dat")
   //Readfile(stim,file)
