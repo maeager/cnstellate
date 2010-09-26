@@ -231,7 +231,7 @@ proc convolve(){local x1,x2,wsize
 }
 
 begintemplate Golgicell
-  public connect2target,SetRate,SetRate2,GenSpikes,SaveSpikes,ClearSpikes
+  public connect2target,SetRate,SetRate2,GenSpikes,GenSpikes2,SaveSpikes,ClearSpikes
   public s,w, spiketimes, spikecount,sout, synlist,cf,model,channel,spikes
   public wLSR,wHSR,wMSR
   external thresh,LSRout,nchannels,sg_tdres,weight_sum, golgi_spon,golgi_spatial_filter_variance
@@ -239,7 +239,6 @@ begintemplate Golgicell
   external param,lsr,glg,sg_rate,HSRout, MSRout, weight_sum_LSR, golgi_spatial_filter_variance_LSR, weight_sum_MSR, golgi_spatial_filter_variance_MSR, weight_sum_HSR, golgi_spatial_filter_variance_HSR
   objref s,w, spiketimes, spikecount,sout,synlist,spikes
   objref wLSR,wHSR,wMSR
-  cf=1E3
   channel=0
  inputchannelvariance=1
   proc init() {localobj r, data, hist, x, g
@@ -280,31 +279,35 @@ proc SetRate2() {local i,j,spon_factor
 
 	wLSR = new Vector(nchannels)
 	wLSR.indgen()
-    wHSR = wLSR.c
+	wHSR = wLSR.c
 	gaussian_mean = channel
 	gaussian_variance = golgi_spatial_filter_variance_LSR
 	wLSR.apply("gaussian").mul(weight_sum_LSR)
 	if(MSRsperchannel>0){
-        gaussian_variance = golgi_spatial_filter_variance_MSR
-	    wMSR.apply("gaussian").mul(weight_sum_MSR)
+	  gaussian_variance = golgi_spatial_filter_variance_MSR
+	  wMSR.apply("gaussian").mul(weight_sum_MSR)
 	}
-    gaussian_variance = golgi_spatial_filter_variance_HSR
+	gaussian_variance = golgi_spatial_filter_variance_HSR
 	wHSR.apply("gaussian").mul(weight_sum_HSR)
 
 
 	for i=0,nchannels-1  {
-	   if (wLSR.x[i]>0.01) tempsout.add(LSRout[i].c.add(-Lowspont).mul(wLSR.x[i]))
-	   if(MSRsperchannel>0) tempsout.add(MSRout[i].c.add(-Medspont).mul(wMSR.x[i]))
-	   if (wHSR.x[i]>0.01)tempsout.add(HSRout[i].c.add(-Highspont).mul(wHSR.x[i]))
+	    //	   if (wLSR.x[i]>0.01) tempsout.add(LSRout[i].c.add(-Lowspont).mul(wLSR.x[i]))
+	    //	  if(MSRsperchannel>0) tempsout.add(MSRout[i].c.add(-Medspont).mul(wMSR.x[i]))
+	    //if (wHSR.x[i]>0.01)tempsout.add(HSRout[i].c.add(-Highspont).mul(wHSR.x[i]))
+	    if (wLSR.x[i] > 0.01){
+	      for j=0,HSRout[0].size-1 {
+		tempsout.x[j] = (LSRout[i].x[j]-Lowspont)*wLSR.x[i] + (HSRout[i].x[j]-Highspont)*wHSR.x[i] 
+	    }}
 	}
 	tempsout.add(golgi_spon)
 	//Smooth AN input with alpha-function to simulate dendritic filtering
-    convolve(tempsout,golgi_synfilter,sout)
+	  convolve(tempsout,golgi_synfilter,sout)
     //Add conduction delay to inst. rate profile to ensure accurate FSL
-    for i = 0, param.delay.x[lsr][glg]*sg_rate/1000{
-        sout.insrt(0,golgi_spon)
-        sout.remove(sout.size-1)
-    }
+	for i = 0, param.delay.x[lsr][glg]*sg_rate/1000{
+	      sout.insrt(0,golgi_spon)
+	      sout.remove(sout.size-1)
+	}
 
 	s.SetFibreRate(sout,spiketimes,sg_tdres)
 //print "golgi[",i,"][",j,"]: Process ",pnm.myid," mean ", sout.mean()
@@ -314,6 +317,10 @@ proc SetRate2() {local i,j,spon_factor
 proc GenSpikes(){local i,j
   s.SGfast(1)
 }
+proc GenSpikes2(){local i,j
+  s.SGfast2(1)
+}
+
 
 proc SaveSpikes(){
 if (object_id(spikes)==0) spikes = new Vector()
