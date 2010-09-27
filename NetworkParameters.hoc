@@ -6,13 +6,18 @@
 objref param
 
 begintemplate NetworkParameters
-public bw, n, w,delay   //bandwidth, number, weight, delay
-public offset
-public ncol, nrow
+public bw,n,w,delay   //bandwidth(spread), number, weight, delay
+public offset,ncol,nrow
+//GolgiRateLevel
+public golgi_spatial_filter_variance_LSR,golgi_syn_filter_scale_factor,weight_sum_LSR,weight_sum_HSR,golgi_spon
+//DS_ClickRecovery
+public dstellate_gkltbar, gaba_decay, gaba_rise, dstellate_gleak_rm 
+
 //functions
 public getnetparameters, saveparameters,printparams
 objref bw, n, w,delay
 offset=3
+
 proc init(){
     nrow = $1  ncol = $2
     bw = new Matrix(nrow, ncol)
@@ -20,7 +25,7 @@ proc init(){
     w = new Matrix(nrow, ncol)
     delay = new Matrix(nrow,ncol)
     offset=0
-
+    golgi_params()
 }
 
 objref file
@@ -59,9 +64,42 @@ proc saveparameters(){
     file.close()
     objref file
 }
+
+proc golgi_params(){
+golgi_spatial_filter_variance_LSR = 2.4837
+golgi_syn_filter_scale_factor = 1.00
+weight_sum_LSR = 0.5166
+weight_sum_HSR = 0.0487
+golgi_spon = 3.7271
+}
+
+
+proc DS_params(){
+w.x[glg][ds] = 0.000531549
+w.x[hsr][ds] = 0.000167221
+w.x[lsr][ds] = 0.013091
+dstellate_gkltbar = 0.0163897
+gaba_decay = 5.43235
+gaba_rise = 0.261939
+dstellate_gleak_rm = 0.00274146
+}
+
+
 endtemplate NetworkParameters
 
 strdef paramfilename
 param = new NetworkParameters(6,4)
 sprint(paramfilename,"%s/defaultrecurrentparams.dat",cnstellate_dir)
 param.getnetparameters(paramfilename)
+
+
+proc DS_params(){
+xopen("pvec_DS_ClickRecovery.hoc")
+param.w.x[glg][ds] = 0.000531549
+param.w.x[hsr][ds] = 0.000167221
+param.w.x[lsr][ds] = 0.013091
+param.dstellate_gkltbar = dstellate_gkltbar
+param.gaba_decay = gaba_decay
+param.gaba_rise = gaba_rise
+param.dstellate_gleak_rm = dstellate_gleak_rm
+}
