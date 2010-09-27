@@ -37,35 +37,44 @@
 
   //Optimisation parameters
   print "Optimisation parameters for TV Notch"
-  NPARAMS=8
+  NPARAMS=5
   objref pvec,fvec,pvec_ranges,pvec_name,pvec_factor
   pvec = new Vector(NPARAMS) //contains the parameters to be fitted
   pvec_ranges= new Matrix(NPARAMS,2) // (min,max) pairs for each param
   pvec_name = new List() //names of parameters in String list
   pvec_factor = new Vector(NPARAMS,1)
-
-  //Names                                               //Initial values	
-  pvec_name.append(new String("param.w.x[ds][tv]"))	pvec.x[0] = 0.0017	 
-  pvec_name.append(new String("param.n.x[ds][tv]"))	pvec.x[1] = 20		
-  pvec_name.append(new String("param.w.x[hsr][tv]"))	pvec.x[2] = 0.0013	
-  pvec_name.append(new String("param.n.x[hsr][tv]"))	pvec.x[3] = 8		
-  pvec_name.append(new String("param.w.x[lsr][tv]"))	pvec.x[4] = 0.0019	
-  pvec_name.append(new String("param.n.x[lsr][tv]"))	pvec.x[5] = 12		
-  pvec_name.append(new String("param.s.x[lsr][tv]"))	pvec.x[6] = 0.8	
-  pvec_name.append(new String("param.offset.x[lsr][tv]"))	pvec.x[7] = 2.1
-
   //mul factor
   for i=0,NPARAMS-1 pvec_factor.x[i] = 1	
   //min
   for i=0,NPARAMS-1 pvec_ranges.x[i][0]= 0.000001
   //max
   for i=0,NPARAMS-1 pvec_ranges.x[i][1]= 0.03
+  //Names                                               //Initial values	
+  pvec_name.append(new String("param.w.x[ds][tv]"))	pvec.x[0] = 0.00170	 
+  pvec_name.append(new String("param.w.x[hsr][tv]"))	pvec.x[1] = 0.00130	
+  pvec_name.append(new String("param.w.x[lsr][tv]"))	pvec.x[2] = 0.00190	
+  pvec_name.append(new String("param.bw.x[ds][tv]"))	pvec.x[3] = 0.0008	
+  pvec_name.append(new String("param.offset"))		pvec.x[4] = 0.0021	
+//  pvec_name.append(new String("param.n.x[ds][tv]"))	pvec.x[5] = 20		
+//  pvec_name.append(new String("param.n.x[hsr][tv]"))	pvec.x[6] = 8		
+//  pvec_name.append(new String("param.n.x[lsr][tv]"))	pvec.x[7] = 12		
+//  pvec_name.append(new String("param.w.x[tv][ds]"))	pvec.x[8] = 0.00090	 
+
+pvec_factor.x[3] = 1000  
+pvec_factor.x[4] = 1000 
 
   // cmd is a strdef variable that should be used in local routines and not passed across procedures
+  strdef cmd
   proc set_pvec(){local pp
-		  for pp=0,NPARAMS-1 {
-		      sprint(cmd,"pvec.x[%d] = %s / pvec_factor.x[%d]\n",pp,pvec_name.object(pp).s,pp)
-		      execute1(cmd)
-		    }
+      for pp=0,NPARAMS-1 {
+	  sprint(cmd,"pvec.x[%d] = %s / %g ",pp,pvec_name.object(pp).s,pvec_factor.x[pp])
+	  execute1(cmd)
+      }
     }
 
+  proc set_params(){local pp
+      for pp=0,NPARAMS-1 {
+	  sprint(cmd,"%s = %g * %g ",pvec_name.object(pp).s,pvec.x[pp],pvec_factor.x[pp])
+	  execute1(cmd)
+      }
+    }

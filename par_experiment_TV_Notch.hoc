@@ -30,20 +30,20 @@
   oct_compress=1
   oct_shift = 1
   proc overlapsweeps(){local ii //convert single unit notch sweep to population response (tested in Octave)
-		       objref expected_notch[2]
-		       for ii=0,1  {expected_notch[ii] = new Vector()    }
-		       //x1 =dlmread("./TV_notch/Reiss_Fig10_Bii_HalfOctMean.png.dat"," ",2,0)
-		       //x2 =dlmread("./TV_notch/Reiss_Fig10_Bi_Mean1oct.png.dat"," ",2,0)
-		       // plot([0.5-x1(1:9,1)' 1-x2(15:end,1)' ],[x1(1:9,3)' x2(15:end,3)'],'g+-') // 2nd element is empty
-		       for ii=0,9{
-			   expected_notch[0].append((halfoct_shift - type2_halfoct_sweep[0].x[ii])/halfoct_compress)    //flip around rising edge
-			   expected_notch[1].append(type2_halfoct_sweep[1].x[ii])
-			 }
-		       for ii=12, type2_1oct_sweep[0].size()-1 {
-			   expected_notch[0].append((oct_shift - type2_1oct_sweep[0].x[ii])/oct_compress)    //flip around falling edge
-			   expected_notch[1].append(type2_1oct_sweep[1].x[ii])
-			 }
-     
+      objref expected_notch[2]
+      for ii=0,1  {expected_notch[ii] = new Vector()    }
+      //x1 =dlmread("./TV_notch/Reiss_Fig10_Bii_HalfOctMean.png.dat"," ",2,0)
+      //x2 =dlmread("./TV_notch/Reiss_Fig10_Bi_Mean1oct.png.dat"," ",2,0)
+      // plot([0.5-x1(1:9,1)' 1-x2(15:end,1)' ],[x1(1:9,3)' x2(15:end,3)'],'g+-') // 2nd element is empty
+      for ii=0,9{
+	  expected_notch[0].append((halfoct_shift - type2_halfoct_sweep[0].x[ii])/halfoct_compress)    //flip around rising edge
+	  expected_notch[1].append(type2_halfoct_sweep[1].x[ii])
+      }
+      for ii=12, type2_1oct_sweep[0].size()-1 {
+	  expected_notch[0].append((oct_shift - type2_1oct_sweep[0].x[ii])/oct_compress)    //flip around falling edge
+	  expected_notch[1].append(type2_1oct_sweep[1].x[ii])
+      }
+      
   }
     overlapsweeps()
 
@@ -84,6 +84,9 @@ centrepoint = 6000
       expected_notch[1].plot(g[1],freq1_notch)
       expected_notch[1].plot(g[1],freq2_notch)
       g[1].exec_menu("View = plot")
+
+expected_notch[1].reverse()
+freq1_notch.mul(1000).reverse()
   }
   
 proc ShowTVPanel(){  

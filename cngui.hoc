@@ -204,45 +204,51 @@ objref CNgr[4],CNspks[nchannels][4],CNhist,CNrate[4],CNrategr
 }
 
 proc CNSpikes2(){local i, icf
-	objref CNgr[4],CNspks[nchannels][4],CNhist[nchannels][4],CNrate[4],CNrategr
-	for i=0,3 {
-		CNgr[i] = new Graph()
-		CNrate[i] = new Vector()
+    objref CNgr[4],CNspks[nchannels][4],CNhist[nchannels][4],CNrate[4],CNrategr
+    for i=0,3 {
+	CNgr[i] = new Graph()
+	CNrate[i] = new Vector()
+    }
+    CNhist = new Graph()
+    CNrategr = new Graph()
+    for icf=0 ,  nchannels-1{
+	CNspks[icf][ts] = new Vector()
+	CNspks[icf][tv] = new Vector()
+	CNspks[icf][ds] = new Vector()
+	CNspks[icf][glg] = new Vector()	
+	
+	if (nTSperchannel > 0){ 
+	    sprint(cmd,"for i=0,%d { CNspks[%d][%d] = tstellate[%d][i].spikes.histogram(0,tstop,0.1)}",nTSperchannel-1,icf,ts,icf)
+	    execute1(cmd)
+	} 
+	
+	if (nDSperchannel > 0){ 
+	    sprint(cmd,"for i=0, %d { CNspks[%d][%d] = dstellate[%d][i].spikes.histogram(0,tstop,0.1)}",nDSperchannel-1,icf,ds,icf)
+	    execute1(cmd)
 	}
-	CNhist = new Graph()
-	CNrategr = new Graph()
-	for icf=0 ,  nchannels-1{
-		CNspks[icf][ts] = new Vector()
-		CNspks[icf][tv] = new Vector()
-		CNspks[icf][ds] = new Vector()
-		CNspks[icf][glg] = new Vector()	
-		if (nTSperchannel > 0){ 
-		    execute1("for i=0, nTSperchannel-1   CNspks[icf][ts] = tstellate[icf][i].spikes.histogram(0,tstop,0.1)")
-		}
-		if (nDSperchannel > 0){ 
-		    execute1("for i=0, nDSperchannel-1  CNspks[icf][ds] = dstellate[icf][i].spikes.histogram(0,tstop,0.1)")
-		}
-		if (nTVperchannel > 0){
-		    execute1("for i=0, nTVperchannel-1  CNspks[icf][tv] = tuberculoventral[icf][i].spikes.histogram(0,tstop,0.1)")
-		}
-		if (nGperchannel > 0){
-		    execute1("for i=0, nGperchannel-1 CNspks[icf][glg] = golgi[icf][i].spikes.histogram(0,tstop,0.1)")
-		}
-		for i=0,3{
-		    CNrate[i].append(CNspks[icf][i].sum())
-		    }
-		    //CNspks[icf][1].add(icf*5).plot(CNhist, 0.1)
+	if (nTVperchannel > 0){
+	    sprint(cmd,"for i=0, %d{ CNspks[%d][%d] = tuberculoventral[%d][i].spikes.histogram(0,tstop,0.1)}",nTVperchannel-1,icf,tv,icf)
+	    system(cmd)
+	}
+	if (nGperchannel > 0){
+	    sprint(cmd,"for i=0, %d { CNspks[%d][%d] = golgi[%d][i].spikes.histogram(0,tstop,0.1)}",nGperchannel-1,icf,glg,icf)
+	    execute1(cmd)
 	}
 	for i=0,3{
-//		CNgr[i].exec_menu("View = plot")
-		CNrate[i].plot(CNrategr,1,i+1,1)
+	    if (CNspks[icf][i].size() > 0 ) CNrate[i].append(CNspks[icf][i].sum())
 	}
-	CNrategr.label(0, 0,"TS",1,1,-25,-15,ts)
-	CNrategr.label(0, 0,"TV",1,1,-25,-14,tv)
-	CNrategr.label(0, 0,"DS",1,1,-25,-13,ds)
-	CNrategr.label(0, 0,"GLG",1,1,-25,-12,glg)
-	CNrategr.label(0.3, 0.95, "Rate-Place Representation")
-	CNrategr.exec_menu("View = plot")
+	//CNspks[icf][1].add(icf*5).plot(CNhist, 0.1)
+    }
+    for i=0,3{
+	//		CNgr[i].exec_menu("View = plot")
+	CNrate[i].plot(CNrategr,1,i+1,1)
+    }
+    CNrategr.label(0, 0,"TS",1,1,-25,-15,ts)
+    CNrategr.label(0, 0,"TV",1,1,-25,-14,tv)
+    CNrategr.label(0, 0,"DS",1,1,-25,-13,ds)
+    CNrategr.label(0, 0,"GLG",1,1,-25,-12,glg)
+    CNrategr.label(0.3, 0.95, "Rate-Place Representation")
+    CNrategr.exec_menu("View = plot")
 }
 
 proc CN_Histograms(){local itype,icf
