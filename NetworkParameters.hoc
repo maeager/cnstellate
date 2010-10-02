@@ -11,7 +11,7 @@ public offset,ncol,nrow
 //GolgiRateLevel
 public golgi_spatial_filter_variance_LSR,golgi_syn_filter_scale_factor,weight_sum_LSR,weight_sum_HSR,golgi_spon
 //DS_ClickRecovery
-public dstellate_gkltbar, gaba_decay, gaba_rise, dstellate_gleak_rm 
+public dstellate_gkltbar, gaba_decay, gaba_rise, dstellate_gleak_rm, DS_params
 
 //functions
 public getnetparameters, saveparameters,printparams
@@ -26,6 +26,7 @@ proc init(){
     delay = new Matrix(nrow,ncol)
     offset=0
     golgi_params()
+    DS_params()
 }
 
 objref file
@@ -84,6 +85,12 @@ gaba_rise = 0.261939
 dstellate_gleak_rm = 0.00274146
 }
 
+proc printparams(){
+     //first object is file 
+     //second variable is string
+     
+
+}
 
 endtemplate NetworkParameters
 
@@ -91,6 +98,16 @@ strdef paramfilename
 param = new NetworkParameters(6,4)
 sprint(paramfilename,"%s/defaultrecurrentparams.dat",cnstellate_dir)
 param.getnetparameters(paramfilename)
+
+
+proc golgi_params(){
+xopen("pvec_Golgi_RateLevel.hoc")
+param.golgi_spatial_filter_variance_LSR = golgi_spatial_filter_variance_LSR
+param.golgi_syn_filter_scale_factor = golgi_syn_filter_scale_factor
+param.weight_sum_LSR = weight_sum_LSR
+param.weight_sum_HSR = weight_sum_HSR
+param.golgi_spon = golgi_spon
+}
 
 
 proc DS_params(){

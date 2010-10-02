@@ -11,7 +11,7 @@ celsius = 37
 
 Erest=-65
 
-gaussian_mean=10
+gaussian_mean=0
 gaussian_variance=1
 func gaussian(){local mean,var
 	if (numarg()==1){
@@ -133,7 +133,7 @@ proc set_tuberc() {
 	Ra=150 cm=0.9
 	eleak_rm 		= 	Erest	// reversal potential mV
 	model = 2
-	//RM = 170  //MOhms
+	//RM = 170  //Expected membrane resistance in MOhms
 	L	= 19
 	diam 	= L
 	somaarea = PI*(L/1E4)^2   //um to cm2
@@ -276,7 +276,6 @@ proc SetRate() {local i,j,spon_factor
 proc SetRate2() {local i,j,spon_factor
 	tempsout = new Vector(LSRout[0].size)
 	sout = new Vector(LSRout[0].size)
-
 	wLSR = new Vector(nchannels)
 	wLSR.indgen()
 	wHSR = wLSR.c
@@ -301,17 +300,17 @@ proc SetRate2() {local i,j,spon_factor
 	    }}
 	}
 	tempsout.add(golgi_spon)
-	//Smooth AN input with alpha-function to simulate dendritic filtering
+	  //Smooth AN input with alpha-function to simulate dendritic filtering
 	  convolve(tempsout,golgi_synfilter,sout)
-    //Add conduction delay to inst. rate profile to ensure accurate FSL
-	for i = 0, param.delay.x[lsr][glg]*sg_rate/1000{
+	  //Add conduction delay to inst. rate profile to ensure accurate FSL
+	  for i = 0, param.delay.x[lsr][glg]*sg_rate/1000{
 	      sout.insrt(0,golgi_spon)
 	      sout.remove(sout.size-1)
-	}
-
+	    }
+	
 	s.SetFibreRate(sout,spiketimes,sg_tdres)
-//print "golgi[",i,"][",j,"]: Process ",pnm.myid," mean ", sout.mean()
-	objref tempsout
+	  //print "golgi[",i,"][",j,"]: Process ",pnm.myid," mean ", sout.mean()
+	  objref tempsout
 }
 
 proc GenSpikes(){local i,j
@@ -323,10 +322,11 @@ proc GenSpikes2(){local i,j
 
 
 proc SaveSpikes(){
-if (object_id(spikes)==0) spikes = new Vector()
+if (object_id(spikes)==0) spikes = new Vector() 
 spikes.append(spiketimes)
 }
 proc ClearSpikes(){
+spiketimes.resize(0)
 spikes.resize(0)
 }
 
@@ -351,6 +351,8 @@ proc SaveGolgiFilterBank2File(){local nchan
     ANfile.wopen(tmpANstr)
     if (ANfile.isopen()){
     ANfile.printf("%d\n%d\n%d\n%d\n%d\n%d\n", sg_rate, golgi[0][0].sout.size, nchannels,cflo,cfhi,species)
+    ANfile.printf("%g\n%g\n%g\n%g\n%g\n%g\n",golgi_spon,golgi_spatial_filter_variance_LSR,golgi_syn_filter_tau,golgi_syn_filter_scale_factor,weight_sum_LSR,weight_sum_HSR)
+
     for icf = 0, nchannels-1 {
         ANfile.printf("%d\n%d\n", icf, cf.x[icf])
         golgi[icf][0].sout.printf(ANfile,"%.3f\t")
@@ -362,36 +364,79 @@ proc SaveGolgiFilterBank2File(){local nchan
 
 }
 
-func RetrieveGolgiFilterBank(){local nsize, nchan, temp
+func RetrieveGolgiFilterBank(){local nsize,nchan,temp
     objref ANfile
-
+    
     GetANfileString()
     ANfile = new File()
     sprint(tmpANstr,"%s/golgi/%s",ANpath,ANstr)
     ANfile.ropen(tmpANstr)
     if (ANfile.isopen()){
-        if (name_declared("pnm") == 0 && say_once!=1) print "Retrieving AN Filterbank: ", ANstr
-        sg_rate = ANfile.scanvar()
-        nsize = ANfile.scanvar()
-   nchannels = ANfile.scanvar()
-   cflo = ANfile.scanvar()
-   cfhi = ANfile.scanvar()
-   species = ANfile.scanvar()
-
-     for icf = 0, nchannels-1 {
-        if (ANfile.scanvar() == icf){
-        cf.x[icf] = ANfile.scanvar()
-        golgi[icf][0].sout.scanf(ANfile,nsize)
-        }
-     }
-     sg_tdres = 1/sg_rate
-     ANfile.close()
-     return 1
-    } else {
-        print "Unable to load golgi file ", tmpANstr
+      if (name_declared("pnm") == 0) {print "Retrieving Golgi Filterbank: ", ANstr}
+ if ((temp = ANfile.scanvar()) != sg_rate){
+        print "sg_rate not the same in ", tmpANstr
         return 0
     }
+   if ((temp = ANfile.scanvar()) != nsize){
+        print "nsize not the same in ", tmpANstr
+        return 0
+    }
+   if ((temp = ANfile.scanvar()) != nchannels){
+        print "nchannels not the same in ", tmpANstr
+        return 0
+    }
+   if ((temp = ANfile.scanvar()) != cflo){
+        print "cflo not the same in ", tmpANstr
+        return 0
+    }
+   if ((temp = ANfile.scanvar()) != cfhi){
+        print "cfhi not the same in ", tmpANstr
+        return 0
+    }
+    if ((temp = ANfile.scanvar()) != species){
+        print "species not the same in ", tmpANstr
+        return 0
+    }
+   if ((temp = ANfile.scanvar()) != golgi_spon){
+        print "golgi_spon not the same in ", tmpANstr
+        return 0
+    }
+   if ((temp = ANfile.scanvar()) != golgi_spatial_filter_variance_LSR){
+        print "golgi_spatial_filter_variance not the same in ", tmpANstr
+        return 0
+    }
+   if ((temp = ANfile.scanvar()) != golgi_syn_filter_tau){
+        print "golgi_syn_filter_tau not the same in ", tmpANstr
+        return 0
+    }
+    if ((temp = ANfile.scanvar()) != golgi_syn_filter_scale_factor){
+        print "golgi_syn_filter_scale_factor not the same in ", tmpANstr
+        return 0
+    }
+   if ((temp = ANfile.scanvar()) != weight_sum_LSR){
+        print "weight_sum_LSR not the same in ", tmpANstr
+        return 0
+    }
+    if ((temp = ANfile.scanvar()) != weight_sum_HSR){
+        print "weight_sum_HSR not the same in ", tmpANstr
+        return 0
+    }
+      for icf = 0, nchannels-1 {
+	  if (ANfile.scanvar() == icf){
+	    cf.x[icf] = ANfile.scanvar()
+	    golgi[icf][0].sout.scanf(ANfile,nsize)
+	  }
+	}
+      sg_tdres = 1/sg_rate
+      ANfile.close()
+
+      return 1
+    } else {
+      print "Unable to load golgi file ", tmpANstr
+      return 0
+	}
 }
+
 
 /*
 objref x
