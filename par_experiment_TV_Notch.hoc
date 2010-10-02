@@ -84,9 +84,11 @@ centrepoint = 6000
       expected_notch[1].plot(g[1],freq1_notch)
       expected_notch[1].plot(g[1],freq2_notch)
       g[1].exec_menu("View = plot")
-
-expected_notch[1].reverse()
-freq1_notch.mul(1000).reverse()
+      
+//      expected_notch[1].reverse()
+//      freq1_notch.reverse()
+//      freq2_notch.reverse()
+      
   }
   
 proc ShowTVPanel(){  
