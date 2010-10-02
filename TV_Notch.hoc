@@ -49,8 +49,8 @@ proc GenSpikes2(){local i,j,count
     for i=0,nchannels-1 {golgi[i][0].s.SGfast2(1)}
     print "GenSpikes time:", stopsw()
 }
-proc multi_run(){local irep
-    startsw()
+proc multi_run(){local irep,multime
+    multime=startsw()
     ClearSpikes()
     for irep=0,reps-1{
 	GenSpikes2()
@@ -58,28 +58,27 @@ proc multi_run(){local irep
 	run()
         SaveSpikes()
     }
-    print "Multi_run time:", stopsw()
+    print "Multi_run time:", startsw() - multime
     }
 
 proc CNSpikes2(){local i, icf
-    objref CNgr[4],CNspks[nchannels][4],CNhist[nchannels][4],CNrate[4],CNrategr
+    objref CNgr[4],CNspks[nchannels][4],CNrate[4],CNrategr
     for i=0,3 {
 	CNgr[i] = new Graph()
 	CNrate[i] = new Vector()
     }
-    CNhist = new Graph()
     CNrategr = new Graph()
     for icf=0 ,  nchannels-1{
+	CNspks[icf][ts] = new Vector()
 	CNspks[icf][tv] = new Vector()
 	CNspks[icf][ds] = new Vector()
 	CNspks[icf][glg] = new Vector()	
 	
 	if (nDSperchannel > 0){ 
-	  CNspks[icf][ds] = dstellate[icf][0].spikes.histogram(0,tstop,0.1)
-	  
+	  CNspks[icf][ds] = dstellate[icf][0].spikes.histogram(0,tstop,0.1) 
 	}
 	if (nTVperchannel > 0){
-	  CNspks[icf][tv] = tuberculoventral[icf][0].spikes.histogram(0,tstop,0.1)
+	    CNspks[icf][tv] = tuberculoventral[icf][0].spikes.histogram(0,tstop,0.1)
 	}
 	if (nGperchannel > 0){
 	  CNspks[icf][glg] = golgi[icf][0].spikes.histogram(0,tstop,0.1) 
@@ -118,9 +117,8 @@ proc CNSpikes2(){local i, icf
 
   stopband = 6      // kHz
   notchwidth = 1
- centrepoint=stopband
+ centrepoint=stopband*1000
  GenNotchResponsePlots()
-  freq1_notch.mul(1000)
 
   ANFBgr = new Graph()
   usesavedfilterbanks=1
@@ -218,7 +216,7 @@ proc ConnectDS2TV(){local channel,target,i,sourcechannel,source
 //
 // Fitness/error function
 //
-
+set_pvec() // grab initial values
 
 objref tempcf,indcf,errorvec
 

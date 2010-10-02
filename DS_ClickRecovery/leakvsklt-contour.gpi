@@ -13,4 +13,4 @@ set xlabel "leak max conductance"
 set ylabel "Low thesh K max conductance"
 set zlabel "DS Membrane Resistance (MOhms)"
 
-splot "leakvsltk.dat" using 1:2:3 with pm3d
+splot "leakvsklt-contour.dat" using 1:2:3 with pm3d
