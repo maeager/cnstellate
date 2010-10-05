@@ -319,23 +319,14 @@ system("date",datestr)
 }
 
  file.printf("#Other values \n")
-		    file.printf("#spl = %g\n",spl)
-file.printf("#param.bw.x[ds][tv] = %g\n",param.bw.x[ds][tv])
-		    file.printf("#param.offset    = %g\n",param.offset   )
-		    file.printf("#param.n.x[ds][tv]  = %g\n",param.n.x[ds][tv] )
-		    file.printf("#param.n.x[hsr][tv] = %g\n",param.n.x[hsr][tv])
-		    file.printf("#param.n.x[lsr][tv] = %g\n",param.n.x[lsr][tv])
-		    file.printf("#param.w.x[tv][ds]  = %g\n",param.w.x[tv][ds] )
-		    file.printf("#param.w.x[hsr][ds] = %g\n",param.w.x[hsr][ds])
-		    file.printf("#param.w.x[lsr][ds] = %g\n",param.w.x[lsr][ds])
-		    file.printf("#param.n.x[hsr][ds] = %g\n",param.n.x[hsr][ds])
-		    file.printf("#param.n.x[lsr][ds] = %g\n",param.n.x[lsr][ds])
-		    file.printf("#  halfoct_compress = %g\n",  halfoct_compress)
-		    file.printf("#  halfoct_shift = %g\n",  halfoct_shift)
-		    file.printf("# oct_compress = %g\n", oct_compress)
-		    file.printf("# oct_shift  = %g\n", oct_shift )
-		    file.printf("# centrepoint = %g\n",centrepoint)
-file.printf("# TV erev = %g\n",tuberculoventral[0][0].soma.erev_rm)
+   file.printf("#spl = %g\n",spl)
+   file.printf("#  halfoct_compress = %g\n",  halfoct_compress)
+   file.printf("#  halfoct_shift = %g\n",  halfoct_shift)
+   file.printf("# oct_compress = %g\n", oct_compress)
+   file.printf("# oct_shift  = %g\n", oct_shift )
+   file.printf("# centrepoint = %g\n",centrepoint)
+   file.printf("# TV erev = %g\n",tuberculoventral[0][0].soma.erev_rm)
+   param.printparams(file,"#") //let Network Parameters print the struct
   file.close()
   
 
@@ -385,18 +376,18 @@ origpvec = pvec.c
 
 proc NotchRun90(){
   reps=20
-  sprint(fileroot,"%s/spl90/r1",origfileroot)
+  sprint(fileroot,"%s/Run1/spl90/r1",origfileroot)
     runprax() 
     printprax2()
  reps=20
- sprint(fileroot,"%s/spl90/r2",origfileroot)
+ sprint(fileroot,"%s/Run1/spl90/r2",origfileroot)
     runprax() 
     printprax2()
  reps=20
- sprint(fileroot,"%s/spl90/r3",origfileroot)
+ sprint(fileroot,"%s/Run1/spl90/r3",origfileroot)
     runprax() 
     printprax2()
-  }
+}
 
 
 proc NotchRun50(){
@@ -408,15 +399,15 @@ spl=50
   SetRates()
  pvec = origpvec.c
   set_params()
-  sprint(fileroot,"%s/spl50/r1",origfileroot)
+  sprint(fileroot,"%s/Run1/spl50/r1",origfileroot)
     runprax() 
     printprax2()
  reps=20
- sprint(fileroot,"%s/spl50/r2",origfileroot)
+ sprint(fileroot,"%s/Run1/spl50/r2",origfileroot)
     runprax() 
     printprax2()
  reps=20
- sprint(fileroot,"%s/spl50/r3",origfileroot)
+ sprint(fileroot,"%s/Run1/spl50/r3",origfileroot)
     runprax() 
     printprax2()
   }
@@ -457,10 +448,19 @@ proc NotchRun70(){
   ANFilterBankRun()
   CheckFilterbank()
   SetRates()
+
  pvec = origpvec.c
   set_params()
-reps=20
-    runprax()
+  sprint(fileroot,"%s/Run1/spl50/r1",origfileroot)
+    runprax() 
+    printprax2()
+ reps=20
+ sprint(fileroot,"%s/Run1/spl50/r2",origfileroot)
+    runprax() 
+    printprax2()
+ reps=20
+ sprint(fileroot,"%s/Run1/spl50/r3",origfileroot)
+    runprax() 
     printprax2()
   }
 
@@ -489,9 +489,18 @@ proc NotchRunErev70(){
   SetRates()
  pvec = origpvec.c
   set_params()
-    for i=0,nTVperchannel-1 tuberculoventral[i][0].soma.erev_rm = -70
+    for i=0,nchannels-1 tuberculoventral[i][0].soma.erev_rm = -70
     reps=20
-    runprax()
+  sprint(fileroot,"%s/Erev-70/r1",origfileroot)
+    runprax() 
+    printprax2()
+ reps=20
+ sprint(fileroot,"%s/Erev-70/r2",origfileroot)
+    runprax() 
+    printprax2()
+ reps=20
+ sprint(fileroot,"%s/Erev-70/r3",origfileroot)
+    runprax() 
     printprax2()
   }
 
@@ -504,7 +513,7 @@ proc NotchRunErev75(){
   SetRates()
  pvec = origpvec.c
   set_params()
-    for i=0,nTVperchannel-1 tuberculoventral[i][0].soma.erev_rm = -75
+    for i=0,nchannels-1 tuberculoventral[i][0].soma.erev_rm = -75
     reps=20
     runprax()
     printprax2()
@@ -530,9 +539,17 @@ reps=20
   printprax2()
 }
 
-proc NotchRunDS(){
-//param.w.x[hsr][ds]*=10
-//param.w.x[lsr][ds]*=2
+proc NotchRunDSboost(){
+  sprint(fileroot,"%s/dsboost",origfileroot)
+ pvec = origpvec.c
+      //BoostDS
+param.w.x[hsr][ds]*=10
+param.w.x[lsr][ds]*=2
+  set_pvec()
+  set_params()
+reps=20
+  runprax()
+  printprax2()
 }
 
 proc RateLevelNotch(){

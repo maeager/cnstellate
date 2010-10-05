@@ -12,7 +12,6 @@ public offset,ncol,nrow
 public golgi_spatial_filter_variance_LSR,golgi_syn_filter_scale_factor,weight_sum_LSR,weight_sum_HSR,golgi_spon
 //DS_ClickRecovery
 public dstellate_gkltbar, gaba_decay, gaba_rise, dstellate_gleak_rm, DS_params
-
 //functions
 public getnetparameters, saveparameters,printparams
 objref bw, n, w,delay
@@ -25,8 +24,7 @@ proc init(){
     w = new Matrix(nrow, ncol)
     delay = new Matrix(nrow,ncol)
     offset=0
-    golgi_params()
-//    DS_params()
+
 }
 
 objref file
@@ -85,19 +83,42 @@ gaba_rise = 0.261939
 dstellate_gleak_rm = 0.00274146
 }
 
-proc printparams(){
+proc printparams(){local irow,jcol
      //first object is file 
      //second variable is string
-     
+ file = $o1
+     if (file.isopen()){
+    file.printf("%s bandwidth\n",$s2)
+     for irow=0, nrow-1 {
+	 file.printf("%s",$s2)
+	 for jcol=0,ncol-1 file.printf("\t%.4f",bw.getval(irow,jcol))
+	 file.printf("\n")
+     }
+     file.printf("%s num. connections\n",$s2)
+     for irow=0, nrow-1 {
+	 file.printf("%s",$s2)
+	 for jcol=0,ncol-1 file.printf("\t%d",n.getval(irow,jcol))
+	 file.printf("\n")      
+     }
+     file.printf("%s weights\n",$s2)
+     for irow=0, nrow-1 {
+	 file.printf("%s",$s2)
+	 for jcol=0,ncol-1 file.printf("\t%.8g",w.getval(irow,jcol))
+	 file.printf("\n")
+     }
+     file.printf("%s delay\n",$s2)
+     for irow=0, nrow-1 {
+	 file.printf("%s",$s2)
+	 for jcol=0,ncol-1 file.printf("\t%.4f",delay.getval(irow,jcol))
+	 file.printf("\n")
+     }
+    file.printf("%s offset %g\n",$s2,offset)
+     }
 
 }
 
 endtemplate NetworkParameters
 
-strdef paramfilename
-param = new NetworkParameters(6,4)
-sprint(paramfilename,"%s/defaultrecurrentparams.dat",cnstellate_dir)
-param.getnetparameters(paramfilename)
 
 
 proc golgi_params(){
@@ -120,3 +141,10 @@ param.gaba_decay = gaba_decay
 param.gaba_rise = gaba_rise
 param.dstellate_gleak_rm = dstellate_gleak_rm
 }
+
+strdef paramfilename
+param = new NetworkParameters(6,4)
+sprint(paramfilename,"%s/defaultrecurrentparams.dat",cnstellate_dir)
+param.getnetparameters(paramfilename)
+    golgi_params()
+    DS_params()
