@@ -26,7 +26,7 @@ proc init(){
     delay = new Matrix(nrow,ncol)
     offset=0
     golgi_params()
-    DS_params()
+//    DS_params()
 }
 
 objref file

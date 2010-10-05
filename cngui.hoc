@@ -106,8 +106,8 @@ objref ANFgr[2],ANspksL[nchannels],ANspksH[nchannels],ANFrate[2],ANFhist
 //.div(reps*binsize/1000)
       ANspksH[icf] = ANspksH[icf].histogram(0,tstop,0.1)
       ANspksL[icf] = ANspksL[icf].histogram(0,tstop,0.1)
-      ANFrate[0].append(ANspksH[icf].mean(stimdelay*1000/0.1)/(HSRsperchannel*0.1/1000))
-      ANFrate[1].append(ANspksL[icf].mean(stimdelay*1000/0.1)/(LSRsperchannel*0.1/1000))
+      ANFrate[0].append(ANspksH[icf].mean(stimdelay*1000/0.1,ANspksH[icf].size-1 )/(HSRsperchannel*0.1/1000))
+      ANFrate[1].append(ANspksL[icf].mean(stimdelay*1000/0.1,ANspksL[icf].size-1)/(LSRsperchannel*0.1/1000))
       ANspksH[icf].add(icf*5).plot(ANFhist, 0.1)
 
 

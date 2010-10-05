@@ -2,7 +2,8 @@
 // Cochlear Nucleus network model: network specification file
 // Michael Eager, 2006-2010
 // University of Melbourne
-//
+// This file is dependant on NetworkParameters,Utilities and Params hoc files
+// individual simulation changes can be made to 'param'  
 
 objref cvode, random
 cvode = new CVode(0)        // start with CVode inactive
@@ -676,28 +677,6 @@ proc SaveSpikes(){local i,j
       }
 }
 
-proc ClearSpikes(){local i,j
-    an.ClearSpikes()
-    for i=0,nchannels-1{
-        for j=0,nTSperchannel-1{
-	    sprint(cmd, "tstellate[%d][%d].spikes.resize(0)",i,j)
-            execute1(cmd)
-        }
-        for j=0,nTVperchannel-1{
-	    sprint(cmd, "tuberculoventral[%d][%d].spikes.resize(0)",i,j)
-            execute1(cmd)
-        }
-        for j=0,nDSperchannel-1{
-	    sprint(cmd, "dstellate[%d][%d].spikes.resize(0)",i,j)
-            execute1(cmd)
-        }
-        for j=0,nGperchannel-1{
-	    sprint(cmd, "golgi[%d][%d].spikes.resize(0)",i,j)
-            execute1(cmd)
-        }
-    }
-}
-
 
 
 proc reset_weights() { local i // 1 arg - weight
@@ -870,16 +849,42 @@ proc multi_run(){local ireps
 
 proc ClearInputSpikes(){local ii
    an.ClearSpikes()
-   for ii=0,nchannels-1 golgi[i][0].ClearSpikes()
+   for ii=0,nchannels-1 golgi[ii][0].ClearSpikes()
+   print "Cleared Input Spikes"
+}
+
+
+proc ClearSpikes(){local ii,jj
+    ClearInputSpikes()
+    for ii=0,nchannels-1{
+        for jj=0,nTSperchannel-1{
+	    sprint(cmd, "tstellate[%d][%d].spikes.resize(0)",ii,jj)
+            execute1(cmd)
+        }
+        for jj=0,nTVperchannel-1{
+	    sprint(cmd, "tuberculoventral[%d][%d].spikes.resize(0)",ii,jj)
+            execute1(cmd)
+        }
+        for jj=0,nDSperchannel-1{
+	    sprint(cmd, "dstellate[%d][%d].spikes.resize(0)",ii,jj)
+            execute1(cmd)
+        }
+        for jj=0,nGperchannel-1{
+	    sprint(cmd, "golgi[%d][%d].spikes.resize(0)",ii,jj)
+            execute1(cmd)
+        }
+    }
+ print "Cleared CN cell Spikes"
 }
 
 
 proc reset_DS_ClickRecovery(){local ii
-//Extra updating feature for DS_ClickRecovery optimisation routines
+print "updating features for DS_ClickRecovery optimisation routines"
    for ii = 0,nchannels-1 {
     dstellate[ii][0].soma.gleak_rm = dstellate_gleak_rm
     dstellate[ii][0].soma.gkltbar_klt =dstellate_gkltbar
     dstellate[ii][0].GABAA.tau2 = gaba_decay
     dstellate[ii][0].GABAA.tau1 = gaba_rise
   }
+
 }
