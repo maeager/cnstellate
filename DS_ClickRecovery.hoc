@@ -741,3 +741,36 @@ system(cmd)
 lineno+=9
 }
 }
+
+
+
+proc RateLevelDS(){
+  reps=50
+  sprint(cmd,"mkdir %s/rate_level",fileroot)
+  system(cmd)
+	dur 		= 0.049 	//duration of tone segment (seconds)	
+	dutycycle 	= 0.2		//quiet duration = dutycycle*dur
+	ramplngth 	= 0.001
+	srate 		= 100000.0
+	stimtdres 	= 1/srate
+	sg_rate = 50000		
+	sg_tdres = 1/sg_rate
+	stimdelay 	= 0.02		//sec
+	stimtype=6 	//noise
+  for (spl=15;spl<=100;spl+=5){
+    RefreshParameters()
+    ANFilterBankRun()   //Build the filterbank
+    CheckFilterbank()
+    SetRates()
+    multi_run()
+    ANSpikes()
+    CNSpikes2()
+  sprint(fname,"%s/rate_level/%d.dat",fileroot,spl)
+  file.wopen(fname)
+    for icf=0,99 {
+	file.printf("%d\t%d\t%g\t%g\t%g\t%g\t%g\n",icf, cf.x[icf],CNrate[ds].x[icf],CNrate[glg].x[icf],ANFrate[0].x[icf],ANFrate[1].x[icf])
+	
+      }
+    file.close()  
+  }
+}

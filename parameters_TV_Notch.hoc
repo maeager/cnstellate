@@ -63,11 +63,6 @@
 //  pvec_name.append(new String("param.w.x[tv][ds]"))	pvec.x[8] = 0.00090	 
 
 
-
-//min wHSR2TV allow negative values
- pvec_ranges.x[1][0]= -0.001
-
-
   // cmd is a strdef variable that should be used in local routines and not passed across procedures
   strdef cmd
   proc set_pvec(){local pp

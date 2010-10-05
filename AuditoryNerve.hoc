@@ -72,19 +72,14 @@ for j=0,LSRsperchannel-1 {
 
 proc PrintSpikes() {local i,j
 
-for i=0,nchannels-1  {
-for j=0,HSRsperchannel-1 {
-
+ for i=0,nchannels-1  {
+  for j=0,HSRsperchannel-1 {
     if (HSRspiketimes[i][j].size !=0) HSRspiketimes[i][j].printf
-
-
-       }
-for j=0,LSRsperchannel-1 {
-
+  }
+  for j=0,LSRsperchannel-1 {
       if (LSRspiketimes[i][j].size !=0)   LSRspiketimes[i][j].printf
-
-    }
-    }
+  }
+ }
 
 }
 
