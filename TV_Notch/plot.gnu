@@ -18,7 +18,7 @@ set terminal postscript eps enhanced defaultplex \
    solid dashlength 1.0 linewidth 2.0 butt noclip \
    palfuncparam 2000,0.003 \
    "Helvetica" 18 
-set output 'TS_ratelevel.eps'
+set output 'TV_Notch_result.eps'
 unset clip points
 set clip one
 unset clip two
@@ -111,7 +111,7 @@ set rrange [ * : * ] noreverse nowriteback  # (currently [8.98847e+307:-8.98847e
 set trange [ * : * ] noreverse nowriteback  # (currently [-5.00000:5.00000] )
 set urange [ * : * ] noreverse nowriteback  # (currently [-10.0000:10.0000] )
 set vrange [ * : * ] noreverse nowriteback  # (currently [-10.0000:10.0000] )
-set xlabel "Level (dB SPL)" 
+set xlabel "Best Frequency (Hz)" 
 set xlabel  offset character 0, 0, 0 font "Helvetica,28" textcolor lt -1 norotate
 set x2label "" 
 set x2label  offset character 0, 0, 0 font "" textcolor lt -1 norotate
@@ -144,18 +144,34 @@ set colorbox default
 set colorbox vertical origin screen 0.9, 0.2, 0 size screen 0.05, 0.6, 0 front bdefault
 set loadpath 
 set fontpath 
-a=5
-b=10
-c=15
-d=3
-f(x)=a*atan((x-c)/b)+d
-fit f(x) 'TS_ratelevel_5810.dat' using 1:2 via a,b,c,d
-set label  "MR = %.2f sp/s", (a*(pi/2))+d at graph 0.6, graph 0.32
-set label  "1/2 max = %.2f dBSPL", c at graph 0.6, graph 0.28
-set label  "THR = %.1f dBSPL", -((pi/2)*0.95*b)+c at graph 0.6, graph 0.24
-set label  "DR = %.1f ", pi*0.95*b at graph 0.6, graph 0.2
-set label  "spon = %.2f (sp/s)", d-f(c) at graph 0.6, graph 0.16
-plot  f(x), 'TS_ratelevel_5810.dat'  using 1:2  notitle with linespoints ls 3
-#    EOF
 
+#    EOF
+ymax=250
+xplace=20
+
+error="`grep error TV_Notch.Fit.dat | awk -F'=' '{print $2}'`"
+S = strstrt(error,".")
+param1="`sed -n '4p' TV_Notch.Fit.dat|awk '{print $3}'`"
+param2="`sed -n '5p' TV_Notch.Fit.dat|awk '{print $3}'`"
+param3="`sed -n '6p' TV_Notch.Fit.dat|awk '{print $3}'`"
+
+set xlabel "Best Frequency (kHz)" 
+set ylabel "Discharge Rate (sp/s)" 
+set yrange [ 0 : ymax ] noreverse nowriteback  # (currently [2.00000:16.0000] )
+
+
+set label 1 sprintf("Error = %s",error[0:S+2])  at xplace, ymax-0.15*ymax
+set label 2 sprintf("w_{LSR->TV} = %s",param1)  at xplace, ymax-0.2*ymax
+set label 3 sprintf("w_{HSR->TV} = %s",param2)  at xplace, ymax-0.25*ymax 
+set label 4 sprintf("w_{DS->TV} = %s",param3)  at xplace, ymax-0.3*ymax
+
+set arrow 1 from 6, 0, 0 to 6, ymax, 0 nohead back nofilled linetype 0 linewidth 1.000
+set arrow 2 from 12, 0, 0 to 12, ymax, 0 nohead back nofilled linetype 0 linewidth 1.000
+
+set style line 3 lc rgb '#0060ad' lt 1 lw 2 pt 0 pi -1 ps 3
+set style line 4 lc rgb '#0060ad' lt 1 lw 2 pt 7 ps 1.5
+
+plot 'TV_Notch.Fit.dat' using ($1/1000):($2/2.5) title "Best output response" with lp ls 3 , \
+     '' using ($1/1000):2 notitle  with points ls 4, \
+     'TV_Notch.Fit.dat' using ($1/1000):3 title "Optimal response" with linespoints ls 2
 
