@@ -429,8 +429,8 @@ func err(){local ii,pp
     //Modify Parameters
 //
 golgi_spatial_filter_variance_LSR=$&2[0]
-    weight_sum_LSR = $&2[1]
-    weight_sum_HSR= $&2[2]
+    param.w.x[lsr][glg] = $&2[1]
+    param.w.x[hsr][glg]= $&2[2]
  golgi_spon=$&2[3]
 
     // check for bad values
@@ -500,8 +500,8 @@ gg.flush()
 //Final praxis results (attr -> 1,0.1,3) 8/9/09
 //proc PrintFinalResults(){
 //golgi_spatial_filter_variance_LSR= 2.48372
-//weight_sum_LSR = 0.516646
-//weight_sum_HSR= 0.04872
+//param.w.x[lsr][glg] = 0.516646
+//param.w.x[hsr][glg]= 0.04872
 //golgi_spon=3.7271
 //
 // RatelevelGolgi1()
@@ -511,8 +511,8 @@ gg.flush()
 //    file.printf("# Golgi model rate-level data\n")
 //    file.printf("# Spatial filter: Stdev of LSR input channels=%.4f\n",golgi_spatial_filter_variance_LSR)
 //    file.printf("# Synaptic Filter: Tau = 5ms, Scale_factor=%.2f\n",golgi_syn_filter_scale_factor)
-//    file.printf("# Weighted sum of LSR = %.4f \n",weight_sum_LSR)
-//    file.printf("# Weighted sum of HSR = %.4f \n",weight_sum_HSR)
+//    file.printf("# Weighted sum of LSR = %.4f \n",param.w.x[lsr][glg])
+//    file.printf("# Weighted sum of HSR = %.4f \n",param.w.x[hsr][glg])
 //    file.printf("# Golgi Spontaneous rate = %.4f\n",golgi_spon)
 //    file.printf("# SPL\tRate (sp/sec)\t Stdev\n")
 //    for i=0,level.size()-1 { file.printf("%d\t%.3f\t%.3f\t%.3f\t%.3f\n",level.x[i],grate[76].x[i],gstdev[76].x[i],fvec.x[i], targetrl.x[i]) }
@@ -532,8 +532,8 @@ for k = 0,5 fit_praxis(NPARAMS,"err",&pvec.x[0])
     file.printf("# Golgi model rate-level data\n")
     file.printf("# Spatial filter: Stdev of LSR input channels=%.4f\n",golgi_spatial_filter_variance_LSR)
     file.printf("# Synaptic Filter: Tau = 5ms, Scale_factor=%.2f\n",golgi_syn_filter_scale_factor)
-    file.printf("# Weighted sum of LSR = %.4f \n",weight_sum_LSR)
-    file.printf("# Weighted sum of HSR = %.4f \n",weight_sum_HSR)
+    file.printf("# Weighted sum of LSR = %.4f \n",param.w.x[lsr][glg])
+    file.printf("# Weighted sum of HSR = %.4f \n",param.w.x[hsr][glg])
     file.printf("# Golgi Spontaneous rate = %.4f\n",golgi_spon)
     file.printf("# Final err(0,&pvec.x[0]) = %.8f\n",err(0,&pvec.x[0]))
 

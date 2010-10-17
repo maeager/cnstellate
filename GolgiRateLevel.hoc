@@ -289,8 +289,8 @@ system("date",datestr)
 file.printf("# %s \n",datestr)    
 file.printf("# Spatial filter: Stdev of LSR input channels=%.4f\n",golgi_spatial_filter_variance_LSR)
     file.printf("# Synaptic Filter: Tau = 5ms, Scale_factor=%.2f\n",golgi_syn_filter_scale_factor)
-    file.printf("# Weighted sum of LSR = %.4f \n",weight_sum_LSR)
-    file.printf("# Weighted sum of HSR = %.4f \n",weight_sum_HSR)
+    file.printf("# Weighted sum of LSR = %.4f \n",param.w.x[lsr][glg])
+    file.printf("# Weighted sum of HSR = %.4f \n",param.w.x[hsr][glg])
     file.printf("# Golgi Spontaneous rate = %.4f\n",golgi_spon)
     file.printf("# SPL\tRate (sp/sec)\t Stdev\n")
     for i=0,grate[76].size() -1 { file.printf("%d\t%.3f\t%.3f\t%.3f\n",i*5-20,grate[76].x[i],gstdev[76].x[i], targetrl.x[i]) }
@@ -300,8 +300,8 @@ file.printf("# Spatial filter: Stdev of LSR input channels=%.4f\n",golgi_spatial
  file.printf("# %s \n",datestr)
   file.printf("golgi_spatial_filter_variance_LSR=%.4f\n",golgi_spatial_filter_variance_LSR)
     file.printf("golgi_syn_filter_scale_factor=%.2f\n",golgi_syn_filter_scale_factor)
-    file.printf("weight_sum_LSR= %.4f \n",weight_sum_LSR)
-    file.printf("weight_sum_HSR= %.4f \n",weight_sum_HSR)
+    file.printf("param.w.x[lsr][glg]= %.4f \n",param.w.x[lsr][glg])
+    file.printf("param.w.x[hsr][glg]= %.4f \n",param.w.x[hsr][glg])
     file.printf("# Golgi Spontaneous rate = %.4f\n",golgi_spon)
   
 }

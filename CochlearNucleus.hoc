@@ -845,7 +845,14 @@ proc multi_run(){local ireps
         SaveSpikes()
     }
 }
-
+proc multi_run2(){local ireps
+    ClearSpikes()
+    for ireps = 0, reps-1 {
+        GenSpikes2()
+        run()
+        SaveSpikes()
+    }
+}
 
 proc ClearInputSpikes(){local ii
    an.ClearSpikes()
@@ -891,7 +898,7 @@ print "updating features for DS_ClickRecovery optimisation routines"
 
 
 
-proc RefreshCFinCNcells(){local ii,jj
+proc RefreshCNcellsCF(){local ii,jj
     for ii=0,nchannels-1{
         for jj=0,nTSperchannel-1{
 	    sprint(cmd, "tstellate[%d][%d].cf = cf.x[%d]",ii,jj,ii)

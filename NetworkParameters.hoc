@@ -7,16 +7,18 @@ objref param
 
 begintemplate NetworkParameters
 public bw,n,w,delay   //bandwidth(spread), number, weight, delay
-public offset,ncol,nrow
+public ncol,nrow
 //GolgiRateLevel
-public golgi_spatial_filter_variance_LSR,golgi_syn_filter_scale_factor,weight_sum_LSR,weight_sum_HSR,golgi_spon
+public golgi_spatial_filter_variance_LSR,golgi_syn_filter_scale_factor,golgi_spon
 //DS_ClickRecovery
 public dstellate_gkltbar, gaba_decay, gaba_rise, dstellate_gleak_rm, DS_params
+//TV_Notch
+public offset, tv_erev
 //functions
 public getnetparameters, saveparameters,printparams
 objref bw, n, w,delay
 offset=3
-
+tv_erev=-65
 proc init(){
     nrow = $1  ncol = $2
     bw = new Matrix(nrow, ncol)
@@ -67,8 +69,8 @@ proc saveparameters(){
 proc golgi_params(){
 golgi_spatial_filter_variance_LSR = 2.4837
 golgi_syn_filter_scale_factor = 1.00
-weight_sum_LSR = 0.5166
-weight_sum_HSR = 0.0487
+w.x[lsr][glg] = 0.5166
+w.x[hsr][glg] = 0.0487
 golgi_spon = 3.7271
 }
 
@@ -125,8 +127,6 @@ proc golgi_params(){
 xopen("pvec_Golgi_RateLevel.hoc")
 param.golgi_spatial_filter_variance_LSR = golgi_spatial_filter_variance_LSR
 param.golgi_syn_filter_scale_factor = golgi_syn_filter_scale_factor
-param.weight_sum_LSR = weight_sum_LSR
-param.weight_sum_HSR = weight_sum_HSR
 param.golgi_spon = golgi_spon
 }
 

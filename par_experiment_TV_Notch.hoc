@@ -41,7 +41,7 @@ centrepoint = 6000
       for ii=0,type2_halfoct_sweep[0].size()-1{
       	  //x-axis (best frequency)
 	  ifreq =  (halfoct_shift - type2_halfoct_sweep[0].x[ii])/halfoct_compress
-	  if (ifreq < 0.6) break
+	  if (ifreq < 0.8) break
 	  expected_notch[0].append(ifreq)    //flip around rising edge
 	  //y-axis rate (sp/s)
 	  expected_notch[1].append(type2_halfoct_sweep[1].x[ii])
@@ -51,7 +51,7 @@ centrepoint = 6000
 		       //Lower Section
       for ii=0, type2_1oct_sweep[0].size()-1 {
 	  ifreq =(oct_shift - type2_1oct_sweep[0].x[ii])/oct_compress
-	  if (ifreq > 0.4) continue
+	  if (ifreq > 0.6) continue
 	  expected_notch[0].append(ifreq)    //flip around falling edge
 	  expected_notch[1].append(type2_1oct_sweep[1].x[ii])
       }
@@ -72,19 +72,23 @@ func oct2freq2(){local ratio //Standard Acoutic Octave Calculation,  $1 centre f
     }
 
 
-  objref freq1_notch, freq2_notch
+objref freq1_notch, freq2_notch,freq_1oct
   proc GenFreqNotch(){
   freq1_notch = new Vector() 
   freq2_notch = new Vector()
+    freq_1oct = new Vector()
   if (centrepoint < 20) {
   print "Centrepoint is too low"
   return
   }
 
   for ii = 0,expected_notch[0].size()-1 {
-      freq1_notch.append(oct2freq1(centrepoint,expected_notch[0].x[ii]))
+     freq1_notch.append(oct2freq1(centrepoint,expected_notch[0].x[ii]))
       freq2_notch.append(oct2freq2(centrepoint,expected_notch[0].x[ii]))
     }
+  for ii=0,type2_1oct_sweep[0].size-1  freq_1oct.append(oct2freq1(centrepoint,oct_shift - type2_1oct_sweep[0].x[ii]))
+
+
 }
   objref g[2]
   proc GenNotchResponsePlots(){
@@ -101,9 +105,11 @@ func oct2freq2(){local ratio //Standard Acoutic Octave Calculation,  $1 centre f
       expected_notch[1].plot(g[1],freq1_notch)
       expected_notch[1].plot(g[1],freq2_notch)
       g[1].exec_menu("View = plot")
-
       expected_notch[1].reverse()
       freq1_notch.reverse()
+      type2_1oct_sweep[1].reverse()
+    freq_1oct.reverse()
+
   }
   
 proc ShowTVPanel(){  
