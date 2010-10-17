@@ -49,7 +49,7 @@ func cochlea_x2f() { local species, f, dist
     species = $1
     dist = $2
     if(species==0){
-            /*human */
+        /*human */
         if((dist>35)||(dist<0)){
             hoc_error("BM distance out of human range, [in cochlea_x2f(...)]")
         }
@@ -525,7 +525,7 @@ proc FilteredNoise() {local rampts, rstep, totalpts, steadypts, duration,spl,cyc
 	notchdepth=$8
 	inputsound = new Vector()
 
-    sprint(wavefile,"./TV_notch/Notch-sb%g-%goct.dat",stopband1,notchwidth)
+    sprint(wavefile,"./TV_Notch/Notch-sb%g-%goct.dat",stopband1,notchwidth)
     print wavefile
     file.ropen(wavefile)
     if (file.isopen() == 0){
@@ -1337,7 +1337,7 @@ func GetANfileString() {local i
   }
   if (stimtype==12){ //FilteredNoise
       sprint(ANstr,"%s", wavefile)
-      sf_.right(ANstr,sf_.len("./TV_notch/"))
+      sf_.right(ANstr,sf_.len("./TV_Notch/"))
       sf_.left(ANstr, sf_.len(ANstr)-4)
       sprint(ANstr,"FilteredFile_%s_L%d_Del%d_Dur%d",ANstr, spl,stimdelay*1000,dur*1000)
   }

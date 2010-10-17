@@ -31,10 +31,8 @@ param.w.x[hsr][ds] = 0.00227144*1
 param.w.x[lsr][tv] = 0.00326477*1
 param.w.x[hsr][tv] = -0.000334474*1
 param.w.x[hsr][ds] = 0.00227144*1
-
-
- // Tue Oct  5 13:21:40 AUSEDT 2010
+ //  Sun Oct  3 15:31:52 AUSEDT 2010
   
-param.w.x[lsr][tv] = 0.00130797*1
-param.w.x[hsr][tv] = 0.000273517*1
-param.w.x[hsr][ds] = 0.0119584*1
+param.w.x[lsr][tv] = 0.00128707*1
+param.w.x[hsr][tv] = 0.00026168*1
+param.w.x[hsr][ds] = 0.00218798*1

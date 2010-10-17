@@ -111,7 +111,7 @@ proc set_tstellate() {
 	insert ka
 	eh_rm=-43
 	Ra=150 cm=0.9
-	eleak_rm 		= 	Erest	// reversal potential mV
+	erev_rm 		= 	Erest	// reversal potential mV
 	model = 0
 	RM = 96  //MOhms
 	L	= 19.5
@@ -131,7 +131,7 @@ proc set_tuberc() {
 	ena_rm = 50
 	eh_rm=-43
 	Ra=150 cm=0.9
-	eleak_rm 		= 	Erest	// reversal potential mV
+	erev_rm 		= 	Erest	// reversal potential mV
 	model = 2
 	//RM = 170  //Expected membrane resistance in MOhms
 	L	= 19
@@ -152,7 +152,7 @@ proc set_dstellate() {
 	ena_rm = 50
 	eh_rm=-43
 	Ra=150 cm=0.9
-	eleak_rm 		= 	Erest	// reversal potential mV
+	erev_rm 		= 	Erest	// reversal potential mV
 	model = 1
 	//RM =  //MOhms
 	L	= 21
@@ -173,7 +173,7 @@ proc set_golgi() {
 	ena_rm = 50
 	eh_rm=-43
 	Ra=150 cm=0.9
-	eleak_rm 		= 	Erest	// reversal potential mV
+	erev_rm 		= 	Erest	// reversal potential mV
 	model = 3
 	RM = 130  //MOhms
 	L	= 14
@@ -197,11 +197,11 @@ golgi_spatial_filter_variance = 4
 golgi_syn_filter_tau = 0.0005  // s
 golgi_syn_filter_scale_factor=1
 // Adding MSR and HSR to golgi
-weight_sum_LSR = 0.5
+param.w.x[lsr][glg] = 0.5
 golgi_spatial_filter_variance_LSR=1
 weight_sum_MSR=0.5
 golgi_spatial_filter_variance_MSR=1
-weight_sum_HSR=0.5
+param.w.x[hsr][glg]=0.5
 golgi_spatial_filter_variance_HSR=1
 
 
@@ -236,7 +236,7 @@ begintemplate Golgicell
   public wLSR,wHSR,wMSR
   external thresh,LSRout,nchannels,sg_tdres,weight_sum, golgi_spon,golgi_spatial_filter_variance
   external gaussian,gaussian_mean,gaussian_variance,golgi_synfilter,convolve, MSRsperchannel, Lowspont,Highspont,Medspont
-  external param,lsr,glg,sg_rate,HSRout, MSRout, weight_sum_LSR, golgi_spatial_filter_variance_LSR, weight_sum_MSR, golgi_spatial_filter_variance_MSR, weight_sum_HSR, golgi_spatial_filter_variance_HSR
+  external param,hsr,lsr,glg,sg_rate,HSRout, MSRout, golgi_spatial_filter_variance_LSR, weight_sum_MSR, golgi_spatial_filter_variance_MSR, golgi_spatial_filter_variance_HSR
   objref s,w, spiketimes, spikecount,sout,synlist,spikes
   objref wLSR,wHSR,wMSR
   channel=0
@@ -274,6 +274,7 @@ proc SetRate() {local i,j,spon_factor
 	objref tempsout
 }
 proc SetRate2() {local i,j,spon_factor
+    printf("golgi %d", channel)
 	tempsout = new Vector(LSRout[0].size)
 	sout = new Vector(LSRout[0].size)
 	wLSR = new Vector(nchannels)
@@ -281,36 +282,47 @@ proc SetRate2() {local i,j,spon_factor
 	wHSR = wLSR.c
 	gaussian_mean = channel
 	gaussian_variance = golgi_spatial_filter_variance_LSR
-	wLSR.apply("gaussian").mul(weight_sum_LSR)
+	wLSR.apply("gaussian").mul(param.w.x[lsr][glg])
 	if(MSRsperchannel>0){
 	  gaussian_variance = golgi_spatial_filter_variance_MSR
 	  wMSR.apply("gaussian").mul(weight_sum_MSR)
 	}
 	gaussian_variance = golgi_spatial_filter_variance_HSR
-	wHSR.apply("gaussian").mul(weight_sum_HSR)
+	wHSR.apply("gaussian").mul(param.w.x[hsr][glg])
 
-
+ 
 	for i=0,nchannels-1  {
 	    //	   if (wLSR.x[i]>0.01) tempsout.add(LSRout[i].c.add(-Lowspont).mul(wLSR.x[i]))
 	    //	  if(MSRsperchannel>0) tempsout.add(MSRout[i].c.add(-Medspont).mul(wMSR.x[i]))
 	    //if (wHSR.x[i]>0.01)tempsout.add(HSRout[i].c.add(-Highspont).mul(wHSR.x[i]))
 	    if (wLSR.x[i] > 0.01){
-	      for j=0,HSRout[0].size-1 {
-		tempsout.x[j] = (LSRout[i].x[j]-Lowspont)*wLSR.x[i] + (HSRout[i].x[j]-Highspont)*wHSR.x[i] 
-	    }}
-	}
-	tempsout.add(golgi_spon)
+	    //  for j=0,LSRout[0].size()-1 {
+	//	  tempsout.x[j] = (LSRout[i].x[j])*wLSR.x[i] + (HSRout[i].x[j])*wHSR.x[i] 
+	//	}
+	    tempsout.add(LSRout[i].c.mul(wLSR.x[i]))
+	    tempsout.add(LSRout[i].c.mul(wHSR.x[i]))
+	    }
+	    if ((i%10) == 0) printf(".")
+        } 
+	spon_factor = tempsout.x[0]-golgi_spon
+	  for j=0,LSRout[0].size()-1 {
+	      tempsout.x[j]-=spon_factor
+	      if (tempsout.x[j]<0) tempsout.x[j]=0.0
+	    
+	  }
+	  
 	  //Smooth AN input with alpha-function to simulate dendritic filtering
 	  convolve(tempsout,golgi_synfilter,sout)
+	  
 	  //Add conduction delay to inst. rate profile to ensure accurate FSL
 	  for i = 0, param.delay.x[lsr][glg]*sg_rate/1000{
 	      sout.insrt(0,golgi_spon)
-	      sout.remove(sout.size-1)
 	    }
-	
+	sout.resize(LSRout[0].size)
 	s.SetFibreRate(sout,spiketimes,sg_tdres)
 	  //print "golgi[",i,"][",j,"]: Process ",pnm.myid," mean ", sout.mean()
 	  objref tempsout
+	  printf(" done\r")
 }
 
 proc GenSpikes(){local i,j
@@ -350,8 +362,8 @@ proc SaveGolgiFilterBank2File(){local nchan
     sprint(tmpANstr,"%s/golgi/%s",ANpath,ANstr)
     ANfile.wopen(tmpANstr)
     if (ANfile.isopen()){
-    ANfile.printf("%d\n%d\n%d\n%d\n%d\n%d\n", sg_rate, golgi[0][0].sout.size, nchannels,cflo,cfhi,species)
-    ANfile.printf("%g\n%g\n%g\n%g\n%g\n%g\n",golgi_spon,golgi_spatial_filter_variance_LSR,golgi_syn_filter_tau,golgi_syn_filter_scale_factor,weight_sum_LSR,weight_sum_HSR)
+    ANfile.printf("%d\n%d\n%d\n%d\n%d\n%d\n", sg_rate, LSRout[0].size, nchannels,cflo,cfhi,species)
+    ANfile.printf("%g\n%g\n%g\n%g\n%g\n%g\n",golgi_spon,golgi_spatial_filter_variance_LSR,golgi_syn_filter_tau,golgi_syn_filter_scale_factor,param.w.x[lsr][glg],param.w.x[hsr][glg])
 
     for icf = 0, nchannels-1 {
         ANfile.printf("%d\n%d\n", icf, cf.x[icf])
@@ -366,61 +378,62 @@ proc SaveGolgiFilterBank2File(){local nchan
 
 func RetrieveGolgiFilterBank(){local nsize,nchan,temp
     objref ANfile
-    
+    CreateGolgiSynFilter()
     GetANfileString()
     ANfile = new File()
     sprint(tmpANstr,"%s/golgi/%s",ANpath,ANstr)
     ANfile.ropen(tmpANstr)
     if (ANfile.isopen()){
       if (name_declared("pnm") == 0) {print "Retrieving Golgi Filterbank: ", ANstr}
- if ((temp = ANfile.scanvar()) != sg_rate){
+      if ((temp = ANfile.scanvar()) != sg_rate){
         print "sg_rate not the same in ", tmpANstr
         return 0
-    }
-   if ((temp = ANfile.scanvar()) != nsize){
+      }
+      if ((temp = ANfile.scanvar()) != LSRout[0].size){
         print "nsize not the same in ", tmpANstr
         return 0
-    }
-   if ((temp = ANfile.scanvar()) != nchannels){
+      }
+      nsize= LSRout[0].size
+      if ((temp = ANfile.scanvar()) != nchannels){
         print "nchannels not the same in ", tmpANstr
         return 0
-    }
-   if ((temp = ANfile.scanvar()) != cflo){
+      }
+      if ((temp = ANfile.scanvar()) != cflo){
         print "cflo not the same in ", tmpANstr
         return 0
-    }
-   if ((temp = ANfile.scanvar()) != cfhi){
+      }
+      if ((temp = ANfile.scanvar()) != cfhi){
         print "cfhi not the same in ", tmpANstr
         return 0
-    }
-    if ((temp = ANfile.scanvar()) != species){
+      }
+      if ((temp = ANfile.scanvar()) != species){
         print "species not the same in ", tmpANstr
         return 0
-    }
-   if ((temp = ANfile.scanvar()) != golgi_spon){
+      }
+      if ((temp = ANfile.scanvar()) != golgi_spon){
         print "golgi_spon not the same in ", tmpANstr
         return 0
-    }
-   if ((temp = ANfile.scanvar()) != golgi_spatial_filter_variance_LSR){
-        print "golgi_spatial_filter_variance not the same in ", tmpANstr
+      }
+      if ((temp = ANfile.scanvar()) != golgi_spatial_filter_variance_LSR){
+	print "golgi_spatial_filter_variance not the same in ", tmpANstr
         return 0
-    }
-   if ((temp = ANfile.scanvar()) != golgi_syn_filter_tau){
+      }
+      if ((temp = ANfile.scanvar()) != golgi_syn_filter_tau){
         print "golgi_syn_filter_tau not the same in ", tmpANstr
         return 0
-    }
-    if ((temp = ANfile.scanvar()) != golgi_syn_filter_scale_factor){
+      }
+      if ((temp = ANfile.scanvar()) != golgi_syn_filter_scale_factor){
         print "golgi_syn_filter_scale_factor not the same in ", tmpANstr
         return 0
-    }
-   if ((temp = ANfile.scanvar()) != weight_sum_LSR){
-        print "weight_sum_LSR not the same in ", tmpANstr
+      }
+      if ((temp = ANfile.scanvar()) != param.w.x[lsr][glg]){
+        print "param.w.x[lsr][glg] not the same in ", tmpANstr
         return 0
-    }
-    if ((temp = ANfile.scanvar()) != weight_sum_HSR){
-        print "weight_sum_HSR not the same in ", tmpANstr
+      }
+      if ((temp = ANfile.scanvar()) != param.w.x[hsr][glg]){
+        print "param.w.x[hsr][glg] not the same in ", tmpANstr
         return 0
-    }
+      }
       for icf = 0, nchannels-1 {
 	  if (ANfile.scanvar() == icf){
 	    cf.x[icf] = ANfile.scanvar()
@@ -429,12 +442,15 @@ func RetrieveGolgiFilterBank(){local nsize,nchan,temp
 	}
       sg_tdres = 1/sg_rate
       ANfile.close()
-
+      //Setting rate in point process object 
+      for icf = 0,nchannels-1{
+	  golgi[icf][0].s.SetFibreRate(golgi[icf][0].sout,golgi[icf][0].spiketimes,sg_tdres)
+	}
       return 1
     } else {
       print "Unable to load golgi file ", tmpANstr
-      return 0
-	}
+	return 0
+    }
 }
 
 
