@@ -1,0 +1,393 @@
+ //////////Default Parameters for TV_Notch///////////////
+
+  ANsoundspath = "../../sounds"
+  cfhi     = 48000
+  cflo     = 200
+  ramplngth = 0.002
+  tstop    = 70    // ms
+  dur      = 0.048  // duration of stim (seconds)
+  spl      = 90     // dB SPL
+  stimdelay= 0.01   // sec
+  stimtype = 12     // Notch: stobband filtered noise
+  reps     = 20     //
+  ANmodel  = 6      // Zilany Bruce model version 3
+  species  = 1      // Cat
+
+  stopband = 6      // kHz
+  notchwidth = 1
+ centrepoint=stopband*1000
+ GenNotchResponsePlots()
+ 
+
+  ANFBgr = new Graph()
+  usesavedfilterbanks=0
+  srate     = 100000
+  stimtdres = 1/srate
+  sg_rate   = 50000
+  sg_tdres  = 1/sg_rate
+  RefreshCF()
+  GetAudiogramData()
+  RefreshParameters()
+  ANFilterBankRun()
+  CheckFilterbank()
+  SetRates()
+
+
+  func TV_Notch_err( ) {local jj,pp,xtime
+    
+    //check for bad values
+    for pp=0,NPARAMS-1 {
+	if (($&2[pp] <= pvec_ranges.x[pp][0]) || ($&2[pp] > pvec_ranges.x[pp][1])) {
+	  return 1e9
+	}
+      }
+  //print variables
+  print "TV_Notch_err ", $1 
+    for pp=0,NPARAMS-1 { printf("%s = %g * %g",pvec_name.object(pp).s,$&2[pp],pvec_factor.x[pp])}
+  //Set the parameters (see parameters_TV_Notch.hoc)
+  for pp=0,NPARAMS-1 {
+      sprint(cmd,"%s = %g * %g ",pvec_name.object(pp).s,$&2[pp],pvec_factor.x[pp])
+      execute1(cmd)
+    }
+  //plot variables
+  /*{
+    tgr[0].line($&2[0], $&2[1])
+    tgr[0].flush()
+    tgr[1].line($&2[1], $&2[2])
+    tgr[1].flush()
+    doNotify()
+    print $1, $&2[0], $&2[2], $&2[3]
+    }
+  */
+  
+
+  //Rearrange DS -> TV synapses
+  
+  //ConnectDS2TV()
+  reset_weights()
+    tstop = 70 
+    multi_run() 
+
+    //Analyse spikes
+    doNotify()
+    CNSpikes2()
+    plot_fitgr()
+    objref errorvec,tempcf,indcf,refvec
+    indcf = new Vector()
+    //grab freq range
+    indcf.indvwhere(cf,"()",freq1_notch.x[0],freq1_notch.x[freq1_notch.size()-1])
+    tempcf = cf.c(indcf.x[0]-5,indcf.x[indcf.size()-1]+1)
+    //grab test vector within reference range
+    errorvec = new Vector()
+    //SYNTAX obj = ydest.interpolate(xdest, xsrc, ysrc)
+    //errorvec.interpolate(freq1_notch,cf,CNrate[tv])
+    //print a=errorvec.meansqerr(expected_notch[1])
+    errorvec = CNrate[tv].c(indcf.x[0]-5,indcf.x[indcf.size()-1]+1)
+    refvec = new Vector()
+    refvec.interpolate(tempcf,freq1_notch,expected_notch[1])
+    print a=errorvec.meansqerr(refvec)
+    //plot the result
+    gr.erase_all()
+    errorvec.plot(gr,tempcf,1,1)
+    refvec.plot(gr,tempcf,2,2)
+    sprint(grlbl,"Error = %g", a)
+    gr.label(0.65,0.85,grlbl)
+    for jj=0,NPARAMS-1{
+	sprint(grlbl,"%s = %g", pvec_name.object(jj).s,pvec.x[jj])
+	gr.label(0.65,0.75-0.05*jj,grlbl)
+      }
+  doNotify()
+    return a
+    }
+
+//tstop=300
+proc QuickRun(){
+  set_pvec()
+    pvec.printf
+    print TV_Notch_err(0,&pvec.x[0])
+    }
+
+proc runprax(){
+  attr_praxis(0.0001, 0.01, 3)
+    fit_praxis(NPARAMS,"TV_Notch_err",&pvec.x[0])
+    }
+
+
+
+ 
+proc printprax(){local pp,ii,pp2
+  //Output model data with best parameters
+  
+    sprint(cmd,"mkdir -p %s",fileroot)
+    system(cmd)
+   		    
+    reps=50
+  print error=TV_Notch_err(0,&pvec.x[0])
+system("date",datestr)
+     sprint(fname,"%s/%s.Fit.dat",fileroot,origfileroot)
+  file.wopen(fname)
+  if (file.isopen()){
+    file.printf("# %s Optimisation\n",fileroot)
+    file.printf("# %s \n",datestr)
+    for pp=0,NPARAMS-1 {
+	file.printf("#%s = %g\t[%g,%g]\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp],pvec_ranges.x[pp][0],pvec_ranges.x[pp][1])
+      }
+    file.printf("# final error=%f\n",error)
+    
+ file.printf("# Principle axis matrix\n")
+    for pp=0,NPARAMS-1 {
+        pval[pp] = new Vector(NPARAMS)
+        pval_praxis(pp,&pval[pp].x[0])
+        file.printf("#\t")
+        for pp2=0,NPARAMS-1 file.printf("%g\t",pval[pp].x[pp2])
+        file.printf("\n")
+    }
+    file.printf("# Frequency\tError Vec\t Reference Vec (rate sp/s)\n")
+    for ii=0,tempcf.size()-1 file.printf("%.1f\t%.6f\t%.15f\n",tempcf.x[ii],errorvec.x[ii],refvec.x[ii]) 
+}
+
+ file.printf("#Other values \n")
+   file.printf("#spl = %g\n",spl)
+   file.printf("#  halfoct_compress = %g\n",  halfoct_compress)
+   file.printf("#  halfoct_shift = %g\n",  halfoct_shift)
+   file.printf("# oct_compress = %g\n", oct_compress)
+   file.printf("# oct_shift  = %g\n", oct_shift )
+   file.printf("# centrepoint = %g\n",centrepoint)
+   file.printf("# TV erev = %g\n",tuberculoventral[0][0].soma.erev_rm)
+   param.printparams(file,"#") //let Network Parameters print the struct
+  file.close()
+  
+
+
+  //Write parameters to general optimisation file
+  sprint(fname,"%s/pvec_%s.hoc",fileroot,origfileroot)
+  file.aopen(fname)
+  file.printf(" // %s  \n",datestr)
+  for pp=0,NPARAMS-1 {
+      file.printf("%s = %g*%g\n",pvec_name.object(pp).s,pvec.x[pp],pvec_factor.x[pp])
+    }
+  file.close()
+}
+
+
+proc TVNotchPanel(){  
+xpanel("TV_Notch")
+ xvalue("halfoct_compress")
+ xvalue("halfoct_shift")
+ xvalue("oct_compress")
+ xvalue("oct_shift")
+ xvalue("centrepoint")
+ xbutton("Plot Notches","GenNotchResponsePlots()")
+ xbutton("Plot Fit graph","plot_fitgr()")
+
+ xbutton("1 run","QuickRun()")
+ xbutton("Run Fitting Procedure","runprax()")
+
+xpanel()
+}
+
+TVNotchPanel()
+
+
+
+proc NotchRun90(){
+  reps=20
+  sprint(fileroot,"%s/Run1/spl90/r1",origfileroot)
+    runprax() 
+    printprax()
+ reps=20
+ sprint(fileroot,"%s/Run1/spl90/r2",origfileroot)
+    runprax() 
+    printprax()
+ reps=20
+ sprint(fileroot,"%s/Run1/spl90/r3",origfileroot)
+    runprax() 
+    printprax()
+}
+
+
+proc NotchRun50(){
+  reps=20
+spl=50
+ RefreshParameters()
+  ANFilterBankRun()
+  CheckFilterbank()
+  SetRates()
+ pvec = origpvec.c
+  set_params()
+  sprint(fileroot,"%s/Run1/spl50/r1",origfileroot)
+    runprax() 
+    printprax()
+ reps=20
+ sprint(fileroot,"%s/Run1/spl50/r2",origfileroot)
+    runprax() 
+    printprax()
+ reps=20
+ sprint(fileroot,"%s/Run1/spl50/r3",origfileroot)
+    runprax() 
+    printprax()
+  }
+
+proc NotchRun110(){
+  sprint(fileroot,"%s/spl110",origfileroot)
+    spl=110
+ RefreshParameters()
+  ANFilterBankRun()
+  CheckFilterbank()
+  SetRates()
+ pvec = origpvec.c
+  set_params()
+reps=20
+    runprax()
+    printprax()
+  }
+
+
+proc NotchRun100(){
+  sprint(fileroot,"%s/spl100",origfileroot)
+    spl=100
+ RefreshParameters()
+  ANFilterBankRun()
+  CheckFilterbank()
+  SetRates()  
+ pvec = origpvec.c  
+  set_params()
+reps=20
+    runprax()
+    printprax()
+  }
+
+proc NotchRun70(){
+  sprint(fileroot,"%s/spl70",origfileroot)
+    spl=70
+  RefreshParameters()
+  ANFilterBankRun()
+  CheckFilterbank()
+  SetRates()
+
+ pvec = origpvec.c
+  set_params()
+  sprint(fileroot,"%s/Run1/spl50/r1",origfileroot)
+    runprax() 
+    printprax()
+ reps=20
+ sprint(fileroot,"%s/Run1/spl50/r2",origfileroot)
+    runprax() 
+    printprax()
+ reps=20
+ sprint(fileroot,"%s/Run1/spl50/r3",origfileroot)
+    runprax() 
+    printprax()
+  }
+
+proc NotchRun80(){
+  sprint(fileroot,"%s/spl80",origfileroot)
+    spl=80
+  RefreshParameters()
+  ANFilterBankRun()
+  CheckFilterbank()
+  SetRates()
+  pvec = origpvec.c
+  set_params()
+reps=20
+    runprax()
+    printprax()
+  }
+
+
+
+proc NotchRunErev70(){
+  sprint(fileroot,"%s/Erev-70",origfileroot)
+    spl=90
+  RefreshParameters()
+  ANFilterBankRun()
+  CheckFilterbank()
+  SetRates()
+ pvec = origpvec.c
+  set_params()
+    for i=0,nchannels-1 tuberculoventral[i][0].soma.erev_rm = -70
+    reps=20
+  sprint(fileroot,"%s/Erev-70/r1",origfileroot)
+    runprax() 
+    printprax()
+ reps=20
+ sprint(fileroot,"%s/Erev-70/r2",origfileroot)
+    runprax() 
+    printprax()
+ reps=20
+ sprint(fileroot,"%s/Erev-70/r3",origfileroot)
+    runprax() 
+    printprax()
+  }
+
+proc NotchRunErev75(){
+  sprint(fileroot,"%s/Erev-75",origfileroot)
+    spl=90
+  RefreshParameters()
+  ANFilterBankRun()
+  CheckFilterbank()
+  SetRates()
+ pvec = origpvec.c
+  set_params()
+    for i=0,nchannels-1 tuberculoventral[i][0].soma.erev_rm = -75
+    reps=20
+    runprax()
+    printprax()
+  }
+
+proc NotchRun_negativehsrtv(){
+    spl=90
+//min wHSR2TV allow negative values
+ pvec_ranges.x[1][0]= -0.003
+
+  RefreshParameters()
+  ANFilterBankRun()
+  CheckFilterbank()
+  SetRates()
+  sprint(fileroot,"%s/hsr2tvneg",origfileroot)
+ pvec = origpvec.c
+      //start the optimisation at a negative value
+  param.w.x[hsr][tv]=-0.0002
+  set_pvec()
+  set_params()
+reps=20
+  runprax()
+  printprax()
+}
+
+proc NotchRunDSboost(){
+  sprint(fileroot,"%s/dsboost",origfileroot)
+ pvec = origpvec.c
+      //BoostDS
+param.w.x[hsr][ds]*=10
+param.w.x[lsr][ds]*=2
+  set_pvec()
+  set_params()
+reps=20
+  runprax()
+  printprax()
+}
+
+proc RateLevelNotch(){
+  reps=50
+  sprint(cmd,"mkdir %s/rate_level",fileroot)
+  system(cmd)
+ 
+  for (spl=15;spl<=100;spl+=5){
+    RefreshParameters()
+    ANFilterBankRun()   //Build the filterbank
+    CheckFilterbank()
+    SetRates()
+    multi_run()
+    ANSpikes()
+    CNSpikes2()
+  sprint(fname,"%s/rate_level/%d.dat",fileroot,spl)
+  file.wopen(fname)
+    for icf=0,99 {
+	file.printf("%d\t%d\t%g\t%g\t%g\t%g\t%g\n",icf, cf.x[icf],CNrate[tv].x[icf],CNrate[ds].x[icf],CNrate[glg].x[icf],ANFrate[0].x[icf],ANFrate[1].x[icf])
+	
+      }
+    file.close()  
+  }
+}
+

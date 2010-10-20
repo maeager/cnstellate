@@ -104,8 +104,9 @@ tone2freq   = 4000
 tone2delay  = 0
 tone2spl    = 30
 //Notch Noise
-stopband =  10          //Files available are in TV_notch folder - stopband 10,12.5
+stopband =  10          //Files available are in TV_Notch folder - stopband 10,12.5
 notchwidth = 0.5        //in octaves, 1/8,1/4,1/2,1
+notchdepth=30
 //Downsampling rate for ANF spike generator
 sg_rate=10000
 srate = 1/stimtdres
