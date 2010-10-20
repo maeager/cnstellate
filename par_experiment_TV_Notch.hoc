@@ -3,19 +3,19 @@
   objref tempmat
   objref type2_1oct_sweep[2],type2_halfoct_sweep[2]
   
-  //"TV_notch/Reiss_Fig9_E_1oct.png.dat" //22dB notch, falling edge 1 oct
-  //"TV_notch/Reiss_Fig9_C_halfoct.png.dat" //rising edge 1/2 oct
-  //"TV_notch/Reiss_Fig10_Bii_HalfOctMax.png.dat"
-  //"TV_notch/Reiss_Fig10_Bi_Max1oct.png.dat"
+  //"TV_Notch/Reiss_Fig9_E_1oct.png.dat" //22dB notch, falling edge 1 oct
+  //"TV_Notch/Reiss_Fig9_C_halfoct.png.dat" //rising edge 1/2 oct
+  //"TV_Notch/Reiss_Fig10_Bii_HalfOctMax.png.dat"
+  //"TV_Notch/Reiss_Fig10_Bi_Max1oct.png.dat"
 
   //Mean data for one octaveand half octave sweeps (22dB re
-  file.ropen("TV_notch/Reiss_Fig10_Bii_HalfOctMean.png.dat")
+  file.ropen("TV_Notch/Reiss_Fig10_Bii_HalfOctMean.png.dat")
   tempmat = new Matrix()
   tempmat.scanf(file) //data is 24 rows
   type2_halfoct_sweep[0] = tempmat.getcol(0)
   type2_halfoct_sweep[1] = tempmat.getcol(1)
   file.close()
-  file.ropen("TV_notch/Reiss_Fig10_Bi_Mean1oct.png.dat")
+  file.ropen("TV_Notch/Reiss_Fig10_Bi_Mean1oct.png.dat")
   tempmat = new Matrix()
   tempmat.scanf(file) //data is 29 rows
   // centre point is at 25th row
@@ -33,8 +33,8 @@ centrepoint = 6000
   proc overlapsweeps(){local ii,ifreq //convert single unit notch sweep to population response (tested in Octave)
       objref expected_notch[2]
       for ii=0,1  {expected_notch[ii] = new Vector()    }
-      //x1 =dlmread("./TV_notch/Reiss_Fig10_Bii_HalfOctMean.png.dat"," ",2,0)
-      //x2 =dlmread("./TV_notch/Reiss_Fig10_Bi_Mean1oct.png.dat"," ",2,0)
+      //x1 =dlmread("./TV_Notch/Reiss_Fig10_Bii_HalfOctMean.png.dat"," ",2,0)
+      //x2 =dlmread("./TV_Notch/Reiss_Fig10_Bi_Mean1oct.png.dat"," ",2,0)
       // plot([0.5-x1(1:9,1)' 1-x2(15:end,1)' ],[x1(1:9,3)' x2(15:end,3)'],'g+-') // 2nd element is empty
       
 		       // Upper section
@@ -69,7 +69,12 @@ centrepoint = 6000
 func oct2freq2(){local ratio //Standard Acoutic Octave Calculation,  $1 centre freq, $2 octave factor
     ratio = 10.0^( 0.3*$2 )
     return $1*ratio
-    }
+}
+//Convert Frequency Difference to Octaves  (Depends on reference freq)
+func freq2oct(){local ratio //Standard Musical Octave Calculation,  $1 centre freq, $2 octave factor
+	ratio = 2.0^($2)
+	return $1*ratio
+}
 
 
 objref freq1_notch, freq2_notch,freq_1oct
@@ -113,7 +118,7 @@ objref freq1_notch, freq2_notch,freq_1oct
   }
   
 proc ShowTVPanel(){  
-xpanel("TV_notch")
+xpanel("TV_Notch")
  xvalue("halfoct_compress")
  xvalue("halfoct_shift")
  xvalue("oct_compress")

@@ -524,18 +524,184 @@ proc FilteredNoise() {local rampts, rstep, totalpts, steadypts, duration,spl,cyc
 	notchwidth = $7
 	notchdepth=$8
 	inputsound = new Vector()
-
-    sprint(wavefile,"./TV_Notch/Notch-sb%g-%goct.dat",stopband1,notchwidth)
+    if(notchwidth > 10){
+      sprint(wavefile,"./TV_Notch/Notch-sb%g-sb%g.dat",stopband1,notchwidth)
+    } else {
+      sprint(wavefile,"./TV_Notch/Notch-sb%g-%goct.dat",stopband1,notchwidth)
+    }
     print wavefile
     file.ropen(wavefile)
     if (file.isopen() == 0){
-       sprint(tmpstr,"octave --eval \"getnotchcheb(%d,%g,%g,%g,%s)\" 2> /dev/null",int(srate),stopband1,notchwidth,notchdepth,wavefile)
+       sprint(tmpstr,"octave --eval \"getnotchcheb(%d,%g,%g,%g,\\\"%s\\\")\" 2> /dev/null",int(srate),stopband1,notchwidth,notchdepth,wavefile)
+       print tmpstr
        system(tmpstr)
         file.ropen(wavefile)
     }
     if (file.isopen() == 0){ printf("Unusable filter file.") return}
     Readfile(inputsound,file)
     srate=100000 //sampling rate (Hz)  determined in MATLAB/Octave
+    stimtdres=1/srate
+	rampts = ramplength * srate
+	steadypts = duration * srate - rampts
+	totalpts = steadypts + (rampts*2)
+
+    // Create Cosine Squared On/off ramps
+	rstep = (PI) / (rampts-1)
+	rampx = new Vector(rampts)
+
+//middle section of tone
+	middle =new Vector(steadypts, 1)
+
+//offramp = (1+cos(rampx))/2
+	offramp = new Vector(rampts)
+	offramp = rampx.indgen(rstep).apply("mycos").add(1).div(2)
+
+//onramp = (1+cos(fliplr(rampx)))./2;
+	objref rampx rampx =new Vector(rampts)
+	onramp = new Vector(rampts)
+	onramp = rampx.indgen(rstep).reverse().apply("mycos").add(1).div(2)
+
+//Put tone together
+	envelope = new Vector()
+	envelope.append(onramp, middle, offramp)    //Envelope for stimulus (i.e. on/off ramps)
+//Quiet segments
+	quiet = new Vector(totalpts*(cycle), 0) //int() returns integer component of double
+	initquiet = new Vector(delay*srate,0)
+
+//Inputsound and envelope must be the same size
+    if (inputsound.size > envelope.size){
+        inputsound.remove(envelope.size,inputsound.size-1)
+    } else if(inputsound.size < envelope.size){
+        print "Stim data size is not big enough to fit in envelope."
+        print "Please try another dur."
+
+    }
+    aa = spl2amplNoise((spl))/spl2amplNoise(Decibels(inputsound,0,inputsound.size-1))
+	inputsound.mul(aa).mul(envelope)
+// mul by on/off ramps, and add quiet period at end
+
+//Add quiet sections
+	inputsound.append(quiet)
+
+	objref stim
+	stim = new Vector()
+	stim.append(initquiet).append(inputsound)
+	if (nrep > 1){ for i = 2, nrep { stim.append(inputsound) } }
+	objref rampx, offramp, onramp, middle, quiet, envelope, inputsound
+
+}
+
+stopband1=6000
+stopband2=9000
+print_notch_sweep=0
+proc NotchSweepNoise() {local rampts, rstep, totalpts, steadypts, duration,spl,cycle, ramplength, aa, nrep,delay
+//NotchSweepNoise( dur, spl, dutycycle, ramplngth, stimdelay,stopband1,notchwidth,30)
+	objref stim,file
+	objref rampx, offramp, onramp, middle, quiet, envelope, inputsound,initquiet
+	duration =  $1     //duration in seconds
+	spl = $2         //Sound Pressure level in dB SPL
+	cycle = $3      //Ratio of signal to silence, duty cycle
+	ramplength =$4      //0.005 ramp duration in seconds (note - duration includes 1/2 of ramp)
+	delay = $5
+	stopband1 = $6
+	stopband2 = $7
+	notchdepth=$8
+	stim = new Vector()
+   inputsound = new Vector()
+   file = new File()
+    sprint(wavefile,"./TV_Notch/NotchSweep-sb%g-sb%g.dat",int(stopband1),int(stopband2))
+   
+    print wavefile
+    file.ropen(wavefile)
+    if (file.isopen() == 0){
+       sprint(tmpstr,"octave -f --eval \"pkg load signal;getnotchcheb(%d,%g,%g,%g,\\\"%s\\\")\" 2> /dev/null",int(srate),stopband1,stopband2,notchdepth,wavefile)
+       print "Calling ", tmpstr
+       system(tmpstr)
+       file.ropen(wavefile)
+    }
+    if (file.isopen() == 0){ printf("Unusable filter file.") return}
+    Readfile(stim,file)
+    inputsound = stim.c
+    srate=100000 //sampling rate (Hz)  
+    stimtdres=1/srate
+	rampts = ramplength * srate
+	steadypts = duration * srate - rampts
+	totalpts = steadypts + (rampts*2)
+
+    // Create Cosine Squared On/off ramps
+	rstep = (PI) / (rampts-1)
+	rampx = new Vector(rampts)
+
+//middle section of tone
+	middle =new Vector(steadypts, 1)
+
+//offramp = (1+cos(rampx))/2
+	offramp = new Vector(rampts)
+	offramp = rampx.indgen(rstep).apply("mycos").add(1).div(2)
+
+//onramp = (1+cos(fliplr(rampx)))./2;
+	objref rampx rampx =new Vector(rampts)
+	onramp = new Vector(rampts)
+	onramp = rampx.indgen(rstep).reverse().apply("mycos").add(1).div(2)
+
+//Put tone together
+	envelope = new Vector()
+	envelope.append(onramp, middle, offramp)    //Envelope for stimulus (i.e. on/off ramps)
+//Quiet segments
+	quiet = new Vector(totalpts*(cycle), 0) //int() returns integer component of double
+	initquiet = new Vector(delay*srate,0)
+
+//Inputsound and envelope must be the same size
+    if (inputsound.size > envelope.size){
+        inputsound.remove(envelope.size,inputsound.size-1)
+    } else if(inputsound.size < envelope.size){
+        print "Stim data size is not big enough to fit in envelope."
+        print "Please try another dur."
+
+    }
+    aa = spl2amplNoise((spl))/spl2amplNoise(Decibels(inputsound,0,inputsound.size-1))
+	inputsound.mul(aa).mul(envelope)
+// mul by on/off ramps, and add quiet period at end
+
+//Add quiet sections
+	inputsound.append(quiet)
+
+	objref stim
+	stim = new Vector()
+	stim.append(initquiet).append(inputsound)
+	if (nrep > 1){ for i = 2, nrep { stim.append(inputsound) } }
+	objref rampx, offramp, onramp, middle, quiet, envelope, inputsound
+
+}
+proc BandSweepNoise() {local rampts, rstep, totalpts, steadypts, duration,spl,cycle, ramplength, aa, nrep,delay
+//NotchSweepNoise( dur, spl, dutycycle, ramplngth, stimdelay,stopband1,notchwidth,30)
+	objref stim,file
+	objref rampx, offramp, onramp, middle, quiet, envelope, inputsound,initquiet
+	duration =  $1     //duration in seconds
+	spl = $2         //Sound Pressure level in dB SPL
+	cycle = $3      //Ratio of signal to silence, duty cycle
+	ramplength =$4      //0.005 ramp duration in seconds (note - duration includes 1/2 of ramp)
+	delay = $5
+	stopband1 = $6
+	stopband2 = $7
+	notchdepth=$8
+	stim = new Vector()
+   inputsound = new Vector()
+   file = new File()
+    sprint(wavefile,"./TV_Notch/BandSweep-sb%g-sb%g.dat",int(stopband1),int(stopband2))
+   
+    print wavefile
+    file.ropen(wavefile)
+    if (file.isopen() == 0){
+       sprint(tmpstr,"octave -f --eval \"pkg load signal;getbandcheb(%d,%g,%g,%g,\\\"%s\\\")\" 2> /dev/null",int(srate),stopband1,stopband2,notchdepth,wavefile)
+       print "Calling ", tmpstr
+       system(tmpstr)
+       file.ropen(wavefile)
+    }
+    if (file.isopen() == 0){ printf("Unusable filter file.") return}
+    Readfile(stim,file)
+    inputsound = stim.c
+    srate=100000 //sampling rate (Hz)  
     stimtdres=1/srate
 	rampts = ramplength * srate
 	steadypts = duration * srate - rampts
@@ -1207,8 +1373,20 @@ proc RefreshParameters() {local aa localobj tmprand
     //Filtered Noise - only notch noise available
         if(stimtype ==12) {
             objref stim
-            FilteredNoise( dur, spl, dutycycle, ramplngth, stimdelay,stopband,notchwidth,30)
+            FilteredNoise( dur, spl, dutycycle, ramplngth, stimdelay,stopband,notchwidth,notchdepth)
             sprint( grlbl, "Notch Noise: %d dB SPL, Stopband falling edge %d kHz, %.3f octave bandwidth, Sampling freq %d",int(spl),int(stopband),notchwidth, int(srate))
+        }
+   //NotchSweep Noise 
+        if(stimtype == 13) {
+            objref stim
+            NotchSweepNoise(dur,spl, dutycycle, ramplngth, stimdelay,stopband1,stopband2,notchdepth)
+	      sprint( grlbl, "Notch Noise: %d dB SPL, Stopband falling edge %d kHz, rising edge %d Hz, Sampling freq %d",int(spl),int(stopband1),int(stopband2), int(srate))
+        }
+   //NotchSweep Noise 
+        if(stimtype == 14) {
+            objref stim
+            BandSweepNoise(dur,spl, dutycycle, ramplngth, stimdelay,stopband1,stopband2,notchdepth)
+	      sprint( grlbl, "BandPass Noise: %d dB SPL, rising edge %d kHz, falling edge %d Hz, Sampling freq %d",int(spl),int(stopband1),int(stopband2), int(srate))
         }
         if (stimtype ==0){
     //Get Stimulus from Wavefile
@@ -1341,6 +1519,18 @@ func GetANfileString() {local i
       sf_.left(ANstr, sf_.len(ANstr)-4)
       sprint(ANstr,"FilteredFile_%s_L%d_Del%d_Dur%d",ANstr, spl,stimdelay*1000,dur*1000)
   }
+  if (stimtype==13){ //NotchSweep
+      sprint(ANstr,"%s", wavefile)
+      sf_.right(ANstr,sf_.len("./TV_Notch/"))
+      sf_.left(ANstr, sf_.len(ANstr)-4)
+      sprint(ANstr,"%s_L%d_Del%d_Dur%d",ANstr, int(spl),int(stimdelay*1000),int(dur*1000))
+  }
+  if (stimtype==14){ //BandSweep
+      sprint(ANstr,"%s", wavefile)
+      sf_.right(ANstr,sf_.len("./TV_Notch/"))
+      sf_.left(ANstr, sf_.len(ANstr)-4)
+      sprint(ANstr,"%s_L%d_Del%d_Dur%d",ANstr, int(spl),int(stimdelay*1000),int(dur*1000))
+  }
   if (AdditiveNoise==1) {
       sprint(ANstr, "%s+Noise_%d", ANstr, NoiseLevel)
   }
@@ -1382,6 +1572,7 @@ say_once = 0
 func RetrieveANFilterBank(){local nsize, nchan, temp
     objref ANfile
     objref  LSRout[nchannels], HSRout[nchannels]
+    nsize = stim.size*(sg_rate/srate)
     GetANfileString()
     ANfile = new File()
     sprint(tmpANstr,"%s/%s",ANpath,ANstr)

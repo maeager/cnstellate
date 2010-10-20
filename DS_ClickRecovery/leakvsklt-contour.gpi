@@ -1,16 +1,19 @@
 
-set term postscript eps enhanced color
-set output "leakvltk-contour.eps"
+set term postscript eps enhanced color solid "Helvetica" 18
+set output "leakvltk.eps"
 
-set view 45,60
-set pm3d
+#set view 45,60
 set logscale x
 set logscale y
-#set logscale z
+set logscale z
+set pm3d map
 set contour surface
- set cntrparam levels disc 3,5,10,100,130,150
-set xlabel "leak max conductance"
-set ylabel "Low thesh K max conductance"
-set zlabel "DS Membrane Resistance (MOhms)"
+set size square
+set cntrparam levels disc 3,5,10
+set palette rgbformulae 22,13,-31
 
-splot "leakvsklt-contour.dat" using 1:2:3 with pm3d
+set xlabel "Leak max. conductance" font "Helvetica,22"
+set ylabel "KLT max. conductance" font "Helvetica,22"
+#set title "Membrane Resistance (MOhms) in Type 1-2 Manis cell" font "Helvetica,24"
+
+splot [0.0001:0.1][0.0001:0.1] "leakvsltk.dat" using 1:2:3 with pm3d
