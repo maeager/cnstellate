@@ -6,10 +6,10 @@ set output "rasters.eps"
 set size 0.49,0.5
 set multiplot
 set size 0.48,0.1
-set nokey
-set noxtics
-set noborder
-set noytics
+unset key
+unset xtics
+unset border
+unset ytics
 set tmargin 0
 set rmargin 0
 

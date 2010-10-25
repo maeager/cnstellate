@@ -7,7 +7,7 @@ set output "ANF_MTF.eps"
 
 
 set size 0.48,0.25
-set nokey
+unset key
 unset x2tics
 set border 3
 set ytics nomirror
