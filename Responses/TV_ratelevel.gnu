@@ -92,9 +92,9 @@ set xtics border in scale 1,0.5 nomirror norotate  offset character 0, 0, 0
 set xtics autofreq  norangelimit
 set ytics border in scale 1,0.5 nomirror norotate  offset character 0, 0, 0
 set ytics autofreq  norangelimit
-set noztics
-set nox2tics
-set noy2tics
+unset ztics
+unset x2tics
+unset y2tics
 set cbtics border in scale 1,0.5 mirror norotate  offset character 0, 0, 0
 set cbtics autofreq  norangelimit
 set title "" 

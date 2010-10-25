@@ -13,10 +13,10 @@ set output "ClickDelay.eps"
 set size 0.49,0.5
 set multiplot
 set size 0.48,0.1
-set nokey
-set noxtics
-set noborder
-set noytics
+unset key
+unset xtics
+unset border
+unset ytics
 set tmargin 0
 set rmargin 0
 
@@ -30,25 +30,25 @@ set origin 0.01,0.4
 plot [0:0.8][-75:0] "ClickDelay.curvs" using 1:3 with lines linewidth 0.5
 
 # granule cell
-#set noarrow
-#set nolabel 2
-#set nolabel 3
+#unset arrow
+#unset label 2
+#unset label 3
 set label 1 '{/Helvetica=14 B}' at screen 0,0.39
 set origin 0.01,0.3
 plot [0:0.8][-75:0] "ClickDelay.curvs" using 1:4 with lines linewidth 0.5
 
 # dstellate
-#set noarrow
-#set nolabel 2
-#set nolabel 3
+#unset arrow
+#unset label 2
+#unset label 3
 set label 1 '{/Helvetica=14 C}' at screen 0,0.29
 set origin 0.01,0.2
 plot [0:0.8][-75:0] "ClickDelay.curvs" using 1:2 with lines linewidth 0.5
 
 # Raster
-#set noarrow
-#set nolabel 2
-set noborder
+#unset arrow
+#unset label 2
+unset border
 set label 1 '{/Helvetica=14 D}' at screen 0,0.19
 set origin 0.01,0.1
 plot [0:80][0:10000] "ClickDelay.an.HSR.ras" using 4:3 with dots, "ClickDelay.an.HSR.ras" using 4:($3) with dots linetype 1

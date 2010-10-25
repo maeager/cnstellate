@@ -8,7 +8,7 @@ set term pngcairo font "Helvetica,18"
 set xlabel font "Helvetica,22"
 
 # set size 0.48,0.2
-# set nokey
+# unset key
 
 set border 3
 set ytics nomirror
@@ -18,8 +18,8 @@ unset x2tics
 # set tmargin 0
 # set rmargin 0
 set size noratio
-set xlabel "Tone Loudness (SPL dB)" font "Helvetica,22"
-set ylabel " Discharge Rate (sp/s)" font "Helvetica,22"
+set xlabel "Tone Loudness (SPL dB)" font "Helvetica,18"
+set ylabel " Discharge Rate (sp/s)" font "Helvetica,18"
 set xrange [-20:100]
 set yrange [0:120]
 #  
