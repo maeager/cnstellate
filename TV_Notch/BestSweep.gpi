@@ -1,0 +1,25 @@
+#
+
+set term post enh color font "Helvetica,14"
+set output "BestSweep.eps"
+set border 3
+set xtics nomirror
+set ytics nomirror
+set style function lines
+set size 1.0, 0.5
+#set origin 0.0, 0.0
+set multiplot layout 1,2
+set size 0.5,0.5
+#set origin 0.0,0.5
+
+set xlabel "Rising Edge (octaves)"
+set ylabel "Discharge Rate (sp/s)"
+plot '< grep "^70" half_sweep/*.dat |sed -e "s/.dat:/ /" -e "s#^.*/##"|sort -n ' using (log($1/12700)/log(2)):4 t "1/2 oct" w l ls 1, \
+ '< grep "^70" one_sweep/*.dat |sed -e "s/.dat:/ /" -e "s#^.*/##"|sort -n  ' using (log($1/12700)/log(2)):4 t "1 oct" w l ls 1 lc rgb "blue"
+set size 0.5,0.5
+unset key
+set xlabel "Falling Edge (octaves)"
+set ylabel "Discharge Rate (sp/s)"
+plot '< grep "^70" half_bsweep/*.dat |sed -e "s/.dat:/ /" -e "s#^.*/##"|sort -n ' using (log($1/12700)/log(2)):4 t "1/2 oct" w l ls 1, \
+ '< grep "^70" one_bsweep/*.dat |sed -e "s/.dat:/ /" -e "s#^.*/##"|sort -n  ' using (log($1/12700)/log(2)):4 t "1 oct" w l ls 1 lc rgb "blue"
+
