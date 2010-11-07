@@ -231,8 +231,11 @@ proc convolve(){local x1,x2,wsize
 }
 
 begintemplate Golgicell
+  public s  //Jackson instantaneous rate spike-generator
+  public spiketimes,spikes,sout //important internal vectors
+  public SetRate,GenSpikes,SaveSpikes,ClearSpikes //functions
   public connect2target,SetRate,SetRate2,GenSpikes,GenSpikes2,SaveSpikes,ClearSpikes
-  public s,w, spiketimes, spikecount,sout, synlist,cf,model,channel,spikes
+  public w, spikecount,synlist,cf,model,channel // general 
   public wLSR,wHSR,wMSR
   external thresh,LSRout,nchannels,sg_tdres,weight_sum, golgi_spon,golgi_spatial_filter_variance
   external gaussian,gaussian_mean,gaussian_variance,golgi_synfilter,convolve, MSRsperchannel, Lowspont,Highspont,Medspont
