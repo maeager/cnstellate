@@ -14,7 +14,7 @@
 #    	immediate help:   type "help"
 #    	plot window:      hit 'h'
 set terminal postscript eps enhanced defaultplex \
-   leveldefault mono \
+   leveldefault color \
    solid dashlength 1.0 linewidth 2.0 butt noclip \
    palfuncparam 2000,0.003 \
    "Helvetica" 18 
@@ -165,8 +165,8 @@ set label 2 sprintf("w_{LSR->TV} = %s",param1)  at xplace, ymax-0.2*ymax
 set label 3 sprintf("w_{HSR->TV} = %s",param2)  at xplace, ymax-0.25*ymax 
 set label 4 sprintf("w_{DS->TV} = %s",param3)  at xplace, ymax-0.3*ymax
 
-set arrow 1 from 6, 0, 0 to 6, ymax, 0 nohead back nofilled linetype 0 linewidth 1.000
-set arrow 2 from 12, 0, 0 to 12, ymax, 0 nohead back nofilled linetype 0 linewidth 1.000
+set arrow 1 from 6, 0, 0 to 6, ymax, 0 nohead back nofilled linetype 0 linewidth 1.0
+set arrow 2 from 12, 0, 0 to 12, ymax, 0 nohead back nofilled linetype 0 linewidth 1.0
 
 set style line 3 lc rgb '#0060ad' lt 1 lw 2 pt 0 pi -1 ps 3
 set style line 4 lc rgb '#0060ad' lt 1 lw 2 pt 7 ps 1.5
