@@ -1,3 +1,5 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
 create acell_home_
 access acell_home_
 load_file("netparmpi.hoc")

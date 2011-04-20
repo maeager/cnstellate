@@ -1,3 +1,4 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 									
 strdef sstr1,sstr2
 proc SAVE_RESPONSES(){

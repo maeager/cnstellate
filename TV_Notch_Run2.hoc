@@ -1,3 +1,4 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
 proc RedefineCNmodel(){local i_chan,j_cell,ii
 //define the cell objects

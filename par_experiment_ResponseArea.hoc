@@ -1,9 +1,11 @@
-///********************************************
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+//
 //  Response Area Simulation Experiment
 //
 //
-///
-///********************************************/
+//
+//
 
 //Setup Auditory model
 stimtype = 1  //tone stimulus

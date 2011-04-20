@@ -1,4 +1,16 @@
 
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+/* 
+* Utilities.hoc
+*
+* 
+* 
+* Author: Michael Eager
+*/
+
+
+
 /*****************************************************
  ** Calculate Input Resistance using NEURON's Impedence class
  ** Code from optimization tutorial 1. Copyright  2004 by N.T.

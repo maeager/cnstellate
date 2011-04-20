@@ -1,3 +1,6 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+
 proc reset_weights() { local i // 1 arg - weight
    for i = 0,hsr2tsAMPAvec.size()-1 {
    netpar_weight(hsr2tsAMPAvec, i, param.w.x[hsr][ts])

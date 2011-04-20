@@ -1,7 +1,12 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+
+
 // Params.hoc
 // Cochlear Nucleus network model: parameters file
-// based on parameters_odour_baseline.hoc by Andrew Davison
 // Michael Eager, University of Melbourne
+// based on parameters_odour_baseline.hoc by Andrew Davison
+
 
 nchannels       = 100      // Total number of frequency channels
 nTSperchannel   = 1   // number of TS cells in each freq channel
@@ -16,7 +21,7 @@ HSRsperchannel  =   100
 MSRsperchannel  =   0
 LSRsperchannel  =   100
 seed        = 0         // seed for random number generator
-thresh      = -10       // mV   // threshold for detecting spikes
+thresh      = -20       // mV   // threshold for detecting spikes
 
 
 strdef fileroot

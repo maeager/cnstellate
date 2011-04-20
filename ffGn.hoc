@@ -1,6 +1,7 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
 
 install_an_zilany_v4()
-
 /********************************************************
  ** Random Number generator
  *******************************************************/

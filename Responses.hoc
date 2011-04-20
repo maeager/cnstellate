@@ -1,3 +1,5 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
 /*
  *   Responses.hoc
  *  Generate RL,NRL,RA, MTF
@@ -111,7 +113,7 @@ targetcell="cn.tstellate[whichcell]"
 
 // channel position -> tonefreq
 
-	xopen("cngui.hoc")
+xopen("cngui.hoc")
 	  
 
 load_file("RA-todo.txt")

@@ -1,4 +1,5 @@
-// cn.hoc
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
 // Cochlear Nucleus network model: network specification file
 // Michael Eager, 2006-2010
 // University of Melbourne

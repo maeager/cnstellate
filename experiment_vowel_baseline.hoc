@@ -1,9 +1,10 @@
-///********************************************
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+///
 //  Vowel Simulation Experiment
 //
 //
 //
-///********************************************/
+//
 xopen("pvec_Golgi_RateLevel.hoc")
 xopen("pvec_DS_ClickRecovery.hoc")
 
