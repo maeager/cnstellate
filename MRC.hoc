@@ -1,11 +1,12 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+
 /***********************************************************
 **	Masked Response Area and Curve function from: 
-
 **  Rhode WS and Greenberg S. Lateral suppression and 
 **  inhibition in the cochlear nucleus of the cat. J Neurophysiol 71: 493-514, 1994.
 Stimulus 
 RA... Average-rate Response Area (RA) 
-
 a set of isointensity curves plotted on a frequency axis, to
 determine the neurons threshold, characteristic frequency (CF),
 spontaneous discharge rate, and frequency selectivity ( Q10 = CF/
@@ -59,8 +60,6 @@ percent reduction of the noise-driven discharges at a 70-dB SPL
 tone level and the bandwidth of the inhibitory region beyond CF is
 measured at a stimulus level of 70 dB SPL using a 50% reduction
 criteria.
-
-
 
 ***********************************************************/
 objref MRA[sp.cells.count],MRAgr, mrafreq

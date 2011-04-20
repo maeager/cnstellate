@@ -1,4 +1,6 @@
- //////////Default Parameters for TV_Notch///////////////
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+//////////Default Parameters for TV_Notch///////////////
 
   ANsoundspath = "../../sounds"
   cfhi     = 48000

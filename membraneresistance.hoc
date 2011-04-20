@@ -1,3 +1,5 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
 file.wopen("DS_ClickRecovery/leakvsltk.dat")
 for leak=0,200 {
 for ltk=0,200 {

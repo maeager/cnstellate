@@ -1,4 +1,4 @@
-
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
 
 begintemplate AuditoryNerve
@@ -210,7 +210,5 @@ for j=0,LSRsperchannel-1 {
     }
 
 }
-
-
 
 endtemplate AuditoryNerve

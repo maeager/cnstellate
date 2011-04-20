@@ -1,9 +1,11 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
 
 
 load_file("nrngui.hoc")
 load_file("par_netpar.hoc")
 load_file("par_init.hoc")
+
 
 //nrn_load_dll("ia64/.libs/libnrnmech.so")
 

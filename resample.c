@@ -13,7 +13,7 @@
 //#include <stdio.h>
 //#include <stdlib.h>
 
-#include "libresample.h"
+#include "libresample-0.1.3/include/libresample.h"
 #include <malloc.h>
 //extern char* hoc_Emalloc(unsigned long);
 

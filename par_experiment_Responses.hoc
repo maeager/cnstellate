@@ -1,6 +1,5 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
-
-// experiment_vowel_baseline.hoc
 // Cochlear Nucleus network model: experiment file
 //   for lateral inhibition.
 // Andrew Davison, The Babraham Institute, 2000.

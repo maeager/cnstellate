@@ -1,7 +1,9 @@
-// experiment_vowel_baseline.hoc
-// Cochlear Nucleus network model: experiment file
-//   for lateral inhibition.
-// Andrew Davison, The Babraham Institute, 2000.
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+// par_experiment_SAM.hoc Cochlear Nucleus network model: experiment
+//   file for lateral inhibition using sinusoidal amplitude
+//   modulation.  
+// Michael Eager, The University of Melbourne
 
 // *** Set inputs and connections
 // set_no_input()
@@ -260,6 +262,7 @@ ShowInputGraphs()
 usesavedfilterbanks=1
 //MTFStim()
 LoadSAM(70)
+
 /*
 for i=0,nchannels-1 {
    print i
@@ -278,4 +281,4 @@ ShowGolgiGraphs()
 
 //ModulationTransferFunction()
       
-//xopen("SAM.ses")
+xopen("SAM.ses")
