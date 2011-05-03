@@ -1,94 +1,68 @@
 NEURON {
-	SUFFIX nothing
-}
+  SUFFIX nothing
+    }
 
 VERBATIM
 extern double* hoc_pgetarg();
 extern int vector_instance_px();
 extern void* vector_arg();
 extern char *gargstr();
-
-
-
-
-
-
 ENDVERBATIM
 
 :* anmodel Vector Method - sout.an3( stim/*wavefile*/, tdres,  cf, spontrate, model, species, ifspike)
 VERBATIM
 #include "./anmod3m.c"
 
-
-	
 //sout.an3(stim,tdres,cf,spont,model, species,ifspike)
-
 static double an3(void *vv)
 {
-//stimulus file 	FILE *fpstim;          	
-	double *stim;		//Input stimulus vector
- 
-      double tdres,cf,spont;
-      int model;
-      int species;
-      int ifspike;
-	int nowstim, totalstim;
-      double  x;
-      int length,mrows,ncols;
-	
-double *sout;   //Output vector containing all data for each channel 
-	int nsout, nstim,i;
-	
-  	
-	
-//Get Instance Sout matrix for synapse data across filterbanks
-	nsout = vector_instance_px(vv, &sout);
-	nstim = vector_arg_px(1, &stim);
+  //stimulus file 	FILE *fpstim;          	
+  double *stim;		//Input stimulus vector
+				 
+  double tdres,cf,spont;
+  int model;
+  int species;
+  int ifspike;
+  int nowstim, totalstim;
+  double  x;
+  int length,mrows,ncols;
+									    	
+  double *sout;   //Output vector containing all data for each channel 
+  int nsout, nstim,i;
 
+  //Get Instance Sout matrix for synapse data across filterbanks
+  nsout = vector_instance_px(vv, &sout);
+  nstim = vector_arg_px(1, &stim);
 
+  //Get Input arguments
+  if(ifarg(7)!=1){  //Must be changed if more input arguments added
+    hoc_execerror("ERROR: input syntax must be sout.an4( stim, tdres,  cf, spontrate, model, species, ifspike)", 0);
+    return 0;
+  }
+  //TDRES  resolution of stimulus
+  tdres = (double)(*getarg(2));
+  //cf of fiber
+  cf = (int)(*getarg(3));
+  //Spontaneous rate of ANF
+  spont = (double)(*getarg(4));
+  //Model parameter  1 with suppression ,0 without nonlinear suppression
+  model = (double)(*getarg(5));
+  //Species Human 0, Carney Cat Low CF 1, Zhang Cat all CF 9
+  species = (double)(*getarg(6));
+  //Spike generator on =1
+  ifspike = (double)(*getarg(7));	
 
-
-//Get Input arguments
-	if(ifarg(7)!=1){  //Must be changed if more input arguments added
-		hoc_execerror("ERROR: input syntax must be sout.an4( stim, tdres,  cf, spontrate, model, species, ifspike)", 0);
-		return 0;
-	}
-	//TDRES  resolution of stimulus
-  	tdres = (double)(*getarg(2));
-	//cf of fiber
-	cf = (int)(*getarg(3));
-	//Spontaneous rate of ANF
-	spont = (double)(*getarg(4));
-	//Model parameter  1 with suppression ,0 without nonlinear suppression
-	model = (double)(*getarg(5));
-	//Species Human 0, Carney Cat Low CF 1, Zhang Cat all CF 9
-	species = (double)(*getarg(6));
-	//Spike generator on =1
-	ifspike = (double)(*getarg(7));	
-
-	return an_tan(tdres,cf,spont,model,species,ifspike,stim,sout,nstim);
-     
+  return an_tan(tdres,cf,spont,model,species,ifspike,stim,sout,nstim);
 }
-
 ENDVERBATIM
-
-
-
-
-
-
-
 
 PROCEDURE install_an_tanmodel()
 {
-VERBATIM
-
-	install_vector_method("an3", an3);
-
-
-ENDVERBATIM
+  VERBATIM
+    install_vector_method("an3", an3);
+  ENDVERBATIM
 }
 
-	
+																																					
 
 

@@ -28,38 +28,38 @@ UNITS {
 }
 
 NEURON {
-        SUFFIX rm
-        USEION na READ ena WRITE ina
-        USEION k READ ek WRITE ik
-   NONSPECIFIC_CURRENT ih
-   NONSPECIFIC_CURRENT il
-
-   RANGE gleak, erev
-        RANGE gnabar, gna, ina,gkhtbar, gkht, ik,ghbar, gh, ih
-        GLOBAL hinf, minf, htau, mtau, ninf, pinf, ntau, ptau, rinf, rtau
+    SUFFIX rm
+    USEION na READ ena WRITE ina
+    USEION k READ ek WRITE ik
+    NONSPECIFIC_CURRENT ih
+    NONSPECIFIC_CURRENT il
+    
+    RANGE gleak, erev
+    RANGE gnabar, gna, ina,gkhtbar, gkht, ik,ghbar, gh, ih
+    GLOBAL hinf, minf, htau, mtau, ninf, pinf, ntau, ptau, rinf, rtau
 }
 
 
 PARAMETER {
-        v (mV)
-        celsius  (degC)  : model is defined on measurements made at room temp in Baltimore
-        dt (ms)
-        ena (mV)
-        gnabar =  0.07958 (mho/cm2) <0,1e9>
-        ek  (mV)
-        gkhtbar = 0.01592 (mho/cm2) <0,1e9>
-   nf = 0.85 <0,1> :proportion of n vs p kinetics
-   gleak = .001   (mho/cm2)
-   erev = -65   (mV)
-        ghbar = 0.00318 (mho/cm2) <0,1e9>
-        eh = -43 (mV)
-   q10=3
-   qt  (/ms)
-   q = 0.19245 (ms)
+    v (mV)
+    celsius  (degC)  : model is defined on measurements made at room temp in Baltimore
+    dt (ms)
+    ena (mV)
+    gnabar =  0.07958 (mho/cm2) <0,1e9>
+    ek  (mV)
+    gkhtbar = 0.01592 (mho/cm2) <0,1e9>
+    nf = 0.85 <0,1> :proportion of n vs p kinetics
+    gleak = .001   (mho/cm2)
+    erev = -65   (mV)
+    ghbar = 0.00318 (mho/cm2) <0,1e9>
+    eh = -43 (mV)
+    q10=3
+    qt  (/ms)
+    q = 0.19245 (ms)
 }
 
 STATE {
-        m h  n p   r
+    m h  n p   r
 }
 
 ASSIGNED {
@@ -109,12 +109,12 @@ INITIAL {
 
 
 DERIVATIVE states {
-   rates(v)
-m' = (minf - m) / mtau
-h' = (hinf - h) / htau
-n' = (ninf - n) / ntau
-p' = (pinf - p) / ptau
-r' = (rinf - r) / rtau
+    rates(v)
+    m' = (minf - m) / mtau
+    h' = (hinf - h) / htau
+    n' = (ninf - n) / ntau
+    p' = (pinf - p) / ptau
+    r' = (rinf - r) / rtau
 }
 
 

@@ -1,11 +1,9 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
-
-
-// Params.hoc
+// parameters_SAM.hoc
 // Cochlear Nucleus network model: parameters file
 // Michael Eager, University of Melbourne
-// based on parameters_odour_baseline.hoc by Andrew Davison
+
 
 
 nchannels       = 100      // Total number of frequency channels

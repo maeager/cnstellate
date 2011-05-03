@@ -9,36 +9,36 @@ typedef struct Tanstruct Tanmodel;
 
 struct Tanstruct{
 
-//General information about the model 
-  	double tdres, cf, spont,fp1;
-  	int species, model;
-  	int nstim; 
-//  runtime usage 
-  	int    ifspike;
-  	int    control_type;              
-// 0 ->without suppression 
-// 1 ->with suppression    
-	double PI;
-//      double *soundin;
-//	double *meout;
-//	double *soundout;
-//	double *control_signal;
-//	double *ihc_out;
-//	double *sout;
+  //General information about the model 
+  double tdres, cf, spont,fp1;
+  int species, model;
+  int nstim; 
+  //  runtime usage 
+  int    ifspike;
+  int    control_type;              
+  // 0 ->without suppression 
+  // 1 ->with suppression    
+  double PI;
+  //      double *soundin;
+  //	double *meout;
+  //	double *soundout;
+  //	double *control_signal;
+  //	double *ihc_out;
+  //	double *sout;
 
-   // locations of poles 
-	double ta;  
-//Pa in Fig. 3 of the paper 
- 	double tb;   
-//Pb in Fig. 3 of the paper 
-	double rgain;     
-// location of the pole closest to imaginary axis 
-	double nlgain;                
-// gain for the control signal 
-	double zero_r;                
-// Location of zeros 
-	int delayn;                   
-// forced delay for AN model 
+  // locations of poles 
+  double ta;  
+  //Pa in Fig. 3 of the paper 
+  double tb;   
+  //Pb in Fig. 3 of the paper 
+  double rgain;     
+  // location of the pole closest to imaginary axis 
+  double nlgain;                
+  // gain for the control signal 
+  double zero_r;                
+  // Location of zeros 
+  int delayn;                   
+  // forced delay for AN model 
 
 };
 
