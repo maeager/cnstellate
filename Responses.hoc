@@ -116,5 +116,5 @@ targetcell="cn.tstellate[whichcell]"
 xopen("cngui.hoc")
 	  
 
-load_file("RA-todo.txt")
+//load_file("RA-todo.txt")
 

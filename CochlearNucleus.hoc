@@ -188,7 +188,7 @@ outfile.printf("\n%d %d\n",hsr,ts)
                // process is so long that we have to allow the
                // user to quit during the creation.
  }
- printf("\n")
+ printf("\rHSR->TS === done ===\n")
 }
 
 if( ( param.n.getval(lsr,ts) > 0 ) && ( nTSperchannel != 0 ) ){
@@ -219,7 +219,7 @@ if( ( param.n.getval(lsr,ts) > 0 ) && ( nTSperchannel != 0 ) ){
                // process is so long that we have to allow the
                // user to quit during the creation.
  }
- printf("\n")
+ printf("\rLSR->TS=== done ===\n")
 }
 
 if( ( param.n.getval(hsr,tv) > 0 ) && ( nTVperchannel != 0 ) ){
@@ -251,7 +251,7 @@ if( ( param.n.getval(hsr,tv) > 0 ) && ( nTVperchannel != 0 ) ){
                // user to quit during the creation.
 
  }
- printf("\n")
+ printf("\rHSR->TV=== done ===\n")
 }
 
 if( ( param.n.getval(lsr,tv) > 0 ) && ( nTVperchannel != 0 ) ){
@@ -285,7 +285,7 @@ sprint(cmd, "tuberculoventral[%d][%d].soma lsr2tvAMPAlist.append( new NetCon( an
                // user to quit during the creation.
 
  }
- printf("\n")
+ printf("\rLSR->TV=== done ===\n")
 }
 
 if( ( param.n.getval(hsr,ds) > 0 ) && ( nDSperchannel != 0 ) ){
@@ -317,7 +317,7 @@ if( ( param.n.getval(hsr,ds) > 0 ) && ( nDSperchannel != 0 ) ){
                // user to quit during the creation.
 
  }
- printf("\n")
+ printf("\rHSR->DS=== done ===\n")
 }
 
 if( ( param.n.getval(lsr,ds) > 0 ) && ( nDSperchannel != 0 ) ){
@@ -349,7 +349,7 @@ if( ( param.n.getval(lsr,ds) > 0 ) && ( nDSperchannel != 0 ) ){
                // user to quit during the creation.
 
  }
- printf("\n")
+ printf("\rLSR->DS=== done ===\n")
 }
 if ((LSR2GLG == 1) && ( param.n.getval(lsr,glg) > 0 ) && ( nGperchannel != 0 ) ){
       //Only for Conductance based golgi cell
@@ -381,7 +381,7 @@ if ((LSR2GLG == 1) && ( param.n.getval(lsr,glg) > 0 ) && ( nGperchannel != 0 ) )
                // user to quit during the creation.
 
  }
- printf("\n")
+ printf("\rLSR->GLG=== done ===\n")
 
 }//LSR2GLG
 outfile.close()
@@ -416,7 +416,7 @@ if( ( param.n.getval(ts,ts) > 0 ) && ( nTSperchannel > 1 ) ){
                // process is so long that we have to allow the
                // user to quit during the creation.
  }
-  printf("\n")
+  printf("\rTS->TS=== done ===\n")
 }
 
 if( ( param.n.getval(tv,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nTVperchannel != 0 ) ){
@@ -447,7 +447,7 @@ if( ( param.n.getval(tv,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nTVperchannel !
                // process is so long that we have to allow the
                // user to quit during the creation.
  }
-  printf("\n")
+  printf("\rTV->TS=== done ===\n")
 }
 
 if( ( param.n.getval(ds,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nDSperchannel != 0 ) ){
@@ -477,7 +477,7 @@ if( ( param.n.getval(ds,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nDSperchannel !
                // process is so long that we have to allow the
                // user to quit during the creation.
  }
-  printf("\n")
+  printf("\rDS->TS=== done ===\n")
 }
 
 if( ( param.n.getval(ds,tv) > 0 ) && ( nTVperchannel != 0 ) && ( nDSperchannel != 0 ) ){
@@ -507,7 +507,7 @@ if( ( param.n.getval(ds,tv) > 0 ) && ( nTVperchannel != 0 ) && ( nDSperchannel !
                // process is so long that we have to allow the
                // user to quit during the creation.
  }
-  printf("\n")
+  printf("\rDS->TV=== done ===\n")
 }
 
 if( ( param.n.getval(glg,ds) > 0 ) && ( nDSperchannel != 0 ) && ( nGperchannel != 0 ) ){
@@ -542,7 +542,7 @@ if( ( param.n.getval(glg,ds) > 0 ) && ( nDSperchannel != 0 ) && ( nGperchannel !
                // process is so long that we have to allow the
                // user to quit during the creation.
  }
-  printf("\n")
+  printf("\rGLG->DS=== done ===\n")
 }
 
 
@@ -579,7 +579,7 @@ if( ( param.n.getval(glg,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nGperchannel !
                // process is so long that we have to allow the
                // user to quit during the creation.
  }
-  printf("\n")
+  printf("\rGLG->TS=== done ===\n")
 }
   outfile.close()
 }//end connect_cells()
