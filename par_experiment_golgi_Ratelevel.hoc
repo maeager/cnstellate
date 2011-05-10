@@ -1,21 +1,21 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
 /*
- *	par_golgi_test.hoc
- *
- */
+*	par_golgi_test.hoc
+*
+*/
 load_file("nrngui.hoc")
 //load_file("par_netpar.hoc")
 //load_file("par_init.hoc")
-thresh=-20
 
-		xopen("mathslib.hoc")			// mathematical procedures
-		xopen("Params.hoc")
-		xopen("Utilities.hoc")
-		xopen("NetworkParameters.hoc")
-		xopen("AuditoryNerve.hoc")
-		xopen("par_CNcell.tem")		// CN cell template
-		xopen("parameters_ClickDelay.hoc")           // model parameters	
+
+xopen("mathslib.hoc")			// mathematical procedures
+xopen("Params.hoc")
+xopen("Utilities.hoc")
+xopen("NetworkParameters.hoc")
+xopen("AuditoryNerve.hoc")
+xopen("par_CNcell.tem")		// CN cell template
+xopen("parameters_ClickDelay.hoc")           // model parameters	
 //		if (pnm.myid == 0)  print "Creating network"
 //		xopen("par_CochlearNucleus.hoc")			// model set-up
 //		if (pnm.myid == 0)  print "Reading input procedures"
@@ -27,18 +27,18 @@ thresh=-20
 objref an,golgi[nchannels][1],g
 an = new AuditoryNerve()
 for i=0,99 {
-   for j = 0, HSRsperchannel-1 {
-      //sprint(celltype,"new SGC_fast(%d,%d,%d)",4,cf.x[i],i)
-      an.HSR[i][j] = new SGC_fast(0.5)
+	for j = 0, HSRsperchannel-1 {
+		//sprint(celltype,"new SGC_fast(%d,%d,%d)",4,cf.x[i],i)
+		an.HSR[i][j] = new SGC_fast(0.5)
     }
     for j = 0, LSRsperchannel-1 {
-      //sprint(celltype,"new ANF(%d,%d,%d)",5,cf.x[i],i)
-      an.LSR[i][j] = new SGC_fast(0.5)
+		//sprint(celltype,"new ANF(%d,%d,%d)",5,cf.x[i],i)
+		an.LSR[i][j] = new SGC_fast(0.5)
     }
-     golgi[i][0] = new Golgicell(3,cf.x[i],i,2)
+    golgi[i][0] = new Golgicell(3,cf.x[i],i,2)
 }
-    
-    
+
+
 
 
 objref  ANFBgr,  Sout[nchannels]
@@ -51,8 +51,8 @@ scale = 60
 proc ShowInputGraphs() {
 	objref stimgr, b1, gr
 	objref  ANFBgr, b2, Sout[nchannels]
-
-
+	
+	
 	b1 = new VBox()
 	b1.intercept(1)
 	stimgr = new Graph(0)
@@ -64,8 +64,8 @@ proc ShowInputGraphs() {
 	stimgr.exec_menu("View = plot")
 	//b1.intercept(0)
 	//b1.map("Stimulus waveform",360, 0, 650.7, 193.5)
-
-
+	
+	
 	//b1.intercept(1)
 	ANFBgr = new Graph(0)
 	ANFBgr.size(0,0.05,0,180000)
@@ -84,13 +84,13 @@ proc ShowInputGraphs() {
 	b1.intercept(0)
 	b1.map("Stimulus and Auditory Filterbank",308, 345, 685, 365)
 	
-
+	
 }//Dummy Graphs
 
 proc ShowGolgiGraphs() {
 	
 	objref  ANFBgr,  Sout[nchannels]
-
+	
 	ANFBgr = new Graph(0)
 	ANFBgr.size(0,0.05,0,180000)
 	ANFBgr.view(0, 0, 0.05, 180000, 308, 345, 685, 365)
@@ -98,7 +98,7 @@ proc ShowGolgiGraphs() {
 	ANFBgr.label(0.1,0.95,"Auditory Filterbank Instantaneous Rate Profiles")
 	for icf = 0, nchannels-1 { 
 		Sout[icf] = golgi[icf][0].sout.c 
-	Sout[icf].add(icf) 
+		Sout[icf].add(icf) 
 		Sout[icf].plot(ANFBgr,sg_tdres, 1, 0)
 		sprint(lbl, "%g ", cf.x[icf])
 		ANFBgr.label(0.92, 0.810*(icf/(nchannels-1))+0.075, lbl)
@@ -106,7 +106,7 @@ proc ShowGolgiGraphs() {
 	//system("date")
 	ANFBgr.exec_menu("View = plot")
 	
-
+	
 	print "To save graph type: ANFBgr.printfile(\"x.eps\")"
 }//Dummy Graphs
 
@@ -116,20 +116,20 @@ proc ShowGolgiGraphs() {
 
 //Setup Auditory model
 
-	cfhi=64000
-	cflo=200
-	
-	dur 		= 0.08 	//duration of stim (seconds)
-	srate 		= 500000.0  
-	stimtdres 	= 1/srate
-	sg_rate 	= 50000		
-	sg_tdres 	= 1/sg_rate
-	stimdelay 	= 0.01		//sec
-	stimtype	= 2		//Silence
-	reps		= 25
-	ANmodel		= 6		//Zilany Bruce model
-	species		= 2		//Rat
-	nrep		= 1  		//nrep is number of reps of stimulus
+cfhi=64000
+cflo=200
+
+dur 		= 0.08 	//duration of stim (seconds)
+srate 		= 500000.0  
+stimtdres 	= 1/srate
+sg_rate 	= 50000		
+sg_tdres 	= 1/sg_rate
+stimdelay 	= 0.01		//sec
+stimtype	= 2		//Silence
+reps		= 25
+ANmodel		= 6		//Zilany Bruce model
+species		= 2		//Rat
+nrep		= 1  		//nrep is number of reps of stimulus
 
 
 
@@ -150,16 +150,16 @@ ShowInputGraphs()
 objref gr,targetclick, dslist,clicktimes,stim
 
 //Input stimuli
- objref clicktimes
-	clicktimes = new Vector()
-	clicktimes.append(20,22,40,44,60,68).mul(srate/1000)
+objref clicktimes
+clicktimes = new Vector()
+clicktimes.append(20,22,40,44,60,68).mul(srate/1000)
 
 
 
 //Target response
-	//Fraction of repetitions that ellicit a response
-	targetclick = new Vector()
-	targetclick.append(1,0.2,1,0.45,1,0.6)
+//Fraction of repetitions that ellicit a response
+targetclick = new Vector()
+targetclick.append(1,0.2,1,0.45,1,0.6)
 
 srate = 500000
 stimtdres = 1/srate
@@ -175,15 +175,15 @@ stim.plot(ANFBgr,stimtdres)
 ANFBgr.exec_menu("View = plot")
 ANFBgr.printfile("Clickstim.eps")
 objref ANFBgr
-	
-	ANFilterBankRun()
-	an.SetRates()
-	ShowInputGraphs()
-	ANFBgr.printfile("ClickFB.eps")
+
+ANFilterBankRun()
+an.SetRates()
+ShowInputGraphs()
+ANFBgr.printfile("ClickFB.eps")
 
 
 proc SetRates(){
-
+	
 	an.SetRates()
 	for i=0,99 golgi[i][0].SetRates()
 	
@@ -208,11 +208,11 @@ proc ClearSpikes(){local i
 objref gpstlist, grate[nchannels],anrate[nchannels],rate_level_graph
 proc RatelevelGolgi1(){local i,j,count,sum,runtime,cell,xtime localobj tmp
 	//objref Notchgr,results[sp.cells.count], Notch
-
+	
 	count = 0
 	tonefreq = golgi[76][0].cf
 	dur 		= 0.049 	//duration of tone segment (seconds)
-		
+	
 	dutycycle 	= 0.2		//quiet duration = dutycycle*dur
 	ramplngth 	= 0.001
 	srate 		= 500000.0  stimtdres 	= 1/srate
@@ -243,18 +243,18 @@ proc RatelevelGolgi1(){local i,j,count,sum,runtime,cell,xtime localobj tmp
 		}
 		
 		for j=0,99 {
-		sum=0
+			sum=0
 			grate[j].append(golgi[j][0].spikes.size()/(reps*0.05))
 			for i=0,LSRsperchannel-1 sum+= an.LSRspikes[j][i].size
 			anrate[j].append(sum/(LSRsperchannel*reps*0.05))
 		}
 		
-
+		
 		count+=1
 		runtime = startsw()-runtime
 		print "Simulation took ",runtime, " secs "
 	}
-
+	
 	rate_level_graph = new Graph()
 	grate[76].plot(rate_level_graph)
 	anrate[76].plot(rate_level_graph)
@@ -263,22 +263,22 @@ proc RatelevelGolgi1(){local i,j,count,sum,runtime,cell,xtime localobj tmp
 
 
 
-	count = 0
-	tonefreq = golgi[76][0].cf
-	dur 		= 0.049 	//duration of tone segment (seconds)
-		
-	dutycycle 	= 0.2		//quiet duration = dutycycle*dur
-	ramplngth 	= 0.001
-	srate 		= 500000.0  
-	stimtdres 	= 1/srate
-	sg_rate = 50000		
-	sg_tdres = 1/sg_rate
-	stimdelay 	= 0.02		//sec
-	stimtype=1	//tone
-	reps=25
+count = 0
+tonefreq = golgi[76][0].cf
+dur 		= 0.049 	//duration of tone segment (seconds)
 
-	
-		
+dutycycle 	= 0.2		//quiet duration = dutycycle*dur
+ramplngth 	= 0.001
+srate 		= 500000.0  
+stimtdres 	= 1/srate
+sg_rate = 50000		
+sg_tdres = 1/sg_rate
+stimdelay 	= 0.02		//sec
+stimtype=1	//tone
+reps=25
+
+
+
 
 objref gr, targetrl, rlst,level
 level = new Vector(22)
@@ -297,35 +297,35 @@ g = new Graph()
 g.size(0,3,0,3)
 
 func fun() {local f
-        if ($1 == 90) {
-                g.line($2, $3)
-                g.flush()
+    if ($1 == 90) {
+        g.line($2, $3)
+        g.flush()
 		//doNotify()
 		print $1, $2, $3
-		}	
+	}	
 	spl=$1
 	weight_sum=$2
 	golgi_spon=$3
 	runtime = startsw()
-		golgi[76][0].ClearSpikes()
-		RefreshParameters()
-		sg_rate=50000
-		ANFilterBankRun() 
-		sg_rate = 50000 
-		sg_tdres = 1/sg_rate
-		golgi[76][0].SetRate()
-		
-		for j=0, reps-1{ 
-			golgi[76][0].GenSpikes()
-			print j
-			golgi[76][0].SaveSpikes()
-			//print startsw()-x, "secs" 
-		}
-		runtime = startsw()-runtime
-		print "Simulation took ",runtime, " secs "
+	golgi[76][0].ClearSpikes()
+	RefreshParameters()
+	sg_rate=50000
+	ANFilterBankRun() 
+	sg_rate = 50000 
+	sg_tdres = 1/sg_rate
+	golgi[76][0].SetRate()
+	
+	for j=0, reps-1{ 
+		golgi[76][0].GenSpikes()
+		print j
+		golgi[76][0].SaveSpikes()
+		//print startsw()-x, "secs" 
+	}
+	runtime = startsw()-runtime
+	print "Simulation took ",runtime, " secs "
 	
 	return golgi[76][0].spikes.size()/(reps*0.05)
-
+	
 }
 
 
@@ -347,12 +347,12 @@ a = 1.5
 b = 3.5
 
 proc RunFit(){
-g.beginline()
-error = dvec.fit(fvec, "fun", ivec, &a, &b)
-print a, b, error
-g.flush()
-g.exec_menu("View = plot")
-fvec.plot(Graph[0],ivec,1,1)
+	g.beginline()
+	error = dvec.fit(fvec, "fun", ivec, &a, &b)
+	print a, b, error
+	g.flush()
+	g.exec_menu("View = plot")
+	fvec.plot(Graph[0],ivec,1,1)
 }
 RunFit()
 

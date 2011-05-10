@@ -203,27 +203,30 @@ proc set_golgi() {
 endtemplate CNcell
 
 
-//Default parameters
+
+//Default parameters for Golgi filter model
 weight_sum = 1
 golgi_spon = 1
-golgi_spatial_filter_variance = 4
-golgi_syn_filter_tau = 0.0005  // s
-golgi_syn_filter_scale_factor=1
+golgi_spatial_filter_variance = 4  //channel
+golgi_syn_filter_tau = 0.0005  //sec
+golgi_syn_filter_scale_factor = 1
 // Adding MSR and HSR to golgi
 param.w.x[lsr][glg] = 0.5
-golgi_spatial_filter_variance_LSR=1
-weight_sum_MSR=0.5
-golgi_spatial_filter_variance_MSR=1
-param.w.x[hsr][glg]=0.5
-golgi_spatial_filter_variance_HSR=1
+golgi_spatial_filter_variance_LSR = 1
+weight_sum_MSR = 0.5
+golgi_spatial_filter_variance_MSR = 1
+param.w.x[hsr][glg] = 0.5
+golgi_spatial_filter_variance_HSR = 1
 
 
 
 
 objref golgi_synfilter
+
 func alpha(){//Alpha function synaptic/membrane filter
 return $1*sg_tdres*exp(-($1*sg_tdres)/golgi_syn_filter_tau)
 }
+
 proc CreateGolgiSynFilter(){
   golgi_synfilter = new Vector(sg_rate*10*golgi_syn_filter_tau)
   //create alpha function
@@ -232,6 +235,7 @@ proc CreateGolgiSynFilter(){
   golgi_synfilter.mul(golgi_syn_filter_scale_factor/golgi_synfilter.sum()) 
 }
 CreateGolgiSynFilter()
+
 proc convolve(){local x1,x2,wsize
    for x1=0,$o1.size -1 {
        wsize = $o2.size
@@ -244,11 +248,11 @@ proc convolve(){local x1,x2,wsize
 }
 
 begintemplate Golgicell
-  public s  //Jackson instantaneous rate spike-generator
-  public spiketimes,spikes,sout //important internal vectors
-  public SetRate,GenSpikes,SaveSpikes,ClearSpikes //functions
-  public connect2target,SetRate,SetRate2,GenSpikes,GenSpikes2,SaveSpikes,ClearSpikes
-  public w, spikecount,synlist,cf,model,channel // general 
+  public s  //Jackson & Carney (2005) instantaneous rate spike-generator
+  public spiketimes,spikes,sout //internal vectors
+  public SetRate,GenSpikes,SetRate2,GenSpikes2,SaveSpikes,ClearSpikes //functions
+  public connect2target //connect function
+  public w, spikecount,synlist,cf,model,channel // general variables
   public wLSR,wHSR,wMSR
   external thresh,LSRout,nchannels,sg_tdres,weight_sum, golgi_spon,golgi_spatial_filter_variance
   external gaussian,gaussian_mean,gaussian_variance,golgi_synfilter,convolve, MSRsperchannel, Lowspont,Highspont,Medspont
@@ -271,6 +275,7 @@ begintemplate Golgicell
 	
 }
 objref tempsout
+/* Obsolete - replaced with SetRate2*/
 proc SetRate() {local i,j,spon_factor
 	w = new Vector(nchannels)
 	w.indgen()
@@ -366,8 +371,12 @@ proc connect2target() {
 
 endtemplate Golgicell
 
+
 objref golgi[nchannels][1]
 
+/*
+ * Save Golgi Filters to File
+ */
 proc SaveGolgiFilterBank2File(){local nchan
     objref ANfile
 
@@ -389,9 +398,12 @@ proc SaveGolgiFilterBank2File(){local nchan
 
     ANfile.close()
     } else print "Unable to Save golgi file ", tmpANstr
-
+	
 }
 
+/*
+ * Retrieve Golgi Filters from File
+ */
 func RetrieveGolgiFilterBank(){local nsize,nchan,temp
     objref ANfile
     CreateGolgiSynFilter()
