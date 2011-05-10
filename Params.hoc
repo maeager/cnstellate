@@ -1,24 +1,24 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
 /*
- * Cochlear Nucleus Stellate Network
- * Declaration and initialtion of the core global parameters
- * Michael Eager, University of Melbourne, 2007-2010
- */
- 
+* Cochlear Nucleus Stellate Network
+* Declaration and initialtion of the core global parameters
+* Michael Eager, University of Melbourne, 2007-2010
+*/
+
 strdef cnstellate_dir
 cnstellate_dir = getcwd()
 
-nchannels = 100
-HSRsperchannel  =   20
-MSRsperchannel  =   0
-LSRsperchannel  =   10
-ANoffset=0.5
-ANjitter=0.1
+nchannels       = 100
+HSRsperchannel  = 20
+MSRsperchannel  = 0
+LSRsperchannel  = 10
+ANoffset        = 0.5
+ANjitter        = 0.1
 LSR2GLG=0       //Conductance=1 or Phenomenological=0  golgi model
 
 //Indexes into cell lists and vectors use these labels
-ts=0
+ts = 0
 tv = 1
 ds = 2
 glg = 3
@@ -26,12 +26,15 @@ hsr = 4
 lsr = 5
 
 black = 1
-red = 2
-blue = 3
+red   = 2
+blue  = 3
 
 /**********************************************************
- **  Synapse Parameters
- **********************************************************/
+**  Cell and Synapse Parameters
+**********************************************************/
+
+//Resting membrane potential
+Erest=-65
 
 //Glutamate-AMPA Synaptic time constants
 // from Gardner et al. JNeurophysiol 1999 @ 34 C degrees
@@ -46,16 +49,16 @@ ampa_erev = 0
 // LimOleskevichEtAl:2003,AwatramaniTurecekEtAl:2005,LeaoOleskevichEtAl:2004
 gly_decay = 2.5
 gly_rise = 0.4      //half width of glyc mIPSCs in MNTB is 2.3msec, rise time 0.4msec,
-               //normal decay time constant 5.47+/-0.19, deaf 8.01 msec  (P12-14)
-               //Awatramani J Neurophysiol (2005)
-               //MNTB rat P30 gly decay constant 2.0,
+//normal decay time constant 5.47+/-0.19, deaf 8.01 msec  (P12-14)
+//Awatramani J Neurophysiol (2005)
+//MNTB rat P30 gly decay constant 2.0,
 gly_erev = -72      //see Paolini 1999
 
 gaba_decay = 9      //probably a combination of two time constants see Awatramani gabaA fast 5-10 slow 20-60
 gaba_rise = 0.7
 gaba_erev=-72      // in T stellates this is more likely to be closer to RMP as
-               //Ferragamo et al. 1998 found no GABAergic IPSPs but the cells were still
-               //sensitive to bicuculine
+//Ferragamo et al. 1998 found no GABAergic IPSPs but the cells were still
+//sensitive to bicuculine
 dstellate_gleak_rm = 0.0008
 
 cfhi        = 20000     //FilterBank upper and lower frequency (Hz)
@@ -69,24 +72,24 @@ totalMSR    = nchannels*MSRsperchannel
 totalLSR    = nchannels*LSRsperchannel
 
 /****************************************
- ** Stimulus Parameters
- ****************************************/
+** Stimulus Parameters
+****************************************/
 strdef wavefile,N
 N = neuronhome()
 stimtype    = 1         //0 for wavefile,1 for tone,2 silent stim,
-                        //3 AM tone, 4 WB noise (obsolete)
-                        //5 AM noise, 6 Gaussian Noise,
-                        //7 Simult. Tone & Noise,
-                        //8 Notch, 9 Twotones, 10 Ramptone,
-                        //11 Clicks separated by vector 'clicktimes'
+//3 AM tone, 4 WB noise (obsolete)
+//5 AM noise, 6 Gaussian Noise,
+//7 Simult. Tone & Noise,
+//8 Notch, 9 Twotones, 10 Ramptone,
+//11 Clicks separated by vector 'clicktimes'
 tonefreq    = 4000.0    //Hz Sinusoidal tone frequency
 dur         = 0.045     //(seconds), duration of tone segment
 spl         = 50        //dB SPL, sound level
 reps        = 25        //repetitions used in multiple runs
 dutycycle   = 0.2       //quiet duration = dutycycle*dur
 ramplngth   = 0.005     //sec, 2*ramp length (1/2 on and 1/2 off)
-                        //cosinesquared ramp
-                        //total tone segment = dur + 1*ramplngth
+//cosinesquared ramp
+//total tone segment = dur + 1*ramplngth
 strdef wavefile         // extract stim data file from wav file converted to txt
 
 wavefile    = "../sounds/T4000_L50.dat"
@@ -98,22 +101,22 @@ stimdur     = 0         //ms, Stim duration set by RefreshParameters()
 stimdelay   = 0.02      //sec, Delay before tone segment
 AM_modfreq  = 100       //Hz
 AM_depth    = 1     //% of max
-Gaussmean = 0           // Gaussian noise mean
-Gaussvar =1             //Gaussian noise variance
-AdditiveNoise   =0      //0=No noise added, 1= Noise added
-NoiseLevel  =0          //dB rms spl, if AdditiveNoise=1, amount of Added Noise
+Gaussmean   = 0           // Gaussian noise mean
+Gaussvar    = 1             //Gaussian noise variance
+AdditiveNoise = 0      //0=No noise added, 1= Noise added
+NoiseLevel  = 0          //dB rms spl, if AdditiveNoise=1, amount of Added Noise
 //Two-Tone frequency parameters
 tone2freq   = 4000
 tone2delay  = 0
 tone2spl    = 30
 //Notch Noise
-stopband =  10          //Files available are in TV_Notch folder - stopband 10,12.5
-notchwidth = 0.5        //in octaves, 1/8,1/4,1/2,1
-notchdepth=30
+stopband    =  10          //Files available are in TV_Notch folder - stopband 10,12.5
+notchwidth  = 0.5        //in octaves, 1/8,1/4,1/2,1
+notchdepth  = 30
 //Downsampling rate for ANF spike generator
-sg_rate=10000
-srate = 1/stimtdres
-sg_tdres = 1/sg_rate
+sg_rate     = 10000
+srate       = 1/stimtdres
+sg_tdres    = 1/sg_rate
 
 usesavedfilterbanks=0   //Save time by using saved AN filterbank responses
 
@@ -122,89 +125,95 @@ ANpath= "../../sounds"          //Variable string that preceeds the filename
 ANsoundspath= "../../sounds"    //Fixed local path
 
 
-celsius=37              //degrees, base model temperature
-                        // default in NEURON is 6.3C
-                        // Rothman and Manis (2003) &
-                        // Paul Manis' Neuron implementation uses 22 degrees
+celsius = 37       //degrees, base model temperature
+// default in NEURON is 6.3C Rothman and Manis (2003) & Paul Manis'
+// Neuron implementation uses 22 degrees to replicate the work in
+// Rothman and Manis (2003a,b,c).  See Utilities.hoc and CNcell.tem
+// for temperature conversion using qt()
 
 
 /**********************************************************
- **  Auditory Model Simulation Parameters
- **********************************************************/
+**  Auditory Model Simulation Parameters
+**********************************************************/
 ANmodel = 6 //  3  Tan+Carney 2003,
-            //  4 Heinz ARLO model 2001
-            //  6 Zilany and Bruce 2007/08, default
-	    //  7 Zilany, Bruce, Carney, Nelson 2006,2007,2010 
-species     = 2        // 0  human (as in ARLO paper)
-                       // 9  cat, all CFs (as in JASA 2001 Zhang et al., paper)
-                       // 1  cat, only low CFs (as in Carney '93 JASA paper - not recommended)
-                       // 2  rat, implemented in Zilany and Bruce 2007 (6) by Michael Eager 
+//  4 Heinz ARLO model 2001
+//  6 Zilany and Bruce 2007/08, default
+//  7 Zilany, Bruce, Carney, Nelson 2006,2007,2010 
+
+species  = 9        // 0  human (as in ARLO paper)
+// 9  cat, all CFs (as in JASA 2001 Zhang et al., paper)
+// 1  cat, only low CFs (as in Carney '93 JASA paper - not recommended)
+// 2  rat, implemented in Zilany and Bruce 2007 (6) by Michael Eager 
+
 ifspike     = 1
-    //sout is adjusted so that instant. rate can be fed to spike generator
-    //not neccessary for Bruce model
-delx        = 0.05
-    //"delta x", or spacing of "IHC"s along BM (linearly spaced IHCs in terms of location along BM
-    //  results in approximately logarithmic spacing in terms of frequency.
+//sout is adjusted so that instant. rate can be fed to spike generator
+//not neccessary for Bruce model
+
+delx = 0.05 
+// "delta x", or spacing of "IHC"s along BM (linearly spaced IHCs in
+// terms of location along BM results in approximately logarithmic
+// spacing in terms of frequency.
 
 
 
-/*  ARLO model and Tan and Carney 2003 parameters
-    refers to the version of the model used, as follows:
-    Model numbers as used in ARLO Heinz et al.,2001 Fig. 4 -
-    1: Nonlinear_w/compression & suppression (model for 'healthy' ear)
-    2: Nonlinear_w/compression, but without off-frequency suppression
-        3: Linear sharp
-        4: Linear broad, low threshold
-        5: Linear broad, high threshold
+/*
+ARLO model and Tan and Carney 2003 parameters
+refers to the version of the model used, as follows:
+Model numbers as used in ARLO Heinz et al.,2001 Fig. 4 -
+1: Nonlinear_w/compression & suppression (model for 'healthy' ear)
+2: Nonlinear_w/compression, but without off-frequency suppression
+3: Linear sharp
+4: Linear broad, low threshold
+5: Linear broad, high threshold
 */
 ARLOModel_Params    = 1
 
 
 /*
-  Bruce Model Parameters Impairment of Inner and Outer Hair cell function
-  variables cohc, cihc  are frequency and animal specific
-  See my adaptions to AN model in Utilities.hoc
-*/
-  strdef audiogram_file
-  audiogram_file="rat_bruce_audiogram.dat"  
-  objref audiogram,cohc,ihc
-  species = 2  // setup for rat
+ * Bruce Model Parameters Impairment of Inner and Outer Hair cell function
+ * variables cohc, cihc are frequency and animal specific See my adaptions to AN
+ * mod el in Utilities.hoc 
+ */ 
+ strdef audiogram_file
+ audiogram_file="rat_bruce_audiogram.dat" 
+ objref audiogram,cohc,ihc
 
 /*
-  Cat model Version 4 Parameters (ANmodel=7)
-  Zilany, Bruce, Carney, Nelson 2006,2007,2010 
+ Cat model Version 4 Parameters (ANmodel=7)
+ Zilany, Bruce, Carney, Nelson 2006,2007,2010 
 */
 
-  HighSponFibre=3
-  MedSponFibre=2
-  LowSponFibre=1
-  ZilanyActual=1
-  ZilanyApprox=0
-  ZilanyImplmnt = ZilanyApprox //default  
-  species = 9                  //Cat
-  audiogram_file =  "cat_audiogram.txt"
+HighSponFibre = 3
+MedSponFibre  = 2
+LowSponFibre  = 1
+ZilanyActual  = 1
+ZilanyApprox  = 0
+ZilanyImplmnt = ZilanyApprox //default  
+species       = 9  //0=Human, 2=Rat, 0,9=Cat
+audiogram_file =  "cat_audiogram.txt"
 
 
 
 /*
- * The parameter file for any experiment should look like the following section:
- * Michael Eager, University of Melbourne
- * Cochlear Nucleus network model: parameters file
- * based on parameters_odour_baseline.hoc by Andrew Davison
- */
+* The parameter file for any experiment should look like the following section:
+* Michael Eager, University of Melbourne
+* Cochlear Nucleus network model: parameters file
+* based on parameters_odour_baseline.hoc by Andrew Davison
+*/
 
-nchannels   = 100       // Total number of frequency channels
+nchannels       = 100       // Total number of frequency channels
 nTSperchannel   = 10    // number of TS cells in each freq channel
-numTS     = nchannels*nTSperchannel  // total number of TS cells
+numTS           = nchannels*nTSperchannel  // total number of TS cells
 nTVperchannel   = 3     // number of TV cells in each freq channel
-numTV   = nchannels*nTVperchannel    // total number of TV cells
+numTV           = nchannels*nTVperchannel    // total number of TV cells
 nDSperchannel   = 1     // number of DS cells in each freq channel
-numDS   = nchannels*nDSperchannel    // total number of DS cells
-nGperchannel   = 1      // number of Golgi cells in each freq channel
-numG= nchannels*nGperchannel  // total number of Golgi cells
+numDS           = nchannels*nDSperchannel    // total number of DS cells
+nGperchannel    = 1      // number of Golgi cells in each freq channel
+numG            = nchannels*nGperchannel  // total number of Golgi cells
 
-seed        = 0         // seed for random number generator see InitRandom()
-thresh      = -10       // mV, threshold for detecting spikes
+use_seed=0           //Random number generator initialise flag
+seed        = 0      // seed for random number generator see InitRandom(), note must also set use_seed for this to take effect
+thresh      = -20       // mV, threshold for detecting spikes
 
 
 strdef fileroot
@@ -213,13 +222,16 @@ vowelnumber = 1             // which vowel
 inputnumber = 1             // fixed input file
 tstop       = 400           // ms, total simulation time
 t_ignore_before       = 20  // ms,  when calculating statistics, ignore
-                            // spikes occuring before this time
+// spikes occuring before this time
+
 
 cvode.active(0)
-dt        = 0.05	   // NEURON's local integration time step
+dt           = 0.05	   // NEURON's integration time step
 steps_per_ms = 10          // NEURON graphical plotting variable
 setdt()
-dt=0.1                     //ms, integration time step
-celsius = 37               //degrees C, body  temperature
-secondorder=2              //Crank-Nickolson integration, correct to second order
-use_seed=0                 // Random number generator initialise flag
+dt           = 0.1         //repeat is necessary to change integration time step after setdt
+secondorder  = 2              //Crank-Nickolson integration, correct to second order
+
+
+
+
