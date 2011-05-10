@@ -42,15 +42,15 @@ proc ResponseArea(){local _ifreq,_spl,
 xopen("par_calcisilag.hoc") // everybody needs this for the post_results
 
 proc print_results() {
-%  print_raster(fileroot)
-%  print_gran_raster(fileroot)
-%  print_gran_hist(1,fileroot)
-%  sprint(filename,"%s.curvs",fileroot)
-%  outfile.wopen(filename)
-%  take_record()
-%  for i = 0, tvec.size()-1 {
-%    outfile.printf("%8.3g %8.3g %8.3g %8.3g %8.3g \n",tvec.x[i],igabaa.x[i],vmit.x[i],vgran.x[i],iclamp.x[i])
-%  }
-%  outfile.close()
-%  print "Results printed to files"
+  print_raster(fileroot)
+  print_gran_raster(fileroot)
+  print_gran_hist(1,fileroot)
+  sprint(filename,"%s.curvs",fileroot)
+  outfile.wopen(filename)
+  take_record()
+  for i = 0, tvec.size()-1 {
+	outfile.printf("%8.3g %8.3g %8.3g %8.3g %8.3g \n",tvec.x[i],igabaa.x[i],vmit.x[i],vgran.x[i],iclamp.x[i])
+  }
+  outfile.close()
+  print "Results printed to files"
 }

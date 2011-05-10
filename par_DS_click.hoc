@@ -28,18 +28,18 @@ proc take_record() {
 xopen("par_calcisilag.hoc") // everybody needs this for the post_results
 
 proc print_results() {
-  print_raster(fileroot)
-  print_an_raster(fileroot)
-  print_an_hist(1,fileroot)
-  sprint(filename,"%s.curvs",fileroot)
-  outfile.wopen(filename)
-  take_record()
-  for i = 0, tvec.size()-1 {
-  if (i>=dsvec.size() || i>=vstel.size() || i>=vtv.size()) break
-    outfile.printf("%8.3g %8.3g %8.3g %8.3g \n",tvec.x[i],dsvec.x[i],vstel.x[i],vtv.x[i])
-  }
-  outfile.close()
-  print "Results printed to files"
+	print_raster(fileroot)
+	print_an_raster(fileroot)
+	print_an_hist(1,fileroot)
+	sprint(filename,"%s.curvs",fileroot)
+	outfile.wopen(filename)
+	take_record()
+	for i = 0, tvec.size()-1 {
+		if (i>=dsvec.size() || i>=vstel.size() || i>=vtv.size()) break
+		outfile.printf("%8.3g %8.3g %8.3g %8.3g \n",tvec.x[i],dsvec.x[i],vstel.x[i],vtv.x[i])
+	}
+	outfile.close()
+	print "Results printed to files"
 }
 
 
@@ -61,11 +61,11 @@ usesavedfilterbanks=1
 
 
 GenSpikes() //calls SGfast(1) on each fibre
-                //it might be quicker to use another method
-                //eg. calling the original zbcatmodel and
-                //outputing several spike trains
-                //since ANFs are just VecStims
+//it might be quicker to use another method
+//eg. calling the original zbcatmodel and
+//outputing several spike trains
+//since ANFs are just VecStims
 
 //ModulationTransferFunction()
-		
+
 //xopen("SAM.ses")
