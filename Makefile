@@ -1,3 +1,6 @@
+
+
+
 ARCH=$(shell arch)
 NRNMODL=$(ARCH)/bin/nrnivmodl
 MPIMODL=$(HOME)/src/neuron/nrnmpi/$(NRNMODL)
