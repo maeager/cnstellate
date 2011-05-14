@@ -88,6 +88,7 @@ return f
 *******************************************************/
 objref Rand
 strdef seedstr
+
 proc InitRandom() {
     objref Rand
     
@@ -1680,7 +1681,6 @@ proc GenerateFilterbank(){ local ii,out,icf, mycf, myohc,myihc,ZilanyImplmnt_ori
     //    ZilanyImplmnt_orig = ZilanyImplmnt
     if (name_declared("pnm") == 0 && say_once!=1) print "Generating AN model instantaneous rate functions"
     for icf = 0, nchannels-1 {
-	
         LSRout[icf] = new Vector(stim.size,0)
         HSRout[icf] = new Vector(stim.size,0)
     	IHC[icf] = new Vector(stim.size,0)
@@ -1708,6 +1708,7 @@ proc GenerateFilterbank(){ local ii,out,icf, mycf, myohc,myihc,ZilanyImplmnt_ori
 	    }
 	    for ii=0,out-1 { sprint(s,"%g",IHC[icf].x[ii]) if (strcmp(s,"nan") != -1) {print "found NaN in IHC"} }
 	    for ii=0,out-1 { sprint(s,"%g",LSRout[icf].x[ii]) if (strcmp(s,"nan") != -1) {print "found NaN"} }
+		
 	    out = HSRout[icf].an_zilany_v4(stim, stimtdres, mycf, HighSponFibre,ZilanyImplmnt,myihc,myohc,species, nrep)
 	    ihc.mul(0)  flushf()  doNotify()
 	    for ii=0,out-1 { sprint(s,"%g",HSRout[icf].x[ii]) if (strcmp(s,"nan") != -1) {print "found NaN"}}
