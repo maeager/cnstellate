@@ -49,11 +49,15 @@ func cochlea_f2x() { local species, f, dist
     if(species==0){
         /*human */
         dist=(1.0/0.06)*log10((f/165.4)+0.88)
-    }\
-    else{
-        /*cat */
-        dist = 11.9 * log10(0.80 + (f / 456.0))
-    }
+    } else{ 
+		if (species == 2) {
+			// rat
+			dist = 8.65 * log10(1.0 + (f / 7613.3))
+		} else{
+			// cat
+			dist = 11.9 * log10(0.80 + (f / 456.0))
+		}
+	}
     
     return dist
 }
@@ -67,12 +71,11 @@ func cochlea_x2f() { local species, f, dist
         }
         f=165.4*((10^(0.06*dist))-0.88)
     } \
-    else{ if (species==3) {
+    else{ if (species == 2) {
         // rat
         f = 7613.3*((10^(dist/8.65))-1.0)
     } \
     else{
-	
         //cat
         f = 456.0*((10^(dist/11.9))-0.80)
     }
@@ -1238,20 +1241,18 @@ func FindInd() {local value, index, diff
     
     while (index <= nchannels-1) {
         //print "index ", index, " value ", cf.get(index)
-        if (value < cf.get(index)){ break
-        } \
-	else{ index +=1 }
+        if (value < cf.get(index)){ 
+			break
+        } else{ index +=1 }
     }
     if (index == 0) { return 0}
     if (index < nchannels-1) {
         if ((cf.get(index) - value) > (value - cf.get(index-1))){
             index-=1
         }
-    } \
-    else { index = nchannels-1 }
+    } else { index = nchannels-1 }
     //print "index ", index, " value ", value
-    return index
-    
+    return index    
 }
 
 /*******************************************************************
@@ -1264,8 +1265,7 @@ func MaxBWChannel() { local curind, curcf, maxcf, bw,maxind
     if (bw !=0 ) {
         maxcf = curcf*sqrt(2^bw)
         maxind = FindInd(maxcf)
-    } \
-    else {
+    } else {
         maxind = curind
     }
     //print curind, " ", curcf," ", bw," ", maxcf, " ", maxind
