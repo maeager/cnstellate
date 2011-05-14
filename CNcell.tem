@@ -32,6 +32,8 @@ public spikes,spiketimes       //storage vectors
 public connect2target, synlist //synapse connection function and list 
 public cf,model,channel 	 //identifying parameters ...
 
+external thresh,Erest
+external ampa_decay,ampa_erev,gly_decay,gly_erev,gly_rise, gaba_decay, gaba_erev,gaba_rise
   create soma
   objref AMPA, GlyR, GABAA, spikecount, spiketimes, synlist,spikes
 somaarea=1E-4
