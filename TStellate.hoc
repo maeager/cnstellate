@@ -23,11 +23,11 @@ xopen("pvec_TV_Notch.hoc")
 xopen("parameters_TStellate.hoc")
 
 //--- Setup CN Stellate Network model
-// xopen("CochlearNucleus.hoc")         // model set-up
-// xopen("calcisilag.hoc")
-// create_cells()
-// connect_cells(fileroot)
-// connect_CNcells(fileroot)
+ xopen("CochlearNucleus.hoc")         // model set-up
+ xopen("calcisilag.hoc")
+ create_cells()
+ connect_cells(fileroot)
+ connect_CNcells(fileroot)
 
 // reset_DS_ClickRecovery()
 // param.w.x[hsr][ds]*=10
@@ -35,7 +35,7 @@ xopen("parameters_TStellate.hoc")
 // reset_weights()
 // usesavedfilterbanks=1
 
-// xopen("par_experiment_TStellate.hoc")
+xopen("par_experiment_TStellate.hoc")
 
 
 // objref MRAv,MRAgr, mrafreq,psth

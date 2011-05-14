@@ -660,6 +660,6 @@ proc ClearSpikes(){local i,j
 
 //  Create the model
 
-create_cells()
-connect_cells(fileroot)
-connect_CNcells()
+//create_cells()
+//connect_cells(fileroot)
+//connect_CNcells()

@@ -5,10 +5,9 @@
 // reported in \citep{PaoliniClareyEtAl:2005}
 
 
-objref tempmat, CS_ivdata[2], CT1_ivdata[2], CT2_ivdata[2]
+objref tempmat, ivdata[2]
 
-proc CS_data{
-    
+proc CS_data() {local points   
    //chopper sustained 
    // unit 01-864-004 
    //CV (10ms segs) always below 0.2 for 45, 65, and 75 dB
@@ -16,21 +15,21 @@ proc CS_data{
    // depolarisation threshold 10dB
    spl      = 40   //30 dB above depolarisation threshold
    tonefreq = 3900 //Hz, characteristic frequency
-   whichcell = FindInd(tonefreq)  //get CF index close to 3.9kHz
+   whichcell= FindInd(tonefreq)  //get CF index close to 3.9kHz
    objref tempmat, ivdata[2]
    ivdata[0] = new Vector()
    ivdata[1] = new Vector()
    
    file.ropen("TStellate/CS-01-864-004.png.dat")
-   tempmat = new Matrix()
+   points = file.scanvar()   
+   tempmat = new Matrix(points, 2)
    tempmat.scanf(file) 
    ivdata[0] = tempmat.getcol(0) //time
    ivdata[1] = tempmat.getcol(1) //voltage (mV)
    file.close()
-   
 }
 
-proc CT1_data{
+proc CT1_data() {local points
     
    // chopper transient 1
    // unit 01-857-007 \citep{PaoliniClareyEtAl:2005}
@@ -43,40 +42,42 @@ proc CT1_data{
    spl      = 85   //30 dB above depolarisation threshold
    tonefreq = 8200 //Hz, characteristic frequency
    whichcell = FindInd(tonefreq)  //get CF index close to 8.2kHz
-   file.ropen("TStellate/ CT1 CS-01-864-004.png.dat") 
+   file.ropen("TStellate/CT1-01-857-007.png.dat") 
    objref tempmat, ivdata[2]
    ivdata[0] = new Vector()
    ivdata[1] = new Vector()
-  
-   tempmat = new Matrix()
+   points = file.scanvar()   
+   tempmat = new Matrix(points, 2)
    tempmat.scanf(file) 
    ivdata[0] = tempmat.getcol(0) //time
    ivdata[1] = tempmat.getcol(1) //voltage (mV)
    file.close()
    
+   
 }
 
-proc CT2_data{
+proc CT2_data() {local points
     
    //chopper transient type 2 
    // unit 01-305-014 \citep{PaoliniClareyEtAl:2005}
    //CV (10ms segs) first 10m below 0.2, then rises above 0.3 
    // rate saturation at 5 dB
    spl      = 35   //30 dB above depolarisation threshold
-   tonefreq = 3900 //Hz
+   tonefreq = 12400 //Hz
+   whichcell = FindInd(tonefreq)  //get CF index close to 12.4kHz   
+   file.ropen("TStellate/CT2-01-305-014.png.dat")
    
-   file.ropen("TStellate/CS-01-864-004.png.dat")
    objref tempmat, ivdata[2]
    ivdata[0] = new Vector()
    ivdata[1] = new Vector()
+
+   tempmat = new Matrix() //points, 2)
    
-   tempmat = new Matrix()
+
    tempmat.scanf(file) 
    ivdata[0] = tempmat.getcol(0) //time
    ivdata[1] = tempmat.getcol(1) //voltage (mV)
    file.close()
-   
-   
 }
 
 
@@ -95,9 +96,9 @@ resting_value  = ivdata[1].mean(0 , ivdata[0].indwhere(">",0))
 v60_depol = ivdata[1].mean(ivdata[0].indwhere(">=",60) - 1, ivdata[0].indwhere(">=",61)  ) 
 offset_hyperpol = resting_value - v60_depol
 
-print "level of initial depolarization ", onset_depol
-print "adaptation of sustained depolarization", adaptation_ratio
-print " post-tone hyperpolarization", offset_hyperpol
+print "level of initial depolarization         ", onset_depol
+print "adaptation of sustained depolarization  ", adaptation_ratio
+print "post-tone hyperpolarization             ", offset_hyperpol
 
 
 }
