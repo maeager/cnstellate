@@ -1,0 +1,15 @@
+ //  Thu Sep 30 15:51:38 AUSEST 2010
+  
+param.w.x[lsr][tv] = 0.00168671*1
+param.w.x[hsr][tv] = 3.4856e-06*1
+param.w.x[hsr][ds] = 0.00246723*1
+ //  Fri Oct  1 11:38:43 AUSEST 2010
+  
+param.w.x[lsr][tv] = 0.00168671*1
+param.w.x[hsr][tv] = 3.4856e-06*1
+param.w.x[hsr][ds] = 0.00246723*1
+ //  Fri Oct  1 11:40:33 AUSEST 2010
+  
+param.w.x[lsr][tv] = 0.00168671*1
+param.w.x[hsr][tv] = 3.4856e-06*1
+param.w.x[hsr][ds] = 0.00246723*1
