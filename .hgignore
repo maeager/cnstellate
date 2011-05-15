@@ -22,6 +22,8 @@ $pfebk/*
 *.pdf
 Responses*/*
 Responses/*
+TV_Notch/*
+TV_Notch_spl50/*
 
 syntax: regexp
 .*\#.*\#$

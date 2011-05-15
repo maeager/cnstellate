@@ -5,7 +5,8 @@
 // reported in \citep{PaoliniClareyEtAl:2005}
 
 
-objref tempmat, ivdata[2]
+objref tempmat, ivdata[2], chopperIVgr
+
 
 proc CS_data() {local points   
    //chopper sustained 
@@ -19,14 +20,17 @@ proc CS_data() {local points
    objref tempmat, ivdata[2]
    ivdata[0] = new Vector()
    ivdata[1] = new Vector()
-   
+
    file.ropen("TStellate/CS-01-864-004.png.dat")
-   points = file.scanvar()   
+   
    tempmat = new Matrix(points, 2)
    tempmat.scanf(file) 
    ivdata[0] = tempmat.getcol(0) //time
    ivdata[1] = tempmat.getcol(1) //voltage (mV)
    file.close()
+   chopperIVgr =  new Graph()   
+   ivdata[1].plot(chopperIVgr,ivdata[0])
+   chopperIVgr.exec_menu("View = plot")
 }
 
 proc CT1_data() {local points
@@ -46,14 +50,15 @@ proc CT1_data() {local points
    objref tempmat, ivdata[2]
    ivdata[0] = new Vector()
    ivdata[1] = new Vector()
-   points = file.scanvar()   
    tempmat = new Matrix(points, 2)
    tempmat.scanf(file) 
    ivdata[0] = tempmat.getcol(0) //time
    ivdata[1] = tempmat.getcol(1) //voltage (mV)
    file.close()
-   
-   
+   chopperIVgr =  new Graph()   
+   ivdata[1].plot(chopperIVgr,ivdata[0])
+	chopperIVgr.exec_menu("View = plot")
+  
 }
 
 proc CT2_data() {local points
@@ -70,14 +75,15 @@ proc CT2_data() {local points
    objref tempmat, ivdata[2]
    ivdata[0] = new Vector()
    ivdata[1] = new Vector()
-
    tempmat = new Matrix() //points, 2)
-   
-
    tempmat.scanf(file) 
    ivdata[0] = tempmat.getcol(0) //time
    ivdata[1] = tempmat.getcol(1) //voltage (mV)
    file.close()
+   chopperIVgr =  new Graph()   
+   ivdata[1].plot(chopperIVgr,ivdata[0])
+	chopperIVgr.exec_menu("View = plot")
+  
 }
 
 
@@ -102,9 +108,6 @@ print "post-tone hyperpolarization             ", offset_hyperpol
 
 
 }
-
-
-
 
 
 
@@ -142,3 +145,52 @@ print "post-tone hyperpolarization             ", offset_hyperpol
 //  Beyer DT48 transducer (Beyerdynamic, Farmingdale, NY, USA),          
 //  which was positioned at the end of a hollow ear bar and controlled   
 //  using a Tucker-Davis signal generator (Tucker-Davis Technologies,    
+
+
+CT1_data()
+
+delay           = 0.02
+dur             = 0.045
+ramplngth       = 0.005
+dutycycle       = 0.8        // get an extra 40msec post-tone
+cfhi            = 40000
+cflo            = 400
+srate 	        = 100000      // 500k is no longer needed
+stimtdres 	    = 1/srate
+sg_rate         = 50000
+sg_tdres        = 1/sg_rate
+
+ANmodel         = 7
+species         = 2 //Rat
+audiogram_file  = "rat_bruce_audiogram.dat"
+reps=25
+
+RefreshParameters()	//Generate or get stim from file
+//ANFilterBankRun()
+//SetRates2()
+
+objref iv,meaniv
+proc RunTStellate(){
+	objref iv,meaniv,tvec
+	ClearSpikes()
+	iv = new Vector()
+	iv.record(&tstellate[whichcell][0].soma.v(0.5))
+	meaniv = new Vector(tstop/dt + 1,0)
+    for ireps = 0, reps-1 {
+        GenSpikes2()
+        run()
+        SaveSpikes()
+		for i=0,tstop/dt-1{
+         if (iv.x[i] > thresh) iv.x[i] = thresh
+        }
+		meaniv.add(iv)
+		iv.mul(0)
+	}
+	meaniv.div(reps)
+	tvec=new Vector(tstop/dt + 1)
+	tvec.indgen(dt).add(-20)
+	meaniv.plot(chopperIVgr,tvec)
+	chopperIVgr.exec_menu("View = plot")
+}
+
+

@@ -1205,10 +1205,6 @@ delx        = 0.05
 //  results in approximately logarithmic spacing in terms of frequency.
 
 
-//install_anmodel()         //Heinz ARLO model
-//install_an_tanmodel()      //Tan and Carney
-execute1("install_an_zbcatmodel_v3()")   //Zilany Bruce  2006,2007
-//execute1("install_an_zbcatmodel_v4()")      //Zilany Bruce Nelson Carney 2009,2010
 
 objref  LSRout[nchannels], HSRout[nchannels],cf, ANfile, MSRout[nchannels]
 cf = new Vector(nchannels)
@@ -1635,14 +1631,14 @@ func RetrieveANFilterBank(){local nsize, nchan, temp
 	}
 	
 	for icf = 0, nchannels-1 {
-            LSRout[icf] = new Vector(nsize)
-            HSRout[icf] = new Vector(nsize)
-            if (ANfile.scanvar() == icf){
-		cf.x[icf] = ANfile.scanvar()
-		LSRout[icf].scanf(ANfile,nsize)
-		HSRout[icf].scanf(ANfile,nsize)
-		// if (MSRsperchannel>0) MSRout[icf].scanf(ANfile,nsize)
-            }
+        LSRout[icf] = new Vector(nsize)
+        HSRout[icf] = new Vector(nsize)
+        if (ANfile.scanvar() == icf){
+			cf.x[icf] = ANfile.scanvar()
+			LSRout[icf].scanf(ANfile,nsize)
+			HSRout[icf].scanf(ANfile,nsize)
+			// if (MSRsperchannel>0) MSRout[icf].scanf(ANfile,nsize)
+        }
 	}
 	sg_tdres = 1/sg_rate
 	ANfile.close()
@@ -1653,6 +1649,7 @@ func RetrieveANFilterBank(){local nsize, nchan, temp
         return 0
     }
 }
+
 objref audiogram,cohc,cihc
 proc GetAudiogramData(){
     objref audiogram,file
@@ -1705,17 +1702,26 @@ proc GenerateFilterbank(){ local ii,out,icf, mycf, myohc,myihc,ZilanyImplmnt_ori
 	    if (out != LSRout[icf].size) {
 		printf("out not equal to nstim")
 		return 0
-	    }
-	    for ii=0,out-1 { sprint(s,"%g",IHC[icf].x[ii]) if (strcmp(s,"nan") != -1) {print "found NaN in IHC"} }
-	    for ii=0,out-1 { sprint(s,"%g",LSRout[icf].x[ii]) if (strcmp(s,"nan") != -1) {print "found NaN"} }
-		
-	    out = HSRout[icf].an_zilany_v4(stim, stimtdres, mycf, HighSponFibre,ZilanyImplmnt,myihc,myohc,species, nrep)
-	    ihc.mul(0)  flushf()  doNotify()
-	    for ii=0,out-1 { sprint(s,"%g",HSRout[icf].x[ii]) if (strcmp(s,"nan") != -1) {print "found NaN"}}
-	    if (MSRsperchannel>0){
+	}
+	ii = out-1 //for ii=0,out-1 { 
+		sprint(s,"%g",IHC[icf].x[ii]) 
+		if (strcmp(s,"nan") != -1) {print "GenerateFilterbank:an_zilany_v4: found NaN in IHC"} 
+	//}
+	//for ii=0,out-1 { 
+		sprint(s,"%g",LSRout[icf].x[ii]) 
+		if (strcmp(s,"nan") != -1) {print "GenerateFilterbank:an_zilany_v4: found NaN in LSRout"} 
+	//}
+	
+	out = HSRout[icf].an_zilany_v4(stim, stimtdres, mycf, HighSponFibre,ZilanyImplmnt,myihc,myohc,species, nrep)
+	ihc.mul(0)  flushf()  doNotify()
+	ii=out-1//for ii=0,out-1 { 
+		sprint(s,"%g",HSRout[icf].x[ii]) 
+		if (strcmp(s,"nan") != -1) {print "GenerateFilterbank:an_zilany_v4: found NaN in HSRout"}
+	//}
+	if (MSRsperchannel>0){
 		MSRout[icf] = new Vector(stim.size)
 		MSRout[icf].an_zilany_v4(stim, stimtdres, mycf, MedSponFibre,ZilanyActual, myihc,myohc,species, nrep)
-	    }
+	}
 	}
 	
 	/*
@@ -1747,24 +1753,23 @@ proc CheckFilterbank(){local icf
     
     for icf = 0, nchannels-1 {
         sprint(end_sout,"%f",HSRout[icf].x[HSRout[0].size-1])
-        if (strcmp(end_sout,"nan")==0){print "detected nan HSR ", icf
+        if (strcmp(end_sout,"nan")==0){print "CheckFilterbank: detected nan HSR ", icf
             HSRout[icf] = new Vector(stim.size)
             HSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], Highspont, cohc.x[icf],cihc.x[icf],species, nrep)
-            LSRout[icf].resample(LSRout[icf],sg_rate/srate)
+            HSRout[icf].resample(LSRout[icf],sg_rate/srate)
             sprint(end_sout,"%f",HSRout[icf].x[HSRout[0].size-1])
-            if (strcmp(end_sout,"nan")==0)print "Error recreating HSR AN output, channel:", icf
+            if (strcmp(end_sout,"nan")==0)print "CheckFilterbank: Error recreating HSR AN output, channel:", icf
         }
         sprint(end_sout,"%f",LSRout[icf].x[LSRout[0].size-1])
-        if (strcmp(end_sout,"nan")==0){ print "detected nan LSR ", icf
+        if (strcmp(end_sout,"nan")==0){ print "CheckFilterbank: detected nan LSR ", icf
             system("sleep 0.1")
             LSRout[icf] = new Vector(stim.size)
             LSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], Lowspont, cohc.x[icf],cihc.x[icf],species, nrep)
             LSRout[icf].resample(LSRout[icf],sg_rate/srate)
             sprint(end_sout,"%f",LSRout[icf].x[LSRout[0].size-1])
-            if (strcmp(end_sout,"nan")==0) print "Error recreating LSR AN output", icf
+            if (strcmp(end_sout,"nan")==0) print "CheckFilterbank: Error recreating LSR AN output", icf
         }
     }
-    (sg_rate/srate)
 }
 
 
@@ -1780,8 +1785,8 @@ proc ANFilterBankRun() {local x
     
     if (usesavedfilterbanks) {
         if (!RetrieveANFilterBank()) {
-	    GenerateFilterbank()     
-	    SaveANFilterBank2File()
+	     GenerateFilterbank()     
+	     SaveANFilterBank2File()
         }
     } \
     else {
