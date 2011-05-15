@@ -41,16 +41,17 @@ static double an_zilany_v4(void  *vv)
   }
    
   /*Get Input arguments*/
-  if( ifarg(9)!=1 && ifarg(10)!=1 ){  /*Must be changed if more input arguments added*/
+  /*if( ifarg(9)!=1 && ifarg(10)!=1 ){  //Must be changed if more input arguments added
     hoc_execerror("an_zilany_v4: input syntax must be sout.an_zilany_v4( stim, tdres,  cf, fibertype,implnt,cihc,cohc, species,nrep,ihcout[optional])", 0);
     return 0;
-  }
+}
+*/
 
-  /*TDRES  resolution of stim vector*/
+/*TDRES  resolution of stim vector*/
   /*Bruce model uses seconds rather than msec*/
   tdres = (double)(*getarg(2));
   if (tdres > 0.01e-3 || tdres < 0.002e-3){
-    printf("\tNote: Zilany Bruce V4 resolution should be between 0.01ms (Fs = 100kHz) for normal usage and 0.002ms (200kHz) for stim above 40kHz.\n");      /*printf("\tNote: ZilanyBruceV4 resolution should be between 0.01ms (Fs = 100kHz) and 0.002ms (500kHz) for normal usage.\n");*/
+    printf("Note: Zilany Bruce V4 resolution should be between 0.01ms (Fs = 100kHz) for normal usage and 0.002ms (200kHz) for stim above 40kHz.\n");      /*printf("\tNote: ZilanyBruceV4 resolution should be between 0.01ms (Fs = 100kHz) and 0.002ms (500kHz) for normal usage.\n");*/
     /*tdres = 0.002e-3;*/
   }
   /*CF of fiber*/
@@ -107,10 +108,10 @@ static double an_zilany_v4(void  *vv)
     ihcout = makevector(nstim);
   }
 
-  printf("AN model: Zilany et al., 2009  (version 4 c2010)\n");
-  printf("  IHCAN(stim,%.0f,%d,%g,%d,%g,%g,ihcout,%d)\n", cf, nrep, tdres, nstim, cohc, cihc, species);
+  printf("\tAN model: Zilany et al., 2009  (version 4 c2010)\n");
+  printf("\tIHCAN(stim,%.0f,%d,%g,%d,%g,%g,ihcout,%d)\n", cf, nrep, tdres, nstim, cohc, cihc, species);
   IHCAN(stim, cf, nrep, tdres, nstim, cohc, cihc, ihcout,species);
-  printf("  SingleAN(ihcout,%.0f,%d,%g,%d,%d,%d,sout,%d)\n",cf,nrep,tdres,nstim,fibertype,implnt,species);
+  printf("\tSingleAN(ihcout,%.0f,%d,%g,%d,%d,%d,sout,%d)\n",cf,nrep,tdres,nstim,fibertype,implnt,species);
   out= SingleAN_v4(ihcout,cf,nrep,tdres,nstim,fibertype,implnt,sout,species);
 
   if( !ifarg(10) ) freevector(ihcout);
@@ -135,9 +136,14 @@ static double an_zilany_v4_1(void *vv)
   nstim = vector_instance_px(vv, &sout);
   nsout = vector_arg_px(1, &stim);
 
+  if (nstim != nsout){
+    printf ("an_zilany_v4: sout must be the same size as stim.\n");
+    return 0;
+  }
+
   /*Get Input arguments*/
-  /*   if(ifarg(9)!=1){  //Must be changed if more input arguments added
-       hoc_execerror("ERROR: input syntax must be sout.an_zilany_v4( stim, tdres,  cf, spont,implnt,cihc,cohc, species,nrep,ihcout[optional])", 0);
+  /*   if(ifarg(9)!=1&& ifarg(10)!=1){  //Must be changed if more input arguments added
+       hoc_execerror("an_zilany_v4: input syntax must be sout.an_zilany_v4( stim, tdres,  cf, spont,implnt,cihc,cohc, species,nrep,ihcout[optional])", 0);
        return 0;
        }
   */
@@ -184,8 +190,7 @@ static double an_zilany_v4_1(void *vv)
   /*Species*/
   species = (int)(*getarg(8));
   if (species != 1){
-    hoc_execerror("an_zilany_v4: species other than cat (1) are not implemented",0);
-    return 0;
+    hoc_execerror("an_zilany_v4: species other than cat (1) are not implemented");
   }
   /*Reps*/
   nrep = (int)(*getarg(9));
@@ -295,11 +300,13 @@ static double syn_zilany_v4(void *vv)
   nihcout = vector_arg_px(1, &ihcout);
 
   /*Get Input arguments*/
-  if(ifarg(8)!=1  || ifarg(7)!=1 || ifarg(9)!=1 ){  /*Must be changed if more input arguments added*/
+/*  if(!(ifarg(7)!=1 || ifarg(9)!=1) ){  //Must be changed if more input arguments added
     hoc_execerror("ERROR: input syntax must be sout.syn_zilany_v4( ihcout, tdres,  cf, fibertype,implnt, species,nrep)\n or  sout.syn_zilany_v4( ihcout, tdres,  cf, fibertype,implnt, species,nrep,spks [optional],psth [optional])", 0);
     return 0;
-  }
-  /*TDRES  resolution of stim vector*/
+}
+*/
+
+/*TDRES  resolution of stim vector*/
   /*Bruce model uses seconds rather than msec*/
   tdres = (double)(*getarg(2));
   if (tdres > 0.01e-3 || tdres < 0.002e-3){

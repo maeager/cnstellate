@@ -135,10 +135,16 @@ celsius = 37       //degrees, base model temperature
 /**********************************************************
 **  Auditory Model Simulation Parameters
 **********************************************************/
-ANmodel = 6 //  3  Tan+Carney 2003,
+//install_anmodel()         //Heinz ARLO model
+//install_an_tanmodel()      //Tan and Carney
+execute1("install_an_zbcatmodel_v3()")   //Zilany Bruce  2006,2007
+execute1("install_an_zbcatmodel_v4()")      //Zilany Bruce Nelson Carney 2009,2010
+
+//  3  Tan+Carney 2003,
 //  4 Heinz ARLO model 2001
 //  6 Zilany and Bruce 2007/08, default
 //  7 Zilany, Bruce, Carney, Nelson 2006,2007,2010 
+ANmodel = 6 //default
 
 species  = 9        // 0  human (as in ARLO paper)
 // 9  cat, all CFs (as in JASA 2001 Zhang et al., paper)
@@ -147,7 +153,7 @@ species  = 9        // 0  human (as in ARLO paper)
 
 ifspike     = 1
 //sout is adjusted so that instant. rate can be fed to spike generator
-//not neccessary for Bruce model
+//not neccessary for Zilany & Bruce model or more recent
 
 delx = 0.05 
 // "delta x", or spacing of "IHC"s along BM (linearly spaced IHCs in
