@@ -176,6 +176,7 @@ proc RunTStellate(){
 	iv = new Vector()
 	iv.record(&tstellate[whichcell][0].soma.v(0.5))
 	meaniv = new Vector(tstop/dt + 1,0)
+	
     for ireps = 0, reps-1 {
         GenSpikes2()
         run()
@@ -192,5 +193,8 @@ proc RunTStellate(){
 	meaniv.plot(chopperIVgr,tvec)
 	chopperIVgr.exec_menu("View = plot")
 }
+
+
+
 
 

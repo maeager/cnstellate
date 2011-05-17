@@ -887,7 +887,7 @@ proc ClearSpikes(){local ii,jj
 
 
 proc reset_DS_ClickRecovery(){local ii
-print "updating features for DS_ClickRecovery optimisation routines"
+	print "updating features for DS_ClickRecovery optimisation routines"
    for ii = 0,nchannels-1 {
     dstellate[ii][0].soma.gleak_rm = dstellate_gleak_rm
     dstellate[ii][0].soma.gkltbar_klt =dstellate_gkltbar

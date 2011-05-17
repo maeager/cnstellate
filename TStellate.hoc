@@ -114,8 +114,46 @@ xopen("par_experiment_TStellate.hoc")
 
 // channel position -> tonefreq
 
-//xopen("cngui.hoc")
-//xopen("SAM.ses")	  
+xopen("cngui.hoc")
+xopen("SAM.ses")	  
 
-//load_file("RA-todo.txt")
 
+
+v_init = -65
+
+tstellate_gnabar_rm =0.23677 
+tstellate_gkhtbar_rm=0.0189416 
+tstellate_gleak_rm  =0.000473539 
+tstellate_erev_rm   =-55 
+tstellate_ghbar_rm  =6.20392e-05
+tstellate_gkabar_ka = 0.000473539
+
+proc reset_TStellate(){local ii
+	print "updating features for DS_ClickRecovery optimisation routines"
+	for ii = 0,nchannels-1 {
+        tstellate[ii][0].soma.gnabar_rm = tstellate_gnabar_rm
+		tstellate[ii][0].soma.gkhtbar_rm=tstellate_gkhtbar_rm
+		tstellate[ii][0].soma.gleak_rm  = tstellate_gleak_rm
+		tstellate[ii][0].soma.erev_rm   = tstellate_erev_rm
+		tstellate[ii][0].soma.ghbar_rm  = tstellate_ghbar_rm
+		tstellate[ii][0].soma.gkabar_ka = tstellate_gkabar_ka
+	
+//    tstellate[ii][0].GABAA.tau2 = gaba_decay
+//    tstellate[ii][0].GABAA.tau1 = gaba_rise
+  }
+
+}
+
+
+
+param.w.x[hsr][ts]  = 0.0025
+param.w.x[lsr][ts]	= 0.0025
+param.w.x[ds][ts]	= 0.0007
+param.w.x[tv][ts]	= 0.0005
+param.w.x[glg][ts]	= 0.0005
+
+param.n.x[hsr][ts]  = 40
+param.n.x[lsr][ts]	= 50
+param.n.x[ds][ts]	= 30
+param.n.x[tv][ts]	= 20
+param.n.x[glg][ts]	= 15
