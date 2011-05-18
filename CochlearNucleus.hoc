@@ -620,7 +620,11 @@ proc insert_iclamps() { local i,j, ran // 2 args - del dur
 // Randomise initial conditions ----------------------------------------
 
 proc random_init() { local i,j, ran
-  random.normal(-65,-40)
+	if(numarg() == 2){
+		random.normal($1,$2)
+	}else{
+		random.normal(-65,-40)
+	}
   for i = 0,nchannels-1 {
     for j = 0, nTSperchannel-1 {
       ran = random.repick()
@@ -789,19 +793,29 @@ for i = 0,ts2tvAMPAlist.count()-1 {
 }
 }
 
+//Obsolete
+//proc SetRates(){
+//    an.SetRates()
+//    for i=0,nchannels-1 golgi[i][0].SetRate()
+//}
 
-proc SetRates(){
-    an.SetRates()
-    for i=0,nchannels-1 golgi[i][0].SetRate()
-}
 proc SetRates2(){
     an.SetRates()
-    for i=0,nchannels-1 golgi[i][0].SetRate2()
+	SetGolgiRates()
+	
 }
 
 proc SetGolgiRates(){
-   for i=0,nchannels-1 golgi[i][0].SetRate2()
+	if (usesavedfilterbanks==1){
+		if(RetrieveGolgiFilterBank()==1) {
+			return
+		}else{
+			for i=0,nchannels-1 golgi[i][0].SetRate2()
+			SaveGolgiFilterBank2File()	
+		}
+	}
 }
+
 proc GenSpikesB(){local i
     startsw()
 	//Only generate spikes from stimulators that have a connecting synapse
@@ -810,6 +824,7 @@ proc GenSpikesB(){local i
     for i=0,glg2dsGABAlist.count-1 glg2dsGABAlist.object(i).pre.SGfast(1)
 	print "GenSpikes time:", stopsw()
 }
+
 proc GenSpikesA(){local i,j,count
   startsw()
     for i=0,nchannels-1 for j=0,HSRsperchannel-1 an.HSR[i][j].SGfast(1)

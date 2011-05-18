@@ -1688,12 +1688,20 @@ proc GenerateFilterbank(){ local ii,out,icf, mycf, myohc,myihc,ZilanyImplmnt_ori
 	myihc = cihc.x[icf]
 	//	print "Generating AN filter: CF ", mycf, " CIHC ",myihc, " COHC ",myohc
 	
+	if(ANmodel == 4) {
+	  LSRout[icf].an4(stim, stimtdres, cf.x[icf], Lowspont, Heinz_model, species, ifspike)
+	  HSRout[icf].an4(stim, stimtdres, cf.x[icf], Highspont, Heinz_model, species, ifspike)
+	  if (MSRsperchannel>0){
+		  MSRout[icf] = new Vector(stim.size)
+		  MSRout[icf].an4(stim, stimtdres, cf.x[icf], Medspont, Heinz_model, species, ifspike)
+	  }
+    }	
 	if(ANmodel==6){
 	    LSRout[icf].an_zbcatmodel07(stim, stimtdres, mycf, Lowspont, myihc,myohc,species, nrep)
 	    HSRout[icf].an_zbcatmodel07(stim, stimtdres, mycf, Highspont, myihc,myohc,species, nrep)
 	    if (MSRsperchannel>0){
-		MSRout[icf] = new Vector(stim.size)
-		MSRout[icf].an_zbcatmodel07(stim, stimtdres, mycf, Medspont, myihc,myohc,species, nrep)
+			MSRout[icf] = new Vector(stim.size)
+			MSRout[icf].an_zbcatmodel07(stim, stimtdres, mycf, Medspont, myihc,myohc,species, nrep)
 	    }
 	}
 	
