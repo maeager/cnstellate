@@ -57,7 +57,7 @@ proc CT1_data() {local points
    file.close()
    chopperIVgr =  new Graph()   
    ivdata[1].plot(chopperIVgr,ivdata[0])
-	chopperIVgr.exec_menu("View = plot")
+   chopperIVgr.exec_menu("View = plot")
   
 }
 
@@ -160,14 +160,15 @@ stimtdres 	    = 1/srate
 sg_rate         = 50000
 sg_tdres        = 1/sg_rate
 
-ANmodel         = 7
+ANmodel         = 6
 species         = 2 //Rat
 audiogram_file  = "rat_bruce_audiogram.dat"
 reps=25
+usesavedfilterbanks = 1
 
 RefreshParameters()	//Generate or get stim from file
-//ANFilterBankRun()
-//SetRates2()
+ANFilterBankRun()
+SetRates2()
 
 objref iv,meaniv
 proc RunTStellate(){
@@ -179,8 +180,9 @@ proc RunTStellate(){
 	
     for ireps = 0, reps-1 {
         GenSpikes2()
-        run()
-        SaveSpikes()
+		print ireps
+		run()
+        //SaveSpikes()
 		for i=0,tstop/dt-1{
          if (iv.x[i] > thresh) iv.x[i] = thresh
         }
@@ -192,9 +194,7 @@ proc RunTStellate(){
 	tvec.indgen(dt).add(-20)
 	meaniv.plot(chopperIVgr,tvec)
 	chopperIVgr.exec_menu("View = plot")
+	
 }
-
-
-
 
 
