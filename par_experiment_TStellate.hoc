@@ -31,6 +31,8 @@ proc CS_data() {local points
    chopperIVgr =  new Graph()   
    ivdata[1].plot(chopperIVgr,ivdata[0])
    chopperIVgr.exec_menu("View = plot")
+   sprint(fileroot,"TStellate_CS")	// root for output filenames
+  
 }
 
 proc CT1_data() {local points
@@ -58,7 +60,8 @@ proc CT1_data() {local points
    chopperIVgr =  new Graph()   
    ivdata[1].plot(chopperIVgr,ivdata[0])
    chopperIVgr.exec_menu("View = plot")
-  
+  sprint(fileroot,"TStellate_CT1")	// root for output filenames
+
 }
 
 proc CT2_data() {local points
@@ -82,30 +85,30 @@ proc CT2_data() {local points
    file.close()
    chopperIVgr =  new Graph()   
    ivdata[1].plot(chopperIVgr,ivdata[0])
-	chopperIVgr.exec_menu("View = plot")
+   chopperIVgr.exec_menu("View = plot")
+sprint(fileroot,"TStellate_CT2")	// root for output filenames
   
 }
 
 
 proc CalcIVMeasures(){
 	
-onset_depol = ivdata[1].mean(ivdata[0].indwhere(">=",5.0), ivdata[0].indwhere(">=",10.0))
-middle_depol = ivdata[1].mean( ivdata[0].indwhere(">=",20), ivdata[0].indwhere(">=",30))
-
-onset_ratio = onset_depol / middle_depol
-
-v20_depol = ivdata[1].mean( ivdata[0].indwhere(">=",20) - 1, ivdata[0].indwhere(">=",21))
-v50_depol = ivdata[1].mean( ivdata[0].indwhere(">=",50) -1, ivdata[0].indwhere(">=",51))
-adaptation_ratio = v20_depol - v50_depol
-
-resting_value  = ivdata[1].mean(0 , ivdata[0].indwhere(">",0))
-v60_depol = ivdata[1].mean(ivdata[0].indwhere(">=",60) - 1, ivdata[0].indwhere(">=",61)  ) 
-offset_hyperpol = resting_value - v60_depol
-
-print "level of initial depolarization         ", onset_depol
-print "adaptation of sustained depolarization  ", adaptation_ratio
-print "post-tone hyperpolarization             ", offset_hyperpol
-
+	onset_depol = ivdata[1].mean(ivdata[0].indwhere(">=",5.0), ivdata[0].indwhere(">=",10.0))
+	middle_depol = ivdata[1].mean( ivdata[0].indwhere(">=",20), ivdata[0].indwhere(">=",30))
+	
+	onset_ratio = onset_depol / middle_depol
+	
+	v20_depol = ivdata[1].mean( ivdata[0].indwhere(">=",20) - 1, ivdata[0].indwhere(">=",21))
+	v50_depol = ivdata[1].mean( ivdata[0].indwhere(">=",50) -1, ivdata[0].indwhere(">=",51))
+	adaptation_ratio = v20_depol - v50_depol
+	
+	resting_value  = ivdata[1].mean(0 , ivdata[0].indwhere(">",0))
+	v60_depol = ivdata[1].mean(ivdata[0].indwhere(">=",60) - 1, ivdata[0].indwhere(">=",61)  ) 
+	offset_hyperpol = resting_value - v60_depol
+	
+	print "level of initial depolarization         ", onset_depol
+	print "adaptation of sustained depolarization  ", adaptation_ratio
+	print "post-tone hyperpolarization             ", offset_hyperpol
 
 }
 
@@ -159,21 +162,21 @@ srate 	        = 100000      // 500k is no longer needed
 stimtdres 	    = 1/srate
 sg_rate         = 50000
 sg_tdres        = 1/sg_rate
-
+tstop=110
 ANmodel         = 6
 species         = 2 //Rat
 audiogram_file  = "rat_bruce_audiogram.dat"
 reps=25
 usesavedfilterbanks = 1
 
-RefreshParameters()	//Generate or get stim from file
-ANFilterBankRun()
-SetRates2()
+//RefreshParameters()	//Generate or get stim from file
+//ANFilterBankRun()
+//SetRates2()
 
 objref iv,meaniv
 proc RunTStellate(){
 	objref iv,meaniv,tvec
-	ClearSpikes()
+//	ClearSpikes()
 	iv = new Vector()
 	iv.record(&tstellate[whichcell][0].soma.v(0.5))
 	meaniv = new Vector(tstop/dt + 1,0)

@@ -38,7 +38,7 @@ secondorder	= 2		//second order integration
 
   //Optimisation parameters
   print "Optimisation parameters for T Stellate cell"
-  NPARAMS=3
+  NPARAMS=5
   objref pvec,fvec,pvec_ranges,pvec_name,pvec_factor
   pvec = new Vector()//NPARAMS) //contains the parameters to be fitted
   pvec_ranges= new Matrix(NPARAMS,2) // (min,max) pairs for each param
@@ -57,12 +57,12 @@ secondorder	= 2		//second order integration
   pvec_name.append(new String("param.w.x[tv][ts]"))	    pvec.append(0.0010)	    pvec_factor.append(1)
   pvec_name.append(new String("param.w.x[glg][ts]"))	pvec.append(0.00130)	pvec_factor.append(1)
   
-  pvec_name.append(new String("tstellate_gnabar_rm"))	pvec.append(0.23677)	 pvec_factor.append(1)
-  pvec_name.append(new String("tstellate_gkhtbar_rm"))	pvec.append(0.0189416 )	 pvec_factor.append(1)
-  pvec_name.append(new String("tstellate_gleak_rm"))	pvec.append(0.000473539) pvec_factor.append(1)
-  pvec_name.append(new String("tstellate_erev_rm"))	    pvec.append(-55 )        pvec_factor.append(1)
-  pvec_name.append(new String("tstellate_ghbar_rm"))	pvec.append(6.20392e-05) pvec_factor.append(1)
-  pvec_name.append(new String("tstellate_gkabar_ka"))	pvec.append(0.000473539) pvec_factor.append(1)
+//  pvec_name.append(new String("tstellate_gnabar_rm"))	pvec.append(0.23677)	 pvec_factor.append(1)
+//  pvec_name.append(new String("tstellate_gkhtbar_rm"))	pvec.append(0.0189416 )	 pvec_factor.append(1)
+//  pvec_name.append(new String("tstellate_gleak_rm"))	pvec.append(0.000473539) pvec_factor.append(1)
+//  pvec_name.append(new String("tstellate_erev_rm"))	    pvec.append(-55 )        pvec_factor.append(1)
+//  pvec_name.append(new String("tstellate_ghbar_rm"))	pvec.append(6.20392e-05) pvec_factor.append(1)
+//  pvec_name.append(new String("tstellate_gkabar_ka"))	pvec.append(0.000473539) pvec_factor.append(1)
 
   // cmd is a strdef variable that should be used in local routines and not passed across procedures
   strdef cmd
