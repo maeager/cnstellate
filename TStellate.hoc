@@ -39,13 +39,24 @@ param.w.x[ds][ts]	= 0.0007
 param.w.x[tv][ts]	= 0.0005
 param.w.x[glg][ts]	= 0.0005
 
-param.n.x[hsr][ts]  = 40
-param.n.x[lsr][ts]	= 50
-param.n.x[ds][ts]	= 30
+param.delay.x[hsr][ts]  = 0
+param.delay.x[lsr][ts]	= 0
+param.delay.x[hsr][ds]	= 0
+param.delay.x[lsr][ds]	= 0
+param.delay.x[hsr][tv]	= 0.5
+param.delay.x[hsr][tv]	= 0.5
+param.delay.x[lsr][glg]	= 1
+
+
+param.n.x[hsr][ts]  = 20
+param.n.x[lsr][ts]	= 30
+param.n.x[ds][ts]	= 20
 param.n.x[tv][ts]	= 20
 param.n.x[glg][ts]	= 15
 
- create_cells()
+create_cells()
+objref nil
+// for i=0,99 if(i != 17 || i !=38 || i != 51) tstellate[i][0] = nil
  connect_cells(fileroot)
  connect_CNcells(fileroot)
 
@@ -138,18 +149,23 @@ tstellate_ghbar_rm  =6.20392e-05
 tstellate_gkabar_ka = 0.000473539
 
 proc reset_TStellate(){local ii
-	print "updating features for DS_ClickRecovery optimisation routines"
+	print "updating features for T stellate optimisation routines"
 	for ii = 0,nchannels-1 {
-        tstellate[ii][0].soma.gnabar_rm  = tstellate_gnabar_rm
-		tstellate[ii][0].soma.gkhtbar_rm = tstellate_gkhtbar_rm
-		tstellate[ii][0].soma.gleak_rm   = tstellate_gleak_rm
-		tstellate[ii][0].soma.erev_rm    = tstellate_erev_rm
-		tstellate[ii][0].soma.ghbar_rm   = tstellate_ghbar_rm
-		tstellate[ii][0].soma.gkabar_ka  = tstellate_gkabar_ka
-	}
+		if(ii == 17 || ii == 38 || ii == 51){
+			sprint(cmd,"tstellate[%d][0].soma.gnabar_rm  = tstellate_gnabar_rm",ii) execute1(cmd)
+			sprint(cmd,"tstellate[%d][0].soma.gkhtbar_rm = tstellate_gkhtbar_rm",ii) execute1(cmd)
+			sprint(cmd,"tstellate[%d][0].soma.gleak_rm   = tstellate_gleak_rm",ii) execute1(cmd)
+			sprint(cmd,"tstellate[%d][0].soma.erev_rm    = tstellate_erev_rm",ii) execute1(cmd)
+			sprint(cmd,"tstellate[%d][0].soma.ghbar_rm   = tstellate_ghbar_rm",ii) execute1(cmd)
+			sprint(cmd,"tstellate[%d][0].soma.gkabar_ka  = tstellate_gkabar_ka",ii) execute1(cmd)
+		}	
+    }
 }
 
 
+strdef datestr,grlbl
+strdef origfileroot
+origfileroot = fileroot
 
 objref errorvec,tempcf,indcf,refvec,gr
 gr = new Graph()
@@ -184,12 +200,11 @@ func TStellate_err( ) {local jj,pp,xtime
 	
 	reset_weights()
 	reset_TStellate()	
-    tstop = 90 
     RunTStellate() 
 	
     //Analyse spikes
     doNotify()
-    CNSpikes2()
+    //CNSpikes2()
 	
     // plot_fitgr()
     objref errorvec
@@ -235,7 +250,7 @@ proc printprax(){local pp,ii,pp2
     sprint(cmd,"mkdir -p %s",fileroot)
     system(cmd)
    	
-    reps=50
+    reps=25
 	print error=TStellate_err(0,&pvec.x[0])
 	system("date",datestr)
     sprint(fname,"%s/%s.Fit.dat",fileroot,origfileroot)
@@ -256,8 +271,8 @@ proc printprax(){local pp,ii,pp2
 			for pp2=0,NPARAMS-1 file.printf("%g\t",pval[pp].x[pp2])
 			file.printf("\n")
 		}
-		file.printf("# Frequency\tError Vec\t Reference Vec (rate sp/s)\n")
-		for ii=0,tempcf.size()-1 file.printf("%.1f\t%.6f\t%.15f\n",tempcf.x[ii],errorvec.x[ii],refvec.x[ii]) 
+		file.printf("# Time\tError Vec\t Reference Vec (mV)\n")
+		for ii=0,ivdata[0].size()-1 file.printf("%.2f\t%.6f\t%.6f\n",ivdata[0].x[ii],errorvec.x[ii],ivdata[1].x[ii]) 
 	}
 	
 	file.printf("#Other values \n")
@@ -301,7 +316,6 @@ proc TSPanel(){
 	
 	xbutton("Run TS model","RunTStellate()")
 	xbutton("Run Fitting Procedure","runprax()")
-	
 	xpanel()
 }
 
@@ -310,3 +324,24 @@ xopen("cngui.hoc")
 TSPanel()
 nrncontrolmenu()
 
+objref nil
+for i=0,99 if(!(i == 17 || i == 38 || i == 51)) tstellate[i][0] = nil
+
+CT1_data()
+     RefreshParameters()	
+     ANFilterBankRun()	//Generate new AN instant. rates
+	 SetRates2()
+runprax()
+printprax()
+CT2_data()
+     RefreshParameters()	
+     ANFilterBankRun()	//Generate new AN instant. rates
+	 SetRates2()
+runprax()
+printprax()
+CS_data()
+     RefreshParameters()	
+     ANFilterBankRun()	//Generate new AN instant. rates
+	 SetRates2()
+runprax()
+printprax()
