@@ -1,6 +1,6 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
-
+/*
 proc reset_weights() { local i // 1 arg - weight
    for i = 0,hsr2tsAMPAvec.size()-1 {
    netpar_weight(hsr2tsAMPAvec, i, param.w.x[hsr][ts])
@@ -156,3 +156,82 @@ xpanel()
 }
 
 NetParamsPanel()
+
+
+*/
+
+//NetCon list iterator  (from netconlist help documentation)
+iterator ltr() {local i, cnt
+ for i = 0, $o2.count - 1 {
+  $o1 = $o2.object(i)
+  iterator_statement
+ }
+}
+
+objref anfcons,xo
+
+objref dstslist, dstsg
+proc tsconnections(){local count,ii
+for ii = 0, numTS-1 {
+if(ii == 20 || ii == 38 || ii == 51){
+count=0
+for ltr(xo, cvode.netconlist("CNcell", tstellate[ii][0], "")) {
+print xo, xo.weight
+print xo.precell
+print xo.precell.model
+count+=1
+}
+}
+}
+}
+proc tsconnections(){local count,ii
+for ii = 0, numTS-1 {
+if(ii == 20 || ii == 38 || ii == 51){
+count=0
+for ltr(xo, cvode.netconlist("", tstellate[ii][0], "")) {
+if (xo.postcell.model == 0){	
+print xo, xo.weight
+print xo.precell
+//print xo.precell.model
+count+=1
+}
+}
+}
+}
+}
+
+/*
+objref tvtslist, tvtsg
+proc tvtsconnections(){local count,tvtsc localobj temp,tvtssize
+  objref anfcons,tvtslist,tvtsg
+ anfcons = new Vector()
+ tvtssize = new Vector()
+ tvtslist = new List()
+    for tvtsc = 0, cn.TS_num-1 {
+  count=0
+  anfcons.resize(0)
+  for ltr(xo, cvode.netconlist("", cn.tscells[tvtsc], "")) {
+
+   if (object_id(xo.precell)){if (xo.precell.model == 2) {
+   print "cn.tscell ",cn.tscells[tvtsc]," cn.tvcell ",xo.precell
+   anfcons.append(cf2idx(xo.precell.cf))
+   count+=1
+   }}
+  }
+
+  tvtslist.append(anfcons.histogram(0,ANFilterbanks,1))
+  tvtssize.append(count)
+
+
+    }
+ tvtsg = new Graph()
+ for tvtsc = 0, cn.TS_num-1 {
+  tvtslist.object(tvtsc).add(tvtsc*5)
+  tvtslist.object(tvtsc).plot(tvtsg, 1, tvtsc%5+1,1)
+
+ }
+  tvtssize.printf
+ tvtsg.label(0.3,0.9,"TV to TS connections")
+ tvtsg.exec_menu("View = plot")
+}
+*/
