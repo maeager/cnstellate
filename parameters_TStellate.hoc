@@ -21,8 +21,10 @@ seed = 0         		// seed for random number generator see InitRandom()
 
 
 
-strdef fileroot
+strdef fileroot, origfileroot
 sprint(fileroot,"TStellate")	// root for output filenames
+origfileroot = fileroot
+
 inputnumber = 1                 // fixed input file
 tstop	    = 90               // ms, total simulation time
 ttrans	    = 20                // ms,  when calculating statistics, ignore
@@ -51,17 +53,19 @@ secondorder	= 2		//second order integration
   //max
   for i=0,NPARAMS-1 pvec_ranges.x[i][1]= 0.03
   //Names                                               //Initial values	//Param Factor
-  pvec_name.append(new String("param.w.x[lsr][ts]"))	pvec.append(0.00290)	pvec_factor.append(1)
-  pvec_name.append(new String("param.w.x[hsr][ts]"))	pvec.append(0.00190)	pvec_factor.append(1)
-  pvec_name.append(new String("param.w.x[ds][ts]"))	    pvec.append(0.00170)	pvec_factor.append(1) 
-  pvec_name.append(new String("param.w.x[tv][ts]"))	    pvec.append(0.0010)	    pvec_factor.append(1)
-  pvec_name.append(new String("param.w.x[glg][ts]"))	pvec.append(0.00130)	pvec_factor.append(1)
+  pvec_name.append(new String("param.w.x[lsr][ts]"))	pvec.append(0.0008)	pvec_factor.append(1)
+  pvec_name.append(new String("param.w.x[hsr][ts]"))	pvec.append(0.0008)	pvec_factor.append(1)
+//  pvec_name.append(new String("param.w.x[ds][ts]"))	    pvec.append(0.00170)	pvec_factor.append(1) 
+//  pvec_name.append(new String("param.w.x[tv][ts]"))	    pvec.append(0.0010)	    pvec_factor.append(1)
+//  pvec_name.append(new String("param.w.x[glg][ts]"))	pvec.append(0.00130)	pvec_factor.append(1)
   
 //  pvec_name.append(new String("tstellate_gnabar_rm"))	pvec.append(0.23677)	 pvec_factor.append(1)
-//  pvec_name.append(new String("tstellate_gkhtbar_rm"))	pvec.append(0.0189416 )	 pvec_factor.append(1)
-//  pvec_name.append(new String("tstellate_gleak_rm"))	pvec.append(0.000473539) pvec_factor.append(1)
-//  pvec_name.append(new String("tstellate_erev_rm"))	    pvec.append(-55 )        pvec_factor.append(1)
-//  pvec_name.append(new String("tstellate_ghbar_rm"))	pvec.append(6.20392e-05) pvec_factor.append(1)
+  pvec_name.append(new String("tstellate_gkhtbar_rm"))	pvec.append(0.089416 )	 pvec_factor.append(1)
+  pvec_name.append(new String("tstellate_gleak_rm"))	pvec.append(0.000473539) pvec_factor.append(1)
+  pvec_name.append(new String("tstellate_erev_rm"))	    pvec.append(0.0055 )     pvec_factor.append(-10000) 
+  pvec_ranges.x[4][0]=0.0045 
+  pvec_ranges.x[4][1]=0.0070
+//  pvec_name.append(new String("tstellate_ghbar_rm"))	pvec.append(6.20392e-04) pvec_factor.append(10)
 //  pvec_name.append(new String("tstellate_gkabar_ka"))	pvec.append(0.000473539) pvec_factor.append(1)
 
   // cmd is a strdef variable that should be used in local routines and not passed across procedures

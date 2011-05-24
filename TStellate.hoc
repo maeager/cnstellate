@@ -56,7 +56,7 @@ param.n.x[glg][ts]	= 15
 
 create_cells()
 objref nil
-// for i=0,99 if(i != 17 || i !=38 || i != 51) tstellate[i][0] = nil
+// for i=0,99 if(i != 20 || i !=38 || i != 51) tstellate[i][0] = nil
  connect_cells(fileroot)
  connect_CNcells(fileroot)
 
@@ -146,12 +146,12 @@ tstellate_gkhtbar_rm=0.0189416
 tstellate_gleak_rm  =0.000473539 
 tstellate_erev_rm   =-55 
 tstellate_ghbar_rm  =6.20392e-05
-tstellate_gkabar_ka = 0.000473539
+tstellate_gkabar_ka = 0.01539
 
 proc reset_TStellate(){local ii
 	print "updating features for T stellate optimisation routines"
 	for ii = 0,nchannels-1 {
-		if(ii == 17 || ii == 38 || ii == 51){
+		if(ii == 20 || ii == 38 || ii == 51){
 			sprint(cmd,"tstellate[%d][0].soma.gnabar_rm  = tstellate_gnabar_rm",ii) execute1(cmd)
 			sprint(cmd,"tstellate[%d][0].soma.gkhtbar_rm = tstellate_gkhtbar_rm",ii) execute1(cmd)
 			sprint(cmd,"tstellate[%d][0].soma.gleak_rm   = tstellate_gleak_rm",ii) execute1(cmd)
@@ -164,8 +164,6 @@ proc reset_TStellate(){local ii
 
 
 strdef datestr,grlbl
-strdef origfileroot
-origfileroot = fileroot
 
 objref errorvec,tempcf,indcf,refvec,gr
 gr = new Graph()
@@ -249,19 +247,18 @@ proc printprax(){local pp,ii,pp2
 	
     sprint(cmd,"mkdir -p %s",fileroot)
     system(cmd)
-   	
     reps=25
 	print error=TStellate_err(0,&pvec.x[0])
 	system("date",datestr)
     sprint(fname,"%s/%s.Fit.dat",fileroot,origfileroot)
 	file.wopen(fname)
 	if (file.isopen()){
-		file.printf("# %s Optimisation\n",fileroot)
-		file.printf("# %s \n",datestr)
-		for pp=0,NPARAMS-1 {
-			file.printf("#%s = %g\t[%g,%g]\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp],pvec_ranges.x[pp][0],pvec_ranges.x[pp][1])
-		}
-		file.printf("# final error=%f\n",error)
+file.printf("# %s Optimisation\n",fileroot)
+file.printf("# %s \n",datestr)
+for pp=0,NPARAMS-1 {
+file.printf("#%s = %g\t[%g,%g]\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp],pvec_ranges.x[pp][0],pvec_ranges.x[pp][1])
+}
+file.printf("# final error=%f\n",error)
 		
 		file.printf("# Principle axis matrix\n")
 		for pp=0,NPARAMS-1 {
@@ -271,24 +268,24 @@ proc printprax(){local pp,ii,pp2
 			for pp2=0,NPARAMS-1 file.printf("%g\t",pval[pp].x[pp2])
 			file.printf("\n")
 		}
-		file.printf("# Time\tError Vec\t Reference Vec (mV)\n")
-		for ii=0,ivdata[0].size()-1 file.printf("%.2f\t%.6f\t%.6f\n",ivdata[0].x[ii],errorvec.x[ii],ivdata[1].x[ii]) 
+file.printf("# Time\tError Vec\t Reference Vec (mV)\n")
+for ii=0,ivdata[0].size()-1 file.printf("%.2f\t%.6f\t%.6f\n",ivdata[0].x[ii],errorvec.x[ii],ivdata[1].x[ii]) 
 	}
 	
-	file.printf("#Other values \n")
-	file.printf("#  spl = %g\n",spl)
-	file.printf("#  tonefreq = %g\n",tonefreq)
-	param.printparams(file,"#") //let Network Parameters print the struct
-	file.close()
+file.printf("#Other values \n")
+file.printf("#  spl = %g\n",spl)
+file.printf("#  tonefreq = %g\n",tonefreq)
+param.printparams(file,"#") //let Network Parameters print the struct
+file.close()
 	
 	//Write parameters to general optimisation file
-	sprint(fname,"%s/pvec_%s.hoc",fileroot,origfileroot)
-	file.aopen(fname)
-	file.printf(" // %s  \n",datestr)
-	for pp=0,NPARAMS-1 {
-		file.printf("%s = %g*%g\n",pvec_name.object(pp).s,pvec.x[pp],pvec_factor.x[pp])
-    }
-	file.close()
+sprint(fname,"%s/pvec_%s.hoc",fileroot,origfileroot)
+file.aopen(fname)
+file.printf(" // %s  \n",datestr)
+for pp=0,NPARAMS-1 {
+file.printf("%s = %g*%g\n",pvec_name.object(pp).s,pvec.x[pp],pvec_factor.x[pp])
+}
+file.close()
 }
 
 
@@ -325,23 +322,38 @@ TSPanel()
 nrncontrolmenu()
 
 objref nil
-for i=0,99 if(!(i == 17 || i == 38 || i == 51)) tstellate[i][0] = nil
+for i=0,99 if(!(i == 20 || i == 38 || i == 51)) tstellate[i][0] = nil
+
 
 CT1_data()
+RefreshParameters()	
+ANFilterBankRun()	//Generate new AN instant. rates
+SetRates2()
+/*
+runprax()
+printprax()
+print "CT1 Done"
+
+     CT2_data()
      RefreshParameters()	
      ANFilterBankRun()	//Generate new AN instant. rates
 	 SetRates2()
+	 access	 tstellate[whichcell][0].soma
+	 
 runprax()
 printprax()
-CT2_data()
-     RefreshParameters()	
-     ANFilterBankRun()	//Generate new AN instant. rates
-	 SetRates2()
-runprax()
-printprax()
+print "CT2 Done"
+
 CS_data()
      RefreshParameters()	
      ANFilterBankRun()	//Generate new AN instant. rates
 	 SetRates2()
+QuickRun()	 
 runprax()
 printprax()
+print "CS Done"
+
+//RunTStellate()
+*/
+
+xopen("reset_weights.hoc")
