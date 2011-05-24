@@ -34,11 +34,13 @@ public AMPA, GlyR, GABAA       //synapse objects
 public spikes,spiketimes       //storage vectors 
 public connect2target, synlist //synapse connection function and list 
 public cf,model,channel 	 //identifying parameters ...
+public set_tstellate, set_dstellate,set_tuberc,set_golgi, nstomho,qt //member functions
 
 external thresh,Erest
 external ampa_decay,ampa_erev,gly_decay,gly_erev,gly_rise, gaba_decay, gaba_erev,gaba_rise
-  create soma
-  objref AMPA, GlyR, GABAA, spikecount, spiketimes, synlist,spikes
+
+create soma
+objref AMPA, GlyR, GABAA, spikecount, spiketimes, synlist,spikes
 somaarea=1E-4
 cf=1E3
 channel=0
@@ -56,35 +58,35 @@ proc init() { local length,RM, p, q, r, Atotal
     cf = $2
     channel=$3
 //Set cell type currents and variables    
-    if(model == 0) set_tstellate()  //Tstellate cell
+    if(model == 0) set_tstellate()  //T stellate cell
     if(model == 1) set_tuberc()     //Tubervuloventral cell
-    if(model == 2) set_dstellate()  //Dstellate cell
+    if(model == 2) set_dstellate()  //D stellate cell
     if(model == 3) set_golgi()      //Golgi cell
     
     soma {
 	//Add spike recorder
 	spikecount = new APCount(0.5)
-	spikecount.thresh = -30
+	spikecount.thresh = thresh
 	spikecount.record(spiketimes)
 	
 	//Insert synapses
 	AMPA = new ExpSyn(0.5)
 	synlist.append(AMPA)
-	AMPA.tau      = ampa_decay
+	AMPA.tau    = ampa_decay
 	AMPA.e 		= ampa_erev
 	
 	//   if (model==1 || model ==2){
-        GlyR = new Exp2Syn(0.5)
-        synlist.append(GlyR)
-        GlyR.tau2 	= gly_decay
-		GlyR.tau1	= gly_rise
-        GlyR.e 		= gly_erev
-
-        GABAA = new Exp2Syn(0.5)
-	    synlist.append(GABAA)
-        GABAA.tau2 	= gaba_decay
-        GABAA.tau1 	= gaba_rise
-        GABAA.e 	= gaba_erev
+    GlyR = new Exp2Syn(0.5)
+    synlist.append(GlyR)
+    GlyR.tau2 	= gly_decay
+	GlyR.tau1	= gly_rise
+    GlyR.e 		= gly_erev
+	
+    GABAA = new Exp2Syn(0.5)
+	synlist.append(GABAA)
+    GABAA.tau2 	= gaba_decay
+    GABAA.tau1 	= gaba_rise
+    GABAA.e 	= gaba_erev
  //     }
     }
 
@@ -118,18 +120,18 @@ func qt(){
  }
 }
 proc set_tstellate() {
- soma {
-	insert rm
-	insert ka
-	eh_rm=-43
-	Ra = 150          //axial resistance per cm
-	cm = 0.9          //micro farad per cm^2, membrance capacitance
-	eleak_rm = Erest  //mV, Leak reversal potential mV
-	model = 0
-	RM = 96           //MOhms, membrane resistance
-	L	= 19.5   //length of cell body
-	diam 	= L      //diameter of cell body
-	somaarea = PI*(L/1E4)^2   //um to cm2
+	model    = 0
+	soma {
+		insert rm
+		insert ka
+		eh_rm    = -43
+		Ra       = 150            //axial resistance per cm
+		cm       = 0.9            //micro farad per cm^2, membrance capacitance
+		eleak_rm = Erest          //mV, Leak reversal potential mV
+		RM       = 96             //MOhms, expected membrane resistance
+		L	     = 19.5           //length of cell body
+		diam 	 = L              //diameter of cell body
+		somaarea = PI*(L/1E4)^2   //um to cm2
 	
 //Set maximum conductance for each current	
 	gnabar_rm = nstomho(1000)*qt()
@@ -137,22 +139,25 @@ proc set_tstellate() {
 	gkabar_ka =  nstomho(65)*qt()
 	ghbar_rm = nstomho(0.5)*qt(1)
 	gleak_rm = nstomho(2)*qt()
- }
+   }
 }
 proc set_tuberc() {
- soma {
-	insert rm
-	ek_rm = -70
-	ena_rm = 50
-	eh_rm=-43
-	Ra=150 cm=0.9
-	erev_rm 		= 	Erest	// reversal potential mV
 	model = 2
-	//RM = 170  //Expected membrane resistance in MOhms
-	L	= 19
-	diam 	= L
-	somaarea = PI*(L/1E4)^2   //um to cm2
-	gnabar_rm = nstomho(1000)*qt()
+	
+	soma {
+		insert rm
+		ek_rm      = -70
+		ena_rm     = 50
+		eh_rm      = -43
+		Ra         = 150 
+		cm         = 0.9
+		erev_rm    = Erest	// reversal potential mV
+		//RM = 170  //Expected membrane resistance in MOhms
+		L	     = 19
+		diam 	 = L
+		somaarea = PI*(L/1E4)^2   //um to cm2
+		
+		gnabar_rm = nstomho(1000)*qt()
 	gkhtbar_rm = nstomho(150)*qt()
 	ghbar_rm = nstomho(0.5)*qt(1)
 	gleak_rm = nstomho(2)*qt()
@@ -160,6 +165,7 @@ proc set_tuberc() {
 }
 
 proc set_dstellate() {
+	model = 1
  soma {
 	insert rm
 	insert klt
@@ -168,7 +174,6 @@ proc set_dstellate() {
 	eh_rm=-43
 	Ra=150 cm=0.9
 	erev_rm 		= 	Erest	// reversal potential mV
-	model = 1
 	//RM =  //MOhms
 	L	= 21
 	diam 	= L
@@ -182,23 +187,25 @@ proc set_dstellate() {
 }
 
 proc set_golgi() {
- soma {
-	insert rm
-	ek_rm = -70
-	ena_rm = 50
-	eh_rm=-43
-	Ra=150 cm=0.9
-	erev_rm 		= 	Erest	// reversal potential mV
 	model = 3
-	RM = 130  //MOhms
-	L	= 14
-	diam 	= L
-	somaarea = PI*(L/1E4)^2   //um to cm2
-	gnabar_rm = nstomho(1000)*qt()
-	gkhtbar_rm = nstomho(150)*qt()
-	ghbar_rm = nstomho(0.5)*qt(1)
-	gleak_rm = nstomho(2)*qt()
-	 }
+	
+	soma {
+		insert rm
+		ek_rm = -70
+		ena_rm = 50
+		eh_rm=-43
+		Ra=150 
+		cm=0.9
+		erev_rm 		= 	Erest	// reversal potential mV
+		RM = 130  //MOhms
+		L	= 14
+		diam 	= L
+		somaarea = PI*(L/1E4)^2   //um to cm2
+		gnabar_rm = nstomho(1000)*qt()
+		gkhtbar_rm = nstomho(150)*qt()
+		ghbar_rm = nstomho(0.5)*qt(1)
+		gleak_rm = nstomho(2)*qt()
+	}
 }
 
 

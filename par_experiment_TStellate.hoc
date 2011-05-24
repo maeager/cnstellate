@@ -4,117 +4,6 @@
 // CS and CT data were from Long-Evans and Hooded Wistar rats at RVEEH
 // reported in \citep{PaoliniClareyEtAl:2005}
 
-
-objref tempmat, ivdata[2], chopperIVgr
-
-
-proc CS_data() {local points   
-   //chopper sustained 
-   // unit 01-864-004 
-   //CV (10ms segs) always below 0.2 for 45, 65, and 75 dB
-   // rate saturation at 75 dB
-   // depolarisation threshold 10dB
-   spl      = 40   //30 dB above depolarisation threshold
-   tonefreq = 3900 //Hz, characteristic frequency
-   whichcell= FindInd(tonefreq)  //get CF index close to 3.9kHz
-   objref tempmat, ivdata[2]
-   ivdata[0] = new Vector()
-   ivdata[1] = new Vector()
-
-   file.ropen("TStellate/CS-01-864-004.png.dat")
-   
-   tempmat = new Matrix(points, 2)
-   tempmat.scanf(file) 
-   ivdata[0] = tempmat.getcol(0) //time
-   ivdata[1] = tempmat.getcol(1) //voltage (mV)
-   file.close()
-   chopperIVgr =  new Graph()   
-   ivdata[1].plot(chopperIVgr,ivdata[0])
-   chopperIVgr.exec_menu("View = plot")
-   sprint(fileroot,"TStellate_CS")	// root for output filenames
-  
-}
-
-proc CT1_data() {local points
-    
-   // chopper transient 1
-   // unit 01-857-007 \citep{PaoliniClareyEtAl:2005}
-   // CV first 10ms <0.2, then moves above 0.2
-   // this unit's depolarisation threshold  55 dB
-   // average CT threshold for depolarization
-   // and AP generation of 47.2 ± 2.5 and 57.4 ± 2.2 dB SPL
-
-   
-   spl      = 85   //30 dB above depolarisation threshold
-   tonefreq = 8200 //Hz, characteristic frequency
-   whichcell = FindInd(tonefreq)  //get CF index close to 8.2kHz
-   file.ropen("TStellate/CT1-01-857-007.png.dat") 
-   objref tempmat, ivdata[2]
-   ivdata[0] = new Vector()
-   ivdata[1] = new Vector()
-   tempmat = new Matrix(points, 2)
-   tempmat.scanf(file) 
-   ivdata[0] = tempmat.getcol(0) //time
-   ivdata[1] = tempmat.getcol(1) //voltage (mV)
-   file.close()
-   chopperIVgr =  new Graph()   
-   ivdata[1].plot(chopperIVgr,ivdata[0])
-   chopperIVgr.exec_menu("View = plot")
-  sprint(fileroot,"TStellate_CT1")	// root for output filenames
-
-}
-
-proc CT2_data() {local points
-    
-   //chopper transient type 2 
-   // unit 01-305-014 \citep{PaoliniClareyEtAl:2005}
-   //CV (10ms segs) first 10m below 0.2, then rises above 0.3 
-   // rate saturation at 5 dB
-   spl      = 35   //30 dB above depolarisation threshold
-   tonefreq = 12400 //Hz
-   whichcell = FindInd(tonefreq)  //get CF index close to 12.4kHz   
-   file.ropen("TStellate/CT2-01-305-014.png.dat")
-   
-   objref tempmat, ivdata[2]
-   ivdata[0] = new Vector()
-   ivdata[1] = new Vector()
-   tempmat = new Matrix() //points, 2)
-   tempmat.scanf(file) 
-   ivdata[0] = tempmat.getcol(0) //time
-   ivdata[1] = tempmat.getcol(1) //voltage (mV)
-   file.close()
-   chopperIVgr =  new Graph()   
-   ivdata[1].plot(chopperIVgr,ivdata[0])
-   chopperIVgr.exec_menu("View = plot")
-sprint(fileroot,"TStellate_CT2")	// root for output filenames
-  
-}
-
-
-proc CalcIVMeasures(){
-	
-	onset_depol = ivdata[1].mean(ivdata[0].indwhere(">=",5.0), ivdata[0].indwhere(">=",10.0))
-	middle_depol = ivdata[1].mean( ivdata[0].indwhere(">=",20), ivdata[0].indwhere(">=",30))
-	
-	onset_ratio = onset_depol / middle_depol
-	
-	v20_depol = ivdata[1].mean( ivdata[0].indwhere(">=",20) - 1, ivdata[0].indwhere(">=",21))
-	v50_depol = ivdata[1].mean( ivdata[0].indwhere(">=",50) -1, ivdata[0].indwhere(">=",51))
-	adaptation_ratio = v20_depol - v50_depol
-	
-	resting_value  = ivdata[1].mean(0 , ivdata[0].indwhere(">",0))
-	v60_depol = ivdata[1].mean(ivdata[0].indwhere(">=",60) - 1, ivdata[0].indwhere(">=",61)  ) 
-	offset_hyperpol = resting_value - v60_depol
-	
-	print "level of initial depolarization         ", onset_depol
-	print "adaptation of sustained depolarization  ", adaptation_ratio
-	print "post-tone hyperpolarization             ", offset_hyperpol
-
-}
-
-
-
-
 // -- Paolini, Clarey et al 2005 --
 //     The following variables were measured from the average
 //  intracellular profile (25 stimulus repetitions) at 30 dB (± 5 dB) above
@@ -149,9 +38,6 @@ proc CalcIVMeasures(){
 //  which was positioned at the end of a hollow ear bar and controlled   
 //  using a Tucker-Davis signal generator (Tucker-Davis Technologies,    
 
-
-CT1_data()
-
 delay           = 0.02
 dur             = 0.045
 ramplngth       = 0.005
@@ -168,6 +54,133 @@ species         = 2 //Rat
 audiogram_file  = "rat_bruce_audiogram.dat"
 reps=25
 usesavedfilterbanks = 1
+
+
+RefreshCF()
+GetAudiogramData()
+
+objref tempmat, ivdata[2], chopperIVgr
+
+proc CalcIVMeasures(){
+	
+	onset_depol = $o1.mean(ivdata[0].indwhere(">=",5.0), ivdata[0].indwhere(">=",10.0))
+	middle_depol = $o1.mean( ivdata[0].indwhere(">=",20), ivdata[0].indwhere(">=",30))
+	
+	onset_ratio = onset_depol / middle_depol
+	
+	v20_depol = $o1.mean( ivdata[0].indwhere(">=",20) - 1, ivdata[0].indwhere(">=",21))
+	v50_depol = $o1.mean( ivdata[0].indwhere(">=",50) -1, ivdata[0].indwhere(">=",51))
+	adaptation_ratio = v20_depol - v50_depol
+	
+	resting_value  = $o1.mean(0 , ivdata[0].indwhere(">",0))
+	v60_depol = $o1.mean(ivdata[0].indwhere(">=",60) - 1, ivdata[0].indwhere(">=",61))
+	offset_hyperpol = resting_value - v60_depol
+	
+	print "resting membrane potential              ", resting_value
+	print "level of initial depolarization         ", onset_depol
+	print "adaptation of sustained depolarization  ", adaptation_ratio
+	print "post-tone hyperpolarization             ", offset_hyperpol
+
+}
+
+
+proc CS_data() {local points   
+   //chopper sustained 
+   // unit 01-864-004 
+   //CV (10ms segs) always below 0.2 for 45, 65, and 75 dB
+   // rate saturation at 75 dB
+   // depolarisation threshold 10dB
+   spl      = 40   //30 dB above depolarisation threshold
+   tonefreq = 3900 //Hz, characteristic frequency
+   whichcell = FindInd(tonefreq)  //get CF index close to 3.9kHz
+   print "CS data CF ", tonefreq, "(Hz), location ", whichcell
+   
+   objref tempmat, ivdata[2]
+   ivdata[0] = new Vector()
+   ivdata[1] = new Vector()
+
+   file.ropen("TStellate/CS-01-864-004.png.dat")
+   
+   tempmat = new Matrix(points, 2)
+   tempmat.scanf(file) 
+   ivdata[0] = tempmat.getcol(0) //time
+   ivdata[1] = tempmat.getcol(1) //voltage (mV)
+   file.close()
+   chopperIVgr =  new Graph()   
+   ivdata[1].plot(chopperIVgr,ivdata[0])
+   chopperIVgr.exec_menu("View = plot")
+   sprint(fileroot,"TStellate_CS")	// root for output filenames
+  CalcIVMeasures(ivdata[1])
+  
+}
+
+proc CT1_data() {local points
+    
+   // chopper transient 1
+   // unit 01-857-007 \citep{PaoliniClareyEtAl:2005}
+   // CV first 10ms <0.2, then moves above 0.2
+   // this unit's depolarisation threshold  55 dB
+   // average CT threshold for depolarization
+   // and AP generation of 47.2 ± 2.5 and 57.4 ± 2.2 dB SPL
+
+   
+   spl      = 85   //30 dB above depolarisation threshold
+   tonefreq = 8200 //Hz, characteristic frequency
+   whichcell = FindInd(tonefreq)  //get CF index close to 8.2kHz
+   print "CT1 data CF ", tonefreq, "(Hz), location ", whichcell
+   file.ropen("TStellate/CT1-01-857-007.png.dat") 
+   objref tempmat, ivdata[2]
+   ivdata[0] = new Vector()
+   ivdata[1] = new Vector()
+   tempmat = new Matrix(points, 2)
+   tempmat.scanf(file) 
+   ivdata[0] = tempmat.getcol(0) //time
+   ivdata[1] = tempmat.getcol(1) //voltage (mV)
+   file.close()
+   chopperIVgr =  new Graph()   
+   ivdata[1].plot(chopperIVgr,ivdata[0])
+   chopperIVgr.exec_menu("View = plot")
+  sprint(fileroot,"TStellate_CT1")	// root for output filenames
+  CalcIVMeasures(ivdata[1])
+
+}
+
+proc CT2_data() {local points
+    
+   //chopper transient type 2 
+   // unit 01-305-014 \citep{PaoliniClareyEtAl:2005}
+   //CV (10ms segs) first 10m below 0.2, then rises above 0.3 
+   // rate saturation at 5 dB
+   spl      = 35   //30 dB above depolarisation threshold
+   tonefreq = 12400 //Hz
+   whichcell = FindInd(tonefreq)  //get CF index close to 12.4kHz   
+   file.ropen("TStellate/CT2-01-305-014.png.dat")
+   print "CT2 data CF ", tonefreq, "(Hz), location ", whichcell
+   
+   objref tempmat, ivdata[2]
+   ivdata[0] = new Vector()
+   ivdata[1] = new Vector()
+   tempmat = new Matrix() //points, 2)
+   tempmat.scanf(file) 
+   ivdata[0] = tempmat.getcol(0) //time
+   ivdata[1] = tempmat.getcol(1) //voltage (mV)
+   file.close()
+   chopperIVgr =  new Graph()   
+   ivdata[1].plot(chopperIVgr,ivdata[0])
+   chopperIVgr.exec_menu("View = plot")
+sprint(fileroot,"TStellate_CT2")	// root for output filenames
+  CalcIVMeasures(ivdata[1])
+}
+
+
+
+
+
+
+
+
+CT1_data()
+
 
 //RefreshParameters()	//Generate or get stim from file
 //ANFilterBankRun()
@@ -197,6 +210,8 @@ proc RunTStellate(){
 	tvec.indgen(dt).add(-20)
 	meaniv.plot(chopperIVgr,tvec)
 	chopperIVgr.exec_menu("View = plot")
+  CalcIVMeasures(ivdata[1])
+  CalcIVMeasures(meaniv)
 	
 }
 
