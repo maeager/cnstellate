@@ -1,3 +1,4 @@
+/*
 begintemplate SpikePlot1
 public cells, vecs, g, update,spklist
 public map, save_data, b, unmap,SaveSpks,FlushSpks
@@ -60,11 +61,11 @@ proc build() {
 proc pmode() {
     mode = $1
     if (mode == 1) {
-	modestr = "Spikes   "
+    modestr = "Spikes   "
     }else if (mode == 2) {
-	modestr = "Frequency"
+    modestr = "Frequency"
     }else if (mode == 3) {
-	modestr = "Histogram"
+    modestr = "Histogram"
     }
     flush()
 }
@@ -75,13 +76,13 @@ proc update() {local i
     if (n == 0) return
     objref vecs[n],spklist[n]
     for i=0, n-1 {
-	vecs[i] = new Vector(0)
-	spklist[i] = new List()
-	tobj = cells.object(i)
-	tobj.connect2target(nil, nc)
-	sprint(tstr, "%s", tobj)
-	vecs[i].label(tstr)
-	nc.record(vecs[i])
+    vecs[i] = new Vector(0)
+    spklist[i] = new List()
+    tobj = cells.object(i)
+    tobj.connect2target(nil, nc)
+    sprint(tstr, "%s", tobj)
+    vecs[i].label(tstr)
+    nc.record(vecs[i])
     }
     objref nc, tobj
 }
@@ -91,7 +92,7 @@ proc begin() {
 
 func view_count() {
     if (g == nil) {
-	return 0
+    return 0
     }
     return g.view_count()
 }
@@ -101,10 +102,10 @@ proc plot() {
 }
 func size() {
     if (numarg() == 4) {
-	g.size($1,$2,0,cells.count+1)
-	return 1.
+    g.size($1,$2,0,cells.count+1)
+    return 1.
     }else{
-	return g.size($1)
+    return g.size($1)
     }
 }
 proc fastflush() {}
@@ -115,26 +116,26 @@ proc flush() {local i
     g.vfixed(1)
     g.label(.9,1)
     if (mode == 1) {
-	for (i=n-1; i >= 0; i -= 1) {
-	    y.resize(vecs[i].size).fill(i+1)
-	    y.label(vecs[i].label)
-	    y.mark(g, vecs[i], "o", 1, 1, 1)
-	    if (addline==1) y.line(g, vecs[i], 1, 0)
-	}
+    for (i=n-1; i >= 0; i -= 1) {
+        y.resize(vecs[i].size).fill(i+1)
+        y.label(vecs[i].label)
+        y.mark(g, vecs[i], "o", 1, 1, 1)
+        if (addline==1) y.line(g, vecs[i], 1, 0)
+    }
     }else if (mode == 2) {
-	for (i=n-1; i >= 0; i -= 1) {
-	    y = vecs[i].sumgauss(0, tstop, tstop/100, fwindow)
-	    y.label(vecs[i].label)
-	    y.mul(1000).line(g, y.c.indgen(0, tstop/100), 1,1)
-	}
+    for (i=n-1; i >= 0; i -= 1) {
+        y = vecs[i].sumgauss(0, tstop, tstop/100, fwindow)
+        y.label(vecs[i].label)
+        y.mul(1000).line(g, y.c.indgen(0, tstop/100), 1,1)
+    }
     }else if (mode == 3) {
-	for (i=n-1; i >= 0; i -= 1) if (vecs[i].size > 1){
-	    y = vecs[i].c.deriv(1,1)
-	    high = y.max
-	    y = y.sumgauss(0, high, high/50, binwidth)
-	    y.label(vecs[i].label)
-	    y.line(g, y.c.indgen(0, high/50), 1,1)
-	}
+    for (i=n-1; i >= 0; i -= 1) if (vecs[i].size > 1){
+        y = vecs[i].c.deriv(1,1)
+        high = y.max
+        y = y.sumgauss(0, high, high/50, binwidth)
+        y.label(vecs[i].label)
+        y.line(g, y.c.indgen(0, high/50), 1,1)
+    }
     }
     g.flush()
 }
@@ -142,12 +143,12 @@ proc flush() {local i
 
 proc SaveSpks(){local i
     for i=0, cells.count-1 {
-	spklist[i].append(vecs[i].c)
+    spklist[i].append(vecs[i].c)
     }
 }
 proc FlushSpks(){local i
     for i=0, cells.count-1 {
-	spklist[i].remove_all()
+    spklist[i].remove_all()
     }
 }
 
@@ -170,6 +171,7 @@ proc makeSpikePlot(){local i
     sp = new SpikePlot1(cells)
 }
 
+*/
 
 strdef pstlbl
 objref pstg, pstv[3], fsl,  fs, psth, fslg
@@ -187,24 +189,24 @@ proc PlotLine(){local i,j, lineon, markon//vector,graph, label,  color, binsize
     lineon = 0
     markon = 1
     for i = 0, $o1.size()-1{
-	if ($o1.x[i] > 0 ){
+    if ($o1.x[i] > 0 ){
             if (lineon==0) {
-		lineon = 1
-		$o2.beginline("", $4, 0)
-		$o2.line(i*$5,$o1.x[i])
+        lineon = 1
+        $o2.beginline("", $4, 0)
+        $o2.line(i*$5,$o1.x[i])
             }else {
-		$o2.line(i*$5,$o1.x[i])
+        $o2.line(i*$5,$o1.x[i])
             }
-	}else {
+    }else {
             if (lineon==1){
-		$o2.line(i*$5,$o1.x[i-1])
-		$o2.flush()
-		lineon = 0
+        $o2.line(i*$5,$o1.x[i-1])
+        $o2.flush()
+        lineon = 0
             }
-	}
+    }
     }
 }
-
+/*
 //Intermediate Statistical function MeanRate() used by RL and MRA
 objref Mspikes[1]
 proc MeanRate(){local i, j localobj indices
@@ -212,7 +214,7 @@ proc MeanRate(){local i, j localobj indices
     for i=0,sp.cells.count-1 { Mspikes[i] = new Vector() }
     indices = new Vector()
     for i=0,sp.cells.count-1{
-	for j=0, sp.spklist[i].count()-1{
+    for j=0, sp.spklist[i].count()-1{
             indices= new Vector()
             //Trigger spikes to start of stimulus
             indices.indvwhere(sp.spklist[i].object(j),">=",stimdelay*1000)
@@ -223,7 +225,7 @@ proc MeanRate(){local i, j localobj indices
 	
     }
 }
-
+*/
 
 
 
@@ -236,6 +238,7 @@ proc PSTHcell() {local i, j, sp1, sp2, index, intv,first, cvmean, count
     for i = 0, 2 { pstv[i] = new Vector()}
     count = 0
     
+    //Create PSTH: Remove spikes before stimulus and adjust times relative to onset
     for i=0, $o1.count()-1{
 	if ($o1.object(i).size() ==0) { continue }
 	for j= 0 , $o1.object(i).size()-1 {
@@ -248,13 +251,13 @@ proc PSTHcell() {local i, j, sp1, sp2, index, intv,first, cvmean, count
     }
     print $o1, " total spikes", count
     if(pstv[0].size < 1) {
-	print "new vecs"
+	print "Empty PSTH created"
 	pstv[1] = new Vector(int((dur+ramplngth)/$2*1000 +1),0)
-	psth = new Vector(int((dur+ramplngth)/$2*1000 +1),0)
-	
-    }else {   pstv[1] = pstv[0].histogram(0, (dur + ramplngth)*1000, $2)
-	psth = pstv[1].c.div(reps*$2/1000)
-	
+	psth = new Vector(int((dur+ramplngth)/$2*1000 +1),0)   
+    }else {   
+	print "PSTH created, binwidth " $2, " normalised by ", reps*$2/1000 
+	pstv[1] = pstv[0].histogram(0, (dur + ramplngth)*1000, $2)
+	psth = pstv[1].c.div(reps*$2/1000)    
     }
     
     j = pstv[1].size()
@@ -275,8 +278,6 @@ proc PSTHcell() {local i, j, sp1, sp2, index, intv,first, cvmean, count
             sp1 = $o1.object(i).x[j]-stimdelay*1000
             if (sp1 <= 0) {
 		if ($o1.object(i).size() <=1) { break }else{continue }
-		
-		
             }else{   index = int(sp1/$2)
 		if (index >= pstv[1].size()-2) {break }
 		if (first == 0) {
@@ -303,7 +304,6 @@ proc PSTHcell() {local i, j, sp1, sp2, index, intv,first, cvmean, count
 		cvISI.x[i] = sISI.x[i]/uISI.x[i]
 		cvmean += cvISI.x[i]
 		cv1+=1
-		
             }
 	}
 	
@@ -319,78 +319,77 @@ proc PSTHcell() {local i, j, sp1, sp2, index, intv,first, cvmean, count
     if (fs.size() >1){
 	fsl = fs.histogram(0,(dur+ramplngth)*1000, $2)
 	fslmean = fs.mean()
-	if (fsl.size > 2) {fslstd = fs.stdev()}
-	}else{ fsl = new Vector()}
-	
-	if (($3 == 1) &&  (pstv[0].size >= 1)) {
-	    
-	    system("date +%F-%H%M%S", seedstr)
-            strobj.left(seedstr, 17)
-	    
-	    if (ISI.size > 1){
-		ISIHg = new Graph(0)
-		ISIHg.view(0, 0, 1.1*(dur+ramplngth)*1000, int(ISIH.max()), 260, 52, 320.4, 210.7)
-		ISIH.plot(ISIHg,$2)
-		ISIHg.label(0.2,0.95, "Inter-Spike Interval Histogram")
-		ISIHg.label(0.2, 0.92, "Firing Rate (sp/s)")
-		if (ISI.size() > 1 ) {start =  ISI.mean() }else { start = 0}
-		if (ISI.size() > 2) { end = ISI.stdev() }else {end = 0 }
-		sprint(pstlbl, "Mean %g, Std Dev %g",start,end )
-		ISIHg.label(0.3, 0.5, pstlbl)
-		sprint(pstlbl, "%s_isih%s.eps",seedstr, $o1)
-		ISIHg.printfile(pstlbl)
-	    }
-	    
-	    if (fs.size() >1){
-		fslg = new Graph(0)
-		fslg.view(0, 0, 1.1*(dur+ramplngth)*1000, int(fsl.max), 259, 393, 321.3, 206.2)
-		sprint(pstlbl,"First Spike Latency.  %d(Hz) CF,  ",$o1.cf)
-		fslg.label(0.2, 0.9, pstlbl)
-		fsl.plot(fslg,$2)
-		sprint(pstlbl, "Mean %g, Std Dev %g",  fslmean,fslstd)
-		fslg.label(0.3, 0.25, pstlbl)
-		sprint(pstlbl, "%s_fsl%s.eps",seedstr, $o1)
-		fslg.printfile(pstlbl)
-	    }
-	    
-	    ISIg = new Graph(0)
-	    ISIg.view(0, 0,1.1*(dur+ramplngth)*1000, int(uISI.max()), 703, 54, 318.6, 211.6)
-	    
-	    ISIg.label(0.1,0.9, "Mean and Standard Deviation of ISI")
-	    pstlbl="Mean ISI"
-	    PlotLine(uISI,ISIg, pstlbl, 1, $2)
-	    PlotLine(sISI, ISIg, "SD ISI", 2, $2)
-	    
-	    
-	    CVgr = new Graph(0)
-	    CVgr.view(0, 0, 1.1*(dur+ramplngth)*1000, 1, 704, 397, 319.5, 203.5)
-	    CVgr.label(0.2,0.95, "Coefficient of Variation")
-	    PlotLine(cvISI, CVgr, "CV ISI", 3, $2)
-	    sprint(pstlbl, "Mean CV %f", cvmean)
-	    CVgr.label(0.2, 0.9, pstlbl)
-	    
-	    
-	    pstg = new Graph(0)
-	    pstg.view(0, 0, 1.1*(dur+ramplngth)*1000, psth.max(), 496, 206, 319.5, 224.2)
-	    psth.plot(pstg, $2)
-	    
-	    sprint(pstlbl, "PSTH %s, CF %5.0f, trials %d, total spikes %d", $o1, $o1.cf, $o1.count(), pstv[0].size)
-	    pstg.label(0.1, 0.95, pstlbl)
-	    pstg.label(0.1,0.92,grlbl)
-	    
-	    
-	    
-	    
+	if (fsl.size > 2) {
+	    fslstd = fs.stdev()
+	}
+    } else{ fsl = new Vector()}
+    
+    if (($3 >= 1) &&  (pstv[0].size >= 1)) {
+        
+        system("date +%F-%H%M%S", seedstr)
+        strobj.left(seedstr, 17)
+        
+        if (ISI.size > 1){
+            ISIHg = new Graph(0)
+            ISIHg.view(0, 0, 1.1*(dur+ramplngth)*1000, int(ISIH.max()), 260, 52, 320.4, 210.7)
+            ISIH.plot(ISIHg,$2)
+            ISIHg.label(0.2,0.95, "Inter-Spike Interval Histogram")
+            ISIHg.label(0.2, 0.92, "Firing Rate (sp/s)")
+            if (ISI.size() > 1 ) {start =  ISI.mean() }else { start = 0}
+            if (ISI.size() > 2) { end = ISI.stdev() }else {end = 0 }
+            sprint(pstlbl, "Mean %g, Std Dev %g",start,end )
+            ISIHg.label(0.3, 0.5, pstlbl)
+        } 
+        
+        if (fs.size() >1){
+            fslg = new Graph(0)
+            fslg.view(0, 0, 1.1*(dur+ramplngth)*1000, int(fsl.max), 259, 393, 321.3, 206.2)
+	    //        sprint(pstlbl,"First Spike Latency.  %d(Hz) CF,  ",$o1.cf)
+	    //        fslg.label(0.2, 0.9, pstlbl)
+            fsl.plot(fslg,$2)
+            sprint(pstlbl, "Mean %g, Std Dev %g",  fslmean,fslstd)
+            fslg.label(0.3, 0.25, pstlbl)
+        }
+        
+        ISIg = new Graph(0)
+        ISIg.view(0, 0,1.1*(dur+ramplngth)*1000, int(uISI.max()), 703, 54, 318.6, 211.6)
+        
+        ISIg.label(0.1,0.9, "Mean and Standard Deviation of ISI")
+        pstlbl="Mean ISI"
+        PlotLine(uISI,ISIg, pstlbl, 1, $2)
+        PlotLine(sISI, ISIg, "SD ISI", 2, $2)
+        
+	CVgr = new Graph(0)
+        CVgr.view(0, 0, 1.1*(dur+ramplngth)*1000, 1, 704, 397, 319.5, 203.5)
+        CVgr.label(0.2,0.95, "Coefficient of Variation")
+        PlotLine(cvISI, CVgr, "CV ISI", 3, $2)
+        sprint(pstlbl, "Mean CV %f", cvmean)
+        CVgr.label(0.2, 0.9, pstlbl)
+        
+        
+        pstg = new Graph(0)
+        pstg.view(0, 0, 1.1*(dur+ramplngth)*1000, psth.max(), 496, 206, 319.5, 224.2)
+        psth.plot(pstg, $2)
+        
+        sprint(pstlbl, "PSTH %s, trials %d, total spikes %d", $o1,  $o1.count(), pstv[0].size)
+        pstg.label(0.1, 0.95, pstlbl)
+        pstg.label(0.1,0.92,grlbl)
+        
+        if ($3 == 2){
+            sprint(pstlbl, "%s_fsl%s.eps",seedstr, $o1)
+            fslg.printfile(pstlbl)
+	    sprint(pstlbl, "%s_isih%s.eps",seedstr, $o1)
+	    ISIHg.printfile(pstlbl)
             sprint(pstlbl, "%s_psth%s.eps",seedstr, $o1)
             pstg.printfile(pstlbl)
-	    sprint(pstlbl, "%s_isi%s.eps",seedstr, $o1)
-	    ISIg.printfile(pstlbl)
-	    sprint(pstlbl, "%s_cv%s.eps",seedstr, $o1)
-	    CVgr.printfile(pstlbl)
-	    
-	}
-	
-	
-	
-	
+            sprint(pstlbl, "%s_isi%s.eps",seedstr, $o1)
+            ISIg.printfile(pstlbl)
+            sprint(pstlbl, "%s_cv%s.eps",seedstr, $o1)
+            CVgr.printfile(pstlbl)
+	}        
+	if ($3 == 3){
+	    .printf("%8.4f\n")
+	    }
     }
+    
+}

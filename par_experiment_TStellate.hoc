@@ -44,9 +44,9 @@ ramplngth       = 0.005
 dutycycle       = 0.8        // get an extra 40msec post-tone
 cfhi            = 40000
 cflo            = 400
-srate 	        = 100000      // 500k is no longer needed
-stimtdres 	    = 1/srate
-sg_rate         = 50000
+srate             = 100000      // 500k is no longer needed
+stimtdres         = 1/srate
+sg_rate         = 20000
 sg_tdres        = 1/sg_rate
 tstop=110
 ANmodel         = 6
@@ -59,27 +59,50 @@ usesavedfilterbanks = 1
 RefreshCF()
 GetAudiogramData()
 
-objref tempmat, ivdata[2], chopperIVgr
+objref tempmat, ivdata[2], chopperIVgr,chopperCVgr
+objref CV_sustained, CV_transient1, CV_transient2, CV_data
+proc ChopperCVData(){local nrow,ncol
+nrow = 5
+ncol = 3
+objref CV_sustained, CV_transient1, CV_transient2
+CV_transient2 = new Matrix()
+CV_transient1 = new Matrix()
+CV_sustained  = new Matrix()
+	
+file = new File()
+file.ropen("TStellate/PaoliniBalancedInh-Fig2.png.dat")
+if(file.isopen()){
+CV_transient2.scanf(file,nrow, ncol)
+CV_transient1.scanf(file,nrow, ncol)
+CV_sustained.scanf(file,nrow, ncol)
+file.close()	
+} else {
+print "Error reading CV data"
+}
+}
+
+
+
 
 proc CalcIVMeasures(){
-	
-	onset_depol = $o1.mean(ivdata[0].indwhere(">=",5.0), ivdata[0].indwhere(">=",10.0))
-	middle_depol = $o1.mean( ivdata[0].indwhere(">=",20), ivdata[0].indwhere(">=",30))
-	
-	onset_ratio = onset_depol / middle_depol
-	
-	v20_depol = $o1.mean( ivdata[0].indwhere(">=",20) - 1, ivdata[0].indwhere(">=",21))
-	v50_depol = $o1.mean( ivdata[0].indwhere(">=",50) -1, ivdata[0].indwhere(">=",51))
-	adaptation_ratio = v20_depol - v50_depol
-	
-	resting_value  = $o1.mean(0 , ivdata[0].indwhere(">",0))
-	v60_depol = $o1.mean(ivdata[0].indwhere(">=",60) - 1, ivdata[0].indwhere(">=",61))
-	offset_hyperpol = resting_value - v60_depol
-	
-	print "resting membrane potential              ", resting_value
-	print "level of initial depolarization         ", onset_depol
-	print "adaptation of sustained depolarization  ", adaptation_ratio
-	print "post-tone hyperpolarization             ", offset_hyperpol
+    
+    onset_depol = $o1.mean(ivdata[0].indwhere(">=",5.0), ivdata[0].indwhere(">=",10.0))
+    middle_depol = $o1.mean( ivdata[0].indwhere(">=",20), ivdata[0].indwhere(">=",30))
+    
+    onset_ratio = onset_depol / middle_depol
+    
+    v20_depol = $o1.mean( ivdata[0].indwhere(">=",20) - 1, ivdata[0].indwhere(">=",21))
+    v50_depol = $o1.mean( ivdata[0].indwhere(">=",50) -1, ivdata[0].indwhere(">=",51))
+    adaptation_ratio = v20_depol - v50_depol
+    
+    resting_value  = $o1.mean(0 , ivdata[0].indwhere(">",0))
+    v60_depol = $o1.mean(ivdata[0].indwhere(">=",60) - 1, ivdata[0].indwhere(">=",61))
+    offset_hyperpol = resting_value - v60_depol
+    
+    print "resting membrane potential              ", resting_value
+    print "level of initial depolarization         ", onset_depol
+    print "adaptation of sustained depolarization  ", adaptation_ratio
+    print "post-tone hyperpolarization             ", offset_hyperpol
 
 }
 
@@ -109,9 +132,10 @@ proc CS_data() {local points
    chopperIVgr =  new Graph()   
    ivdata[1].plot(chopperIVgr,ivdata[0])
    chopperIVgr.exec_menu("View = plot")
-   sprint(fileroot,"TStellate_CS")	// root for output filenames
+   sprint(fileroot,"TStellate_CS")    // root for output filenames
   CalcIVMeasures(ivdata[1])
-  
+  ChopperCVData()
+  CV_data = CV_sustained.getcol(1).c
 }
 
 proc CT1_data() {local points
@@ -140,8 +164,10 @@ proc CT1_data() {local points
    chopperIVgr =  new Graph()   
    ivdata[1].plot(chopperIVgr,ivdata[0])
    chopperIVgr.exec_menu("View = plot")
-  sprint(fileroot,"TStellate_CT1")	// root for output filenames
+  sprint(fileroot,"TStellate_CT1")    // root for output filenames
   CalcIVMeasures(ivdata[1])
+  ChopperCVData()
+  CV_data = CV_transient1.getcol(1).c
 
 }
 
@@ -168,9 +194,13 @@ proc CT2_data() {local points
    chopperIVgr =  new Graph()   
    ivdata[1].plot(chopperIVgr,ivdata[0])
    chopperIVgr.exec_menu("View = plot")
-sprint(fileroot,"TStellate_CT2")	// root for output filenames
+   sprint(fileroot,"TStellate_CT2")    // root for output filenames
   CalcIVMeasures(ivdata[1])
+  ChopperCVData()
+  CV_data = CV_transient2.getcol(1).c
+ 
 }
+
 
 
 
@@ -182,37 +212,89 @@ sprint(fileroot,"TStellate_CT2")	// root for output filenames
 CT1_data()
 
 
-//RefreshParameters()	//Generate or get stim from file
+//RefreshParameters()    //Generate or get stim from file
 //ANFilterBankRun()
 //SetRates2()
-
-objref iv,meaniv
+binwidth=0.5
+objref iv,meaniv,psthgr
+psthgr = new Graph()
 proc RunTStellate(){
-	objref iv,meaniv,tvec
-//	ClearSpikes()
-	iv = new Vector()
-	iv.record(&tstellate[whichcell][0].soma.v(0.5))
-	meaniv = new Vector(tstop/dt + 1,0)
-	
+    objref iv,meaniv,tvec
+//    ClearSpikes()
+    iv = new Vector()
+    iv.record(&tstellate[whichcell][0].soma.v(0.5))
+    meaniv = new Vector(tstop/dt + 1,0)
+    //tstellate[whichcell][0].spikes.resize(0)
+	tstellate[whichcell][0].spikes = new List()
     for ireps = 0, reps-1 {
         GenSpikes2()
-		print ireps
-		run()
+        print ireps
+        run()
         //SaveSpikes()
-		for i=0,tstop/dt-1{
+        tstellate[whichcell][0].spikes.append(tstellate[whichcell][0].spiketimes.c)
+        for i=0,tstop/dt-1{
          if (iv.x[i] > thresh) iv.x[i] = thresh
         }
-		meaniv.add(iv)
-		iv.mul(0)
-	}
-	meaniv.div(reps)
-	tvec=new Vector(tstop/dt + 1)
-	tvec.indgen(dt).add(-20)
-	meaniv.plot(chopperIVgr,tvec)
-	chopperIVgr.exec_menu("View = plot")
+        meaniv.add(iv)
+        iv.mul(0)
+    }
+    meaniv.div(reps)
+    tvec=new Vector(tstop/dt + 1)
+    tvec.indgen(dt).add(-20)
+    meaniv.plot(chopperIVgr,tvec)
+
+    chopperIVgr.exec_menu("View = plot")
   CalcIVMeasures(ivdata[1])
   CalcIVMeasures(meaniv)
-	
+  //psth = tstellate[whichcell][0].spikes.histogram(0,110,binwidth)
+  //psth.plot(psthgr,binwidth) psthgr.exec_menu("View = plot")
+  PSTHcell(tstellate[whichcell][0].spikes,10,1)
+}
+
+//Some default parameters
+v_init = -65
+tstellate_gnabar_rm = 0.23677 
+tstellate_gkhtbar_rm= 0.0189416 
+tstellate_gleak_rm  = 0.000473539 
+tstellate_erev_rm   =-55 
+tstellate_ghbar_rm  = 6.20392e-05
+tstellate_gkabar_ka = 0.01539
+
+proc reset_TStellate(){local ii
+    print "updating features for T stellate optimisation routines"
+    for ii = 0,nchannels-1 {
+        if(ii == 20 || ii == 38 || ii == 51){
+            sprint(cmd,"tstellate[%d][0].soma.gnabar_rm  = tstellate_gnabar_rm",ii) execute1(cmd)
+            sprint(cmd,"tstellate[%d][0].soma.gkhtbar_rm = tstellate_gkhtbar_rm",ii) execute1(cmd)
+            sprint(cmd,"tstellate[%d][0].soma.gleak_rm   = tstellate_gleak_rm",ii) execute1(cmd)
+            sprint(cmd,"tstellate[%d][0].soma.erev_rm    = tstellate_erev_rm",ii) execute1(cmd)
+            sprint(cmd,"tstellate[%d][0].soma.ghbar_rm   = tstellate_ghbar_rm",ii) execute1(cmd)
+            sprint(cmd,"tstellate[%d][0].soma.gkabar_ka  = tstellate_gkabar_ka",ii) execute1(cmd)
+        }    
+    }
 }
 
 
+proc IVMeasures(){
+    /// args: 1 time vec, 2 voltage vec, 3 output vec (size=6)
+    onset_depol = $o2.mean($o1.indwhere(">=",5.0), $o1.indwhere(">=",10.0))
+    middle_depol = $o2.mean( $o1.indwhere(">=",20), $o1.indwhere(">=",30))
+    onset_ratio = onset_depol / middle_depol
+	
+    v20_depol = $o2.mean( $o1.indwhere(">=",20) - 1, $o1.indwhere(">=",22))
+    v50_depol = $o2.mean( $o1.indwhere(">=",50) - 1, $o1.indwhere(">=",52))
+    adaptation_ratio = v20_depol - v50_depol
+	
+    resting_value  = $o2.mean(0 , $o1.indwhere(">",0))
+    v60_depol  = $o2.mean($o1.indwhere(">=",60) - 1, $o1.indwhere(">=",65))
+    offset_hyperpol = resting_value - v60_depol
+    
+    $o3.x[0] = onset_ratio
+    $o3.x[1] = adaptation_ratio
+    $o3.x[2] = offset_hyperpol
+	print "resting membrane potential              ", resting_value
+	print "level of initial depolarization         ", onset_ratio
+	print "adaptation of sustained depolarization  ", adaptation_ratio
+	print "post-tone hyperpolarization             ", offset_hyperpol
+
+}

@@ -1,9 +1,9 @@
 #!/bin/bash
-
-NRNHOME="/home/meager/nrn-6.1/nrnmpi"
-NRNBIN="/home/meager/nrn-6.1/nrnmpi/ia64/bin/"
+ARCH=`arch`
+NRNHOME="$HOME/nrn-6.1/nrnmpi"
+NRNBIN="$HOME/$ARCH/bin/"
 NRNIV="${NRNBIN}nrniv"
-LNRNMECH="/home/meager/dmf/work/netmod/cnstellate/ia64/.libs/libnrnmech.so"
+LNRNMECH=`pwd`/${ARCH}/.libs/libnrnmech.so"
 MPIBIN="/opt/mpich/ch-p4/bin/"
 MPIRUN="${MPIBIN}mpirun"
 
@@ -28,7 +28,6 @@ dorun() {
 
 for np in 25 20 15; do
 	dorun $np
-
 done
 
 
