@@ -1,9 +1,10 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
-
-// cn.hoc
 // Cochlear Nucleus network model: network specification file
-// Michael Eager
+// Michael Eager, 2006-2010
+// University of Melbourne
+// This file is dependant on NetworkParameters,Utilities and Params hoc files
+// individual simulation changes can be made to 'param'  
 
 //
 objref cvode, random
@@ -58,11 +59,11 @@ proc create_cells() { local i,j,p
 			tstellate[i][j] = netpar_create(celltype, tsgid, i, j)
 		}
 		for j = 0, nTVperchannel-1 {
-			sprint(celltype,"new CNcell(%d,%d,%d)",2,cf.x[i],i)
+			sprint(celltype,"new CNcell(%d,%d,%d)",1,cf.x[i],i)
 			tuberculoventral[i][j] = netpar_create(celltype, tvgid, i, j)
 		}
 		for j = 0, nDSperchannel-1 {
-			sprint(celltype,"new CNcell(%d,%d,%d)",1,cf.x[i],i)
+			sprint(celltype,"new CNcell(%d,%d,%d)",2,cf.x[i],i)
 			dstellate[i][j] = netpar_create(celltype, dsgid, i, j)
 		}
 		for j = 0, nGperchannel-1 {
@@ -113,7 +114,7 @@ func wrap() {
 
 
 // When refering to "channel" in the following code
-// I mean Auditory isofrequency laminae
+// I mean Auditory isofrequency laminae in the VCN
 
 proc connect_cells() {local i,target,source,low,high,range,channel,sourcechannel
 	

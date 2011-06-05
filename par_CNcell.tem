@@ -142,7 +142,7 @@ proc set_tstellate() {
    }
 }
 proc set_tuberc() {
-	model = 2
+	model = 1
 	
 	soma {
 		insert rm
@@ -165,7 +165,7 @@ proc set_tuberc() {
 }
 
 proc set_dstellate() {
-	model = 1
+	model = 2
  soma {
 	insert rm
 	insert klt

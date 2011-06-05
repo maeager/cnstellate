@@ -87,10 +87,10 @@ proc init() { local length,RM, p, q, r, Atotal
     
     
     forall if (ismembrane("na_ion")) {
-	ena = 50		// mV
+		ena = 50		// mV
     }
     forall if (ismembrane("k_ion")) {
-	ek  = -70		//  mV
+		ek  = -70		//  mV
     }
     
 }	// end init()

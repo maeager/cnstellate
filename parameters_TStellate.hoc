@@ -40,33 +40,57 @@ secondorder	= 2		//second order integration
 
   //Optimisation parameters
   print "Optimisation parameters for T Stellate cell"
-  NPARAMS=5
+  
   objref pvec,fvec,pvec_ranges,pvec_name,pvec_factor
   pvec = new Vector()//NPARAMS) //contains the parameters to be fitted
-  pvec_ranges= new Matrix(NPARAMS,2) // (min,max) pairs for each param
   pvec_name = new List() //names of parameters in String list
   pvec_factor = new Vector() //NPARAMS,1)
   //mul factor
   //for i=0,NPARAMS-1 pvec_factor.x[i] = 1	
+  
+  NPARAMS=6
+  pvec_ranges= new Matrix(NPARAMS,2) // (min,max) pairs for each param
   //min
-  for i=0,NPARAMS-1 pvec_ranges.x[i][0]= 0.000001
+  for i=0,NPARAMS-1 pvec_ranges.x[i][0]= 0.00001
   //max
-  for i=0,NPARAMS-1 pvec_ranges.x[i][1]= 0.03
-  //Names                                               //Initial values	//Param Factor
+  for i=0,NPARAMS-1 pvec_ranges.x[i][1]= 0.01
+  
+  proc add_param(){
+//	  add to parameter vector used in optimisation
+	  pvec_name.append(new String($s1)) //Name
+	  pvec.append($2)                   //Initial value 
+	  pvec_factor.append($3)
+//	  pvec_min.append($4) //Minimum value
+//	  pvec_max.append($5) //Maximum value
+}
+
+//Names                                               //Initial values	//Param Factor
   pvec_name.append(new String("param.w.x[lsr][ts]"))	pvec.append(0.0008)	pvec_factor.append(1)
   pvec_name.append(new String("param.w.x[hsr][ts]"))	pvec.append(0.0008)	pvec_factor.append(1)
-//  pvec_name.append(new String("param.w.x[ds][ts]"))	    pvec.append(0.00170)	pvec_factor.append(1) 
-//  pvec_name.append(new String("param.w.x[tv][ts]"))	    pvec.append(0.0010)	    pvec_factor.append(1)
-//  pvec_name.append(new String("param.w.x[glg][ts]"))	pvec.append(0.00130)	pvec_factor.append(1)
+  pvec_name.append(new String("param.w.x[ds][ts]"))	    pvec.append(0.00170)	pvec_factor.append(1) 
+  pvec_name.append(new String("param.w.x[tv][ts]"))	    pvec.append(0.0010)	    pvec_factor.append(1)
+  pvec_name.append(new String("param.w.x[glg][ts]"))	pvec.append(0.00130)	pvec_factor.append(1)
   
-//  pvec_name.append(new String("tstellate_gnabar_rm"))	pvec.append(0.23677)	 pvec_factor.append(1)
-  pvec_name.append(new String("tstellate_gkhtbar_rm"))	pvec.append(0.089416 )	 pvec_factor.append(1)
-  pvec_name.append(new String("tstellate_gleak_rm"))	pvec.append(0.000473539) pvec_factor.append(1)
+  //  pvec_name.append(new String("tstellate_gnabar_rm"))	pvec.append(0.23677)	 pvec_factor.append(1)
+  // pvec_name.append(new String("tstellate_gkhtbar_rm"))	pvec.append(0.0189416 )	 pvec_factor.append(1)
+ 
+ //Leak conductance effects Input resistance and Membrane time constant
+ pvec_name.append(new String("tstellate_gleak_rm"))	pvec.append(0.000473539) pvec_factor.append(1) 
+  pvec_ranges.x[pvec.size()-1][0]=5e-05
+  pvec_ranges.x[pvec.size()-1][1]=0.005
+  
+  /* // Reversal potential
   pvec_name.append(new String("tstellate_erev_rm"))	    pvec.append(0.0055 )     pvec_factor.append(-10000) 
   pvec_ranges.x[4][0]=0.0045 
   pvec_ranges.x[4][1]=0.0070
-//  pvec_name.append(new String("tstellate_ghbar_rm"))	pvec.append(6.20392e-04) pvec_factor.append(10)
+*/  
+  //  pvec_name.append(new String("tstellate_ghbar_rm"))	pvec.append(6.20392e-04) pvec_factor.append(10)
 //  pvec_name.append(new String("tstellate_gkabar_ka"))	pvec.append(0.000473539) pvec_factor.append(1)
+
+
+
+
+
 
   // cmd is a strdef variable that should be used in local routines and not passed across procedures
   strdef cmd
