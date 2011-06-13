@@ -1,9 +1,9 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
 /*
-*   Responses.hoc
-*  Generate RL,NRL,RA, MTF
-*/
+ *   TStellate.hoc
+ *   Optimise parameters controlling TS cells
+ */
 
 load_file("nrngui.hoc")
 //load_file("par_netpar.hoc")
@@ -26,7 +26,7 @@ xopen("parameters_TStellate.hoc")
  xopen("CochlearNucleus.hoc")         // model set-up
 // xopen("par_CochlearNucleus.hoc")         // model set-up
 
- 
+
  xopen("calcisilag.hoc")
 
 // reset_DS_ClickRecovery()
@@ -62,8 +62,8 @@ objref nil
 // for i=0,99 if(i != 20 || i !=38 || i != 51) tstellate[i][0] = nil
  connect_cells(fileroot)
  connect_CNcells(fileroot)
- 
- xopen("psth.hoc") 
+
+ xopen("psth.hoc")
  xopen("par_experiment_TStellate.hoc")
 
 
@@ -72,8 +72,8 @@ strdef datestr,grlbl
 objref errorvec,tempcf,indcf,refvec,gr,ref,test,weightvec
 gr = new Graph()
 
-func TStellate_err( ) {local jj,pp,xtime,error, sustainedrate
-    
+func TStellate_err( ) {local jj,pp,xtime,error,penaly,sustainedrate,inputresistance
+
     //check for bad values
     for pp=0,NPARAMS-1 {
     if (($&2[pp] <= pvec_ranges.x[pp][0]) || ($&2[pp] > pvec_ranges.x[pp][1])) {
@@ -81,7 +81,7 @@ func TStellate_err( ) {local jj,pp,xtime,error, sustainedrate
     }
     }
   //print variables
-  print "TStellate_err ", $1 
+  print "TStellate_err ", $1
     for pp=0,NPARAMS-1 { printf("%s = %g * %g",pvec_name.object(pp).s,$&2[pp],pvec_factor.x[pp])}
   //Set the parameters (see parameters_TStellate.hoc)
   for pp=0,NPARAMS-1 {
@@ -98,49 +98,53 @@ func TStellate_err( ) {local jj,pp,xtime,error, sustainedrate
     print $1, $&2[0], $&2[2], $&2[3]
     }
   */
-  
-  
+
+
   reset_weights()
-  reset_TStellate()  
-    RunTStellate() 
-  
+  reset_TStellate()
+    RunTStellate()
+
     //Analyse spikes
     doNotify()
     //CNSpikes2()
-  
+
     // plot_fitgr()
     objref errorvec,weightvec,ref,test
   errorvec = new Vector()
   //    errorvec.interpolate(ivdata[0],tvec,meaniv)
   //    print a=errorvec.meansqerr(ivdata[1])
-  
-    
-  weightvec = new Vector(7,1)  
+
+
+  weightvec = new Vector(7,1)
   ref = new Vector(7,0)
   test = new Vector(7,0)
-  
-  errorvec.interpolate(tvec,ivdata[0],ivdata[1])  
-  IVMeasures(tvec,errorvec,ref)
-  IVMeasures(tvec,meaniv,test)
+
+  errorvec.interpolate(tvec,ivdata[0],ivdata[1])
+  IVMeasures(tvec,errorvec,ref,2.5)
+  IVMeasures(tvec,meaniv,test,2.5)
   PSTHcell(tstellate[whichcell][0].spikes,10,1)
   test.copy(cvISI, 3, 0, 3, 1, 1)
   ref.copy(CV_data, 3, 0, 3, 1, 1)
   
-  //  test.x[6] =  psth.sum(0,20/binwidth)/25 // pre-tone spikes penalty
-  //  sustainedrate = psth.sum(25/binwidth,75/binwidth)/25
-  //if(sustainedrate < 10) test.x[6] += 12 - sustainedrate //penalty for lack of spikes during tone
+  penalty =0
+  sustainedrate = psth.sum(2,6)/25
+  if(sustainedrate < 10) penalty += 12 - sustainedrate //penalty for lack of spikes during tone
+  if(cvISI.x[0] > 0.2) penalty += 5
+  if(cvISI.x[1] > 0.3 || cvISI.x[1] == 0) penalty += 10
+  if(cvISI.x[2] > 0.4 || cvISI.x[2] == 0) penalty += 10
+  if(cvISI.x[3] > 0.4 || cvISI.x[3] == 0) penalty += 10
+  inputresistance = rn()  
   
+//  weightvec.x[0]/=10 //initial depolarisation approx -50 to -30  mV
+//  weightvec.x[1]*=20 //adaptation approx 0.2-0.5
+//  weightvec.x[2]/=10 //post-tone hyperpolarisation approx 0 to -5 mV
+  weightvec.x[3]*=10 //CV
+  weightvec.x[4]*=10
+  weightvec.x[5]*=10
+  weightvec.x[6]*=10
   
-  weightvec.x[0]/=10 //initial depolarisation approx -50 to -30  mV
-  weightvec.x[1]*=20 //adaptation approx 0.2-0.5
-  weightvec.x[2]/=10 //post-tone hyperpolarisation approx 0 to -5 mV
-  weightvec.x[3]*=20 //CV 
-  weightvec.x[4]*=20  
-  weightvec.x[5]*=20
-  weightvec.x[6]*=20
-  
-  print error=sqrt(ref.meansqerr(test)) 
-  
+  print error=sqrt(ref.meansqerr(test,weightvec))+penalty
+
     //plot the result
     // gr.erase_all()
     // errorvec.plot(gr,ivdata[0],1,1)
@@ -176,9 +180,10 @@ proc runprax(){
 
 
 objref pval[NPARAMS]
-proc printprax(){local pp,ii,pp2
+proc printprax(){local pp,ii,pp2,cur_reps
   //Output model data with best parameters
-  
+  cur_reps = reps
+  reps=50
     sprint(cmd,"mkdir -p %s",fileroot)
     system(cmd)
     reps=50
@@ -193,7 +198,7 @@ for pp=0,NPARAMS-1 {
 file.printf("#%s = %g\t[%g,%g]\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp],pvec_ranges.x[pp][0],pvec_ranges.x[pp][1])
 }
 file.printf("# final error=%f\n",error)
-    
+
     file.printf("# Principle axis matrix\n")
     for pp=0,NPARAMS-1 {
       pval[pp] = new Vector(NPARAMS)
@@ -204,22 +209,25 @@ file.printf("# final error=%f\n",error)
     }
 file.printf("# Time\tError Vec\t Reference Vec (mV)\n")
 for ii=0,tvec.size()-1 {
-  file.printf("%.2f\t%.6f\t%.6f\n",tvec.x[ii],errorvec.x[ii],meaniv.x[ii]) 
+  file.printf("%.2f\t%.6f\t%.6f\n",tvec.x[ii],errorvec.x[ii],meaniv.x[ii])
 }
-  
+
 file.printf("#Other values \n")
 file.printf("#  spl = %g\n",spl)
 file.printf("#  tonefreq = %g\n",tonefreq)
 param.printparams(file,"#") //let Network Parameters print the struct
 file.printf("#\n#IV Measures  Reference Test\n")
-file.printf("#RMP\t%g\t%g", ivdata[1].mean(0,ivdata[0].indwhere(">",0)),meaniv.mean(ivdata[0].indwhere(">",-10),ivdata[0].indwhere(">",0)))
-file.printf("#Onset\t%g\t%g", ref.x[0], test.x[0])
-file.printf("#Adaptation\t%g\t%g", ref.x[1], test.x[1])
-file.printf("#Offset\t%g\t%g ",ref.x[2], test.x[2])
-file.printf("#SpikePenalty\t%g\t%g ",ref.x[6], test.x[6])
+file.printf("#RMP\t%g\t%g\n", ivdata[1].mean(0,ivdata[0].indwhere(">",0)),meaniv.mean(ivdata[0].indwhere(">",-10),ivdata[0].indwhere(">",0)))
+file.printf("#IVOnset\t%g\t%g\n", ref.x[0], test.x[0])
+file.printf("#IVAdaptation\t%g\t%g\n", ref.x[1], test.x[1])
+file.printf("#IVOffset\t%g\t%g\n",ref.x[2], test.x[2])
+file.printf("#CV0-10\t%g\t%g\n", ref.x[3], test.x[3])
+file.printf("#CV10-20\t%g\t%g\n", ref.x[4], test.x[4])
+file.printf("#CV20-30\t%g\t%g\n",ref.x[5], test.x[5])
+file.printf("#CV30-40\t%g\t%g\n",ref.x[6], test.x[6])
 }
 file.close()
-  
+
   //Write parameters to general optimisation file
 sprint(fname,"%s/pvec_%s.hoc",fileroot,origfileroot)
 file.aopen(fname)
@@ -228,7 +236,10 @@ for pp=0,NPARAMS-1 {
 file.printf("%s = %g*%g\n",pvec_name.object(pp).s,pvec.x[pp],pvec_factor.x[pp])
 }
 file.close()
+
+  reps = cur_reps
 }
+
 
 
 
@@ -237,7 +248,7 @@ file.close()
 xopen("cngui.hoc")
 
 
-proc TSPanel(){  
+proc TSPanel(){
   xpanel("TStellate")
   xvalue("tstellate_gnabar_rm")
   xvalue("tstellate_gkhtbar_rm")
@@ -245,7 +256,7 @@ proc TSPanel(){
   xvalue("tstellate_erev_rm")
   xvalue("tstellate_ghbar_rm")
   xvalue("tstellate_gkabar_ka")
-  
+
   xvalue("param.w.x[hsr][ts]")
   xvalue("param.w.x[lsr][ts]")
   xvalue("param.w.x[ds][ts]")
@@ -253,19 +264,19 @@ proc TSPanel(){
   xvalue("param.w.x[glg][ts]")
   xbutton("reset_weights()")
   xbutton("reset_TStellate()")
-  
+
   xbutton("CS_data","CS_data()")
   xbutton("CT1_data","CT1_data()")
   xbutton("CT2_data","CT2_data()")
 //  xbutton("Plot Fit graph","plot_fitgr()")
-  
+
   xbutton("Run TS model","RunTStellate()")
   xbutton("Run Fitting Procedure","runprax()")
   xbutton("QuickRun","QuickRun()")
-  xvalue("PSTH resolution", "binwidth") 
+  xvalue("PSTH resolution", "binwidth")
   xbutton("PSTH","PSTHcell(tstellate[whichcell][0].spikes,binwidth,1)")
   xbutton("Print PSTH","PSTHcell(tstellate[whichcell][0].spikes,binwidth,2)")
-  
+
   xpanel()
 }
 
@@ -274,79 +285,109 @@ nrncontrolmenu()
 
 objref nil
 for i=0,99 if(!(i == 20 || i == 38 || i == 51)) tstellate[i][0] = nil
+access tstellate[whichcell][0].soma
+//xopen("reset_weights.hoc")
+//xopen("voltage.ses")
+xopen("jitter.hoc")
+
+
+param.w.x[lsr][ts] = 0.000774459
+param.w.x[hsr][ts] = 0.000817015
+param.w.x[ds][ts] = 0.0000138011
+param.w.x[tv][ts] = 0.0000146063
+param.w.x[glg][ts] = 9.3936e-05
+tstellate_gleak_rm = 0.000494097
+tstellate_erev_rm=-65
+set_pvec()
 
 
 CT1_data()
-RefreshParameters()  
+RefreshParameters()
 ANFilterBankRun()  //Generate new AN instant. rates
 SetRates2()
 
 tstellate_erev_rm=-58
 param.w.x[ds][tv]/=10
 param.w.x[hsr][tv]=0.0006
-
-/*
-
 runprax()
 printprax()
 print "CT1 Done"
 
-     CT2_data()
-    RefreshParameters()  
-     ANFilterBankRun()  //Generate new AN instant. rates
-   SetRates2()
-   */
 
 
-/*
-runprax()
-printprax()
-print "CT2 Done"
 
- 
-CS_data()
-     RefreshParameters()  
-     ANFilterBankRun()  //Generate new AN instant. rates
-   SetRates2()
-QuickRun()   
-runprax()
-printprax()
+//jitterdelay(0,0.5)
+
+//param.w.x[lsr][ts] = 0.000901216
+//param.w.x[hsr][ts] = 0.000914421
+//param.w.x[ds][ts] = 0.00146354
+//param.w.x[tv][ts] = 0.00132918
+//param.w.x[glg][ts] = 3.94981e-05
+//tstellate_gleak_rm = 0.00297771
+
+
+//param.w.x[lsr][ts] = 0.000774459
+//param.w.x[hsr][ts] = 0.000817015
+//param.w.x[ds][ts] = 0.0000138011
+//param.w.x[tv][ts] = 0.0000146063
+//param.w.x[glg][ts] = 9.3936e-05
+//tstellate_gleak_rm = 0.000294097
+//tstellate_erev_rm=-65
+//reps=50
+
+param.w.x[lsr][ts] = 0.000774459
+param.w.x[hsr][ts] = 0.000817015
+param.w.x[ds][ts] = 0.0000138011
+param.w.x[tv][ts] = 0.0000146063
+param.w.x[glg][ts] = 9.3936e-05
+tstellate_gleak_rm = 0.000494097
+tstellate_erev_rm=-65
+set_pvec()
+
+
+//CS_data()
+//RefreshParameters()
+//ANFilterBankRun()  //Generate new AN instant. rates
+//SetRates2()
+//QuickRun()
+//runprax()
+//printprax()
 print "CS Done"
+//PSTHcell(tstellate[whichcell][0].spikes,10,2)
+//PSTHcell(tstellate[whichcell][0].spikes,0.25,2)
 
-//RunTStellate()
-*/
+
 
 //runprax()
 //printprax()
 //print "CT1 Done"
 
-
-access tstellate[whichcell][0].soma
-xopen("reset_weights.hoc")
-xopen("voltage.ses")
-xopen("jitter.hoc")
-
-jitterdelay(0,0.1)
-
-param.w.x[lsr][ts] = 0.000901216 
-param.w.x[hsr][ts] = 0.000914421 
-param.w.x[ds][ts] = 0.00146354 
-param.w.x[tv][ts] = 0.00132918 
-param.w.x[glg][ts] = 3.94981e-05 
-tstellate_gleak_rm = 0.00297771 
+CT2_data()
+RefreshParameters()
+ANFilterBankRun()  //Generate new AN instant. rates
+SetRates2()
+runprax()
+printprax()
+print "CT2 Done"
 
 
 param.w.x[lsr][ts] = 0.000774459
-param.w.x[hsr][ts] = 0.000817015 
-param.w.x[ds][ts] = 0.0000138011 
+param.w.x[hsr][ts] = 0.000817015
+param.w.x[ds][ts] = 0.0000138011
 param.w.x[tv][ts] = 0.0000146063
 param.w.x[glg][ts] = 9.3936e-05
 tstellate_gleak_rm = 0.000294097
 tstellate_erev_rm=-65
-reps=50
+set_pvec()
+
+CS_data()
+RefreshParameters()
+ANFilterBankRun()  //Generate new AN instant. rates
+SetRates2()
 QuickRun()
-PSTHcell(tstellate[whichcell][0].spikes,10,2)
-PSTHcell(tstellate[whichcell][0].spikes,0.25,2)
+runprax()
+printprax()
+print "CS Done"
 
-
+//RunTStellate()
 
