@@ -267,7 +267,7 @@ proc reset_TStellate(){local ii
 
 
 proc IVMeasures(){local offset
-    /// args: 1 time vec, 2 voltage vec, 3 output vec (size=6)
+    /// args: 1 time vec, 2 voltage vec, 3 output vec (size=6), 4 offset
 	if (numarg() != 4) {
 		offset = 0
 	} else {

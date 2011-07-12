@@ -7,7 +7,8 @@ rm -f i686/.libs/an*
 #Check libresample
 (cd libresample-0.1.3; make)
 
-NRNIVPATH=${HOME}/src/neuron/nrnmpi/i686
+#NRNIVPATH=${HOME}/src/neuron/nrnmpi/i686
+NRNIVPATH=/usr/local/nrn/i686
 
 ${NRNIVPATH}/bin/nrnivmodl -loadflags `pwd`/libresample-0.1.3/libresample.a
 
