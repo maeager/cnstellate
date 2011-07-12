@@ -95,25 +95,27 @@ proc connect_cells(){local i,p,target,source,low,high,range,channel,sourcechanne
 			sourcechannel = random.normal(channel,param.bw.getval(hsr,ds)/2)
 			if ((sourcechannel - int(sourcechannel)) > 0.5 ){
 				sourcechannel = 1+int(sourcechannel)
-				} else { sourcechannel = int(sourcechannel) }
-				if (sourcechannel <=0 ) sourcechannel=0
-				if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
-				//Choose random source from available cells
-				source = random.discunif(0,HSRsperchannel-1)
-				//print "HSR[",sourcechannel,"][",source,"] connected to DS[",channel,"][",target,"]"
-				sprint(cmd, "dstellate[%d][%d].soma hsr2dsAMPAlist.append( new NetCon( an.HSR[%d][%d],  dstellate[%d][%d].AMPA,thresh,param.delay.getval(hsr,ds), param.w.getval(hsr,ds)))",channel,target,sourcechannel,source,channel,target)
-				execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
-				outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
-				
-		    }
-			p = 100*(channel)/(nchannels)
-			printf("\r=== %3d%% ===",p)
-			flushf()
-			doNotify() // Although this slows down cell creation, the
-            // process is so long that we have to allow the
-            // user to quit during the creation.
+			} else {
+				sourcechannel = int(sourcechannel) 
+			}
+			if (sourcechannel <=0 ) sourcechannel=0
+			if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
+			//Choose random source from available cells
+			source = random.discunif(0,HSRsperchannel-1)
+			//print "HSR[",sourcechannel,"][",source,"] connected to DS[",channel,"][",target,"]"
+			sprint(cmd, "dstellate[%d][%d].soma hsr2dsAMPAlist.append( new NetCon( an.HSR[%d][%d],  dstellate[%d][%d].AMPA,thresh,param.delay.getval(hsr,ds), param.w.getval(hsr,ds)))",channel,target,sourcechannel,source,channel,target)
+			execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
+			outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
 			
 		}
+		p = 100*(channel)/(nchannels)
+		printf("\r=== %3d%% ===",p)
+		flushf()
+		doNotify() // Although this slows down cell creation, the
+        // process is so long that we have to allow the
+        // user to quit during the creation.
+		
+	}
 	print "LSR->DS"
 	if( ( param.n.getval(lsr,ds) > 0 ) && ( nDSperchannel != 0 ) ){
 		outfile.printf("\n%d %d\n",lsr,ds)
@@ -124,7 +126,9 @@ proc connect_cells(){local i,p,target,source,low,high,range,channel,sourcechanne
 			sourcechannel = random.normal(channel,param.bw.getval(lsr,ds)/2)
 			if ((sourcechannel - int(sourcechannel)) > 0.5 ){
 				sourcechannel = 1+int(sourcechannel)
-			} else { sourcechannel = int(sourcechannel) }
+			} else {
+				sourcechannel = int(sourcechannel) 
+			}
 			if (sourcechannel <=0 ) sourcechannel=0
 			if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
 			//Choose random source from available cells
@@ -146,26 +150,29 @@ proc connect_cells(){local i,p,target,source,low,high,range,channel,sourcechanne
 		outfile.printf("\n%d %d\n",glg,ds)
 		channel = 50
 		target = 0
-		for i=0, param.n.getval(glg,ds)-1{
+		for i=0, param.n.getval(glg,ds)-1 {
 			//Choose source channel
 			sourcechannel = random.normal(channel,param.bw.getval(glg,ds)/2)
 			if ((sourcechannel - int(sourcechannel)) > 0.5 ){
 				sourcechannel = 1+int(sourcechannel)
-				} else { sourcechannel = int(sourcechannel) }
-				if (sourcechannel <=0 ) sourcechannel=0
-				if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
-				//Choose random source from available cells
-				source = random.discunif(0,nGperchannel-1)
-				// print "GLG[",sourcechannel,"][",source,"] connected to "DS[",channel,"][",target,"]"
-				if (LSR2GLG ==1 ) {
-					sprint(cmd, "golgi[%d][%d].soma glg2dsGABAlist.append( new NetCon(&v(0.5),dstellate[%d][%d].GABAA,thresh,param.delay.getval(glg,ds), param.w.getval(glg,ds)))",sourcechannel, source, channel, target )
-					execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
-				} else {
-					sprint(cmd, "glg2dsGABAlist.append( new NetCon( golgi[%d][%d].s,dstellate[%d][%d].GABAA, thresh,param.delay.getval(glg,ds), param.w.getval(glg,ds)))",sourcechannel, source ,channel ,target )
-					execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
-				}
-				outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
-		}  	}
+			} else {
+				sourcechannel = int(sourcechannel) 
+			}
+			if (sourcechannel <=0 ) sourcechannel=0
+			if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
+			//Choose random source from available cells
+			source = random.discunif(0,nGperchannel-1)
+			// print "GLG[",sourcechannel,"][",source,"] connected to "DS[",channel,"][",target,"]"
+			if (LSR2GLG ==1 ) {
+				sprint(cmd, "golgi[%d][%d].soma glg2dsGABAlist.append( new NetCon(&v(0.5),dstellate[%d][%d].GABAA,thresh,param.delay.getval(glg,ds), param.w.getval(glg,ds)))",sourcechannel, source, channel, target )
+				execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
+			} else {
+				sprint(cmd, "glg2dsGABAlist.append( new NetCon( golgi[%d][%d].s,dstellate[%d][%d].GABAA, thresh,param.delay.getval(glg,ds), param.w.getval(glg,ds)))",sourcechannel, source ,channel ,target )
+				execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
+			}
+			outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
+		}  	
+	}
 	outfile.close
 }
 

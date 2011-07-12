@@ -115,4 +115,5 @@ gnuplot ../psthsingle.gnu
 #gnuplot rasters.gnu
 #display rasters.eps &
 
-rm -f *.log *.dat
+rm -f *.log
+#rm -f *.dat

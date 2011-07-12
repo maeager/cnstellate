@@ -36,10 +36,10 @@ xopen("parameters_TStellate.hoc")
 // usesavedfilterbanks=1
 
 
-param.w.x[hsr][ts]  = 0.0025
-param.w.x[lsr][ts]    = 0.0025
-param.w.x[ds][ts]    = 0.0007
-param.w.x[tv][ts]    = 0.0005
+param.w.x[hsr][ts]  = 0.0005
+param.w.x[lsr][ts]    = 0.0005
+param.w.x[ds][ts]    = 0.0001
+param.w.x[tv][ts]    = 0.0002
 param.w.x[glg][ts]    = 0.0005
 
 param.delay.x[hsr][ts]  = 0
@@ -129,12 +129,13 @@ func TStellate_err( ) {local jj,pp,xtime,error,penaly,sustainedrate,inputresista
   penalty =0
   sustainedrate = psth.sum(2,6)/25
   if(sustainedrate < 10) penalty += 12 - sustainedrate //penalty for lack of spikes during tone
+  if(checkedtrials < 0.9*reps) penalty += 5
   if(cvISI.x[0] > 0.2) penalty += 5
-  if(cvISI.x[1] > 0.3 || cvISI.x[1] == 0) penalty += 10
-  if(cvISI.x[2] > 0.4 || cvISI.x[2] == 0) penalty += 10
-  if(cvISI.x[3] > 0.4 || cvISI.x[3] == 0) penalty += 10
+  if(cvISI.x[1] > 0.4 || cvISI.x[1] == 0) penalty += 10
+  if(cvISI.x[2] > 0.5 || cvISI.x[2] == 0) penalty += 10
+  if(cvISI.x[3] > 0.5 || cvISI.x[3] == 0) penalty += 10
   inputresistance = rn()  
-  
+  if(inputresistance < 30 || inputresistance > 400) penalty += 10
 //  weightvec.x[0]/=10 //initial depolarisation approx -50 to -30  mV
 //  weightvec.x[1]*=20 //adaptation approx 0.2-0.5
 //  weightvec.x[2]/=10 //post-tone hyperpolarisation approx 0 to -5 mV
@@ -181,35 +182,34 @@ proc runprax(){
 
 objref pval[NPARAMS]
 proc printprax(){local pp,ii,pp2,cur_reps
-  //Output model data with best parameters
-  cur_reps = reps
-  reps=50
-    sprint(cmd,"mkdir -p %s",fileroot)
-    system(cmd)
-    reps=50
-  print error=TStellate_err(0,&pvec.x[0])
-  system("date",datestr)
-    sprint(fname,"%s/%s.Fit.dat",fileroot,origfileroot)
-  file.wopen(fname)
-  if (file.isopen()){
+//Output model data with best parameters
+cur_reps = reps
+reps=50
+sprint(cmd,"mkdir -p %s",fileroot)
+system(cmd)
+reps=50
+print error=TStellate_err(0,&pvec.x[0])
+system("date",datestr)
+sprint(fname,"%s/%s.Fit.dat",fileroot,origfileroot)
+file.wopen(fname)
+if (file.isopen()){
 file.printf("# %s Optimisation\n",fileroot)
 file.printf("# %s \n",datestr)
 for pp=0,NPARAMS-1 {
 file.printf("#%s = %g\t[%g,%g]\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp],pvec_ranges.x[pp][0],pvec_ranges.x[pp][1])
 }
 file.printf("# final error=%f\n",error)
-
-    file.printf("# Principle axis matrix\n")
-    for pp=0,NPARAMS-1 {
-      pval[pp] = new Vector(NPARAMS)
-      pval_praxis(pp,&pval[pp].x[0])
-      file.printf("#\t")
-      for pp2=0,NPARAMS-1 file.printf("%g\t",pval[pp].x[pp2])
-      file.printf("\n")
-    }
+//file.printf("# Principle axis matrix\n")
+//for pp=0,NPARAMS-1 {
+//pval[pp] = new Vector(NPARAMS)
+//pval_praxis(pp,&pval[pp].x[0])
+//file.printf("#\t")
+//for pp2=0,NPARAMS-1 file.printf("%g\t",pval[pp].x[pp2])
+//file.printf("\n")
+//}
 file.printf("# Time\tError Vec\t Reference Vec (mV)\n")
 for ii=0,tvec.size()-1 {
-  file.printf("%.2f\t%.6f\t%.6f\n",tvec.x[ii],errorvec.x[ii],meaniv.x[ii])
+file.printf("%.2f\t%.6f\t%.6f\n",tvec.x[ii],errorvec.x[ii],meaniv.x[ii])
 }
 
 file.printf("#Other values \n")
@@ -227,8 +227,7 @@ file.printf("#CV20-30\t%g\t%g\n",ref.x[5], test.x[5])
 file.printf("#CV30-40\t%g\t%g\n",ref.x[6], test.x[6])
 }
 file.close()
-
-  //Write parameters to general optimisation file
+//Write parameters to general optimisation file
 sprint(fname,"%s/pvec_%s.hoc",fileroot,origfileroot)
 file.aopen(fname)
 file.printf(" // %s  \n",datestr)
@@ -236,8 +235,10 @@ for pp=0,NPARAMS-1 {
 file.printf("%s = %g*%g\n",pvec_name.object(pp).s,pvec.x[pp],pvec_factor.x[pp])
 }
 file.close()
-
-  reps = cur_reps
+reps = cur_reps
+PSTHcell(tstellate[whichcell][0].spikes,10,2)
+PSTHcell(tstellate[whichcell][0].spikes,1,2)
+PSTHcell(tstellate[whichcell][0].spikes,0.25,2)
 }
 
 
@@ -286,108 +287,108 @@ nrncontrolmenu()
 objref nil
 for i=0,99 if(!(i == 20 || i == 38 || i == 51)) tstellate[i][0] = nil
 access tstellate[whichcell][0].soma
-//xopen("reset_weights.hoc")
-//xopen("voltage.ses")
+xopen("reset_weights.hoc")
+xopen("voltage.ses")
 xopen("jitter.hoc")
 
 
-param.w.x[lsr][ts] = 0.000774459
-param.w.x[hsr][ts] = 0.000817015
-param.w.x[ds][ts] = 0.0000138011
-param.w.x[tv][ts] = 0.0000146063
-param.w.x[glg][ts] = 9.3936e-05
-tstellate_gleak_rm = 0.000494097
-tstellate_erev_rm=-65
-set_pvec()
+// param.w.x[lsr][ts] = 0.000774459
+// param.w.x[hsr][ts] = 0.000817015
+// param.w.x[ds][ts] = 0.0000138011
+// param.w.x[tv][ts] = 0.0000146063
+// param.w.x[glg][ts] = 9.3936e-05
+// tstellate_gleak_rm = 0.000494097
+// tstellate_erev_rm=-65
+// set_pvec()
 
 
-CT1_data()
-RefreshParameters()
-ANFilterBankRun()  //Generate new AN instant. rates
-SetRates2()
+// CT1_data()
+// RefreshParameters()
+// ANFilterBankRun()  //Generate new AN instant. rates
+// SetRates2()
 
-tstellate_erev_rm=-58
-param.w.x[ds][tv]/=10
-param.w.x[hsr][tv]=0.0006
-runprax()
-printprax()
-print "CT1 Done"
-
-
+// tstellate_erev_rm=-58
+// param.w.x[ds][tv]/=10
+// param.w.x[hsr][tv]=0.0006
+// runprax()
+// printprax()
+// print "CT1 Done"
 
 
-//jitterdelay(0,0.5)
-
-//param.w.x[lsr][ts] = 0.000901216
-//param.w.x[hsr][ts] = 0.000914421
-//param.w.x[ds][ts] = 0.00146354
-//param.w.x[tv][ts] = 0.00132918
-//param.w.x[glg][ts] = 3.94981e-05
-//tstellate_gleak_rm = 0.00297771
 
 
-//param.w.x[lsr][ts] = 0.000774459
-//param.w.x[hsr][ts] = 0.000817015
-//param.w.x[ds][ts] = 0.0000138011
-//param.w.x[tv][ts] = 0.0000146063
-//param.w.x[glg][ts] = 9.3936e-05
-//tstellate_gleak_rm = 0.000294097
-//tstellate_erev_rm=-65
-//reps=50
+// //jitterdelay(0,0.5)
 
-param.w.x[lsr][ts] = 0.000774459
-param.w.x[hsr][ts] = 0.000817015
-param.w.x[ds][ts] = 0.0000138011
-param.w.x[tv][ts] = 0.0000146063
-param.w.x[glg][ts] = 9.3936e-05
-tstellate_gleak_rm = 0.000494097
-tstellate_erev_rm=-65
-set_pvec()
+// //param.w.x[lsr][ts] = 0.000901216
+// //param.w.x[hsr][ts] = 0.000914421
+// //param.w.x[ds][ts] = 0.00146354
+// //param.w.x[tv][ts] = 0.00132918
+// //param.w.x[glg][ts] = 3.94981e-05
+// //tstellate_gleak_rm = 0.00297771
 
 
-//CS_data()
-//RefreshParameters()
-//ANFilterBankRun()  //Generate new AN instant. rates
-//SetRates2()
-//QuickRun()
+// //param.w.x[lsr][ts] = 0.000774459
+// //param.w.x[hsr][ts] = 0.000817015
+// //param.w.x[ds][ts] = 0.0000138011
+// //param.w.x[tv][ts] = 0.0000146063
+// //param.w.x[glg][ts] = 9.3936e-05
+// //tstellate_gleak_rm = 0.000294097
+// //tstellate_erev_rm=-65
+// //reps=50
+
+// param.w.x[lsr][ts] = 0.000774459
+// param.w.x[hsr][ts] = 0.000817015
+// param.w.x[ds][ts] = 0.0000138011
+// param.w.x[tv][ts] = 0.0000146063
+// param.w.x[glg][ts] = 9.3936e-05
+// tstellate_gleak_rm = 0.000494097
+// tstellate_erev_rm=-65
+// set_pvec()
+
+
+// //CS_data()
+// //RefreshParameters()
+// //ANFilterBankRun()  //Generate new AN instant. rates
+// //SetRates2()
+// //QuickRun()
 //runprax()
 //printprax()
-print "CS Done"
-//PSTHcell(tstellate[whichcell][0].spikes,10,2)
-//PSTHcell(tstellate[whichcell][0].spikes,0.25,2)
+//print "CS Done"
+// //PSTHcell(tstellate[whichcell][0].spikes,10,2)
+// //PSTHcell(tstellate[whichcell][0].spikes,0.25,2)
 
 
 
-//runprax()
-//printprax()
-//print "CT1 Done"
+// //runprax()
+// //printprax()
+// //print "CT1 Done"
 
-CT2_data()
-RefreshParameters()
-ANFilterBankRun()  //Generate new AN instant. rates
-SetRates2()
-runprax()
-printprax()
-print "CT2 Done"
+// CT2_data()
+// RefreshParameters()
+// ANFilterBankRun()  //Generate new AN instant. rates
+// SetRates2()
+// runprax()
+// printprax()
+// print "CT2 Done"
 
 
-param.w.x[lsr][ts] = 0.000774459
-param.w.x[hsr][ts] = 0.000817015
-param.w.x[ds][ts] = 0.0000138011
-param.w.x[tv][ts] = 0.0000146063
-param.w.x[glg][ts] = 9.3936e-05
-tstellate_gleak_rm = 0.000294097
-tstellate_erev_rm=-65
-set_pvec()
+// param.w.x[lsr][ts] = 0.000774459
+// param.w.x[hsr][ts] = 0.000817015
+// param.w.x[ds][ts] = 0.0000138011
+// param.w.x[tv][ts] = 0.0000146063
+// param.w.x[glg][ts] = 9.3936e-05
+// tstellate_gleak_rm = 0.000294097
+// tstellate_erev_rm=-65
+// set_pvec()
 
-CS_data()
-RefreshParameters()
-ANFilterBankRun()  //Generate new AN instant. rates
-SetRates2()
-QuickRun()
-runprax()
-printprax()
-print "CS Done"
+// CT2_data()
+// RefreshParameters()
+// ANFilterBankRun()  //Generate new AN instant. rates
+// SetRates2()
+// QuickRun()
+// runprax()
+// printprax()
+// print "CT2 Done"
 
-//RunTStellate()
+// //RunTStellate()
 
