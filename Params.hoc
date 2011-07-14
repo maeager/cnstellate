@@ -74,9 +74,9 @@ totalLSR    = nchannels*LSRsperchannel
 /****************************************
 ** Stimulus Parameters
 ****************************************/
-strdef wavefile,N
+strdef wavdatafile,N
 N = neuronhome()
-stimtype    = 1         //0 for wavefile,1 for tone,2 silent stim,
+stimtype    = 1         //0 for wavdatafile,1 for tone,2 silent stim,
 //3 AM tone, 4 WB noise (obsolete)
 //5 AM noise, 6 Gaussian Noise,
 //7 Simult. Tone & Noise,
@@ -90,9 +90,9 @@ dutycycle   = 0.2       //quiet duration = dutycycle*dur
 ramplngth   = 0.005     //sec, 2*ramp length (1/2 on and 1/2 off)
 //cosinesquared ramp
 //total tone segment = dur + 1*ramplngth
-strdef wavefile         // extract stim data file from wav file converted to txt
+strdef wavdatafile         // extract stim data file from wav file converted to txt
 
-wavefile    = "../sounds/T4000_L50.dat"
+wavdatafile    = "../sounds/T4000_L50.dat"
 srate       = 50000.0   //Hz, Stimulus Sampling rate
 stimtdres   = 1/srate   //time step (time domain resolution)
 // nstim                // nstim=number of pts in stimulus

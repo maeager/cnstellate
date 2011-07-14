@@ -10,12 +10,12 @@ extern char *gargstr();
 
 ENDVERBATIM
 
-:* anmodel Vector Method - sout.an4( stim/*wavefile*/, tdres,  cf, spontrate, model, species, ifspike)
+:* anmodel Vector Method - sout.an4( stim/*wavdatafile*/, tdres,  cf, spontrate, model, species, ifspike)
 VERBATIM
 #include "./HeinzARLO/anmodel.h"
 
 
-//sout.an4(tdres,cf,spont,model, species,ifspike,wavefile)
+//sout.an4(tdres,cf,spont,model, species,ifspike,wavdatafile)
 
 static double an4(void *vv)
 {

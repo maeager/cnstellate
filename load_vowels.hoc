@@ -30,7 +30,7 @@ nrep      = 1        //nrep is number of reps of stimulus
 
 stimtype  = 0  //read stim from file
 path      = "../PVSyllables/"
-wavefile  = "../PVSyllables/be.dat"
+wavdatafile  = "../PVSyllables/be.dat"
 
 usesavedfilterbanks = 1
 sg_rate   = 10000

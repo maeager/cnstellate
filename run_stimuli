@@ -5,9 +5,9 @@ cd ~/dmf/work/netmod/cnstellate
 for i in `ls ~/dmf/work/netmod/PVSyllables/*.dat`
 do
 	#The full path and filename is passed to nrniv
-    #./guispecial load_vowels.hoc -c "wavefile=\"$i\"" -c "print wavefile" -c "LoadVowel(40)" 
-    #./guispecial load_vowels.hoc -c "wavefile=\"$i\"" -c "print wavefile" -c "LoadVowel(60)" 
-    ./guispecial load_vowels.hoc -c "wavefile=\"$i\"" -c "print wavefile" -c "LoadVowel(80)"  &
+    #./guispecial load_vowels.hoc -c "wavdatafile=\"$i\"" -c "print wavdatafile" -c "LoadVowel(40)" 
+    #./guispecial load_vowels.hoc -c "wavdatafile=\"$i\"" -c "print wavdatafile" -c "LoadVowel(60)" 
+    ./guispecial load_vowels.hoc -c "wavdatafile=\"$i\"" -c "print wavdatafile" -c "LoadVowel(80)"  &
 done
 
 

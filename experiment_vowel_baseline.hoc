@@ -58,7 +58,7 @@ system("sleep 1")
 
 stimtype = 0  //read stim from file
 path = "../PVSyllables/"
-wavefile = "../PVSyllables/bu.dat"
+wavdatafile = "../PVSyllables/bu.dat"
 
 usesavedfilterbanks=1
 sg_rate = 10000

@@ -546,18 +546,18 @@ proc FilteredNoise() {local rampts, rstep, totalpts, steadypts, duration,spl,cyc
     notchdepth=$8
     inputsound = new Vector()
     if(notchwidth > 10){
-	sprint(wavefile,"./TV_Notch/Notch-sb%g-sb%g.dat",stopband1,notchwidth)
+	sprint(wavdatafile,"./TV_Notch/Notch-sb%g-sb%g.dat",stopband1,notchwidth)
     } \
     else {
-	sprint(wavefile,"./TV_Notch/Notch-sb%g-%goct.dat",stopband1,notchwidth)
+	sprint(wavdatafile,"./TV_Notch/Notch-sb%g-%goct.dat",stopband1,notchwidth)
     }
-    print wavefile
-    file.ropen(wavefile)
+    print wavdatafile
+    file.ropen(wavdatafile)
     if (file.isopen() == 0){
-	sprint(tmpstr,"octave --eval \"getnotchcheb(%d,%g,%g,%g,\\\"%s\\\")\" 2> /dev/null",int(srate),stopband1,notchwidth,notchdepth,wavefile)
+	sprint(tmpstr,"octave --eval \"getnotchcheb(%d,%g,%g,%g,\\\"%s\\\")\" 2> /dev/null",int(srate),stopband1,notchwidth,notchdepth,wavdatafile)
 	print tmpstr
 	system(tmpstr)
-        file.ropen(wavefile)
+        file.ropen(wavdatafile)
     }
     if (file.isopen() == 0){ printf("Unusable filter file.") return}
     Readfile(inputsound,file)
@@ -632,15 +632,15 @@ proc NotchSweepNoise() {local rampts, rstep, totalpts, steadypts, duration,spl,c
     stim = new Vector()
     inputsound = new Vector()
     file = new File()
-    sprint(wavefile,"./TV_Notch/NotchSweep-sb%g-sb%g.dat",int(stopband1),int(stopband2))
+    sprint(wavdatafile,"./TV_Notch/NotchSweep-sb%g-sb%g.dat",int(stopband1),int(stopband2))
     
-    print wavefile
-    file.ropen(wavefile)
+    print wavdatafile
+    file.ropen(wavdatafile)
     if (file.isopen() == 0){
-	sprint(tmpstr,"octave -f --eval \"pkg load signal;getnotchcheb(%d,%g,%g,%g,\\\"%s\\\")\" 2> /dev/null",int(srate),stopband1,stopband2,notchdepth,wavefile)
+	sprint(tmpstr,"octave -f --eval \"pkg load signal;getnotchcheb(%d,%g,%g,%g,\\\"%s\\\")\" 2> /dev/null",int(srate),stopband1,stopband2,notchdepth,wavdatafile)
 	print "Calling ", tmpstr
 	system(tmpstr)
-	file.ropen(wavefile)
+	file.ropen(wavdatafile)
     }
     if (file.isopen() == 0){ printf("Unusable filter file.") return}
     Readfile(stim,file)
@@ -712,15 +712,15 @@ proc BandSweepNoise() {local rampts, rstep, totalpts, steadypts, duration,spl,cy
     stim = new Vector()
     inputsound = new Vector()
     file = new File()
-    sprint(wavefile,"./TV_Notch/BandSweep-sb%g-sb%g.dat",int(stopband1),int(stopband2))
+    sprint(wavdatafile,"./TV_Notch/BandSweep-sb%g-sb%g.dat",int(stopband1),int(stopband2))
     
-    print wavefile
-    file.ropen(wavefile)
+    print wavdatafile
+    file.ropen(wavdatafile)
     if (file.isopen() == 0){
-	sprint(tmpstr,"octave -f --eval \"pkg load signal;getbandcheb(%d,%g,%g,%g,\\\"%s\\\")\" 2> /dev/null",int(srate),stopband1,stopband2,notchdepth,wavefile)
+	sprint(tmpstr,"octave -f --eval \"pkg load signal;getbandcheb(%d,%g,%g,%g,\\\"%s\\\")\" 2> /dev/null",int(srate),stopband1,stopband2,notchdepth,wavdatafile)
 	print "Calling ", tmpstr
 	system(tmpstr)
-	file.ropen(wavefile)
+	file.ropen(wavdatafile)
     }
     if (file.isopen() == 0){ printf("Unusable filter file.") return}
     Readfile(stim,file)
@@ -1017,6 +1017,7 @@ proc GetWavfile() {local b
         break
     }
     sprint($s1, "%s%s", path, fname)
+	print fname
     
 }
 proc change_working_dir() {
@@ -1273,7 +1274,7 @@ func MaxBWChannel() { local curind, curcf, maxcf, bw,maxind
 
 proc Setwavfile(){
     stimtype = 0
-    GetWavfile(wavefile)  //returns with filename string in 'wavefile'
+    GetWavfile(wavdatafile)  //returns with filename string in 'wavdatafile'
     
 }
 
@@ -1413,7 +1414,7 @@ proc RefreshParameters() {local aa localobj tmprand
     if (stimtype ==0){
 	//Get Stimulus from Wavefile
 	file = new File()
-        file.ropen(wavefile)
+        file.ropen(wavdatafile)
         Readfile(stim,file)
         file.close()
         srate   = 44100.0   //Hz
@@ -1427,7 +1428,7 @@ proc RefreshParameters() {local aa localobj tmprand
         stimtdres   = 1/srate
 	
 	
-        sprint( grlbl, "Wavefile Stimulus %s", wavefile)
+        sprint( grlbl, "Wavefile Stimulus %s", wavdatafile)
         if (nrep > 1) {
             objref tobj
             tobj = stim.c
@@ -1516,7 +1517,7 @@ func GetANfileString() {local i
     }
     //Stimulus Wavfile
     if (stimtype ==0){
-	sprint(ANstr,"%s", wavefile)
+	sprint(ANstr,"%s", wavdatafile)
 	sf_.right(ANstr,sf_.len(path))
 	if (sf_.substr(ANstr,".")!=-1) sf_.left(ANstr, sf_.substr(ANstr,"."))
 	sprint(ANstr,"Wav_%s_%gdB",ANstr, spl)
@@ -1538,19 +1539,19 @@ func GetANfileString() {local i
 	for i=0,clicktimes.size-1 sprint(ANstr,"%s_%d",ANstr,clicktimes.x[i])
     }
     if (stimtype==12){ //FilteredNoise
-	sprint(ANstr,"%s", wavefile)
+	sprint(ANstr,"%s", wavdatafile)
 	sf_.right(ANstr,sf_.len("./TV_Notch/"))
 	sf_.left(ANstr, sf_.len(ANstr)-4)
 	sprint(ANstr,"FilteredFile_%s_L%d_Del%d_Dur%d",ANstr, spl,stimdelay*1000,dur*1000)
     }
     if (stimtype==13){ //NotchSweep
-	sprint(ANstr,"%s", wavefile)
+	sprint(ANstr,"%s", wavdatafile)
 	sf_.right(ANstr,sf_.len("./TV_Notch/"))
 	sf_.left(ANstr, sf_.len(ANstr)-4)
 	sprint(ANstr,"%s_L%d_Del%d_Dur%d",ANstr, int(spl),int(stimdelay*1000),int(dur*1000))
     }
     if (stimtype==14){ //BandSweep
-	sprint(ANstr,"%s", wavefile)
+	sprint(ANstr,"%s", wavdatafile)
 	sf_.right(ANstr,sf_.len("./TV_Notch/"))
 	sf_.left(ANstr, sf_.len(ANstr)-4)
 	sprint(ANstr,"%s_L%d_Del%d_Dur%d",ANstr, int(spl),int(stimdelay*1000),int(dur*1000))

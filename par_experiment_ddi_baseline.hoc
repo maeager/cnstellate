@@ -60,7 +60,7 @@ proc take_record() {
 
 stimtype = 0  //read stim from file
 path = "./stim/"
-wavefile = "./stim/b6t.dat"
+wavdatafile = "./stim/b6t.dat"
 
 proc RescaleStim(){local rms
 rms = Decibels(stim)
