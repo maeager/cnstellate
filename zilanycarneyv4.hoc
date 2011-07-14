@@ -26,7 +26,7 @@ reps		= 50
 usesavedfilterbanks=0
 stimtype        = 0  //read stim from file
 path            = "./stim/"
-wavefile        = "./stim/b6t.dat"
+wavdatafile        = "./stim/b6t.dat"
 
 /* Zilany, Bruce, Nelson, Carney Parameters */
 ANmodel	        = 7		//Zilany EtAl Cat model v4
@@ -45,7 +45,7 @@ stimtype 	= 1
 proc LoadVowel(){
     stimtype = 0  //read stim from file
     path = "./stim/"
-    wavefile = "./stim/b6t.dat"
+    wavdatafile = "./stim/b6t.dat"
     RefreshParameters()	//Generate or get stim from file
     stim.resample(stim,3)
     srate = 44100*3 

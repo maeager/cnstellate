@@ -21,7 +21,7 @@ struct _Tstim {
   double cfhi, cflo, cfinc;
   /*/About stimulus */
   int stim; /*/stimulus type */
-  char wavefile[100]; /*/get wave from the file */
+  char wavdatafile[100]; /*/get wave from the file */
   double reptim; /*/repetition time */
   int trials; /*/for spike generator */
 
@@ -1687,10 +1687,10 @@ int parsecommandline(T_stim *ptm, int argc, char* argv[])
     ptm->reptim = (double)(atof(argv[++i]));
     else if(strcmp(para,"trials")==0)
     ptm->nrep = atoi(argv[++i]);
-    else if(strcmp(para,"wavefile")==0)
+    else if(strcmp(para,"wavdatafile")==0)
     {
     ptm->stim = 11;
-    strcpy(ptm->wavefile,argv[++i]);
+    strcpy(ptm->wavdatafile,argv[++i]);
     }
     else if(strcmp(para,"help")==0)
     needhelp = 1;
@@ -1722,7 +1722,7 @@ int parsecommandline(T_stim *ptm, int argc, char* argv[])
     printf("\n                     !!!!!!!!!");
 
     printf("\n\nAbout stimulus>>>>>>>>");
-    printf("\n -wavefile filename(click) --> specify the stimulus wavefile name(click)");
+    printf("\n -wavdatafile filename(click) --> specify the stimulus wavdatafile name(click)");
     printf("\n -reptim #(0.02) --> the time you want to run the model(20msec)");
     printf("\n -trials #(0)    --> spike generation trials");
     printf("\n");

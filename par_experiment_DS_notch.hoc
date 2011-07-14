@@ -80,7 +80,7 @@ proc print_results() {
 
 stimtype = 0  //read stim from file
 path = "../PVSyllables/"
-wavefile = "../PVSyllables/be.dat"
+wavdatafile = "../PVSyllables/be.dat"
 usesavedfilterbanks=1
 
 

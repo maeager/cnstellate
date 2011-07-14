@@ -1,11 +1,11 @@
 
 
-
+NRNHOME="/usr/local/nrn"
 ARCH=$(shell arch)
 NRNMODL=$(ARCH)/bin/nrnivmodl
 MPIMODL=$(HOME)/src/neuron/nrnmpi/$(NRNMODL)
 GUIMODL=$(HOME/src/neuron/nrngui/$(NRNMODL)
-MODLFLAGS=-loadflags $(shell pwd)/libresample-0.1.3/libresample.a
+MODLFLAGS="-loadflags $(shell pwd)/libresample-0.1.3/libresample.a"
 
 all: clean-all libresample gui mpi
 
@@ -21,22 +21,22 @@ clean-all: clean
 	-rm -rf mpi gui
 	-(cd libresample-0.1.3; make clean)
 
-remove:
+remove-an:
 	-rm -f i686/an*
 	-rm -f i686/.libs/an*
 
 libresample:
 	(cd libresample-0.1.3; make)
 
-rebuild: remove libresample
+rebuild-an: remove-an libresample
 
-gui:
+gui: libresample
 	$(GUIMODL)
 	mv $(ARCH) gui
 	cd gui
 	sed -i 's/cnstellate\/i686/cnstellate\/gui/g' *
 
-mpi:
+mpi: libresample
 	$(MPIMODL)
 	mv $(ARCH) mpi
 	cd mpi

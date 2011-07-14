@@ -9,12 +9,12 @@ extern double* vector_vec();
 extern void* vector_arg();
 ENDVERBATIM
 
-:  anmodel Vector Method - sout.an4( stim/*wavefile*/, tdres,  cf, spontrate, model, species, ifspike)
+:  anmodel Vector Method - sout.an4( stim/*wavdatafile*/, tdres,  cf, spontrate, model, species, ifspike)
      VERBATIM
 #include "complex.h"
 #include "zbcatmodelv2.c"
 #include "carneymodel.h"
-   //sout.an_zbcatmodel07(tdres,cf,spont,model, species,ifspike,wavefile)
+   //sout.an_zbcatmodel07(tdres,cf,spont,model, species,ifspike,wavdatafile)
 static double an_zbcatmodel07(void *vv)
 {
   double *stim;      //Input stimulus vector in pascals

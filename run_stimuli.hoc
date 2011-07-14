@@ -3,7 +3,7 @@ cd ~/dmf/work/netmod/cnstellate
 
 for i in `ls ../PVSyllables/*.dat'
 do
-    nrniv load_vowels.hoc -c"wavefile=""$i"" RunVowels() quit()"
+    nrniv load_vowels.hoc -c"wavdatafile=""$i"" RunVowels() quit()"
 done
 
 

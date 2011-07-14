@@ -1,4 +1,5 @@
-
+% This m file can be used to extract AN filter bank responses to be used
+% in plotting
 ANfile = fopen(tmpANstr)
 if (isopen(ANfile))
   tmp = fscanf(ANfile,"%d\n",6);       

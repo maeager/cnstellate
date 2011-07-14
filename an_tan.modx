@@ -9,7 +9,7 @@ extern void* vector_arg();
 extern char *gargstr();
 ENDVERBATIM
 
-:* anmodel Vector Method - sout.an3( stim/*wavefile*/, tdres,  cf, spontrate, model, species, ifspike)
+:* anmodel Vector Method - sout.an3( stim/*wavdatafile*/, tdres,  cf, spontrate, model, species, ifspike)
 VERBATIM
 #include "./anmod3m.c"
 

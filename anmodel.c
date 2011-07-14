@@ -125,7 +125,7 @@ extern char *gargstr();
 #include "./HeinzARLO/ARLO.c"
 
 
-//sout.an4(tdres,cf,spont,model, species,ifspike,wavefile)
+//sout.an4(tdres,cf,spont,model, species,ifspike,wavdatafile)
 #define NSTIMMAX 100000 // enough points for durations up to 250 msec
 #define MAXCHARBUF 100
 static double an4(void *vv)
@@ -144,7 +144,7 @@ static double an4(void *vv)
   double *sout;   //Output vector containing all data for each channel (#banks X datapoints)
   int nsout, nstim, i;
 
-  char *wavefile;
+  char *wavdatafile;
   double  cfhi, cflo;
   int banks;
 
@@ -160,7 +160,7 @@ static double an4(void *vv)
     hoc_execerror("ERROR: input syntax must be sout.an4( stim, tdres,  cf, spontrate, model, species, ifspike)", 0);
     return 0;
   }
-  //TDRES  resolution of wavefile
+  //TDRES  resolution of wavdatafile
   tdres = (double)(*getarg(2));
   //cf of fiber
   cf = (int)(*getarg(3));
@@ -173,11 +173,11 @@ static double an4(void *vv)
   //Spike generator on =1
   ifspike = (double)(*getarg(7));
   /* //Wavefile
-     wavefile=gargstr(1);
+     wavdatafile=gargstr(1);
      totalstim=0;
      for(nowstim=0; nowstim<NSTIMMAX; nowstim++) stim[nowstim] = 0.0;
      printf("\nReading in stimulus \n");
-     fpstim = fopen(wavefile,"r");
+     fpstim = fopen(wavdatafile,"r");
      nowstim=0;
      while((fscanf(fpstim,"%le",&stim[nowstim]) != EOF) & (nowstim<NSTIMMAX)) nowstim++;
      printf("%d points read in\n",nowstim);
