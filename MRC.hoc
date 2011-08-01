@@ -65,23 +65,23 @@ criteria.
 objref MRA[sp.cells.count],MRAgr, mrafreq
 strdef mrastr
 
-NoiseRateTS = 0
+NoiseRateTS				= 0
 proc NoiseRate(){localobj psth
-	reps=25
-	AdditiveNoise = 0
+	reps				=25
+	AdditiveNoise		= 0
 
-	stimtype = 4	//Wideband noise
-	tonefreq 	= 0	//Hz
-	dur 		= 0.095 	//duration of tone segment (seconds)
-	spl 		= 50 		//dB SPL of tone 
-	dutycycle 	= 0		//quiet duration = dutycycle*dur
-	ramplngth 	= 0.005
-	srate 		= 50000.0  
-	stimtdres 	= 1/srate
-	sg_rate 	= 10000		
-	sg_tdres 	= 1/sg_rate
-	nrep		= 1  		//nrep is number of reps in one stimulus
-	stimdelay 	= 0.00		//sec
+	stimtype			= 4	//Wideband noise
+	tonefreq			= 0	//Hz
+	dur					= 0.095 	//duration of tone segment (seconds)
+	spl					= 50 		//dB SPL of tone 
+	dutycycle			= 0		//quiet duration = dutycycle*dur
+	ramplngth			= 0.005
+	srate				= 50000.0  
+	stimtdres			= 1/srate
+	sg_rate				= 10000		
+	sg_tdres			= 1/sg_rate
+	nrep				= 1  		//nrep is number of reps in one stimulus
+	stimdelay			= 0.00		//sec
 	RefreshParameters()
 	ANFilterBankRun()
 	sp.FlushSpks()	
@@ -106,27 +106,27 @@ reps=10
 proc MaskedResponseArea(){local i,j,count,sum, channel, hi, lo,runtime, incr, startf, stopf 
 	objref MRA[sp.cells.count],MRAgr, mrafreq,psth
 	//objref mratimes
-	psth=new Vector(1001)
-	mrafreq = new Vector()
-startf = startsw()
+	psth				=new Vector(1001)
+	mrafreq				= new Vector()
+startf					= startsw()
 	for i=0,sp.cells.count-1 { MRA[i] = new Vector() }
-//	mratimes = new Vector()
-	count=0
-	reps=$1
-	AdditiveNoise = 1
-	NoiseLevel = 50		//dbSPL max amplitude
-	stimtype = 1
-	tonefreq 	= cf.x[icentre]	//Hz
-	dur 		= 0.095 	//duration of tone segment (seconds)
-	spl 		= 70 		//dB SPL of tone 
-	dutycycle 	= 0		//quiet duration = dutycycle*dur
-	ramplngth 	= 0.005
-	srate 		= 50000.0  
-	stimtdres 	= 1/srate
-	sg_rate 	= 10000		
-	sg_tdres 	= 1/sg_rate
-	nrep		= 1  		//nrep is number of reps in one stimulus
-	stimdelay 	= 0.00		//sec
+//	mratimes			= new Vector()
+	count				=0
+	reps				=$1
+	AdditiveNoise		= 1
+	NoiseLevel			= 50		//dbSPL max amplitude
+	stimtype			= 1
+	tonefreq			= cf.x[icentre]	//Hz
+	dur					= 0.095 	//duration of tone segment (seconds)
+	spl					= 70 		//dB SPL of tone 
+	dutycycle			= 0		//quiet duration = dutycycle*dur
+	ramplngth			= 0.005
+	srate				= 50000.0  
+	stimtdres			= 1/srate
+	sg_rate				= 10000		
+	sg_tdres			= 1/sg_rate
+	nrep				= 1  		//nrep is number of reps in one stimulus
+	stimdelay			= 0.00		//sec
 	
 	
 //	stopf = startsw() //int(cf.x[icentre]*2/10)*10
@@ -140,9 +140,9 @@ startf = startsw()
 
 	//for(tonefreq=startf;tonefreq<stopf && stoprun==0; tonefreq+=incr){
 	for channel = icentre-15, icentre+15 {
-		runtime = startsw()
+		runtime			= startsw()
 //		mratimes.resize(0)
-		tonefreq = cf.x[channel]
+		tonefreq		= cf.x[channel]
 		mrafreq.append(tonefreq)
 		
 		//RefreshParameters()	
@@ -151,25 +151,25 @@ startf = startsw()
 		sp.FlushSpks()		//Erase old spikes
 		//Set all ANFs to New rates
 		an.reset()
-//		startf = startsw()-runtime
+//		startf			= startsw()-runtime
 		// Perform multiple runs
 		for j=0, reps-1{ 
-//			runtime = startsw()
+//			runtime		= startsw()
 			run3() 
 			sp.SaveSpks() 
 //			mratimes.append(startsw()-runtime)
 		}	
-//		runtime = startsw()			
+//		runtime			= startsw()			
 //		flushPlot()
 //		mratimes.printf
 		//Calculate mean 
 		MeanRate()
-		//for i=0,sp.cells.count-1 { 
-			psth = Mspikes[0].histogram(0, 100,0.1)
+		//for i			=0,sp.cells.count-1 { 
+			psth		= Mspikes[0].histogram(0, 100,0.1)
 			MRA[0].append(psth.sum(500,1000)/(reps*0.05))
 		//}
 		//Mspikes could be used to find PSTH, FSL etc info here
-		runtime = startsw()-runtime
+		runtime			= startsw()-runtime
 		print "MRA at ",tonefreq," ",psth.sum(500,1000)/(reps*0.05) ," took ",runtime, " secs "
 //		print "Start time: ", startf, " Total : ",startf+mratimes.sum() +runtime
 		objref psth 
@@ -200,25 +200,25 @@ startf = startsw()
 proc MaskedStimuli(){local i,j,count,sum, channel, hi, lo
 	objref  mrafreq
 
-	mrafreq = new Vector()
+	mrafreq				= new Vector()
 
 
-	count=0
+	count				= 0
 	
-	AdditiveNoise = 1
-	NoiseLevel = 50		//dbSPL max amplitude
-	stimtype = 1
-	tonefreq 	= cf.x[icentre]	//Hz
-	dur 		= 0.095 	//duration of tone segment (seconds)
-	spl 		= 70 		//dB SPL of tone 
-	dutycycle 	= 0		//quiet duration = dutycycle*dur
-	ramplngth 	= 0.005
-	srate 		= 50000.0  
-	stimtdres 	= 1/srate
-	sg_rate 	= 10000		
-	sg_tdres 	= 1/sg_rate
-	nrep		= 1  		//nrep is number of reps in one stimulus
-	stimdelay 	= 0.00		//sec
+	AdditiveNoise		= 1
+	NoiseLevel			= 50		//dbSPL max amplitude
+	stimtype			= 1
+	tonefreq			= cf.x[icentre]	//Hz
+	dur					= 0.095 	//duration of tone segment (seconds)
+	spl					= 70 		//dB SPL of tone 
+	dutycycle			= 0		//quiet duration = dutycycle*dur
+	ramplngth			= 0.005
+	srate				= 50000.0  
+	stimtdres			= 1/srate
+	sg_rate				= 10000		
+	sg_tdres			= 1/sg_rate
+	nrep				= 1  		//nrep is number of reps in one stimulus
+	stimdelay			= 0.00		//sec
 	
 
 

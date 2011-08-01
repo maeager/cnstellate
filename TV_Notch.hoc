@@ -50,7 +50,7 @@ proc GenSpikes2(){local i,j,count
 	// for i=0,nchannels-1 {for j=0,HSRsperchannel-1 count+=an.HSRspiketimes[i][j].size}
     // if (count/(nchannels*HSRsperchannel) > 10) system("sleep 0.5")
     for i=0,nchannels-1 {for j=0,LSRsperchannel-1 an.LSR[i][j].SGfast2(1)}
-    for i=0,nchannels-1 {golgi[i][0].s.SGfast2(1)}
+    for i=0,nchannels-1 {golgi[i][0].sg.SGfast2(1)}
     print "GenSpikes time: ", stopsw()
 }
 proc multi_run(){local irep
@@ -69,31 +69,31 @@ proc multi_run(){local irep
 
 //////////Default Parameters for TV_Notch///////////////
 
-ANsoundspath = "../../sounds"
-cfhi     = 48000
-cflo     = 200
-ramplngth = 0.002
-tstop    = 70    // ms
-dur      = 0.048  // duration of stim (seconds)
-spl      = 70     // dB SPL
-stimdelay= 0.01   // sec
-stimtype = 12     // Notch: stobband filtered noise
-reps     = 20     //
-ANmodel  = 6      // Zilany Bruce model version 3
-species  = 1      // Cat
+ANsoundspath			= "../../sounds"
+cfhi					= 48000
+cflo					= 200
+ramplngth				= 0.002
+tstop					= 70    // ms
+dur						= 0.048  // duration of stim (seconds)
+spl						= 70     // dB SPL
+stimdelay				= 0.01   // sec
+stimtype				= 12     // Notch: stobband filtered noise
+reps					= 20     //
+ANmodel					= 6      // Zilany Bruce model version 3
+species					= 1      // Cat
 
-stopband = 6000      // kHz
-notchwidth = 1
-centrepoint=stopband
+stopband				= 6000      // kHz
+notchwidth				= 1
+centrepoint				= stopband
 GenNotchResponsePlots()
 
 
-ANFBgr = new Graph()
-usesavedfilterbanks=0
-srate     = 100000
-stimtdres = 1/srate
-sg_rate   = 50000
-sg_tdres  = 1/sg_rate
+ANFBgr					= new Graph()
+usesavedfilterbanks		= 0
+srate					= 100000
+stimtdres				= 1/srate
+sg_rate					= 50000
+sg_tdres				= 1/sg_rate
 RefreshCF()
 GetAudiogramData()
 RefreshParameters()

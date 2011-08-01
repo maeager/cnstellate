@@ -2,8 +2,11 @@
 # gnuplot is available from http://www.gnuplot.info
 load '../Responses/default.gnu'
 
-set term postscript portrait enhanced mono
-# solid "Helvetica" 8
+set terminal postscript eps enhanced defaultplex \
+   leveldefault mono solid\
+   dashlength 1.0 linewidth 2.0 butt noclip \
+   palfuncparam 2000,0.003 \
+   "Helvetica" 18 
 set output "baseline.eps"
 
 #set size 0.49,0.5

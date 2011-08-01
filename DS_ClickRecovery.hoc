@@ -24,7 +24,7 @@ xopen("pvec_Golgi_RateLevel.hoc")
 // Input rate and spike procedures
 proc SetRates(){
 	an.SetRates()
-	for i=0,99 golgi[i][0].SetRate()
+	for i=0,99 golgi[i][0].SetRate2()
 }
 
 proc GenSpikes2(){local i
@@ -165,6 +165,7 @@ proc connect_cells(){local i,p,target,source,low,high,range,channel,sourcechanne
 //--- Setup Auditory model
 create_cells()
 objref dstellate[nchannels][1]
+
 dstellate[50][0] = new CNcell(2,cf.x[50],50)
 connect_cells(fileroot)
 tstop=300
@@ -198,18 +199,18 @@ gr = new Graph()
 
 //Target response from
 //Fraction of repetitions that ellicit a response
-targetclickrecovery = new Vector()
+targetclickrecovery			= new Vector()
 targetclickrecovery.append(1,1,1,0.2,1,0.63,1,0.45,1,0.3,0,0,0,0)
-wclick = new Vector(14,1)
-wclick.x[3]=5
-wclick.x[5]=10
-wclick.x[7]=1
-wclick.x[9]=5
-wclick.x[10]=0.01
-wclick.x[11]=0.01
-wclick.x[12]=0.01
-wclick.x[13]=0.01
-targetclickrecovery.plot(gr,2,2) gr.exec_menu("View = plot")
+wclick													= new Vector(14,1)
+wclick.x[3]					= 5
+wclick.x[5]					= 10
+wclick.x[7]					= 1
+wclick.x[9]					= 5
+wclick.x[10]				= 0.01
+wclick.x[11]				= 0.01
+wclick.x[12]				= 0.01
+wclick.x[13]				= 0.01
+targetclickrecovery.plot(gr,2,2) gr.exec_menu("View		= plot")
 
 
 
@@ -760,10 +761,10 @@ proc RateLevelDS(){
 	ramplngth 	= 0.001
 	srate 		= 100000.0
 	stimtdres 	= 1/srate
-	sg_rate = 50000		
-	sg_tdres = 1/sg_rate
+	sg_rate     = 50000		
+	sg_tdres    = 1/sg_rate
 	stimdelay 	= 0.02		//sec
-	stimtype=6 	//noise
+	stimtype    = 6 	//noise
 	for (spl=15;spl<=100;spl+=5){
 		RefreshParameters()
 		ANFilterBankRun()   //Build the filterbank

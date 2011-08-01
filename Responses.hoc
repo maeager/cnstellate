@@ -43,25 +43,25 @@ MRAv = new Vector(31)
 proc ResponseArea(){local i,j,count,sum, channel, hi, lo,runtime, incr, startf, stopf localobj pst1,pst2
     //	objref MRAgr, mrafreq,psth
 	//objref mratimes
-	pst1=new Vector(1001) 
-    pst2= new Vector(1001)
-	mrafreq = new Vector()
-	runtime = startsw()
+	pst1				= new Vector(1001) 
+    pst2				= new Vector(1001)
+	mrafreq				= new Vector()
+	runtime				= startsw()
 	
 	//Basic Stimulus Properties
-	AdditiveNoise = 0
-	count=0
-	reps=10
-	stimtype = 1
-	dur 		= 0.095 	//duration of tone segment (seconds)
-	dutycycle 	= 0		//quiet duration = dutycycle*dur
-	ramplngth 	= 0.005
-	srate 		= 50000.0  
-	stimtdres 	= 1/srate
-	sg_rate 	= 10000		
-	sg_tdres 	= 1/sg_rate
-	nrep		= 1  		//nrep is number of reps in one stimulus
-	stimdelay 	= 0.02		//sec
+	AdditiveNoise		= 0
+	count				= 0
+	reps				= 10
+	stimtype			= 1
+	dur					= 0.095 	//duration of tone segment (seconds)
+	dutycycle			= 0		//quiet duration = dutycycle*dur
+	ramplngth			= 0.005
+	srate				= 50000.0  
+	stimtdres			= 1/srate
+	sg_rate				= 10000		
+	sg_tdres			= 1/sg_rate
+	nrep				= 1  		//nrep is number of reps in one stimulus
+	stimdelay			= 0.02		//sec
 	
 	//Input variables
 	if ($1==0) { tonefreq 	= cf.x[icentre]	//Hz

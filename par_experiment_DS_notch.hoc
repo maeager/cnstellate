@@ -78,14 +78,14 @@ proc print_results() {
 
 //Setup Auditory model
 
-stimtype = 0  //read stim from file
-path = "../PVSyllables/"
-wavdatafile = "../PVSyllables/be.dat"
-usesavedfilterbanks=1
+stimtype				= 0  //read stim from file
+path					= "../PVSyllables/"
+wavdatafile				= "../PVSyllables/be.dat"
+usesavedfilterbanks		=1
 
 
-sg_rate = 10000
-sg_tdres = 1/sg_rate
+sg_rate					= 10000
+sg_tdres				= 1/sg_rate
 /*
 proc LoadVowel(){
 RefreshParameters()   //Generate or get stim from file
@@ -111,8 +111,8 @@ proc LoadVowel(){
 RefreshParameters()   //Generate or get stim from file
 stim.resample(stim,3)
 srate       = 44100*3
-stimtdres    = 1/srate
-spl=$1
+stimtdres   = 1/srate
+spl         = $1
 RescaleStim(spl,stim.size/5,stim.size*4/5)      //Scale the vowel
 par_ANFilterBankRun()   //Build the filterbank
 an.SetRates()      //Allocate filterbanks to ANFs

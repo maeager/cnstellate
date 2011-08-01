@@ -168,58 +168,58 @@ proc SPLTone() {local stimtdres, rampts, rstep, totalpts, steadypts, tonefrequen
     objref stim
     objref rampx, offramp, onramp, middle, quiet, envelope, inputsound,initquiet
     
-    tonefrequency = $1
-    samplingrate = $2   //sampling rate (Hz)  should be at least 2*(highest frequency component)
+    tonefrequency		= $1
+    samplingrate		= $2   //sampling rate (Hz)  should be at least 2*(highest frequency component)
     // Nyquist criterion
-    duration = $3       //duration in seconds
-    spl = $4        //Sound Pressure level in dB SPL
-    cycle = $5      //Ratio of signal to silence, duty cycle
-    ramplength = $6     //0.005 ramp duration in seconds (note - duration includes 1/2 of ramp)
-    nrep = $7
-    delay = $8
-    inputsound = new Vector()
+    duration			= $3       //duration in seconds
+    spl					= $4        //Sound Pressure level in dB SPL
+    cycle				= $5      //Ratio of signal to silence, duty cycle
+    ramplength			= $6     //0.005 ramp duration in seconds (note - duration includes 1/2 of ramp)
+    nrep				= $7
+    delay				= $8
+    inputsound			= new Vector()
     
     
     
-    stimtdres = 1/samplingrate
-    rampts = ramplength * samplingrate
-    steadypts = duration * samplingrate - rampts
-    totalpts = steadypts + (rampts*2)
+    stimtdres			= 1/samplingrate
+    rampts				= ramplength * samplingrate
+    steadypts			= duration * samplingrate - rampts
+    totalpts			= steadypts + (rampts*2)
     
     // Create Cosine Squared On/off ramps
-    rstep = (PI) / (rampts-1)
-    rampx = new Vector(rampts)
+    rstep				= (PI) / (rampts-1)
+    rampx				= new Vector(rampts)
     
     //middle section of tone
-    middle =new Vector(steadypts, 1)
+    middle				=new Vector(steadypts, 1)
     
-    //offramp = (1+cos(rampx))/2
-    offramp = new Vector(rampts)
-    offramp = rampx.indgen(rstep).apply("mycos").add(1).div(2)
+    //offramp			= (1+cos(rampx))/2
+    offramp				= new Vector(rampts)
+    offramp				= rampx.indgen(rstep).apply("mycos").add(1).div(2)
     
-    //onramp = (1+cos(fliplr(rampx)))./2;
+    //onramp			= (1+cos(fliplr(rampx)))./2;
     objref rampx
-    rampx =new Vector(rampts)
-    onramp = new Vector(rampts)
-    onramp = rampx.indgen(rstep).reverse().apply("mycos").add(1).div(2)
+    rampx				=new Vector(rampts)
+    onramp				= new Vector(rampts)
+    onramp				= rampx.indgen(rstep).reverse().apply("mycos").add(1).div(2)
     
     
     //Put tone together
-    envelope = new Vector()
+    envelope			= new Vector()
     envelope.append(onramp, middle, offramp)    //Envelope for stimulus (i.e. on/off ramps)
     //Quiet segments
-    quiet = new Vector(totalpts*(cycle), 0) //int() returns integer component of double
-    initquiet = new Vector(delay*samplingrate,0)
+    quiet				= new Vector(totalpts*(cycle), 0) //int() returns integer component of double
+    initquiet			= new Vector(delay*samplingrate,0)
     
     objref rampx, inputsound
     //Amplitude scaling of tone (into Pascals for AN model)
-    aa = spl2ampl((spl))
-    rstep = tonefrequency * 2.0 * PI * (1/samplingrate)
-    rampx = new Vector(totalpts)
+    aa					= spl2ampl((spl))
+    rstep				= tonefrequency * 2.0 * PI * (1/samplingrate)
+    rampx				= new Vector(totalpts)
     rampx.indgen(rstep)
-    inputsound = new Vector(totalpts)
+    inputsound			= new Vector(totalpts)
     //make sure the input vector is the right size
-    inputsound = rampx.apply("sin")
+    inputsound			= rampx.apply("sin")
     envelope.resize(inputsound.size)
     inputsound.mul(aa).mul(envelope)
     // mul by on/off ramps, and add quiet period at end
@@ -239,48 +239,48 @@ proc AMtone() {local stimtdres,rstep, totalpts, fc, fm, samplingrate, duration,s
     //assumes stim is already a Vector() object
     //AMtone(tonefreq, srate, dur, spl, dutycycle, ramplngth,nrep, stimdelay, AM_modfreq, AM_depth)
     objref modulation ,rampx, inputsound,initquiet, stim
-    tonefrequency = $1
-    samplingrate = $2   //sampling rate (Hz)  should be at least 2*(highest frequency component)
+    tonefrequency		= $1
+    samplingrate		= $2   //sampling rate (Hz)  should be at least 2*(highest frequency component)
     // Nyquist criterion
-    duration = $3       //duration in seconds
-    spl = $4        //Sound Pressure level in dB SPL
-    cycle = $5      //Ratio of signal to silence, duty cycle
-    ramplength = $6     //0.005 ramp duration in seconds (note - duration includes 1/2 of ramp)
-    nrep = $7
-    delay = $8
-    fm = $9
-    depth = 1-$10           //Ratio difference/sum of max and min of AM signal
+    duration			= $3       //duration in seconds
+    spl					= $4        //Sound Pressure level in dB SPL
+    cycle				= $5      //Ratio of signal to silence, duty cycle
+    ramplength			= $6     //0.005 ramp duration in seconds (note - duration includes 1/2 of ramp)
+    nrep				= $7
+    delay				= $8
+    fm					= $9
+    depth				= 1-$10           //Ratio difference/sum of max and min of AM signal
     
     
-    stimtdres = 1/samplingrate
-    rampts = ramplength * samplingrate
-    steadypts = duration * samplingrate - rampts
-    totalpts = steadypts + (rampts*2)
+    stimtdres			= 1/samplingrate
+    rampts				= ramplength * samplingrate
+    steadypts			= duration * samplingrate - rampts
+    totalpts			= steadypts + (rampts*2)
     
     // Create Cosine Squared On/off ramps and envelope
-    rstep = (PI) / (rampts-1)
-    rampx = new Vector(rampts)
+    rstep				= (PI) / (rampts-1)
+    rampx				= new Vector(rampts)
     
     //middle section of tone
-    middle =new Vector(steadypts, 1)
+    middle				=new Vector(steadypts, 1)
     
-    //offramp = (1+cos(rampx))/2
-    offramp = new Vector(rampts)
-    offramp = rampx.indgen(rstep).apply("mycos").add(1).div(2)
+    //offramp			= (1+cos(rampx))/2
+    offramp				= new Vector(rampts)
+    offramp				= rampx.indgen(rstep).apply("mycos").add(1).div(2)
     
-    //onramp = (1+cos(fliplr(rampx)))./2;
+    //onramp			= (1+cos(fliplr(rampx)))./2;
     objref rampx
-    rampx =new Vector(rampts)
-    onramp = new Vector(rampts)
-    onramp = rampx.indgen(rstep).reverse().apply("mycos").add(1).div(2)
+    rampx				=new Vector(rampts)
+    onramp				= new Vector(rampts)
+    onramp				= rampx.indgen(rstep).reverse().apply("mycos").add(1).div(2)
     
     //Modulation envelope for stimulus
     
-    modulation = new Vector(totalpts)
-    rstep = fm * 2.0 * PI * (1/samplingrate)
-    rampx = new Vector(totalpts)
+    modulation			= new Vector(totalpts)
+    rstep				= fm * 2.0 * PI * (1/samplingrate)
+    rampx				= new Vector(totalpts)
     rampx.indgen(rstep)
-    modulation = rampx.apply("mycos").mul(-0.5)
+    modulation			= rampx.apply("mycos").mul(-0.5)
     if (depth!=1){ modulation.mul(1-depth) }
     modulation.add(1-modulation.max())
     
@@ -311,9 +311,9 @@ proc AMtone() {local stimtdres,rstep, totalpts, fc, fm, samplingrate, duration,s
     
     
     objref stim
-    stim = new Vector()
+    stim		= new Vector()
     stim.append(initquiet).append(inputsound)
-    if (nrep > 1){ for i = 2, nrep { stim.append(inputsound) } }
+    if (nrep > 1){ for i= 2, nrep { stim.append(inputsound) } }
     objref rampx, offramp, onramp, middle, quiet, envelope, inputsound
     
     
@@ -326,44 +326,44 @@ proc AMtone() {local stimtdres,rstep, totalpts, fc, fm,period, samplingrate, dur
     //assumes stim is already a Vector() object
     //AMtone(tonefreq, AM_modfreq, AM_depth, nrep, spl, stimdelay,dur)
     objref modulation ,rampx, carrier,initquiet, stim
-    fc = $1
-    fm = $2
-    depth = $3          //Ratio difference/sum of max and min of AM signal
-    samplingrate = srate    //sampling rate (Hz)  should be 50000
-    nrep = $4           //how many periods of modulating frequency
-    spl = $5            //Sound Pressure level in dB SPL
-    delay = $6
-    stimtdres = 1/samplingrate
-    //Use function: s(t) = (1-depth*sin(2*pi*fm*t))*sin(2*pi*fc*t)
-    period = 1/fm
-    duration = $7
+    fc							= $1
+    fm							= $2
+    depth						= $3          //Ratio difference/sum of max and min of AM signal
+    samplingrate				= srate    //sampling rate (Hz)  should be 50000
+    nrep						= $4           //how many periods of modulating frequency
+    spl							= $5            //Sound Pressure level in dB SPL
+    delay						= $6
+    stimtdres					= 1/samplingrate
+    //Use function: s(t)		= (1-depth*sin(2*pi*fm*t))*sin(2*pi*fc*t)
+    period						= 1/fm
+    duration					= $7
     if (period < duration){
-        duration = period
+        duration				= period
     } \
-    else nrep = int(duration/period)+1
-    totalpts = duration * samplingrate
+    else nrep					= int(duration/period)+1
+    totalpts					= duration * samplingrate
     print "duration ", duration, " periods ", duration/period
     //Envelope for stimulus
-    modulation = new Vector(totalpts)
-    rstep = fm * 2.0 * PI * (1/samplingrate)
-    rampx = new Vector(totalpts)
+    modulation					= new Vector(totalpts)
+    rstep						= fm * 2.0 * PI * (1/samplingrate)
+    rampx						= new Vector(totalpts)
     rampx.indgen(rstep)
-    modulation = rampx.apply("mycos").mul(-depth).add(1)
+    modulation					= rampx.apply("mycos").mul(-depth).add(1)
     //Amplitude scaling of tone (into Pascals for AN model)
-    aa = spl2ampl((spl))
+    aa							= spl2ampl((spl))
     //Quiet segments
-    initquiet = new Vector(delay*samplingrate,0)
+    initquiet					= new Vector(delay*samplingrate,0)
     //Carrier segment
     objref rampx, carrier
-    rstep = fc * 2.0 * PI * (1/samplingrate)
-    rampx = new Vector(totalpts)
+    rstep						= fc * 2.0 * PI * (1/samplingrate)
+    rampx						= new Vector(totalpts)
     rampx.indgen(rstep)
-    carrier = new Vector(totalpts)
-    carrier = rampx.apply("sin")
+    carrier						= new Vector(totalpts)
+    carrier						= rampx.apply("sin")
     //Combine carrier and modulation, scale amplitude
     carrier.mul(modulation).mul(aa)
     //Finish stimulus
-    stim = new Vector()
+    stim						= new Vector()
     stim.append(initquiet).append(carrier)
 }
 */
@@ -377,67 +377,67 @@ proc ToneplusNoise() {local rampts, rstep, totalpts \
     objref stim
     
     objref rampx, offramp, onramp, middle, quiet, envelope, inputsound,initquiet,bbnoise
-    tonefrequency = $1
-    samplingrate = $2   //sampling rate (Hz)  should be 100000 for Zilany or 50000 for Heinz ARLO model
-    duration = $3       //duration in seconds
-    spl = $4        //Sound Pressure level in dB SPL
-    cycle = $5      //Ratio of signal to silence, duty cycle
-    ramplength = $6     //0.005 ramp duration in seconds (note - duration includes 1/2 of ramp)
-    nrep = $7
-    delay = $8
-    bbnspl = $9
-    inputsound = new Vector()
+    tonefrequency		= $1
+    samplingrate		= $2   //sampling rate (Hz)  should be 100000 for Zilany or 50000 for Heinz ARLO model
+    duration			= $3       //duration in seconds
+    spl					= $4        //Sound Pressure level in dB SPL
+    cycle				= $5      //Ratio of signal to silence, duty cycle
+    ramplength			= $6     //0.005 ramp duration in seconds (note - duration includes 1/2 of ramp)
+    nrep				= $7
+    delay				= $8
+    bbnspl				= $9
+    inputsound			= new Vector()
     
     
     
-    stimtdres = 1/samplingrate
-    rampts = ramplength * samplingrate
-    steadypts = duration * samplingrate - rampts
-    totalpts = steadypts + (rampts*2)
+    stimtdres			= 1/samplingrate
+    rampts				= ramplength * samplingrate
+    steadypts			= duration * samplingrate - rampts
+    totalpts			= steadypts + (rampts*2)
     
     // Create Cosine Squared On/off ramps
-    rstep = (PI) / (rampts-1)
-    rampx = new Vector(rampts)
+    rstep				= (PI) / (rampts-1)
+    rampx				= new Vector(rampts)
     
     //middle section of tone
-    middle =new Vector(steadypts, 1)
+    middle				=new Vector(steadypts, 1)
     
-    //offramp = (1+cos(rampx))/2
-    offramp = new Vector(rampts)
+    //offramp			= (1+cos(rampx))/2
+    offramp				= new Vector(rampts)
     print "offramp ", rampts, rstep
-    offramp = rampx.indgen(rstep).apply("mycos").add(1).div(2)
+    offramp				= rampx.indgen(rstep).apply("mycos").add(1).div(2)
     
-    //onramp = (1+cos(fliplr(rampx)))./2;
-    objref rampx rampx =new Vector(rampts)
-    onramp = new Vector(rampts)
-    onramp = rampx.indgen(rstep).reverse().apply("mycos").add(1).div(2)
+    //onramp			= (1+cos(fliplr(rampx)))./2;
+    objref rampx rampx	=new Vector(rampts)
+    onramp				= new Vector(rampts)
+    onramp				= rampx.indgen(rstep).reverse().apply("mycos").add(1).div(2)
     
     
     //Put tone together
-    envelope = new Vector()
+    envelope			= new Vector()
     envelope.append(onramp, middle, offramp)    //Envelope for stimulus (i.e. on/off ramps)
     //Quiet segments
-    quiet = new Vector(totalpts*(cycle), 0) //int() returns integer component of double
-    initquiet = new Vector(delay*samplingrate,0)
+    quiet				= new Vector(totalpts*(cycle), 0) //int() returns integer component of double
+    initquiet			= new Vector(delay*samplingrate,0)
     
     objref rampx, inputsound
     //Amplitude scaling of tone (into Pascals for AN model)
-    aa = spl2ampl((spl))
-    rstep = tonefrequency * 2.0 * PI * (1/samplingrate)
-    rampx = new Vector(totalpts)
+    aa					= spl2ampl((spl))
+    rstep				= tonefrequency * 2.0 * PI * (1/samplingrate)
+    rampx				= new Vector(totalpts)
     
     rampx.indgen(rstep)
     //make sure the input vectors are the right size
-    bbnoise = new Vector(totalpts)
-    inputsound = new Vector(totalpts)
+    bbnoise				= new Vector(totalpts)
+    inputsound			= new Vector(totalpts)
     
     //Generate the noise
     Rand.normal(0,1)
     bbnoise.setrand(Rand)
-    aan = spl2amplNoise(bbnspl)
+    aan					= spl2amplNoise(bbnspl)
     bbnoise.mul(aan).mul(envelope)
     //Generate the tone
-    inputsound = rampx.apply("sin")
+    inputsound			= rampx.apply("sin")
     inputsound.mul(aa).mul(envelope)
     //Combine noise and tone
     
@@ -459,50 +459,50 @@ proc GaussianNoise() {local mean, variance, stimtdres, rampts, rstep, totalpts, 
     
     objref rampx, offramp, onramp, middle, quiet, envelope, inputsound,initquiet
     
-    samplingrate = $1   //sampling rate (Hz)  should be 50000
-    duration = $2       //duration in seconds
-    spl = $3        //Sound Pressure level in dB SPL
-    cycle = $4      //Ratio of signal to silence, duty cycle
-    ramplength = $5     //0.005 ramp duration in seconds (note - duration includes 1/2 of ramp)
-    nrep = $6
-    delay = $7
-    mean = $8
-    variance = $9
-    inputsound = new Vector()
+    samplingrate		= $1   //sampling rate (Hz)  should be 50000
+    duration			= $2       //duration in seconds
+    spl					= $3        //Sound Pressure level in dB SPL
+    cycle				= $4      //Ratio of signal to silence, duty cycle
+    ramplength			= $5     //0.005 ramp duration in seconds (note - duration includes 1/2 of ramp)
+    nrep				= $6
+    delay				= $7
+    mean				= $8
+    variance			= $9
+    inputsound			= new Vector()
     
     
     
     Rand.normal(mean, variance)
     
     
-    stimtdres = 1/samplingrate
-    rampts = ramplength * samplingrate
-    steadypts = duration * samplingrate - rampts
-    totalpts = steadypts + (rampts*2)
+    stimtdres			= 1/samplingrate
+    rampts				= ramplength * samplingrate
+    steadypts			= duration * samplingrate - rampts
+    totalpts			= steadypts + (rampts*2)
     
     // Create Cosine Squared On/off ramps
-    rstep = (PI) / (rampts-1)
-    rampx = new Vector(rampts)
+    rstep				= (PI) / (rampts-1)
+    rampx				= new Vector(rampts)
     
     //middle section of tone
-    middle =new Vector(steadypts, 1)
+    middle				=new Vector(steadypts, 1)
     
-    //offramp = (1+cos(rampx))/2
-    offramp = new Vector(rampts)
-    offramp = rampx.indgen(rstep).apply("mycos").add(1).div(2)
+    //offramp			= (1+cos(rampx))/2
+    offramp				= new Vector(rampts)
+    offramp				= rampx.indgen(rstep).apply("mycos").add(1).div(2)
     
-    //onramp = (1+cos(fliplr(rampx)))./2;
-    objref rampx rampx =new Vector(rampts)
-    onramp = new Vector(rampts)
-    onramp = rampx.indgen(rstep).reverse().apply("mycos").add(1).div(2)
+    //onramp			= (1+cos(fliplr(rampx)))./2;
+    objref rampx rampx	=new Vector(rampts)
+    onramp				= new Vector(rampts)
+    onramp				= rampx.indgen(rstep).reverse().apply("mycos").add(1).div(2)
     
     
     //Put tone together
-    envelope = new Vector()
+    envelope			= new Vector()
     envelope.append(onramp, middle, offramp)    //Envelope for stimulus (i.e. on/off ramps)
     //Quiet segments
-    quiet = new Vector(totalpts*(cycle), 0) //int() returns integer component of double
-    initquiet = new Vector(delay*samplingrate,0)
+    quiet				= new Vector(totalpts*(cycle), 0) //int() returns integer component of double
+    initquiet			= new Vector(delay*samplingrate,0)
     
     objref rampx, inputsound
     //Amplitude scaling of tone (into Pascals for AN model)
@@ -536,15 +536,15 @@ proc FilteredNoise() {local rampts, rstep, totalpts, steadypts, duration,spl,cyc
     
     objref rampx, offramp, onramp, middle, quiet, envelope, inputsound,initquiet
     
-    duration =  $1     //duration in seconds
-    spl = $2         //Sound Pressure level in dB SPL
-    cycle = $3      //Ratio of signal to silence, duty cycle
-    ramplength =$4      //0.005 ramp duration in seconds (note - duration includes 1/2 of ramp)
-    delay = $5
-    stopband1 = $6
-    notchwidth = $7
-    notchdepth=$8
-    inputsound = new Vector()
+    duration			= $1     //duration in seconds
+    spl					= $2         //Sound Pressure level in dB SPL
+    cycle				= $3      //Ratio of signal to silence, duty cycle
+    ramplength			= $4      //0.005 ramp duration in seconds (note - duration includes 1/2 of ramp)
+    delay				= $5
+    stopband1			= $6
+    notchwidth			= $7
+    notchdepth			= $8
+    inputsound			= new Vector()
     if(notchwidth > 10){
 	sprint(wavdatafile,"./TV_Notch/Notch-sb%g-sb%g.dat",stopband1,notchwidth)
     } \
@@ -553,42 +553,42 @@ proc FilteredNoise() {local rampts, rstep, totalpts, steadypts, duration,spl,cyc
     }
     print wavdatafile
     file.ropen(wavdatafile)
-    if (file.isopen() == 0){
+    if (file.isopen()	== 0){
 	sprint(tmpstr,"octave --eval \"getnotchcheb(%d,%g,%g,%g,\\\"%s\\\")\" 2> /dev/null",int(srate),stopband1,notchwidth,notchdepth,wavdatafile)
 	print tmpstr
 	system(tmpstr)
         file.ropen(wavdatafile)
     }
-    if (file.isopen() == 0){ printf("Unusable filter file.") return}
+    if (file.isopen()	== 0){ printf("Unusable filter file.") return}
     Readfile(inputsound,file)
-    srate=100000 //sampling rate (Hz)  determined in MATLAB/Octave
-    stimtdres=1/srate
-    rampts = ramplength * srate
-    steadypts = duration * srate - rampts
-    totalpts = steadypts + (rampts*2)
+    srate				=100000 //sampling rate (Hz)  determined in MATLAB/Octave
+    stimtdres			=1/srate
+    rampts				= ramplength * srate
+    steadypts			= duration * srate - rampts
+    totalpts			= steadypts + (rampts*2)
     
     // Create Cosine Squared On/off ramps
-    rstep = (PI) / (rampts-1)
-    rampx = new Vector(rampts)
+    rstep				= (PI) / (rampts-1)
+    rampx				= new Vector(rampts)
     
     //middle section of tone
-    middle =new Vector(steadypts, 1)
+    middle				=new Vector(steadypts, 1)
     
-    //offramp = (1+cos(rampx))/2
-    offramp = new Vector(rampts)
-    offramp = rampx.indgen(rstep).apply("mycos").add(1).div(2)
+    //offramp			= (1+cos(rampx))/2
+    offramp				= new Vector(rampts)
+    offramp				= rampx.indgen(rstep).apply("mycos").add(1).div(2)
     
-    //onramp = (1+cos(fliplr(rampx)))./2;
-    objref rampx rampx =new Vector(rampts)
-    onramp = new Vector(rampts)
-    onramp = rampx.indgen(rstep).reverse().apply("mycos").add(1).div(2)
+    //onramp			= (1+cos(fliplr(rampx)))./2;
+    objref rampx rampx	=new Vector(rampts)
+    onramp				= new Vector(rampts)
+    onramp				= rampx.indgen(rstep).reverse().apply("mycos").add(1).div(2)
     
     //Put tone together
-    envelope = new Vector()
+    envelope			= new Vector()
     envelope.append(onramp, middle, offramp)    //Envelope for stimulus (i.e. on/off ramps)
     //Quiet segments
-    quiet = new Vector(totalpts*(cycle), 0) //int() returns integer component of double
-    initquiet = new Vector(delay*srate,0)
+    quiet				= new Vector(totalpts*(cycle), 0) //int() returns integer component of double
+    initquiet			= new Vector(delay*srate,0)
     
     //Inputsound and envelope must be the same size
     if (inputsound.size > envelope.size){
@@ -621,58 +621,58 @@ proc NotchSweepNoise() {local rampts, rstep, totalpts, steadypts, duration,spl,c
     //NotchSweepNoise( dur, spl, dutycycle, ramplngth, stimdelay,stopband1,notchwidth,30)
     objref stim,file
     objref rampx, offramp, onramp, middle, quiet, envelope, inputsound,initquiet
-    duration =  $1     //duration in seconds
-    spl = $2         //Sound Pressure level in dB SPL
-    cycle = $3      //Ratio of signal to silence, duty cycle
-    ramplength =$4      //0.005 ramp duration in seconds (note - duration includes 1/2 of ramp)
-    delay = $5
-    stopband1 = $6
-    stopband2 = $7
-    notchdepth=$8
-    stim = new Vector()
-    inputsound = new Vector()
-    file = new File()
+    duration			=  $1     //duration in seconds
+    spl					= $2         //Sound Pressure level in dB SPL
+    cycle				= $3      //Ratio of signal to silence, duty cycle
+    ramplength			=$4      //0.005 ramp duration in seconds (note - duration includes 1/2 of ramp)
+    delay				= $5
+    stopband1			= $6
+    stopband2			= $7
+    notchdepth			=$8
+    stim				= new Vector()
+    inputsound			= new Vector()
+    file				= new File()
     sprint(wavdatafile,"./TV_Notch/NotchSweep-sb%g-sb%g.dat",int(stopband1),int(stopband2))
     
     print wavdatafile
     file.ropen(wavdatafile)
-    if (file.isopen() == 0){
+    if (file.isopen()	== 0){
 	sprint(tmpstr,"octave -f --eval \"pkg load signal;getnotchcheb(%d,%g,%g,%g,\\\"%s\\\")\" 2> /dev/null",int(srate),stopband1,stopband2,notchdepth,wavdatafile)
 	print "Calling ", tmpstr
 	system(tmpstr)
 	file.ropen(wavdatafile)
     }
-    if (file.isopen() == 0){ printf("Unusable filter file.") return}
+    if (file.isopen()	== 0){ printf("Unusable filter file.") return}
     Readfile(stim,file)
-    inputsound = stim.c
-    srate=100000 //sampling rate (Hz)  
-    stimtdres=1/srate
-    rampts = ramplength * srate
-    steadypts = duration * srate - rampts
-    totalpts = steadypts + (rampts*2)
+    inputsound			= stim.c
+    srate				=100000 //sampling rate (Hz)  
+    stimtdres			=1/srate
+    rampts				= ramplength * srate
+    steadypts			= duration * srate - rampts
+    totalpts			= steadypts + (rampts*2)
     
     // Create Cosine Squared On/off ramps
-    rstep = (PI) / (rampts-1)
-    rampx = new Vector(rampts)
+    rstep				= (PI) / (rampts-1)
+    rampx				= new Vector(rampts)
     
     //middle section of tone
-    middle =new Vector(steadypts, 1)
+    middle				=new Vector(steadypts, 1)
     
-    //offramp = (1+cos(rampx))/2
-    offramp = new Vector(rampts)
-    offramp = rampx.indgen(rstep).apply("mycos").add(1).div(2)
+    //offramp			= (1+cos(rampx))/2
+    offramp				= new Vector(rampts)
+    offramp				= rampx.indgen(rstep).apply("mycos").add(1).div(2)
     
-    //onramp = (1+cos(fliplr(rampx)))./2;
-    objref rampx rampx =new Vector(rampts)
-    onramp = new Vector(rampts)
-    onramp = rampx.indgen(rstep).reverse().apply("mycos").add(1).div(2)
+    //onramp			= (1+cos(fliplr(rampx)))./2;
+    objref rampx rampx	=new Vector(rampts)
+    onramp				= new Vector(rampts)
+    onramp				= rampx.indgen(rstep).reverse().apply("mycos").add(1).div(2)
     
     //Put tone together
-    envelope = new Vector()
+    envelope			= new Vector()
     envelope.append(onramp, middle, offramp)    //Envelope for stimulus (i.e. on/off ramps)
     //Quiet segments
-    quiet = new Vector(totalpts*(cycle), 0) //int() returns integer component of double
-    initquiet = new Vector(delay*srate,0)
+    quiet				= new Vector(totalpts*(cycle), 0) //int() returns integer component of double
+    initquiet			= new Vector(delay*srate,0)
     
     //Inputsound and envelope must be the same size
     if (inputsound.size > envelope.size){
@@ -701,58 +701,58 @@ proc BandSweepNoise() {local rampts, rstep, totalpts, steadypts, duration,spl,cy
     //NotchSweepNoise( dur, spl, dutycycle, ramplngth, stimdelay,stopband1,notchwidth,30)
     objref stim,file
     objref rampx, offramp, onramp, middle, quiet, envelope, inputsound,initquiet
-    duration =  $1     //duration in seconds
-    spl = $2         //Sound Pressure level in dB SPL
-    cycle = $3      //Ratio of signal to silence, duty cycle
-    ramplength =$4      //0.005 ramp duration in seconds (note - duration includes 1/2 of ramp)
-    delay = $5
-    stopband1 = $6
-    stopband2 = $7
-    notchdepth=$8
-    stim = new Vector()
-    inputsound = new Vector()
-    file = new File()
+    duration			= $1     //duration in seconds
+    spl					= $2         //Sound Pressure level in dB SPL
+    cycle				= $3      //Ratio of signal to silence, duty cycle
+    ramplength			= $4      //0.005 ramp duration in seconds (note - duration includes 1/2 of ramp)
+    delay				= $5
+    stopband1			= $6
+    stopband2			= $7
+    notchdepth			= $8
+    stim				= new Vector()
+    inputsound			= new Vector()
+    file				= new File()
     sprint(wavdatafile,"./TV_Notch/BandSweep-sb%g-sb%g.dat",int(stopband1),int(stopband2))
     
     print wavdatafile
     file.ropen(wavdatafile)
-    if (file.isopen() == 0){
+    if (file.isopen()	== 0){
 	sprint(tmpstr,"octave -f --eval \"pkg load signal;getbandcheb(%d,%g,%g,%g,\\\"%s\\\")\" 2> /dev/null",int(srate),stopband1,stopband2,notchdepth,wavdatafile)
 	print "Calling ", tmpstr
 	system(tmpstr)
 	file.ropen(wavdatafile)
     }
-    if (file.isopen() == 0){ printf("Unusable filter file.") return}
+    if (file.isopen()	== 0){ printf("Unusable filter file.") return}
     Readfile(stim,file)
-    inputsound = stim.c
-    srate=100000 //sampling rate (Hz)  
-    stimtdres=1/srate
-    rampts = ramplength * srate
-    steadypts = duration * srate - rampts
-    totalpts = steadypts + (rampts*2)
+    inputsound			= stim.c
+    srate				=100000 //sampling rate (Hz)  
+    stimtdres			=1/srate
+    rampts				= ramplength * srate
+    steadypts			= duration * srate - rampts
+    totalpts			= steadypts + (rampts*2)
     
     // Create Cosine Squared On/off ramps
-    rstep = (PI) / (rampts-1)
-    rampx = new Vector(rampts)
+    rstep				= (PI) / (rampts-1)
+    rampx				= new Vector(rampts)
     
     //middle section of tone
-    middle =new Vector(steadypts, 1)
+    middle				=new Vector(steadypts, 1)
     
-    //offramp = (1+cos(rampx))/2
-    offramp = new Vector(rampts)
-    offramp = rampx.indgen(rstep).apply("mycos").add(1).div(2)
+    //offramp			= (1+cos(rampx))/2
+    offramp				= new Vector(rampts)
+    offramp				= rampx.indgen(rstep).apply("mycos").add(1).div(2)
     
-    //onramp = (1+cos(fliplr(rampx)))./2;
-    objref rampx rampx =new Vector(rampts)
-    onramp = new Vector(rampts)
-    onramp = rampx.indgen(rstep).reverse().apply("mycos").add(1).div(2)
+    //onramp			= (1+cos(fliplr(rampx)))./2;
+    objref rampx rampx	=new Vector(rampts)
+    onramp				= new Vector(rampts)
+    onramp				= rampx.indgen(rstep).reverse().apply("mycos").add(1).div(2)
     
     //Put tone together
-    envelope = new Vector()
+    envelope			= new Vector()
     envelope.append(onramp, middle, offramp)    //Envelope for stimulus (i.e. on/off ramps)
     //Quiet segments
-    quiet = new Vector(totalpts*(cycle), 0) //int() returns integer component of double
-    initquiet = new Vector(delay*srate,0)
+    quiet				= new Vector(totalpts*(cycle), 0) //int() returns integer component of double
+    initquiet			= new Vector(delay*srate,0)
     
     //Inputsound and envelope must be the same size
     if (inputsound.size > envelope.size){
@@ -784,37 +784,37 @@ proc AMnoise() {local stimtdres,rstep, totalpts, fc, fm, samplingrate, duration,
     //assumes stim is already a Vector() object
     
     objref modulation ,rampx, inputsound,initquiet, stim
-    samplingrate = $1   //sampling rate (Hz)
-    fm = $2
-    depth = 1-$3            //Ratio difference/sum of max and min of AM signal
-    nrep = $4           //how many periods of modulating frequency
+    samplingrate		= $1   //sampling rate (Hz)
+    fm					= $2
+    depth				= 1-$3            //Ratio difference/sum of max and min of AM signal
+    nrep				= $4           //how many periods of modulating frequency
     //duration      //duration in seconds
-    spl = $5            //Sound Pressure level in dB SPL
-    delay = $6
-    stimtdres = 1/samplingrate
-    duration = nrep*(2/fm)
-    totalpts = duration * samplingrate
+    spl					= $5            //Sound Pressure level in dB SPL
+    delay				= $6
+    stimtdres			= 1/samplingrate
+    duration			= nrep*(2/fm)
+    totalpts			= duration * samplingrate
     print " Mod f ", fm
     print "duration", duration
     print "total points", totalpts
     //Envelope for stimulus
     
-    modulation = new Vector(totalpts)
-    rstep = fm * 2.0 * PI * (1/samplingrate)
-    rampx = new Vector(totalpts)
+    modulation			= new Vector(totalpts)
+    rstep				= fm * 2.0 * PI * (1/samplingrate)
+    rampx				= new Vector(totalpts)
     rampx.indgen(rstep)
-    modulation = rampx.apply("mycos").mul(-0.5)
-    if (depth!=1){ modulation.mul(1-depth) }
+    modulation			= rampx.apply("mycos").mul(-0.5)
+    if (depth!			=1){ modulation.mul(1-depth) }
     modulation.add(1-modulation.max())
     
     
     //Amplitude scaling of tone (into Pascals for AN model)
     
-    aa = spl2ampl((spl))
+    aa					= spl2ampl((spl))
     
     //Quiet segments
     
-    initquiet = new Vector(delay*samplingrate,0)
+    initquiet			= new Vector(delay*samplingrate,0)
     
     objref rampx, inputsound
     
@@ -838,45 +838,45 @@ proc TwoTone() {local  rampts,rstep,totalpts,steadypts,aa localobj quiet2,initqu
     objref stim
     
     objref rampx, offramp, onramp, middle, quiet, envelope, inputsound,initquiet
-    stimtdres = 1/srate
-    rampts = ramplngth * srate
-    steadypts = dur * srate - rampts
-    totalpts = steadypts + (rampts*2)
+    stimtdres	= 1/srate
+    rampts		= ramplngth * srate
+    steadypts	= dur * srate - rampts
+    totalpts	= steadypts + (rampts*2)
     print totalpts
     // Create Cosine Squared On/off ramps
-    rstep = (PI) / (rampts-1)
-    rampx = new Vector(rampts)
+    rstep		= (PI) / (rampts-1)
+    rampx		= new Vector(rampts)
     
     //middle section of tone
-    middle =new Vector(steadypts, 1)
+    middle		=new Vector(steadypts, 1)
     
-    //offramp = (1+cos(rampx))/2
-    offramp = new Vector(rampts)
-    offramp = rampx.indgen(rstep).apply("mycos").add(1).div(2)
+    //offramp	= (1+cos(rampx))/2
+    offramp		= new Vector(rampts)
+    offramp		= rampx.indgen(rstep).apply("mycos").add(1).div(2)
     
-    //onramp = (1+cos(fliplr(rampx)))./2;
+    //onramp	= (1+cos(fliplr(rampx)))./2;
     objref rampx
-    rampx =new Vector(rampts)
-    onramp = new Vector(rampts)
-    onramp = rampx.indgen(rstep).reverse().apply("mycos").add(1).div(2)
+    rampx		=new Vector(rampts)
+    onramp		= new Vector(rampts)
+    onramp		= rampx.indgen(rstep).reverse().apply("mycos").add(1).div(2)
     
     
     //Put tone1 together
-    envelope = new Vector()
+    envelope	= new Vector()
     envelope.append(onramp, middle, offramp) //Envelope for stimulus (i.e. on/off ramps)
     print envelope.size
     //Quiet segments
-    quiet = new Vector(totalpts*(dutycycle), 0)
-    initquiet = new Vector(stimdelay*srate,0)
-    quiet2 = new Vector(totalpts*(dutycycle)-tone2delay*srate, 0)
-    initquiet2 = new Vector((stimdelay+tone2delay)*srate,0)
+    quiet		= new Vector(totalpts*(dutycycle), 0)
+    initquiet	= new Vector(stimdelay*srate,0)
+    quiet2		= new Vector(totalpts*(dutycycle)-tone2delay*srate, 0)
+    initquiet2	= new Vector((stimdelay+tone2delay)*srate,0)
     objref rampx, inputsound
     //Amplitude scaling of tone (into Pascals for AN model)
-    aa = spl2ampl((spl))
-    rstep = tonefreq * 2.0 * PI * (1/srate)
-    rampx = new Vector(totalpts)
+    aa			= spl2ampl((spl))
+    rstep		= tonefreq * 2.0 * PI * (1/srate)
+    rampx		= new Vector(totalpts)
     rampx.indgen(rstep)
-    inputsound = new Vector(totalpts)
+    inputsound	= new Vector(totalpts)
     //make sure the input vector is the right size
     inputsound.indgen(rstep).apply("sin").mul(aa).mul(envelope)
     print inputsound.size
@@ -885,11 +885,11 @@ proc TwoTone() {local  rampts,rstep,totalpts,steadypts,aa localobj quiet2,initqu
     
     //Second tone
     objref rampx
-    aa = spl2ampl((tone2spl))
-    rstep = tone2freq * 2.0 * PI * (1/srate)
-    rampx = new Vector(totalpts)
+    aa			= spl2ampl((tone2spl))
+    rstep		= tone2freq * 2.0 * PI * (1/srate)
+    rampx		= new Vector(totalpts)
     rampx.indgen(rstep)
-    tone2 = new Vector(totalpts)
+    tone2		= new Vector(totalpts)
     //make sure the input vector is the right size
     tone2.indgen(rstep).apply("sin").mul(aa).mul(envelope)
     
@@ -923,31 +923,31 @@ proc RampTone() {local stimtdres, rampts, rstep, totalpts, steadypts, tonefreque
     objref stim
     
     objref rampx, onramp, quiet,  inputsound,initquiet
-    tonefrequency = $1
-    samplingrate = $2   //sampling rate (Hz)  should be at least 2*(highest frequency component)
+    tonefrequency		= $1
+    samplingrate		= $2   //sampling rate (Hz)  should be at least 2*(highest frequency component)
     // Nyquist criterion
-    duration = $3       //duration in seconds
-    spl = $4        //Sound Pressure level in dB SPL
-    cycle = $5      //Ratio of signal to silence, duty cycle
-    nrep = $6
-    delay = $7
-    inputsound = new Vector()
+    duration			= $3       //duration in seconds
+    spl					= $4        //Sound Pressure level in dB SPL
+    cycle				= $5      //Ratio of signal to silence, duty cycle
+    nrep				= $6
+    delay				= $7
+    inputsound			= new Vector()
     
     
     
-    stimtdres = 1/samplingrate
-    rampts = duration * samplingrate
-    steadypts = duration * samplingrate
-    totalpts = steadypts
+    stimtdres			= 1/samplingrate
+    rampts				= duration * samplingrate
+    steadypts			= duration * samplingrate
+    totalpts			= steadypts
     
     
-    onramp = new Vector(rampts)
+    onramp				= new Vector(rampts)
     onramp.indgen()
     
     
     //Quiet segments
-    quiet = new Vector(totalpts*(cycle), 0) //int() returns integer component of double
-    initquiet = new Vector(delay*samplingrate,0)
+    quiet				= new Vector(totalpts*(cycle), 0) //int() returns integer component of double
+    initquiet			= new Vector(delay*samplingrate,0)
     
     objref rampx, inputsound
     //Amplitude scaling of tone (into Pascals for AN model)
@@ -1081,18 +1081,14 @@ proc recent_working_dirs() {local i
 objref strobj
 strobj = new StringFunctions()
 proc checker() {
-    
-    chdir(path)
+   chdir(path)
     ldfile.chooser("", "Find .DAT files:", "*.dat", "Choose File", "Done", getcwd())
     while (ldfile.chooser()) {
         ldfile.getname(fname)
-	
-	
-        strobj.right(fname, 2)
+//      strobj.right(fname, 2)
         print fname
         break
-    }
-    
+    }    
 }
 objref  m
 
@@ -1113,54 +1109,54 @@ proc NotchNoise() {local stimtdres, rampts, rstep, totalpts, steadypts, tonefreq
     
     //Get notch noise data
     objref stim, file
-    stim = new Vector()
-    file = new File()
+    stim				= new Vector()
+    file				= new File()
     file.ropen("notch.dat")
     Readfile(stim,file)
     file.close()
     objref rampx, offramp, onramp, middle, quiet, envelope, inputsound,initquiet
     
-    srate = 50000   //sampling rate (Hz)  should be 50000
-    duration = $1       //duration in seconds  no bigger than 200msec
-    spl = $2        //Sound Pressure level in dB SPL
-    cycle = $3      //Ratio of signal to silence following stim
-    ramplength = $4 //ramp duration in seconds (note - duration includes 1/2 of ramp)
-    delay = $5
-    inputsound = new Vector()
+    srate				= 50000   //sampling rate (Hz)  should be 50000
+    duration			= $1       //duration in seconds  no bigger than 200msec
+    spl					= $2        //Sound Pressure level in dB SPL
+    cycle				= $3      //Ratio of signal to silence following stim
+    ramplength			= $4 //ramp duration in seconds (note - duration includes 1/2 of ramp)
+    delay				= $5
+    inputsound			= new Vector()
     
-    stimtdres = 1/srate
-    rampts = ramplength * srate
-    steadypts = duration * srate - rampts
-    totalpts = steadypts + (rampts*2)
+    stimtdres			= 1/srate
+    rampts				= ramplength * srate
+    steadypts			= duration * srate - rampts
+    totalpts			= steadypts + (rampts*2)
     
     
     // Create Cosine Squared On/off ramps
-    rstep = (PI) / (rampts-1)
-    rampx = new Vector(rampts)
+    rstep				= (PI) / (rampts-1)
+    rampx				= new Vector(rampts)
     
     //middle section of tone
-    middle =new Vector(steadypts, 1)
+    middle				=new Vector(steadypts, 1)
     
-    //offramp = (1+cos(rampx))/2
-    offramp = new Vector(rampts)
-    offramp = rampx.indgen(rstep).apply("mycos").add(1).div(2)
+    //offramp			= (1+cos(rampx))/2
+    offramp				= new Vector(rampts)
+    offramp				= rampx.indgen(rstep).apply("mycos").add(1).div(2)
     
-    //onramp = (1+cos(fliplr(rampx)))./2;
-    objref rampx rampx =new Vector(rampts)
-    onramp = new Vector(rampts)
-    onramp = rampx.indgen(rstep).reverse().apply("mycos").add(1).div(2)
+    //onramp			= (1+cos(fliplr(rampx)))./2;
+    objref rampx rampx	=new Vector(rampts)
+    onramp				= new Vector(rampts)
+    onramp				= rampx.indgen(rstep).reverse().apply("mycos").add(1).div(2)
     
     
     //Put tone together
-    envelope = new Vector()
+    envelope			= new Vector()
     envelope.append(onramp, middle, offramp)    //Envelope for stimulus (i.e. on/off ramps)
     //Quiet segments
-    quiet = new Vector(totalpts*(cycle), 0) //int() returns integer component of double
-    initquiet = new Vector(delay*srate,0)
+    quiet				= new Vector(totalpts*(cycle), 0) //int() returns integer component of double
+    initquiet			= new Vector(delay*srate,0)
     
     objref rampx, inputsound
     //Amplitude scaling of tone (into Pascals for AN model)
-    aa = spl2amplNoise((spl))/spl2amplNoise(Decibels(stim))
+    aa					= spl2amplNoise((spl))/spl2amplNoise(Decibels(stim))
     
     inputsound = new Vector(totalpts)
     for i=0,inputsound.size-1 {
@@ -1198,23 +1194,23 @@ proc NotchNoise() {local stimtdres, rampts, rstep, totalpts, steadypts, tonefreq
 *    GenerateFilterbank()
 **********************************************************/
 objref stim, file, tvec, cf
-ifspike     = 1
+ifspike = 1
 //sout is adjusted so that instant. rate can be fed to spike generator
 //not neccessary for Bruce model
-delx        = 0.05
+delx    = 0.05
 //"delta x", or spacing of "IHC"s along BM (linearly spaced IHCs in terms of location along BM
 //  results in approximately logarithmic spacing in terms of frequency.
 
 
 
 objref  LSRout[nchannels], HSRout[nchannels],cf, ANfile, MSRout[nchannels]
-cf = new Vector(nchannels)
-xlo = cochlea_f2x(species,cflo)
-xhi = cochlea_f2x(species,cfhi)
-xcenter = (xhi - xlo)/2. + xlo
-delx = (xhi-xlo)/(nchannels-1)
-cf.x[int(nchannels/2)] = cochlea_x2f(species,xcenter)
-icentre = int(nchannels/2)-1
+cf						= new Vector(nchannels)
+xlo						= cochlea_f2x(species,cflo)
+xhi						= cochlea_f2x(species,cfhi)
+xcenter					= (xhi - xlo)/2. + xlo
+delx					= (xhi-xlo)/(nchannels-1)
+cf.x[int(nchannels/2)]	= cochlea_x2f(species,xcenter)
+icentre					= int(nchannels/2)-1
 
 for icf = 0, nchannels-1 {
     LSRout[icf] = new Vector()

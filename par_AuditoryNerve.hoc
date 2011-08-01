@@ -122,15 +122,15 @@ proc GenSpikes2(){local i,j,k
    }
    HSRspiketimes[i][j] = tobj.c
    //print "HSR ", i, j
-       for j=0,HSRsperchannel-1 {
-         if (pnm.gid_exists(hsrgid.x[i][j])) HSR[i][j].SetSpikes(HSRspiketimes[i][j])
+   for j=0,HSRsperchannel-1 {
+       if (pnm.gid_exists(hsrgid.x[i][j])) HSR[i][j].SetSpikes(HSRspiketimes[i][j])
        }
    spikes = new Vector()
    LSRout[i].ANFSpikeGenerator(spikes,LSRsperchannel,sg_tdres)
    tobj = new Vector()
    j=0
    for(k=1;k < spikes.size();k+=1){
-s      if (spikes.get(k) != 0 ){
+       if (spikes.get(k) != 0 ){
          tobj.append(spikes.get(k))
       } else {
       LSRspiketimes[i][j] = tobj.c

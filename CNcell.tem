@@ -31,6 +31,7 @@ public AMPA, GlyR, GABAA       //synapse objects
 public spikes,spiketimes       //storage vectors 
 public connect2target, synlist //synapse connection function and list 
 public cf,model,channel 	 //identifying parameters ...
+public set_tstellate, set_dstellate,set_tuberc,set_golgi, nstomho,qt //member functions
 
 external thresh,Erest
 external ampa_decay,ampa_erev,gly_decay,gly_erev,gly_rise, gaba_decay, gaba_erev,gaba_rise
@@ -53,15 +54,15 @@ proc init() { local length,RM, p, q, r, Atotal
     cf = $2
     channel=$3
 //Set cell type currents and variables    
-    if(model == 0) set_tstellate()  //Tstellate cell
+    if(model == 0) set_tstellate()  //T stellate cell
     if(model == 1) set_tuberc()     //Tubervuloventral cell
-    if(model == 2) set_dstellate()  //Dstellate cell
+    if(model == 2) set_dstellate()  //D stellate cell
     if(model == 3) set_golgi()      //Golgi cell
     
     soma {
 	//Add spike recorder
 	spikecount = new APCount(0.5)
-	spikecount.thresh = -30
+	spikecount.thresh = thresh
 	spikecount.record(spiketimes)
 	
 	//Insert synapses
@@ -114,18 +115,18 @@ func qt(){
     }
 }
 proc set_tstellate() {
-    soma {
-	insert rm
-	insert ka
-	eh_rm=-43
-	Ra = 150          //axial resistance per cm
-	cm = 0.9          //micro farad per cm^2, membrance capacitance
-	eleak_rm = Erest  //mV, Leak reversal potential mV
-	model = 0
-	RM = 96           //MOhms, membrane resistance
-	L	= 19.5   //length of cell body
-	diam 	= L      //diameter of cell body
-	somaarea = PI*(L/1E4)^2   //um to cm2
+	model    = 0
+	soma {
+		insert rm
+		insert ka
+		eh_rm    = -43
+		Ra       = 150            //axial resistance per cm
+		cm       = 0.9            //micro farad per cm^2, membrance capacitance
+		eleak_rm = Erest          //mV, Leak reversal potential mV
+		RM       = 96             //MOhms, expected membrane resistance
+		L	     = 19.5           //length of cell body
+		diam 	 = L              //diameter of cell body
+		somaarea = PI*(L/1E4)^2   //um to cm2
 	
 //Set maximum conductance for each current	
 	gnabar_rm = nstomho(1000)*qt()
@@ -137,19 +138,22 @@ proc set_tstellate() {
 }
 
 proc set_tuberc() {
-    soma {
-	insert rm
-	ek_rm = -70
-	ena_rm = 50
-	eh_rm=-43
-	Ra=150 cm=0.9
-	erev_rm 		= 	Erest	// reversal potential mV
-	model = 2
-	//RM = 170  //Expected membrane resistance in MOhms
-	L	= 19
-	diam 	= L
-	somaarea = PI*(L/1E4)^2   //um to cm2
-	gnabar_rm = nstomho(1000)*qt()
+	model = 1
+	
+	soma {
+		insert rm
+		ek_rm      = -70
+		ena_rm     = 50
+		eh_rm      = -43
+		Ra         = 150 
+		cm         = 0.9
+		erev_rm    = Erest	// reversal potential mV
+		//RM = 170  //Expected membrane resistance in MOhms
+		L	     = 19
+		diam 	 = L
+		somaarea = PI*(L/1E4)^2   //um to cm2
+		
+		gnabar_rm = nstomho(1000)*qt()
 	gkhtbar_rm = nstomho(150)*qt()
 	ghbar_rm = nstomho(0.5)*qt(1)
 	gleak_rm = nstomho(2)*qt()
@@ -157,7 +161,8 @@ proc set_tuberc() {
 }
 
 proc set_dstellate() {
-    soma {
+	model = 2
+ soma {
 	insert rm
 	insert klt
 	ek_rm = -70
@@ -165,7 +170,6 @@ proc set_dstellate() {
 	eh_rm=-43
 	Ra=150 cm=0.9
 	erev_rm 		= 	Erest	// reversal potential mV
-	model = 1
 	//RM =  //MOhms
 	L	= 21
 	diam 	= L
@@ -179,42 +183,45 @@ proc set_dstellate() {
 }
 
 proc set_golgi() {
-    soma {
-	insert rm
-	ek_rm = -70
-	ena_rm = 50
-	eh_rm=-43
-	Ra=150 cm=0.9
-	erev_rm 		= 	Erest	// reversal potential mV
 	model = 3
-	RM = 130  //MOhms
-	L	= 14
-	diam 	= L
-	somaarea = PI*(L/1E4)^2   //um to cm2
-	gnabar_rm = nstomho(1000)*qt()
-	gkhtbar_rm = nstomho(150)*qt()
-	ghbar_rm = nstomho(0.5)*qt(1)
-	gleak_rm = nstomho(2)*qt()
-    }
+	
+	soma {
+		insert rm
+		ek_rm = -70
+		ena_rm = 50
+		eh_rm=-43
+		Ra=150 
+		cm=0.9
+		erev_rm 		= 	Erest	// reversal potential mV
+		RM = 130  //MOhms
+		L	= 14
+		diam 	= L
+		somaarea = PI*(L/1E4)^2   //um to cm2
+		gnabar_rm = nstomho(1000)*qt()
+		gkhtbar_rm = nstomho(150)*qt()
+		ghbar_rm = nstomho(0.5)*qt(1)
+		gleak_rm = nstomho(2)*qt()
+	}
 }
 
 
 endtemplate CNcell
 
 
-//Default parameters
+
+//Default parameters for Golgi filter model
 weight_sum = 1
 golgi_spon = 1
-golgi_spatial_filter_variance = 4
-golgi_syn_filter_tau = 0.0005  // s
-golgi_syn_filter_scale_factor=1
-// Adding LSR and HSR to golgi
-weight_sum_LSR = 0.5
-golgi_spatial_filter_variance_LSR=1
-weight_sum_MSR=0.5
-golgi_spatial_filter_variance_MSR=1
-param.w.x[hsr][glg]=0.5
-golgi_spatial_filter_variance_HSR=1
+golgi_spatial_filter_variance = 4  //channel
+golgi_syn_filter_tau = 0.0005  //sec
+golgi_syn_filter_scale_factor = 1
+// Adding MSR and HSR to golgi
+param.w.x[lsr][glg] = 0.5
+golgi_spatial_filter_variance_LSR = 1
+weight_sum_MSR = 0.5
+golgi_spatial_filter_variance_MSR = 1
+param.w.x[hsr][glg] = 0.5
+golgi_spatial_filter_variance_HSR = 1
 
 
 
@@ -245,11 +252,11 @@ proc convolve(){local x1,x2,wsize
 }
 
 begintemplate Golgicell
-  public s  //Jackson instantaneous rate spike-generator
-  public spiketimes,spikes,sout //important internal vectors
-  public SetRate,GenSpikes,SaveSpikes,ClearSpikes //functions
-  public connect2target,SetRate,SetRate2,GenSpikes,GenSpikes2,SaveSpikes,ClearSpikes
-  public w, spikecount,synlist,cf,model,channel // general 
+  public sg  //Jackson & Carney (2005) instantaneous rate spike-generator
+  public spiketimes,spikes,sout //internal vectors
+  public SetRate,GenSpikes,SetRate2,GenSpikes2,SaveSpikes,ClearSpikes //functions
+  public connect2target //connect function
+  public w, spikecount,synlist,cf,model,channel // general variables
   public wLSR,wHSR,wMSR
   external thresh,LSRout,nchannels,sg_tdres,weight_sum, golgi_spon,golgi_spatial_filter_variance
   external gaussian,gaussian_mean,gaussian_variance,golgi_synfilter,convolve, MSRsperchannel, Lowspont,Highspont,Medspont
@@ -267,11 +274,12 @@ begintemplate Golgicell
     cf = $2
     channel=$3
     golgi_spatial_filter_variance=$4
-    s = new SGC_fast(0.5)
-    s.cf = cf
+    sg = new SGC_fast(0.5)
+    sg.cf = cf
     
 }
 objref tempsout
+/* Obsolete - replaced with SetRate2*/
 proc SetRate() {local i,j,spon_factor
     w = new Vector(nchannels)
     w.indgen()
@@ -286,7 +294,7 @@ proc SetRate() {local i,j,spon_factor
     spon_factor = LSRout[0].x[0]/tempsout.x[0]
     tempsout.mul(spon_factor).add(golgi_spon)
     convolve(tempsout,golgi_synfilter,sout)
-    s.SetFibreRate(sout,spiketimes,sg_tdres)
+    sg.SetFibreRate(sout,spiketimes,sg_tdres)
     //print "golgi[",i,"][",j,"]: Process ",pnm.myid," mean ", sout.mean()
     objref tempsout
 }
@@ -336,17 +344,18 @@ proc SetRate2() {local i,j,spon_factor
 	      sout.insrt(0,golgi_spon)
 	    }
 	sout.resize(LSRout[0].size)
-	s.SetFibreRate(sout,spiketimes,sg_tdres)
+//Set the Spike generator 	
+	sg.SetFibreRate(sout,spiketimes,sg_tdres)
 	  //print "golgi[",i,"][",j,"]: Process ",pnm.myid," mean ", sout.mean()
 	  objref tempsout
 	  printf(" done\r")
 }
 
 proc GenSpikes(){local i,j
-  s.SGfast(1)
+  sg.SGfast(1)
 }
 proc GenSpikes2(){local i,j
-  s.SGfast2(1)
+  sg.SGfast2(1)
 }
 
 proc SaveSpikes(){
@@ -359,7 +368,7 @@ spikes.resize(0)
 }
 
 proc connect2target() {
-    $o2 = new NetCon(s, $o1)
+    $o2 = new NetCon(sg, $o1)
     $o2.threshold = thresh
 }
 
@@ -368,6 +377,9 @@ endtemplate Golgicell
 
 objref golgi[nchannels][1]
 
+/*
+ * Save Golgi Filters to File
+ */
 proc SaveGolgiFilterBank2File(){local nchan
     objref ANfile
     
@@ -392,7 +404,10 @@ proc SaveGolgiFilterBank2File(){local nchan
     
 }
 
-func RetrieveGolgiFilterBank(){local nsize, nchan, temp
+/*
+ * Retrieve Golgi Filters from File
+ */
+func RetrieveGolgiFilterBank(){local nsize,nchan,temp
     objref ANfile
     CreateGolgiSynFilter()
     GetANfileString()
@@ -458,9 +473,9 @@ func RetrieveGolgiFilterBank(){local nsize, nchan, temp
 	}
       sg_tdres = 1/sg_rate
       ANfile.close()
-      //Setting rate in point process object 
+      //Setting rate in spike generator object 
       for icf = 0,nchannels-1{
-	  golgi[icf][0].s.SetFibreRate(golgi[icf][0].sout,golgi[icf][0].spiketimes,sg_tdres)
+	  golgi[icf][0].sg.SetFibreRate(golgi[icf][0].sout,golgi[icf][0].spiketimes,sg_tdres)
 	}
       return 1
     } else {

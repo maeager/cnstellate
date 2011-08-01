@@ -20,24 +20,24 @@ objref an,golgi[nchannels][1],g
 objref  ANFBgr,  Sout[nchannels]
 objref stimgr,b1,gr
 
-ghoshalkim_position = 86 
+ghoshalkim_position				= 86 
 // equates to position in CN model of 22.6kHz correponding to unit S03-07 (22.7kHz CF)
 
 objref  ANFBgr, b2, Sout[nchannels]
-changescale=1
-scale = 60
+changescale						= 1
+scale							= 60
 proc ShowInputGraphs() {
 	objref stimgr, b1, gr
 	objref  ANFBgr, b2, Sout[nchannels]
-	b1 = new VBox()
+	b1		= new VBox()
 	b1.intercept(1)
-	stimgr = new Graph(0)
+	stimgr	= new Graph(0)
 	stimgr.view(0, -0.01, 0.042, 0.02, 308, 88, 685, 150)
 	stimgr.label(0.1, 0.91, grlbl)
 	stimgr.label(0.0, 0.65, "Amplitude  (uPascals)")
 	stimgr.label(0.85, 0.35, "time (ms)")	
 	stim.plot(stimgr, stimtdres)
-	stimgr.exec_menu("View = plot")
+	stimgr.exec_menu("View		= plot")
 	//b1.intercept(0)
 	//b1.map("Stimulus waveform",360, 0, 650.7, 193.5)
 	
@@ -82,31 +82,31 @@ proc ShowGolgiGraphs() {
 	print "To save graph type: ANFBgr.printfile(\"x.eps\")"
 }//Dummy Graphs
 
-count = 0
+count					= 0
 
 //Setup Auditory model
-ANmodel= 7//Zilany et al 2009,2010 v4  model
-species= 1	//Cat
-cfhi=40000
-cflo=200
-tonefreq = 22700 //Ghoshal and Kim 1997 unit S03-07
-dur= 0.0475 //duration of tone segment (seconds)	
-dutycycle= 0.2	//quiet duration = dutycycle*dur
-ramplngth= 0.0025
-stimdelay= 0.02	//sec
-srate = 100000.0
-stimtdres = 1/srate
-sg_rate = 50000		
-sg_tdres = 1/sg_rate
-stimtype=1 //tone stimulus
-reps=25
-nrep = 1 //nrep is number of reps of stimulus
+ANmodel					= 7//Zilany et al 2009,2010 v4  model
+species					= 1	//Cat
+cfhi					= 40000
+cflo					= 200
+tonefreq				= 22700 //Ghoshal and Kim 1997 unit S03-07
+dur						= 0.0475 //duration of tone segment (seconds)	
+dutycycle				= 0.2	//quiet duration = dutycycle*dur
+ramplngth				= 0.0025
+stimdelay				= 0.02	//sec
+srate					= 100000.0
+stimtdres				= 1/srate
+sg_rate					= 50000		
+sg_tdres				= 1/sg_rate
+stimtype				= 1 //tone stimulus
+reps					= 25
+nrep					= 1 //nrep is number of reps of stimulus
 
-ANFBgr = new Graph()
-usesavedfilterbanks=1
+ANFBgr					= new Graph()
+usesavedfilterbanks		= 1
 
-reps=25
-binsize=0.1
+reps					= 25
+binsize					= 0.1
 
 objref ANFBgr
 RefreshCF()	
@@ -209,18 +209,18 @@ objref gpstlist, grate[nchannels],anrate[nchannels],rate_level_graph, gstdev[nch
 proc RatelevelGolgi1(){local ispl,i,j,count,sum,runtime,cell,xtime localobj tmp
 	//objref Notchgr,results[sp.cells.count], Notch
 	
-	count = 0
-	tonefreq = 22700 
-	dur       = 0.049    //duration of tone segment (seconds)
-	dutycycle    = 0.2      //quiet duration = dutycycle*dur
-	ramplngth    = 0.001
+	count		= 0
+	tonefreq	= 22700 
+	dur			= 0.049    //duration of tone segment (seconds)
+	dutycycle   = 0.2      //quiet duration = dutycycle*dur
+	ramplngth   = 0.001
 	srate       = 200000.0  
-	stimtdres    = 1/srate
-	sg_rate = 50000      
-	sg_tdres = 1/sg_rate
-	stimdelay = 0.02      //sec
-	stimtype=1   //tone
-	reps=250
+	stimtdres   = 1/srate
+	sg_rate		= 50000      
+	sg_tdres	= 1/sg_rate
+	stimdelay	= 0.02      //sec
+	stimtype	=1   //tone
+	reps		=250
 	gpstlist = new List()
 	for i=0,99 {
 		grate[i] = new Vector()
@@ -270,18 +270,18 @@ proc RatelevelGolgi1(){local ispl,i,j,count,sum,runtime,cell,xtime localobj tmp
 proc NoiseRatelevelGolgi1(){local ispl,i,j,count,sum,runtime,cell,xtime localobj tmp
 	//objref Notchgr,results[sp.cells.count], Notch
 	
-	count = 0
+	count		= 0
 	
-	dur       = 0.049    //duration of tone segment (seconds)
-	dutycycle    = 0.2      //quiet duration = dutycycle*dur
-	ramplngth    = 0.001
+	dur			= 0.049    //duration of tone segment (seconds)
+	dutycycle   = 0.2      //quiet duration = dutycycle*dur
+	ramplngth   = 0.001
 	srate       = 200000.0  
-	stimtdres    = 1/srate
-	sg_rate = 50000      
-	sg_tdres = 1/sg_rate
-	stimdelay = 0.02      //sec
-	stimtype=6   //tone
-	reps=250
+	stimtdres   = 1/srate
+	sg_rate		= 50000      
+	sg_tdres	= 1/sg_rate
+	stimdelay	= 0.02      //sec
+	stimtype	= 6   //tone
+	reps		= 250
 	gpstlist = new List()
 	for i=0,99 {
 		grate[i] = new Vector()
@@ -523,8 +523,8 @@ RefreshParameters()
 
 //for i=0,1 tgr[i].beginline()
 
-golgi_spatial_filter_variance_HSR=0.5
-golgi_spatial_filter_variance_LSR=2.5
+golgi_spatial_filter_variance_HSR = 0.5
+golgi_spatial_filter_variance_LSR = 2.5
 
 proc StartPraxis(){	
 	attr_praxis(1, 0.1, 3)

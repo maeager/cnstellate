@@ -5,8 +5,6 @@ proc SAVE_RESPONSES(){
     sstr1 = $s1  //Response type
     sstr2 = $s2 //Cell type
     sprint(filename,"%s/%s_%d_%g",fileroot, sstr1,sstr2,spl,tonefreq) 
-	
-	
 }
 num_stim=0
 total_time=0
@@ -161,8 +159,7 @@ proc MaskedResponseCurve(){local ifreq,freq_increment, myCF
 		sprint(fileroot_,"%s/MaskedResponseCurve/%d",fileroot,int(tonefreq))
 		print_results()
 	}
-	
-	
+
 	//  for (tonefreq=myCF-freq_increment, tonefreq>= cf.x[0]; tonefreq= tonefreq-freq_increment) {
 	//  MULTIRUN()
 	//  }
