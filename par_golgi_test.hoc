@@ -96,32 +96,32 @@ proc ShowGolgiGraphs() {
 
 //Setup Auditory model
 
-cfhi=64000
-cflo=200
+cfhi					=64000
+cflo					=200
 
-count = 0
-tonefreq = cf.x[76]
-dur 		= 0.049 	//duration of tone segment (seconds)	
-dutycycle 	= 0.2		//quiet duration = dutycycle*dur
-ramplngth 	= 0.001
-srate 		= 500000.0
-stimtdres 	= 1/srate
-sg_rate = 50000		
-sg_tdres = 1/sg_rate
-stimdelay 	= 0.02		//sec
-stimtype=1	//tone
-reps=25
-ANmodel     = 6		//Zilany Bruce model
-species     = 2		//Rat
-nrep		= 1  		//nrep is number of reps of stimulus
+count					= 0
+tonefreq				= cf.x[76]
+dur						= 0.049 	//duration of tone segment (seconds)	
+dutycycle				= 0.2		//quiet duration = dutycycle*dur
+ramplngth				= 0.001
+srate					= 500000.0
+stimtdres				= 1/srate
+sg_rate					= 50000		
+sg_tdres				= 1/sg_rate
+stimdelay				= 0.02		//sec
+stimtype				=1	//tone
+reps					=25
+ANmodel					= 6		//Zilany Bruce model
+species					= 2		//Rat
+nrep					= 1  		//nrep is number of reps of stimulus
 
 
 
-ANFBgr = new Graph()
-usesavedfilterbanks=1
+ANFBgr					= new Graph()
+usesavedfilterbanks		=1
 
-reps=25
-binsize=0.1
+reps					=25
+binsize					=0.1
 
 objref ANFBgr
 RefreshParameters()

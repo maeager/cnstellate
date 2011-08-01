@@ -69,22 +69,22 @@ proc saveparameters(){
 }
 
 proc golgi_params(){
-golgi_spatial_filter_variance_LSR = 2.4837
-golgi_syn_filter_scale_factor = 1.00
-w.x[lsr][glg] = 0.5166
-w.x[hsr][glg] = 0.0487
-golgi_spon = 3.7271
+golgi_spatial_filter_variance_LSR		= 2.4837
+golgi_syn_filter_scale_factor			= 1.00
+w.x[lsr][glg]							= 0.5166
+w.x[hsr][glg]							= 0.0487
+golgi_spon								= 3.7271
 }
 
 
 proc DS_params(){
-w.x[glg][ds] = 0.000531549
-w.x[hsr][ds] = 0.000167221
-w.x[lsr][ds] = 0.013091
-dstellate_gkltbar = 0.0163897
-gaba_decay = 5.43235
-gaba_rise = 0.261939
-dstellate_gleak_rm = 0.00274146
+w.x[glg][ds]							= 0.000531549
+w.x[hsr][ds]							= 0.000167221
+w.x[lsr][ds]							= 0.013091
+dstellate_gkltbar						= 0.0163897
+gaba_decay								= 5.43235
+gaba_rise								= 0.261939
+dstellate_gleak_rm						= 0.00274146
 }
 
 proc printparams(){local irow,jcol
@@ -128,20 +128,20 @@ endtemplate NetworkParameters
 proc golgi_params(){
 xopen("pvec_Golgi_RateLevel.hoc")
 param.golgi_spatial_filter_variance_LSR = golgi_spatial_filter_variance_LSR
-param.golgi_syn_filter_scale_factor = golgi_syn_filter_scale_factor
-param.golgi_spon = golgi_spon
+param.golgi_syn_filter_scale_factor		= golgi_syn_filter_scale_factor
+param.golgi_spon						= golgi_spon
 }
 
 
 proc DS_params(){
 xopen("pvec_DS_ClickRecovery.hoc")
-param.w.x[glg][ds] = 0.000531549
-param.w.x[hsr][ds] = 0.000167221
-param.w.x[lsr][ds] = 0.013091
-param.dstellate_gkltbar = dstellate_gkltbar
-param.gaba_decay = gaba_decay
-param.gaba_rise = gaba_rise
-param.dstellate_gleak_rm = dstellate_gleak_rm
+param.w.x[glg][ds]						= 0.000531549
+param.w.x[hsr][ds]						= 0.000167221
+param.w.x[lsr][ds]						= 0.013091
+param.dstellate_gkltbar					= dstellate_gkltbar
+param.gaba_decay						= gaba_decay
+param.gaba_rise							= gaba_rise
+param.dstellate_gleak_rm				= dstellate_gleak_rm
 }
 
 strdef paramfilename

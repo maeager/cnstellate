@@ -177,10 +177,10 @@ outfile.close
 
 //Previous optim parameters
 
-golgi_spon = 3.7271
-weight_sum_HSR = 0.04872
-weight_sum_LSR = 0.516646
-golgi_spatial_filter_variance_LSR = 2.48372
+golgi_spon								= 3.7271
+weight_sum_HSR							= 0.04872
+weight_sum_LSR							= 0.516646
+golgi_spatial_filter_variance_LSR		= 2.48372
 
 
 

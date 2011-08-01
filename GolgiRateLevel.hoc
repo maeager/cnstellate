@@ -115,18 +115,20 @@ objref gpstlist, grate[nchannels],anrate[nchannels],rate_level_graph, gstdev[nch
 proc RatelevelGolgi1(){local i,j,count,sum,runtime,cell,xtime localobj tmp
 	//objref Notchgr,results[sp.cells.count], Notch
 	
-	count = 0
-	tonefreq = cf.x[76]
-	dur       = 0.049    //duration of tone segment (seconds)
+	count		= 0
+	tonefreq	= cf.x[76]
+	dur			= 0.049    //duration of tone segment (seconds)
 	
-	dutycycle    = 0.2      //quiet duration = dutycycle*dur
-	ramplngth    = 0.001
-	srate       = 500000.0  stimtdres    = 1/srate
-	sg_rate = 50000      sg_tdres = 1/sg_rate
-	stimdelay = 0.02      //sec
-	stimtype=1   //tone
-	reps=50
-	gpstlist = new List()
+	dutycycle   = 0.2      //quiet duration = dutycycle*dur
+	ramplngth   = 0.001
+	srate       = 500000.0  
+	stimtdres   = 1/srate
+	sg_rate		= 50000      
+	sg_tdres	= 1/sg_rate
+	stimdelay	= 0.02      //sec
+	stimtype	= 1   //tone
+	reps		= 50
+	gpstlist	= new List()
 	for i=0,99 {
 		grate[i] = new Vector()
 		anrate[i] = new Vector()
@@ -218,19 +220,19 @@ func fun() {local f,mspikerate
 		Graph[0].flush()
 		doNotify()
 	}
-	spl=$1
-	//weight_sum=$2
-	golgi_spon=$2
-	golgi_spatial_filter_stdev =$3
-	golgi_syn_filter_scale_factor=$4
-	runtime = startsw()
+	spl									=$1
+	//weight_sum						=$2
+	golgi_spon							=$2
+	golgi_spatial_filter_stdev			=$3
+	golgi_syn_filter_scale_factor		=$4
+	runtime								= startsw()
 	golgi[76][0].ClearSpikes()
-	tonefreq = cf.x[76]
+	tonefreq							= cf.x[76]
 	RefreshParameters()
-	sg_rate=50000
+	sg_rate								= 50000
 	ANFilterBankRun()
-	sg_rate = 50000
-	sg_tdres = 1/sg_rate
+	sg_rate								= 50000
+	sg_tdres							= 1/sg_rate
 	CreateGolgiSynFilter()
 	golgi[76][0].SetRate()
 	

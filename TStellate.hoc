@@ -30,32 +30,32 @@ xopen("parameters_TStellate.hoc")
  xopen("calcisilag.hoc")
 
 // reset_DS_ClickRecovery()
-// param.w.x[hsr][ds]*=10
-// param.w.x[ds][tv]/=10
+// param.w.x[hsr][ds]*	=10
+// param.w.x[ds][tv]/	=10
 // reset_weights()
-// usesavedfilterbanks=1
+// usesavedfilterbanks	=1
 
 
-param.w.x[hsr][ts]  = 0.0005
-param.w.x[lsr][ts]    = 0.0005
-param.w.x[ds][ts]    = 0.0001
-param.w.x[tv][ts]    = 0.0002
-param.w.x[glg][ts]    = 0.0005
+param.w.x[hsr][ts]		= 0.0005
+param.w.x[lsr][ts]		= 0.0005
+param.w.x[ds][ts]		= 0.0001
+param.w.x[tv][ts]		= 0.0002
+param.w.x[glg][ts]		= 0.0005
 
 param.delay.x[hsr][ts]  = 0
-param.delay.x[lsr][ts]    = 0
-param.delay.x[hsr][ds]    = 0
-param.delay.x[lsr][ds]    = 0
-param.delay.x[hsr][tv]    = 0.5
-param.delay.x[hsr][tv]    = 0.5
-param.delay.x[lsr][glg]    = 1
+param.delay.x[lsr][ts]  = 0
+param.delay.x[hsr][ds]  = 0
+param.delay.x[lsr][ds]  = 0
+param.delay.x[hsr][tv]  = 0.5
+param.delay.x[hsr][tv]  = 0.5
+param.delay.x[lsr][glg] = 1
 
 
-param.n.x[hsr][ts]  = 20
-param.n.x[lsr][ts]    = 30
-param.n.x[ds][ts]    = 20
-param.n.x[tv][ts]    = 20
-param.n.x[glg][ts]    = 15
+param.n.x[hsr][ts]		= 20
+param.n.x[lsr][ts]		= 30
+param.n.x[ds][ts]		= 20
+param.n.x[tv][ts]		= 20
+param.n.x[glg][ts]		= 15
 
 create_cells()
 objref nil
@@ -292,13 +292,13 @@ xopen("voltage.ses")
 xopen("jitter.hoc")
 
 
-// param.w.x[lsr][ts] = 0.000774459
-// param.w.x[hsr][ts] = 0.000817015
-// param.w.x[ds][ts] = 0.0000138011
-// param.w.x[tv][ts] = 0.0000146063
-// param.w.x[glg][ts] = 9.3936e-05
-// tstellate_gleak_rm = 0.000494097
-// tstellate_erev_rm=-65
+// param.w.x[lsr][ts]	= 0.000774459
+// param.w.x[hsr][ts]	= 0.000817015
+// param.w.x[ds][ts]	= 0.0000138011
+// param.w.x[tv][ts]	= 0.0000146063
+// param.w.x[glg][ts]	= 9.3936e-05
+// tstellate_gleak_rm	= 0.000494097
+// tstellate_erev_rm	=-65
 // set_pvec()
 
 
@@ -307,9 +307,9 @@ xopen("jitter.hoc")
 // ANFilterBankRun()  //Generate new AN instant. rates
 // SetRates2()
 
-// tstellate_erev_rm=-58
-// param.w.x[ds][tv]/=10
-// param.w.x[hsr][tv]=0.0006
+// tstellate_erev_rm	=-58
+// param.w.x[ds][tv]/	=10
+// param.w.x[hsr][tv]	=0.0006
 // runprax()
 // printprax()
 // print "CT1 Done"
@@ -321,28 +321,28 @@ xopen("jitter.hoc")
 
 // //param.w.x[lsr][ts] = 0.000901216
 // //param.w.x[hsr][ts] = 0.000914421
-// //param.w.x[ds][ts] = 0.00146354
-// //param.w.x[tv][ts] = 0.00132918
+// //param.w.x[ds][ts]	= 0.00146354
+// //param.w.x[tv][ts]	= 0.00132918
 // //param.w.x[glg][ts] = 3.94981e-05
 // //tstellate_gleak_rm = 0.00297771
 
 
 // //param.w.x[lsr][ts] = 0.000774459
 // //param.w.x[hsr][ts] = 0.000817015
-// //param.w.x[ds][ts] = 0.0000138011
-// //param.w.x[tv][ts] = 0.0000146063
+// //param.w.x[ds][ts]	= 0.0000138011
+// //param.w.x[tv][ts]	= 0.0000146063
 // //param.w.x[glg][ts] = 9.3936e-05
 // //tstellate_gleak_rm = 0.000294097
-// //tstellate_erev_rm=-65
-// //reps=50
+// //tstellate_erev_rm	=-65
+// //reps				=50
 
-// param.w.x[lsr][ts] = 0.000774459
-// param.w.x[hsr][ts] = 0.000817015
-// param.w.x[ds][ts] = 0.0000138011
-// param.w.x[tv][ts] = 0.0000146063
-// param.w.x[glg][ts] = 9.3936e-05
-// tstellate_gleak_rm = 0.000494097
-// tstellate_erev_rm=-65
+// param.w.x[lsr][ts]	= 0.000774459
+// param.w.x[hsr][ts]	= 0.000817015
+// param.w.x[ds][ts]	= 0.0000138011
+// param.w.x[tv][ts]	= 0.0000146063
+// param.w.x[glg][ts]	= 9.3936e-05
+// tstellate_gleak_rm	= 0.000494097
+// tstellate_erev_rm	=-65
 // set_pvec()
 
 

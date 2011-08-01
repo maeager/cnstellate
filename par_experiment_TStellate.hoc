@@ -38,22 +38,22 @@
 //  which was positioned at the end of a hollow ear bar and controlled
 //  using a Tucker-Davis signal generator (Tucker-Davis Technologies,
 
-delay           = 0.02
-dur             = 0.045
-ramplngth       = 0.005
-dutycycle       = 0.8        // get an extra 40msec post-tone
-cfhi            = 40000
-cflo            = 400
-srate             = 100000      // 500k is no longer needed
-stimtdres         = 1/srate
-sg_rate         = 20000
-sg_tdres        = 1/sg_rate
-tstop=110
-ANmodel         = 6
-species         = 2 //Rat
-audiogram_file  = "rat_bruce_audiogram.dat"
-reps=25
-usesavedfilterbanks = 1
+delay					= 0.02
+dur						= 0.045
+ramplngth				= 0.005
+dutycycle				= 0.8        // get an extra 40msec post-tone
+cfhi					= 40000
+cflo					= 400
+srate					= 100000      // 500k is no longer needed
+stimtdres				= 1/srate
+sg_rate					= 20000
+sg_tdres				= 1/sg_rate
+tstop					=110
+ANmodel					= 6
+species					= 2 //Rat
+audiogram_file			= "rat_bruce_audiogram.dat"
+reps					=25
+usesavedfilterbanks		= 1
 
 
 RefreshCF()
@@ -62,14 +62,14 @@ GetAudiogramData()
 objref tempmat, ivdata[2], chopperIVgr,chopperCVgr
 objref CV_sustained, CV_transient1, CV_transient2, CV_data
 proc ChopperCVData(){local nrow,ncol
-nrow = 5
-ncol = 3
+nrow					= 5
+ncol					= 3
 objref CV_sustained, CV_transient1, CV_transient2
-CV_transient2 = new Matrix()
-CV_transient1 = new Matrix()
-CV_sustained  = new Matrix()
+CV_transient2			= new Matrix()
+CV_transient1			= new Matrix()
+CV_sustained			= new Matrix()
 
-file = new File()
+file					= new File()
 file.ropen("TStellate/PaoliniBalancedInh-Fig2.png.dat")
 if(file.isopen()){
 CV_transient2.scanf(file,nrow, ncol)

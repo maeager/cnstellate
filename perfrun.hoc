@@ -2,15 +2,15 @@
 
 
 proc prun() {
-        pnm.set_maxstep(10)
-        runtime=startsw()
-        waittime = pnm.pc.wait_time
-        stdinit()
-        pnm.psolve(tstop)
-        waittime = pnm.pc.wait_time - waittime
-        runtime = startsw() - runtime
-   steptime = pnm.pc.step_time
-   sendtime = pnm.pc.send_time
+    pnm.set_maxstep(10)
+    runtime    = startsw()
+    waittime   = pnm.pc.wait_time
+    stdinit()
+    pnm.psolve(tstop)
+    waittime   = pnm.pc.wait_time - waittime
+    runtime    = startsw() - runtime
+   steptime    = pnm.pc.step_time
+   sendtime    = pnm.pc.send_time
 //        printf("%d wtime %g\n", pnm.myid, waittime)
 }
 
@@ -23,7 +23,7 @@ proc getstat() {local i, id
    waitmax = waittime
    stepmax = steptime
    sendmax = sendtime
-   idmin = 0
+   idmin   = 0
    waitmin = waittime
    stepmin = steptime
    sendmin = sendtime

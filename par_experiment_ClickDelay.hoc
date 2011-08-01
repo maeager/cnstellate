@@ -69,33 +69,33 @@ objref gr,targetclick, dslist,clicktimes,stim
 proc ClickDelay(){local i,j,count,sum,channel,hi,lo,runtime,modfreq
 	
 	
-    runtime = startsw()
+    runtime				= startsw()
     an.ClearSpikes()
-    cfhi=64000
-	cflo=200
-	usesavedfilterbanks=0
-	dur       = 0.08    //duration of stim (seconds)
-	srate       = 500000.0
-	stimtdres    = 1/srate
-	sg_rate    = 500000
-	sg_tdres    = 1/sg_rate
-	stimdelay    = 0.01      //sec
-	stimtype   = 2      //Silence
-	reps      = 25
-	ANmodel      = 6      //Zilany Bruce model
-	species      = 2      //Rat
-	nrep      = 1        //nrep is number of reps of stimulus
+    cfhi				=64000
+	cflo				=200
+	usesavedfilterbanks	=0
+	dur					= 0.08    //duration of stim (seconds)
+	srate				= 500000.0
+	stimtdres			= 1/srate
+	sg_rate				= 500000
+	sg_tdres			= 1/sg_rate
+	stimdelay			= 0.01      //sec
+	stimtype			= 2      //Silence
+	reps				= 25
+	ANmodel				= 6      //Zilany Bruce model
+	species				= 2      //Rat
+	nrep				= 1        //nrep is number of reps of stimulus
 	objref gr,targetclick, dslist,clicktimes,stim
 	
 	
-	clicktimes = new Vector()
+	clicktimes			= new Vector()
 	clicktimes.append(20,22,40,44,60,68).mul(srate/1000)
 	
 	
 	
 	//Target response
 	//Fraction of repetitions that ellicit a response
-	targetclick = new Vector()
+	targetclick			= new Vector()
 	targetclick.append(1,0.2,1,0.45,1,0.6)
 	
 	//Create the stimulus

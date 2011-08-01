@@ -116,24 +116,24 @@ proc ShowGolgiGraphs() {
 
 //Setup Auditory model
 
-cfhi=64000
-cflo=200
+cfhi			= 64000
+cflo			= 200
 
-dur    = 0.08    //duration of stim (seconds)
-srate  = 100000.0
-stimtdres  = 1/srate
-sg_rate    = 50000
-sg_tdres   = 1/sg_rate
-stimdelay  = 0.01      //sec
-stimtype   = 2      //Silence
-reps       = 25
-ANmodel    = 7      //Zilany Bruce model v4
-species    = 2      //Rat
-nrep       = 1        //nrep is number of reps of stimulus
+dur				= 0.08    //duration of stim (seconds)
+srate			= 100000.0
+stimtdres		= 1/srate
+sg_rate			= 50000
+sg_tdres		= 1/sg_rate
+stimdelay		= 0.01      //sec
+stimtype		= 2      //Silence
+reps			= 25
+ANmodel			= 7      //Zilany Bruce model v4
+species			= 2      //Rat
+nrep			= 1        //nrep is number of reps of stimulus
 
 
 
-ANFBgr = new Graph()
+ANFBgr			= new Graph()
 usesavedfilterbanks=0
 /*
 
@@ -161,14 +161,14 @@ clicktimes.append(20,22,40,44,60,68).mul(srate/1000)
 targetclick = new Vector()
 targetclick.append(1,0.2,1,0.45,1,0.6)
 
-srate = 500000
+srate     = 500000
 stimtdres = 1/srate
 stim = new Vector(int(dur/stimtdres),0)
 for i=0,clicktimes.size-1{
 	for j=0,20 stim.x[clicktimes.x[i]+j] = spl2ampl(180)
 }
-reps=25
-binsize=0.2
+reps      = 25
+binsize   = 0.2
 
 
 stim.plot(ANFBgr,stimtdres)
@@ -263,19 +263,19 @@ proc RatelevelGolgi1(){local i,j,count,sum,runtime,cell,xtime localobj tmp
 
 
 
-count = 0
-tonefreq = golgi[76][0].cf
-dur       = 0.049    //duration of tone segment (seconds)
+count			= 0
+tonefreq		= golgi[76][0].cf
+dur				= 0.049    //duration of tone segment (seconds)
 
-dutycycle    = 0.2      //quiet duration = dutycycle*dur
-ramplngth    = 0.001
-srate       = 500000.0
-stimtdres    = 1/srate
-sg_rate = 50000
-sg_tdres = 1/sg_rate
-stimdelay    = 0.02      //sec
-stimtype=1   //tone
-reps=25
+dutycycle		= 0.2      //quiet duration = dutycycle*dur
+ramplngth		= 0.001
+srate			= 500000.0
+stimtdres		= 1/srate
+sg_rate			= 50000
+sg_tdres		= 1/sg_rate
+stimdelay		= 0.02      //sec
+stimtype		= 1   //tone
+reps			= 25
 
 
 

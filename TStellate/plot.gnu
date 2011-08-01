@@ -2,7 +2,12 @@
 # gnuplot is available from http://www.gnuplot.info
 load '../Responses/default.gnu'
 
-set term postscript portrait enhanced mono solid "Helvetica" 8
+set terminal postscript eps enhanced defaultplex \
+   leveldefault mono solid\
+   dashlength 1.0 linewidth 2.0 butt noclip \
+   palfuncparam 2000,0.003 \
+   "Helvetica" 18 
+
 set output "baseline.eps"
 
 #set size 0.49,0.5
@@ -85,12 +90,12 @@ set tmargin 0
 set rmargin 0
 unset arrow 2
 
-set label 1 '{/Helvetica=14 A}' at 10,-50
-set label 3 '{/Helvetica=12 10 mV}' at 0,-65 right rotate 
+set label 1 '{/Helvetica=20 A}' at 10,-50
+set label 3 '{/Helvetica=14 10 mV}' at 0,-65 right rotate 
 set arrow 1 from 5,-65 to 5,-55 nohead lw 1
 plot [10:110][-70:-50] "lsr_single_noNa.dat" w l lw 1, \
  "lsr_average_noNa.dat" u ($1+20):2 w l lw 2
-set label 1 '{/Helvetica=14 B}' at 10,-50
+set label 1 '{/Helvetica=20 B}' at 10,-50
 unset arrow 1
 unset label 3
 plot [10:110][-70:-50] "hsr_single_noNa.dat" w l lw 1, \
@@ -110,14 +115,14 @@ set rmargin 0
 
 set arrow 2 from 20,-72 to 70,-72 nohead lw 3
 set arrow 1 from 5,-70 to 5,-65 nohead lw 1
-set label 1 '{/Helvetica=14 C}' at 10,-60
-set label 3 '{/Helvetica=12 5 mV}' at 0,-65 right rotate 
-set label 4 '{/Helvetica=12 50 msec}' at 20,-73
+set label 1 '{/Helvetica=20 C}' at 10,-60
+set label 3 '{/Helvetica=14 5 mV}' at 0,-65 right rotate 
+set label 4 '{/Helvetica=14 50 msec}' at 20,-73
 
 plot [10:110][-75:-60] "ds_single.dat" w l lw 1,\
  "ds_average.dat" u ($1+20):2 w l lw 2
 unset arrow 1
-set label 1 '{/Helvetica=14 D}' at 10,-60
+set label 1 '{/Helvetica=20 D}' at 10,-60
 unset label 3
 unset label 4
 plot [10:110][-75:-60] "golgi_single.dat" w l lw 1, \

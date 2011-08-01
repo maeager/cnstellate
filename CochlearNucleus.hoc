@@ -7,8 +7,9 @@
 // individual simulation changes can be made to 'param'  
 
 objref cvode, random
-cvode = new CVode(0)        // start with CVode inactive
-random = new Random(seed)   //seed is generated in Utilities, dependant on use_seed flag
+cvode    = new CVode(0)       // start with CVode inactive
+random   = new Random(seed)   // seed is generated in Utilities
+                              // dependant on use_seed flag
 random.MCellRan4(seed+1)
 
 
@@ -29,25 +30,25 @@ hsr2dsAMPAlist, lsr2dsAMPAlist, hsr2glgAMPAlist, lsr2glgAMPAlist, \
 glg2dsGABAlist,glg2tvGABAlist, glg2tsGABAlist, ds2tsGLYlist, ds2tvGLYlist, ds2glgGLYlist, \
 tv2tsGLYlist, ts2tsAMPAlist,ts2dsAMPAlist, tv2dsGLYlist,ts2tvAMPAlist
 
-hsr2tsAMPAlist = new List()
-lsr2tsAMPAlist = new List()
-hsr2tvAMPAlist = new List()
-lsr2tvAMPAlist = new List()
-hsr2dsAMPAlist = new List()
-lsr2dsAMPAlist = new List()
+hsr2tsAMPAlist	= new List()
+lsr2tsAMPAlist	= new List()
+hsr2tvAMPAlist	= new List()
+lsr2tvAMPAlist	= new List()
+hsr2dsAMPAlist	= new List()
+lsr2dsAMPAlist	= new List()
 hsr2glgAMPAlist = new List()
 lsr2glgAMPAlist = new List()
-glg2dsGABAlist = new List()
-glg2tsGABAlist = new List()
-glg2tvGABAlist = new List()
-ds2tsGLYlist = new List()
-ds2tvGLYlist = new List()
-ds2glgGLYlist = new List()
-tv2dsGLYlist = new List()
-tv2tsGLYlist = new List()
-ts2tvAMPAlist = new List()
-ts2tsAMPAlist = new List()
-ts2dsAMPAlist = new List()
+glg2dsGABAlist	= new List()
+glg2tsGABAlist	= new List()
+glg2tvGABAlist	= new List()
+ds2tsGLYlist	= new List()
+ds2tvGLYlist	= new List()
+ds2glgGLYlist	= new List()
+tv2dsGLYlist	= new List()
+tv2tsGLYlist	= new List()
+ts2tvAMPAlist	= new List()
+ts2tsAMPAlist	= new List()
+ts2dsAMPAlist	= new List()
 
 if (nTSperchannel > 0) objref input[nchannels][nTSperchannel]
 objref outfile
@@ -835,11 +836,11 @@ proc GenSpikesB(){local i
 
 proc GenSpikesA(){local i,j,count
   startsw()
-    for i=0,nchannels-1 for j=0,HSRsperchannel-1 an.HSR[i][j].SGfast(1)
-    for i=0,nchannels-1 for j=0,HSRsperchannel-1 count+=an.HSRspiketimes[i][j].size
+    for i=0,nchannels-1 {for j=0,HSRsperchannel-1 an.HSR[i][j].SGfast(1)}
+    for i=0,nchannels-1 {for j=0,HSRsperchannel-1 count+=an.HSRspiketimes[i][j].size}
    // if (count/(nchannels*HSRsperchannel) > 10) system("sleep 0.5")
-    for i=0,nchannels-1 for j=0,LSRsperchannel-1 an.LSR[i][j].SGfast(1)
-    for i=0,nchannels-1  golgi[i][0].s.SGfast(1)
+    for i=0,nchannels-1 {for j=0,LSRsperchannel-1 an.LSR[i][j].SGfast(1)}
+    for i=0,nchannels-1 {golgi[i][0].sg.SGfast(1)}
   print "GenSpikes time:", stopsw()
 }
 
@@ -847,7 +848,7 @@ proc GenSpikes(){local i
   startsw()
     for i=0,nchannels-1 for j=0,HSRsperchannel-1 an.HSR[i][j].SGfast(1)
     for i=0,nchannels-1 for j=0,LSRsperchannel-1 an.LSR[i][j].SGfast(1)
-    for i=0,nchannels-1  golgi[i][0].s.SGfast(1)
+    for i=0,nchannels-1  golgi[i][0].sg.SGfast(1)
   print "GenSpikes time:", stopsw()
 }
 
@@ -856,7 +857,7 @@ proc GenSpikes2(){local i
   startsw()
     for i=0,nchannels-1 for j=0,HSRsperchannel-1 an.HSR[i][j].SGfast2(1)
     for i=0,nchannels-1 for j=0,LSRsperchannel-1 an.LSR[i][j].SGfast2(1)
-    for i=0,nchannels-1  golgi[i][0].s.SGfast2(1)
+    for i=0,nchannels-1  golgi[i][0].sg.SGfast2(1)
   print "GenSpikes time:", stopsw()
 }
 

@@ -19,20 +19,20 @@ hsr2dsAMPAvec, lsr2dsAMPAvec, hsr2glgAMPAvec, lsr2glgAMPAvec, \
 glg2dsGABAvec, glg2tsGABAvec, ds2tsGLYvec, ds2tvGLYvec, \
 tv2tsGLYvec, ts2tsAMPAvec
 
-hsr2tsAMPAvec = new Vector()
-lsr2tsAMPAvec = new Vector()
-hsr2tvAMPAvec = new Vector()
-lsr2tvAMPAvec = new Vector()
-hsr2dsAMPAvec = new Vector()
-lsr2dsAMPAvec = new Vector()
-hsr2glgAMPAvec = new Vector()
-lsr2glgAMPAvec = new Vector()
-glg2dsGABAvec = new Vector()
-glg2tsGABAvec = new Vector()
-ds2tsGLYvec = new Vector()
-ds2tvGLYvec = new Vector()
-tv2tsGLYvec = new Vector()
-ts2tsAMPAvec = new Vector()
+hsr2tsAMPAvec	= new Vector()
+lsr2tsAMPAvec	= new Vector()
+hsr2tvAMPAvec	= new Vector()
+lsr2tvAMPAvec	= new Vector()
+hsr2dsAMPAvec	= new Vector()
+lsr2dsAMPAvec	= new Vector()
+hsr2glgAMPAvec	= new Vector()
+lsr2glgAMPAvec	= new Vector()
+glg2dsGABAvec	= new Vector()
+glg2tsGABAvec	= new Vector()
+ds2tsGLYvec		= new Vector()
+ds2tvGLYvec		= new Vector()
+tv2tsGLYvec		= new Vector()
+ts2tsAMPAvec	= new Vector()
 
 
 objref input[nchannels][nTSperchannels]

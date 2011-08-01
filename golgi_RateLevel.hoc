@@ -129,18 +129,18 @@ objref gpstlist, grate[nchannels],anrate[nchannels],rate_level_graph
 proc RatelevelGolgi1(){local i,j,count,sum,runtime,cell,xtime localobj tmp
 	//objref Notchgr,results[sp.cells.count], Notch
 	
-	count = 0
-	tonefreq = golgi[76][0].cf
-	dur       = 0.049    //duration of tone segment (seconds)
+	count		= 0
+	tonefreq	= golgi[76][0].cf
+	dur			= 0.049    //duration of tone segment (seconds)
 	
-	dutycycle    = 0.2      //quiet duration = dutycycle*dur
-	ramplngth    = 0.001
+	dutycycle   = 0.2      //quiet duration = dutycycle*dur
+	ramplngth   = 0.001
 	srate       = 500000.0  stimtdres    = 1/srate
-	sg_rate = 50000      sg_tdres = 1/sg_rate
-	stimdelay    = 0.02      //sec
-	stimtype=1   //tone
-	reps=25
-	gpstlist = new List()
+	sg_rate		= 50000      sg_tdres = 1/sg_rate
+	stimdelay   = 0.02      //sec
+	stimtype	= 1   //tone
+	reps		= 25
+	gpstlist	= new List()
 	for i=0,99 {
 		grate[i] = new Vector()
 		anrate[i] = new Vector()
@@ -183,19 +183,19 @@ proc RatelevelGolgi1(){local i,j,count,sum,runtime,cell,xtime localobj tmp
 
 
 
-count = 0
-tonefreq = golgi[76][0].cf
-dur       = 0.049    //duration of tone segment (seconds)
+count			= 0
+tonefreq		= golgi[76][0].cf
+dur				= 0.049    //duration of tone segment (seconds)
 
-dutycycle    = 0.2      //quiet duration = dutycycle*dur
-ramplngth    = 0.001
-srate       = 500000.0
-stimtdres    = 1/srate
-sg_rate = 50000
-sg_tdres = 1/sg_rate
-stimdelay    = 0.02      //sec
-stimtype=1   //tone
-reps=25
+dutycycle		= 0.2      //quiet duration = dutycycle*dur
+ramplngth		= 0.001
+srate			= 500000.0
+stimtdres		= 1/srate
+sg_rate			= 50000
+sg_tdres		= 1/sg_rate
+stimdelay		= 0.02      //sec
+stimtype		= 1   //tone
+reps			= 25
 
 
 
@@ -223,16 +223,16 @@ func fun() {local f
 		//doNotify()
 		print $1, $2, $3
     }
-	spl=$1
-	weight_sum=$2
-	golgi_spon=$3
-	runtime = startsw()
+	spl			= $1
+	weight_sum	= $2
+	golgi_spon	= $3
+	runtime		= startsw()
     golgi[76][0].ClearSpikes()
     RefreshParameters()
-    sg_rate=50000
+    sg_rate		= 50000
     ANFilterBankRun()
-    sg_rate = 50000
-    sg_tdres = 1/sg_rate
+    sg_rate		= 50000
+    sg_tdres	= 1/sg_rate
     golgi[76][0].SetRate()
 	
     for j=0, reps-1{

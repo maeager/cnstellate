@@ -226,25 +226,25 @@ xpanel()
 
 //Setup Auditory model
 
-   cfhi=64000
-   cflo=200
-   stimtype = 3      //SAM sinusoidal ampl-modulation
-   tonefreq    = 10000   //Hz
-   dur       = 0.2    //duration of tone segment (seconds)
-   dutycycle    = 0      //quiet duration = dutycycle*dur
-   ramplngth    = 0.005
-   ANmodel=6
-   species=2
-   srate       = 500000.0
-   stimtdres    = 1/srate
-   sg_rate    = 50000
-   sg_tdres = 1/sg_rate
-   nrep      = 1        //nrep is number of reps of stimulus
-   stimdelay    = 0.01      //sec
+   cfhi					= 64000
+   cflo					= 200
+   stimtype				= 3      //SAM sinusoidal ampl-modulation
+   tonefreq				= 10000   //Hz
+   dur					= 0.2    //duration of tone segment (seconds)
+   dutycycle			= 0      //quiet duration = dutycycle*dur
+   ramplngth			= 0.005
+   ANmodel				= 6
+   species				= 2
+   srate				= 500000.0
+   stimtdres			= 1/srate
+   sg_rate				= 50000
+   sg_tdres				= 1/sg_rate
+   nrep					= 1        //nrep is number of reps of stimulus
+   stimdelay			= 0.01      //sec
 
 
 proc RescaleStim(){local rms
-rms = Decibels(stim)
+rms						= Decibels(stim)
 stim.mul(spl2amplNoise(spl)/spl2amplNoise(rms))
 }
 
@@ -252,14 +252,14 @@ stim.mul(spl2amplNoise(spl)/spl2amplNoise(rms))
 load_file("cngui.hoc")
 proc LoadSAM(){
 RefreshParameters()   //Generate or get stim from file
-spl=$1
+spl						=$1
 RescaleStim()      //Scale the vowel
 ANFilterBankRun()   //Build the filterbank
 an.SetRates()      //Allocate filterbanks to ANFs
 ShowInputGraphs()
 }
 
-usesavedfilterbanks=1
+usesavedfilterbanks		=1
 //MTFStim()
 LoadSAM(70)
 

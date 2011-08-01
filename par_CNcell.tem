@@ -9,9 +9,6 @@
 // Must convert from nanosiemens to mho/cm2 for the conductances
 // and change temperature conditions
 
-celsius = 37
-
-Erest=-65
 
 gaussian_mean=0
 gaussian_variance=1
@@ -257,7 +254,7 @@ proc convolve(){local x1,x2,wsize
 }
 
 begintemplate Golgicell
-  public s  //Jackson & Carney (2005) instantaneous rate spike-generator
+  public sg  //Jackson & Carney (2005) instantaneous rate spike-generator
   public spiketimes,spikes,sout //internal vectors
   public SetRate,GenSpikes,SetRate2,GenSpikes2,SaveSpikes,ClearSpikes //functions
   public connect2target //connect function
@@ -279,9 +276,9 @@ begintemplate Golgicell
     cf = $2
     channel=$3
     golgi_spatial_filter_variance=$4
-    s = new SGC_fast(0.5)
-    s.cf = cf
-	
+    sg = new SGC_fast(0.5)
+    sg.cf = cf
+    
 }
 objref tempsout
 /* Obsolete - replaced with SetRate2*/
@@ -295,13 +292,13 @@ proc SetRate() {local i,j,spon_factor
 	sout = new Vector(LSRout[0].size)
 	for i=0,nchannels-1  {
 	tempsout.add(LSRout[i].c.mul(w.x[i]))
-	}
-	spon_factor = LSRout[0].x[0]/tempsout.x[0]
-	tempsout.mul(spon_factor).add(golgi_spon)
-	convolve(tempsout,golgi_synfilter,sout)
-	s.SetFibreRate(sout,spiketimes,sg_tdres)
-//print "golgi[",i,"][",j,"]: Process ",pnm.myid," mean ", sout.mean()
-	objref tempsout
+    }
+    spon_factor = LSRout[0].x[0]/tempsout.x[0]
+    tempsout.mul(spon_factor).add(golgi_spon)
+    convolve(tempsout,golgi_synfilter,sout)
+    sg.SetFibreRate(sout,spiketimes,sg_tdres)
+    //print "golgi[",i,"][",j,"]: Process ",pnm.myid," mean ", sout.mean()
+    objref tempsout
 }
 proc SetRate2() {local i,j,spon_factor
     printf("golgi %d", channel)
@@ -349,32 +346,34 @@ proc SetRate2() {local i,j,spon_factor
 	      sout.insrt(0,golgi_spon)
 	    }
 	sout.resize(LSRout[0].size)
-	s.SetFibreRate(sout,spiketimes,sg_tdres)
+//Set the Spike generator 	
+sg.SetFibreRate(sout,spiketimes,sg_tdres)
 	  //print "golgi[",i,"][",j,"]: Process ",pnm.myid," mean ", sout.mean()
 	  objref tempsout
 	  printf(" done\r")
 }
 
 proc GenSpikes(){local i,j
-  s.SGfast(1)
+	print "Obsolete spike generator, use GenSpikes2()"	
+	sg.SGfast(1)
 }
 proc GenSpikes2(){local i,j
-  s.SGfast2(1)
+	sg.SGfast2(1)
 }
 
 
 proc SaveSpikes(){
-if (object_id(spikes)==0) spikes = new Vector() 
-spikes.append(spiketimes)
+	if (object_id(spikes)==0) spikes = new Vector() 
+	spikes.append(spiketimes)
 }
 proc ClearSpikes(){
-spiketimes.resize(0)
-spikes.resize(0)
+	spiketimes.resize(0)
+	spikes.resize(0)
 }
 
 proc connect2target() {
-	 $o2 = new NetCon(s, $o1)
-	$o2.threshold = thresh
+    $o2 = new NetCon(sg, $o1)
+    $o2.threshold = thresh
 }
 
 
@@ -479,9 +478,9 @@ func RetrieveGolgiFilterBank(){local nsize,nchan,temp
 	}
       sg_tdres = 1/sg_rate
       ANfile.close()
-      //Setting rate in point process object 
+      //Setting rate in spike generator object 
       for icf = 0,nchannels-1{
-	  golgi[icf][0].s.SetFibreRate(golgi[icf][0].sout,golgi[icf][0].spiketimes,sg_tdres)
+	  golgi[icf][0].sg.SetFibreRate(golgi[icf][0].sout,golgi[icf][0].spiketimes,sg_tdres)
 	}
       return 1
     } else {

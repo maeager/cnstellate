@@ -3,31 +3,31 @@
 
 //////////Default Parameters for TV_Notch///////////////
 
-  ANsoundspath = "../../sounds"
-  cfhi     = 48000
-  cflo     = 200
-  ramplngth = 0.002
-  tstop    = 70    // ms
-  dur      = 0.048  // duration of stim (seconds)
-  spl      = 90     // dB SPL
-  stimdelay= 0.01   // sec
-  stimtype = 12     // Notch: stobband filtered noise
-  reps     = 20     //
-  ANmodel  = 6      // Zilany Bruce model version 3
-  species  = 1      // Cat
+  ANsoundspath			= "../../sounds"
+  cfhi					= 48000
+  cflo					= 200
+  ramplngth				= 0.002
+  tstop					= 70    // ms
+  dur					= 0.048  // duration of stim (seconds)
+  spl					= 90     // dB SPL
+  stimdelay				= 0.01   // sec
+  stimtype				= 12     // Notch: stobband filtered noise
+  reps					= 20     //
+  ANmodel				= 6      // Zilany Bruce model version 3
+  species				= 1      // Cat
 
-  stopband = 6      // kHz
-  notchwidth = 1
- centrepoint=stopband*1000
+  stopband				= 6      // kHz
+  notchwidth			= 1
+ centrepoint			=stopband*1000
  GenNotchResponsePlots()
  
 
-  ANFBgr = new Graph()
-  usesavedfilterbanks=1
-  srate     = 100000
-  stimtdres = 1/srate
-  sg_rate   = 50000
-  sg_tdres  = 1/sg_rate
+  ANFBgr				= new Graph()
+  usesavedfilterbanks	=1
+  srate					= 100000
+  stimtdres				= 1/srate
+  sg_rate				= 50000
+  sg_tdres				= 1/sg_rate
   RefreshCF()
   GetAudiogramData()
   //RefreshParameters()
