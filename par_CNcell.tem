@@ -263,7 +263,7 @@ begintemplate Golgicell
   external thresh,LSRout,nchannels,sg_tdres,weight_sum, golgi_spon,golgi_spatial_filter_variance
   external gaussian,gaussian_mean,gaussian_variance,golgi_synfilter,convolve, MSRsperchannel, Lowspont,Highspont,Medspont
   external param,hsr,lsr,glg,sg_rate,HSRout, MSRout, golgi_spatial_filter_variance_LSR, weight_sum_MSR, golgi_spatial_filter_variance_MSR, golgi_spatial_filter_variance_HSR
-  objref s,w, spiketimes, spikecount,sout,synlist,spikes
+  objref sg,w, spiketimes, spikecount,sout,synlist,spikes
   objref wLSR,wHSR,wMSR
   channel=0
  inputchannelvariance=1

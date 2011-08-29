@@ -15,23 +15,24 @@ nDSperchannel   = 1   // number of DS cells in each freq channel
 numDS			= nchannels*nDSperchannel   // total number of DS cells
 nGperchannel	= 1   // number of Golgi cells in each freq channel
 numG			= nchannels*nGperchannel   // total number of Golgi cells
-HSRsperchannel  =   100
-MSRsperchannel  =   0
-LSRsperchannel  =   100
+HSRsperchannel  = 100
+MSRsperchannel  = 0
+LSRsperchannel  = 100
 seed			= 0         // seed for random number generator
-thresh			= -10       // mV   // threshold for detecting spikes
+thresh			= -30       // mV   // threshold for detecting spikes
 
 
 strdef fileroot
 sprint(fileroot,"ClickDelay") // root for output filenames
 
-inputnumber		= 1         // fixed input file
-tstop			= 400   // ms   // total simulation time
-ttrans			= 10   // ms   // when calculating statistics, ignore
-            // spikes occuring before this time
+inputnumber		= 1      // fixed input file
+tstop			= 400    // ms, total simulation time
+ttrans			= 10     // ms, when calculating statistics, ignore
+                         // spikes occuring before this time (part of calcisi)
 cvode.active(0)
+celsius			= 37
+secondorder		= 2      //Crank-Nicholson integration method
 dt				= 0.05   //ms
 steps_per_ms	= 10
-setdt()
-celsius			= 37
-secondorder		=2
+setdt()                  //this will automatically set dt to 0.05, 
+                         //so if you want to set dt to 0.1, this  must be done after calling setdt() 

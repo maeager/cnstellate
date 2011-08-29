@@ -151,7 +151,7 @@ proc connect_cells(){local i,p,target,source,low,high,range,channel,sourcechanne
 				sprint(cmd, "golgi[%d][%d].soma glg2dsGABAlist.append( new NetCon(&v(0.5),dstellate[%d][%d].GABAA,thresh,param.delay.getval(glg,ds), param.w.getval(glg,ds)))",sourcechannel, source, channel, target )
 				execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
 			} else {
-				sprint(cmd, "glg2dsGABAlist.append( new NetCon( golgi[%d][%d].s,dstellate[%d][%d].GABAA, thresh,param.delay.getval(glg,ds), param.w.getval(glg,ds)))",sourcechannel, source ,channel ,target )
+				sprint(cmd, "glg2dsGABAlist.append( new NetCon( golgi[%d][%d].sg,dstellate[%d][%d].GABAA, thresh,param.delay.getval(glg,ds), param.w.getval(glg,ds)))",sourcechannel, source ,channel ,target )
 				execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
 			}
 			outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)

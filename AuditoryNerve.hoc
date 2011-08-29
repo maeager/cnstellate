@@ -4,7 +4,7 @@
 begintemplate AuditoryNerve
 public HSR,LSR, reorder,HSRspiketimes,LSRspiketimes,LSRspikes,HSRspikes
 public flag,channel,tdres,spont,nspks,ncells,reorder
-public SetRates,GenSpikes,PrintSpikes,ClearSpikes,SaveSpikes//,SetSpikes,Printspks,ReorderSpikes,
+public SetRates,GenSpikes,GenSpikes2, PrintSpikes,ClearSpikes,SaveSpikes//,SetSpikes,Printspks,ReorderSpikes,
 external HSRout,LSRout,sg_tdres,nchannels,HSRsperchannel,LSRsperchannel,cf
 external Lowspont,Highspont
 
