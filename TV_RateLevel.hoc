@@ -1,0 +1,173 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+/*
+*   TV_Notch.hoc
+*
+*/
+load_file("nrngui.hoc")
+//load_file("par_netpar.hoc")
+//load_file("par_init.hoc")
+
+xopen("mathslib.hoc")         // mathematical procedures
+xopen("Params.hoc")           // default parameters
+xopen("Utilities.hoc")
+xopen("NetworkParameters.hoc")
+xopen("AuditoryNerve.hoc")
+xopen("par_CNcell.tem")      // CN cell template
+xopen("parameters_TV_Notch.hoc")     //This model's parameters
+xopen("CochlearNucleus.hoc")         // model set-up
+//--- Setup Auditory and CN Stellate model
+create_cells()
+connect_cells(fileroot)
+connect_CNcells(fileroot)
+//Previous optimisation parameters
+xopen("pvec_Golgi_RateLevel.hoc")
+xopen("pvec_DS_ClickRecovery.hoc")
+
+reset_weights()
+reset_DS_ClickRecovery()
+
+//Setup this experiment
+//xopen("par_experiment_TV_Notch.hoc")
+
+xopen("cngui.hoc")
+
+// proc SetRates(){local icf
+// 	an.SetRates()
+// 	if (RetrieveGolgiFilterBank() == 0) { 
+// 		for icf=0,99 {
+// 			golgi[icf][0].SetRate2() //enable H and L ANFs in golgi cells
+// 		}
+// 		SaveGolgiFilterBank2File()
+// 	} else {
+	
+// }
+
+// proc GenSpikes2(){local i,j,count
+//     startsw()
+//     for i=0,nchannels-1 {for j=0,HSRsperchannel-1 {an.HSR[i][j].SGfast2(1)}}
+// 	// for i=0,nchannels-1 {for j=0,HSRsperchannel-1 count+=an.HSRspiketimes[i][j].size}
+//     // if (count/(nchannels*HSRsperchannel) > 10) system("sleep 0.5")
+//     for i=0,nchannels-1 {for j=0,LSRsperchannel-1 an.LSR[i][j].SGfast2(1)}
+//     for i=0,nchannels-1 {golgi[i][0].sg.SGfast2(1)}
+//     print "GenSpikes time: ", stopsw()
+// }
+// proc multi_run(){local irep
+//     startsw()
+//     ClearSpikes()
+//     for irep=0,reps-1{
+// 		GenSpikes2()
+// 		print irep
+// 		//run()
+// 		stdinit()
+// 		continuerun(tstop)
+//         SaveSpikes()
+//     }
+//     print "Multi_run time:", stopsw()
+// }
+
+
+// Sound level in dB attenuation refers to noise spectrum level at 0 dB equal to \~40 dB re 20 $\mu$Pa/Hz$^{1/2}$.
+
+
+//////////Default Parameters for TV_RateLevel///////////////
+
+ANsoundspath			= "../../sounds"
+cfhi				= 48000
+cflo				= 200
+ramplngth			= 0.002
+tstop				= 70    // ms
+dur				= 0.049  // duration of stim (seconds)
+spl				= 20     //dB SPL
+stimdelay			= 0.02   //sec, 20 msec
+stimtype			= 9     //TwoTone
+tonefreq  = 6600 //Hz, unit 1 CF
+tone2freq = 9350 //Hz ,unit 2 
+tone2spl = spl // set the second tone's sound level to the same as the first
+reps					= 25     //
+ANmodel					= 6      // Zilany Bruce model version 3
+species					= 1      // Cat
+
+
+
+ANFBgr					= new Graph()
+usesavedfilterbanks		= 1
+srate					= 100000
+stimtdres				= 1/srate
+sg_rate					= 50000
+sg_tdres				= 1/sg_rate
+RefreshCF()
+GetAudiogramData()
+RefreshParameters()
+//  ANFilterBankRun()
+//  CheckFilterbank()
+//  SetRates()
+
+//xopen("TV_Notch.ses")
+
+objref fitgr,gg
+//TV Optimisation
+objref gr,target_notch, dslist, fvec,dvec,ivec,weighting,errorvec
+objref anrate[nchannels],rate_level_graph
+gr = new Graph()
+
+
+//
+// Fitness/error function
+//
+proc plot_fitgr(){
+    objref fitgr
+    fitgr = new Graph()
+//    expected_notch[1].plot(fitgr,freq1_notch,4,1)
+//    CNrate[tv].plot(fitgr,cf,3,1)
+//    type2_1oct_sweep[1].plot(fitgr,freq_1oct,5,1)
+//    fitgr.exec_menu("View = plot")
+}
+
+objref tempcf,indcf,errorvec,refvec
+
+
+
+reps=20
+strdef origfileroot
+origfileroot = fileroot
+
+error=0
+strdef datestr,grlbl
+objref ivec,pval[NPARAMS]
+ivec= new Vector()
+ivec.append(3,9,7,5,1,2,8,6,4,0,10,11,12,13)
+
+
+
+
+
+//QuickRun()
+//spl=50
+//sprint(fileroot,"%s_spl50",origfileroot)
+//param.w.x[hsr][tv]=-0.0002
+//param.w.x[lsr][tv]*=2
+objref origpvec
+set_pvec()
+origpvec = pvec.c
+
+
+proc RedefineCNmodel(){local i_chan,j_cell,ii
+	//define the cell objects
+	
+    objref an, tuberculoventral[nchannels][nTVperchannel],dstellate[nchannels][nDSperchannel], dstellate[nchannels][nGperchannel]
+	objref hsr2tvAMPAlist, lsr2tvAMPAlist, hsr2dsAMPAlist, lsr2dsAMPAlist,glg2dsGABAlist, ds2tvGLYlist
+	
+	hsr2tvAMPAlist = new List()
+	lsr2tvAMPAlist = new List()
+	hsr2dsAMPAlist = new List()
+	lsr2dsAMPAlist = new List()
+	glg2dsGABAlist = new List()
+	ds2tvGLYlist = new List()
+	create_cells()
+	connect_cells(origfileroot)
+	connect_CNcells(origfileroot)
+	for ii=0,99 tuberculoventral[ii][0].soma.erev_rm = param.tv_erev
+}
+
+
