@@ -261,11 +261,12 @@ begintemplate Golgicell
   external thresh,LSRout,nchannels,sg_tdres,weight_sum, golgi_spon,golgi_spatial_filter_variance
   external gaussian,gaussian_mean,gaussian_variance,golgi_synfilter,convolve, MSRsperchannel, Lowspont,Highspont,Medspont
   external param,hsr,lsr,glg,sg_rate,HSRout, MSRout, golgi_spatial_filter_variance_LSR, weight_sum_MSR, golgi_spatial_filter_variance_MSR, golgi_spatial_filter_variance_HSR
-  objref s,w, spiketimes, spikecount,sout,synlist,spikes
+  objref sg,w, spiketimes, spikecount,sout,synlist,spikes
   objref wLSR,wHSR,wMSR
   channel=0
- inputchannelvariance=1
-  proc init() {localobj r, data, hist, x, g
+  inputchannelvariance=1
+ 
+ proc init() {localobj r, data, hist, x, g
     sout = new Vector()
     spiketimes = new Vector()
     spikes=new Vector()
@@ -277,9 +278,10 @@ begintemplate Golgicell
     sg = new SGC_fast(0.5)
     sg.cf = cf
     
-}
+ }
 objref tempsout
 /* Obsolete - replaced with SetRate2*/
+/*
 proc SetRate() {local i,j,spon_factor
     w = new Vector(nchannels)
     w.indgen()
@@ -298,6 +300,7 @@ proc SetRate() {local i,j,spon_factor
     //print "golgi[",i,"][",j,"]: Process ",pnm.myid," mean ", sout.mean()
     objref tempsout
 }
+*/
 proc SetRate2() {local i,j,spon_factor
     printf("golgi %d", channel)
 	tempsout = new Vector(LSRout[0].size)

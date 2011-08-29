@@ -20,7 +20,7 @@
   MSRsperchannel														=   0
   LSRsperchannel														=   20
   seed																	= 0         // seed for random number generator
-  thresh																= -10       // mV   // threshold for detecting spikes
+  thresh																= -20       // mV   // threshold for detecting spikes
 
 
   strdef fileroot

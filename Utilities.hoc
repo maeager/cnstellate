@@ -281,7 +281,7 @@ proc AMtone() {local stimtdres,rstep, totalpts, fc, fm, samplingrate, duration,s
     rampx				= new Vector(totalpts)
     rampx.indgen(rstep)
     modulation			= rampx.apply("mycos").mul(-0.5)
-    if (depth!=1){ modulation.mul(1-depth) }
+    if (depth != 1){ modulation.mul(1-depth) }
     modulation.add(1-modulation.max())
     
     
@@ -804,7 +804,7 @@ proc AMnoise() {local stimtdres,rstep, totalpts, fc, fm, samplingrate, duration,
     rampx				= new Vector(totalpts)
     rampx.indgen(rstep)
     modulation			= rampx.apply("mycos").mul(-0.5)
-    if (depth!			=1){ modulation.mul(1-depth) }
+    if (depth != 1){ modulation.mul(1-depth) }
     modulation.add(1-modulation.max())
     
     

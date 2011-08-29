@@ -31,13 +31,13 @@ libresample:
 rebuild-an: remove-an libresample
 
 gui: libresample
-	$(GUIMODL)
+	$(GUIMODL) $(MODLFLAGS)
 	mv $(ARCH) gui
 	cd gui
 	sed -i 's/cnstellate\/i686/cnstellate\/gui/g' *
 
 mpi: libresample
-	$(MPIMODL)
+	$(MPIMODL) $(MODLFLAGS)
 	mv $(ARCH) mpi
 	cd mpi
 	sed -i 's/cnstellate\/i686/cnstellate\/mpi/g' *

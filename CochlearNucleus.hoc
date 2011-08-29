@@ -532,7 +532,7 @@ if( ( param.n.getval(glg,ds) > 0 ) && ( nDSperchannel != 0 ) && ( nGperchannel !
 	   sprint(cmd, "golgi[%d][%d].soma glg2dsGABAlist.append( new NetCon(&v(0.5),dstellate[%d][%d].GABAA,thresh,param.delay.getval(glg,ds), param.w.getval(glg,ds)))",sourcechannel,source,channel,target)
         execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
    } else {
-	   sprint(cmd, "glg2dsGABAlist.append( new NetCon(golgi[%d][%d].s, dstellate[%d][%d].GABAA, thresh, param.delay.getval(glg,ds), param.w.getval(glg,ds)))",sourcechannel,source,channel,target)
+	   sprint(cmd, "glg2dsGABAlist.append( new NetCon(golgi[%d][%d].sg, dstellate[%d][%d].GABAA, thresh, param.delay.getval(glg,ds), param.w.getval(glg,ds)))",sourcechannel,source,channel,target)
         execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
    }
  outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
@@ -569,7 +569,7 @@ if( ( param.n.getval(glg,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nGperchannel !
 	   sprint(cmd, "golgi[%d][%d].soma glg2tsGABAlist.append( new NetCon(&v(0.5),tstellate[%d][%d].GABAA, thresh,param.delay.getval(glg,ts), param.w.getval(glg,ts)))",sourcechannel,source,channel,target)
         execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
    } else { //filter based model of golgi
-		   sprint(cmd, "glg2tsGABAlist.append( new NetCon( golgi[%d][%d].s, tstellate[%d][%d].GABAA, thresh,param.delay.getval(glg,ts), param.w.getval(glg,ts)))",sourcechannel,source,channel,target)
+		   sprint(cmd, "glg2tsGABAlist.append( new NetCon( golgi[%d][%d].sg, tstellate[%d][%d].GABAA, thresh,param.delay.getval(glg,ts), param.w.getval(glg,ts)))",sourcechannel,source,channel,target)
         execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
    }
      outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
@@ -810,8 +810,7 @@ for i = 0,ts2tvAMPAlist.count()-1 {
 
 proc SetRates2(){
     an.SetRates()
-	SetGolgiRates()
-	
+	SetGolgiRates()	
 }
 
 proc SetGolgiRates(){

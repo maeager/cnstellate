@@ -148,68 +148,70 @@ proc PlotAudiogram(){
 
 objref CNgr[4],CNspks[nchannels][4],CNhist,CNrate[4],CNrategr
 proc CNSpikes(){local i, icf
-objref CNgr[4],CNspks[nchannels][4],CNhist,CNrate[4],CNrategr
-   for i=0,3 {
-      CNgr[i] = new Graph()
-       CNrate[i] = new Vector()
-   }
-
-   CNhist = new Graph()
-   CNrategr = new Graph()
-   for icf=0 ,  nchannels-1{
-      CNspks[icf][ts] = new Vector()
-      CNspks[icf][tv] = new Vector()
-      CNspks[icf][ds] = new Vector()
-      CNspks[icf][glg] = new Vector()
-
-      if (nTSperchannel > 0 && object_id(tstellate[0][0])) if (object_id(tstellate[0][0].spiketimes)){ 
-       for i=0, nTSperchannel-1  {
-	 for j=0, tstellate[icf][i].spiketimes.size() -1 { 
-	     CNgr[ts].mark(tstellate[icf][i].spiketimes.x[j], icf*nTSperchannel+i, "o", 0.5, red,1) 
-	   }
-	  CNspks[icf][0].append(tstellate[icf][i].spiketimes)
-	 }
-     }
-      if (nDSperchannel > 0 && object_id(dstellate[0][0])) if (object_id(dstellate[0][0].spiketimes)){
-       for i=0, nDSperchannel-1  {
-	  for j=0, dstellate[icf][i].spiketimes.size() -1 { 
-	      CNgr[ds].mark(dstellate[icf][i].spiketimes.x[j], icf*nDSperchannel+i, "o", 0.5, red,1) 
-	    }
-	  CNspks[icf][1].append(dstellate[icf][i].spiketimes)
-	  }
-     }
-   if (nTVperchannel > 0 && object_id(tuberculoventral[0][0])) if ( object_id(tuberculoventral[0][0].spiketimes)){
-	for i=0, nTVperchannel-1  {
-	    for j=0, tuberculoventral[icf][i].spiketimes.size() -1 { 
-		CNgr[tv].mark(tuberculoventral[icf][i].spiketimes.x[j], icf*nTVperchannel+i, "o", 0.5, red,1)  
-	      }
-	    CNspks[icf][2].append(tuberculoventral[icf][i].spiketimes) 
-	 }}
-      if (nGperchannel > 0 && object_id(golgi[0][0])) if (object_id(golgi[0][0].spiketimes) ){
-	for i=0, nGperchannel-1  {
-          for j=0, golgi[icf][i].spiketimes.size() -1 { 
-	      CNgr[glg].mark(golgi[icf][i].spiketimes.x[j], icf*nGperchannel+i, "o", 0.5, red,1) 
-	    }
-	  CNspks[icf][i].append(golgi[icf][i].spiketimes)
-	  }}
-//.div(reps*binsize/1000)
-      for i=0,3{
-	  CNspks[icf][i] = CNspks[icf][i].histogram(0,tstop,0.1)
-	  CNrate[i].append(CNspks[icf][i].sum())
+	objref CNgr[4],CNspks[nchannels][4],CNhist,CNrate[4],CNrategr
+	for i=0,3 {
+		CNgr[i] = new Graph()
+		CNrate[i] = new Vector()
 	}
-      CNspks[icf][1].add(icf*5).plot(CNhist, 0.1)
-
-
-   }
-   CNgr[ts].label(0.3, 0.95, "Raster Plot of Tstellate")
-   CNgr[ds].label(0.3, 0.95, "Raster Plot of D-stellate")
- CNgr[tv].label(0.3, 0.95, "Raster Plot of TV cells")
-   CNgr[glg].label(0.3, 0.95, "Raster Plot of Golgi cells")
-      for i=0,3{
-         CNgr[i].size(0,tstop,0,nchannels)
-         CNrate[i].plot(CNrategr,1,i+1,1)
-   }
-   CNhist.label(0.5, 0.95, "PSTH")
+	
+	CNhist = new Graph()
+	CNrategr = new Graph()
+	for icf=0 ,  nchannels-1{
+		CNspks[icf][ts] = new Vector()
+		CNspks[icf][tv] = new Vector()
+		CNspks[icf][ds] = new Vector()
+		CNspks[icf][glg] = new Vector()
+		
+		if (nTSperchannel > 0 && object_id(tstellate[0][0])) if (object_id(tstellate[0][0].spiketimes)){ 
+			for i=0, nTSperchannel-1  {
+				for j=0, tstellate[icf][i].spiketimes.size() -1 { 
+					CNgr[ts].mark(tstellate[icf][i].spiketimes.x[j], icf*nTSperchannel+i, "o", 0.5, red,1) 
+				}
+				CNspks[icf][0].append(tstellate[icf][i].spiketimes)
+			}
+		}
+		if (nDSperchannel > 0 && object_id(dstellate[0][0])) if (object_id(dstellate[0][0].spiketimes)){
+			for i=0, nDSperchannel-1  {
+				for j=0, dstellate[icf][i].spiketimes.size() -1 { 
+					CNgr[ds].mark(dstellate[icf][i].spiketimes.x[j], icf*nDSperchannel+i, "o", 0.5, red,1) 
+				}
+				CNspks[icf][1].append(dstellate[icf][i].spiketimes)
+			}
+		}
+		if (nTVperchannel > 0 && object_id(tuberculoventral[0][0])) if ( object_id(tuberculoventral[0][0].spiketimes)){
+			for i=0, nTVperchannel-1  {
+				for j=0, tuberculoventral[icf][i].spiketimes.size() -1 { 
+					CNgr[tv].mark(tuberculoventral[icf][i].spiketimes.x[j], icf*nTVperchannel+i, "o", 0.5, red,1)  
+				}
+				CNspks[icf][2].append(tuberculoventral[icf][i].spiketimes) 
+			}
+		}
+		if (nGperchannel > 0 && object_id(golgi[0][0])) if (object_id(golgi[0][0].spiketimes) ){
+			for i=0, nGperchannel-1  {
+				for j=0, golgi[icf][i].spiketimes.size() -1 { 
+					CNgr[glg].mark(golgi[icf][i].spiketimes.x[j], icf*nGperchannel+i, "o", 0.5, red,1) 
+				}
+				CNspks[icf][i].append(golgi[icf][i].spiketimes)
+			}
+		}
+		
+		for i=0,3{
+			CNspks[icf][i] = CNspks[icf][i].histogram(0,tstop,0.1)
+			CNrate[i].append(CNspks[icf][i].mean(stimdelay*1000/0.1,CNspks[icf][i].size-1 )/(reps*0.1/1000))
+		}
+		CNspks[icf][1].add(icf*5).plot(CNhist, 0.1)
+		
+		
+	}
+	CNgr[ts].label(0.3, 0.95, "Raster Plot of Tstellate")
+	CNgr[ds].label(0.3, 0.95, "Raster Plot of D-stellate")
+	CNgr[tv].label(0.3, 0.95, "Raster Plot of TV cells")
+	CNgr[glg].label(0.3, 0.95, "Raster Plot of Golgi cells")
+	for i=0,3{
+		CNgr[i].size(0,tstop,0,nchannels)
+		CNrate[i].plot(CNrategr,1,i+1,1)
+	}
+	CNhist.label(0.5, 0.95, "PSTH")
    CNhist.exec_menu("View = plot")
    CNrategr.label(0.3, 0.95, "Rate-Place Representation")
    CNrategr.exec_menu("View = plot")
@@ -219,43 +221,46 @@ flag_plot_hist=0
 proc CNSpikes2(){local i, icf
     objref CNgr[4],CNspks[nchannels][4],CNhist,CNrate[4],CNrategr
     for i=0,3 {
-	CNgr[i] = new Graph()
-	CNrate[i] = new Vector()
+		CNgr[i] = new Graph()
+		CNrate[i] = new Vector()
     }
     CNhist = new Graph()
     CNrategr = new Graph()
     for icf=0 ,  nchannels-1{
-	CNspks[icf][ts] = new Vector()
-	CNspks[icf][tv] = new Vector()
-	CNspks[icf][ds] = new Vector()
-	CNspks[icf][glg] = new Vector()	
-	
-	if  (nTSperchannel > 0 && object_id(tstellate[0][0])) if (object_id(tstellate[0][0].spikes)){ 
-	    for i=0,nTSperchannel-1  CNspks[icf][ts] = tstellate[icf][i].spikes.histogram(0,tstop,0.1)
-	} 
-	
-	if (nDSperchannel > 0 && object_id(dstellate[0][0])) if (object_id(dstellate[0][0].spikes)){ 
-	    for i=0,nDSperchannel-1 CNspks[icf][ds] = dstellate[icf][i].spikes.histogram(0,tstop,0.1)
-	  }
-	if (nTVperchannel > 0 && object_id(tuberculoventral[0][0])) if ( object_id(tuberculoventral[0][0].spikes)){
-	    for i=0,nTVperchannel-1 CNspks[icf][tv] = tuberculoventral[icf][i].spikes.histogram(0,tstop,0.1)
+		CNspks[icf][ts] = new Vector()
+		CNspks[icf][tv] = new Vector()
+		CNspks[icf][ds] = new Vector()
+		CNspks[icf][glg] = new Vector()	
+		
+		if  (nTSperchannel > 0 && object_id(tstellate[0][0])) if (object_id(tstellate[0][0].spikes)){ 
+			for i=0,nTSperchannel-1  CNspks[icf][ts] = tstellate[icf][i].spikes.histogram(0,tstop,0.1)
+		} 
+		
+		if (nDSperchannel > 0 && object_id(dstellate[0][0])) if (object_id(dstellate[0][0].spikes)){ 
+			for i=0,nDSperchannel-1 CNspks[icf][ds] = dstellate[icf][i].spikes.histogram(0,tstop,0.1)
+		}
+		if (nTVperchannel > 0 && object_id(tuberculoventral[0][0])) if ( object_id(tuberculoventral[0][0].spikes)){
+			for i=0,nTVperchannel-1 CNspks[icf][tv] = tuberculoventral[icf][i].spikes.histogram(0,tstop,0.1)
+		}
+		if (nGperchannel > 0 && object_id(golgi[0][0])) if (object_id(golgi[0][0].spiketimes) ){
+			for i=0,nGperchannel-1 CNspks[icf][glg] = golgi[icf][i].spikes.histogram(0,tstop,0.1)
+		}
+		for i=0,3{
+			if (CNspks[icf][i].size() > 0 && object_id(CNspks[icf][i])) {
+				CNrate[i].append(CNspks[icf][i].mean(stimdelay*1000/0.1,CNspks[icf][i].size()-1) / (reps*0.1/1000))
+			}
+		}
+		if (flag_plot_hist) 
+		CNspks[icf][1].add(icf*5).plot(CNhist, 0.1)
 	}
-	if (nGperchannel > 0 && object_id(golgi[0][0])) if (object_id(golgi[0][0].spiketimes) ){
-	    for i=0,nGperchannel-1 CNspks[icf][glg] = golgi[icf][i].spikes.histogram(0,tstop,0.1)
-	  }
 	for i=0,3{
-	    if (CNspks[icf][i].size() > 0 && object_id(CNspks[icf][i])) CNrate[i].append(CNspks[icf][i].mean(stimdelay*1000/0.1,CNspks[icf][i].size()-1) / (reps*0.1/1000))
+		CNgr[i].exec_menu("View = plot")
+		if (CNrate[i].size() > 0) CNrate[i].plot(CNrategr,1,i+1,1)
 	}
-	if (flag_plot_hist) CNspks[icf][1].add(icf*5).plot(CNhist, 0.1)
-    }
-    for i=0,3{
-	CNgr[i].exec_menu("View = plot")
-	if (CNrate[i].size() > 0) CNrate[i].plot(CNrategr,1,i+1,1)
-    }
-    CNrategr.label(0, 0,"TS",1,1,-25,-15,ts)
-    CNrategr.label(0, 0,"TV",1,1,-25,-14,tv)
-    CNrategr.label(0, 0,"DS",1,1,-25,-13,ds)
-    CNrategr.label(0, 0,"GLG",1,1,-25,-12,glg)
+    CNrategr.label(0, 0,"TS",1,1,-25,-15, ts)
+    CNrategr.label(0, 0,"TV",1,1,-25,-14, tv)
+    CNrategr.label(0, 0,"DS",1,1,-25,-13, ds)
+    CNrategr.label(0, 0,"GLG",1,1,-25,-12, glg)
     CNrategr.label(0.3, 0.95, "Rate-Place Representation")
     CNrategr.exec_menu("View = plot")
 }
@@ -269,6 +274,22 @@ proc CN_Histograms(){local itype,icf
         }
     }
 }
+
+
+proc PrintRates(){
+	if(file.isopen()) file.close()
+	if (strcmp($s1,"") == 0) {
+		print "Unable to open file without filename"
+		return
+	}
+	file.wopen($s1)
+	for i=0,nchannels-1{
+	      file.printf("%d\t%d\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\n",i,cf.x[i], CNrate[0].x[i],CNrate[1].x[i],CNrate[2].x[i],CNrate[3].x[i],ANFrate[0].x[i],ANFrate[1].x[i])
+	}
+	  file.close()
+}
+  
+
 
 
 proc delayspanel(){
@@ -341,21 +362,22 @@ xpanel("Utility Menu")
   xvalue("AN model", "ANmodel")
   xvalue("Species", "species")
   xbutton("Regenerate CF", "RefreshCF()")
-  xbutton("Reload Audiograms","GetAudiogramData()")
+  xbutton("Load Audiogram Data","GetAudiogramData()")
   xbutton("Show Audiogram","PlotAudiogram()")
   xbutton("Refresh Stim and Param", "RefreshParameters()")
   xbutton("Check AN filters","CheckFilterbank()")
   xbutton("Generate MSR","GenerateMSRs()")
   xbutton("Simple Generate Filterbanks","GenerateFilterbank()")
-  xbutton("Update All & Get ANFs","ANFilterBankRun()")
+xbutton("Update All & Get ANFs","ANFilterBankRun()")
   xbutton("Reset ANFs","an.SetRates()")
   xbutton("Reset Golgis","SetGolgiRates()")
+  xbutton("Plot Stim & AN filterbank","{an.SetRates() ShowInputGraphs()}")  
+  xbutton("Plot Golgi filterbank","ShowGolgiGraphs()")
   xbutton("SaveANFilterBank2File","SaveANFilterBank2File()")
   xbutton("RetrieveANFilterBank", "RetrieveANFilterBank()")
   xbutton("SaveGolgiFilterBank2File","SaveGolgiFilterBank2File()")
   xbutton("RetrieveGolgiFilterBank", "RetrieveGolgiFilterBank()")
-  xbutton("Plot Stim & AN filterbank","ShowInputGraphs()")  
-  xbutton("Plot Golgi filterbank","ShowGolgiGraphs()")
+
   
   xpanel()
  
@@ -401,11 +423,10 @@ xmenu()
  /********************************************************************
  *   Model Menu
  ********************************************************************/
-
-  xpanel("Auditory & Cochlear Nucleus Methods")
-  xbutton("Create Cells","create_cells()")
-  xbutton("Connect ANFs","connect_cells(fileroot)")
-  xbutton("Connect CN cells","connect_CNcells(fileroot)")
+ 
+ xpanel("Auditory & Cochlear Nucleus Methods")
+ xbutton("Update Inputs","{ANFilterBankRun() an.SetRates() SetGolgiRates()}")
+  xbutton("Re-Create Network","create_cells()")
   xbutton("Generate Spikes", "GenSpikes()")
   xbutton("Generate Spikes v2", "GenSpikes2()")
   xbutton("AN Raster","ANSpikes()")

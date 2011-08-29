@@ -1,6 +1,10 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
 
+
+
+
+
 // Reiss and Young Type 2 units
 // CF=12.5kHz, spon rate is zero
   objref tempmat

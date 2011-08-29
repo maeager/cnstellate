@@ -20,8 +20,8 @@ i686/*
 $pfebk/*
 *.ps
 *.pdf
-Responses*/*
-Responses/*
+#Responses*/*
+#Responses/*
 TV_Notch/*
 TV_Notch_spl50/*
 
