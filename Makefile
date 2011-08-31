@@ -4,7 +4,7 @@ NRNHOME="/usr/local/nrn"
 ARCH=$(shell arch)
 NRNMODL=$(ARCH)/bin/nrnivmodl
 MPIMODL=$(HOME)/src/neuron/nrnmpi/$(NRNMODL)
-GUIMODL=$(HOME/src/neuron/nrngui/$(NRNMODL)
+GUIMODL=/usr/local/nrn/$(NRNMODL)
 MODLFLAGS="-loadflags $(shell pwd)/libresample-0.1.3/libresample.a"
 
 all: clean-all libresample gui mpi
