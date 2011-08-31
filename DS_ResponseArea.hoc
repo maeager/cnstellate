@@ -19,19 +19,6 @@ thresh=-20
       xopen("cngui.hoc")
 
 
-proc SetRates(){
-   an.SetRates()
-   for i=0,99 golgi[i][0].SetRate()
-}
-
-proc GenSpikes(){local i
-
-    for i=0,99{
-	for j=0,HSRsperchannel-1 an.HSR[i][j].SGfast(1)
-	for j=0,LSRsperchannel-1 an.LSR[i][j].SGfast(1)
-	golgi[i][0].GenSpikes()
-      }
-}
 
 proc SaveSpikes(){local i
     //an.SaveSpikes()
@@ -212,7 +199,7 @@ usesavedfilterbanks=1
 
 RefreshParameters()
 //ANFilterBankRun()   //Build the filterbank
-//SetRates()      //Allocate filterbanks to ANFs
+//SetInputRates()      //Allocate filterbanks to ANFs
 //ShowInputGraphs()
   //tstop=300
 
@@ -337,7 +324,7 @@ xopen("DS.ses")
 		stimtype=8
 		RefreshParameters()
 		ANFilterBankRun()
-		SetRates()
+		SetInputRates()
 		ShowInputGraphs()
 		
 //		stim = new Vector()
@@ -347,7 +334,7 @@ xopen("DS.ses")
 //		file.close()
 //		dur = stim.size/ 50000
 //		GenerateFilterBank()
-//		SetRates()
+//		SetInputRates()
 		GenSpikes()
 //		param.w.x[hsr][ds] = 0.00035
 //		param.w.x[glg][ds] = 0.0008
@@ -360,7 +347,7 @@ xopen("DS.ses")
 proc Go(){
 	RefreshParameters()
 	ANFilterBankRun()
-	SetRates()
+	SetInputRates()
 	ShowInputGraphs()
 	GenSpikes()
 	run()

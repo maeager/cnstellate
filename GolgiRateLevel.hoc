@@ -35,11 +35,6 @@ for i=0,99 {
     golgi[i][0] = new Golgicell(3,cf.x[i],i,2)
 }
 
-proc SetRates(){local i
-	an.SetRates()
-	for i=0,99 golgi[i][0].SetRate()
-}
-
 proc GenInputSpikes(){local j
 	// an.GenSpikes()
 	for i=0,99 golgi[i][0].GenSpikes()
@@ -141,7 +136,7 @@ proc RatelevelGolgi1(){local i,j,count,sum,runtime,cell,xtime localobj tmp
 		RefreshParameters()
 		
 		ANFilterBankRun()
-		SetRates()
+		SetInputRates()
 		
 		for j=0, reps-1{
 			GenInputSpikes()

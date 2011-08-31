@@ -217,7 +217,7 @@ proc CNSpikes(){local i, icf
    CNrategr.exec_menu("View = plot")
 }
 
-flag_plot_hist=0
+flag_plot_hist = 0
 proc CNSpikes2(){local i, icf
     objref CNgr[4],CNspks[nchannels][4],CNhist,CNrate[4],CNrategr
     for i=0,3 {
@@ -250,8 +250,7 @@ proc CNSpikes2(){local i, icf
 				CNrate[i].append(CNspks[icf][i].mean(stimdelay*1000/0.1,CNspks[icf][i].size()-1) / (reps*0.1/1000))
 			}
 		}
-		if (flag_plot_hist) 
-		CNspks[icf][1].add(icf*5).plot(CNhist, 0.1)
+		if (flag_plot_hist) CNspks[icf][1].add(icf*5).plot(CNhist, 0.1)
 	}
 	for i=0,3{
 		CNgr[i].exec_menu("View = plot")
@@ -368,10 +367,11 @@ xpanel("Utility Menu")
   xbutton("Check AN filters","CheckFilterbank()")
   xbutton("Generate MSR","GenerateMSRs()")
   xbutton("Simple Generate Filterbanks","GenerateFilterbank()")
-xbutton("Update All & Get ANFs","ANFilterBankRun()")
-  xbutton("Reset ANFs","an.SetRates()")
-  xbutton("Reset Golgis","SetGolgiRates()")
-  xbutton("Plot Stim & AN filterbank","{an.SetRates() ShowInputGraphs()}")  
+xbutton("Update ANFs","ANFilterBankRun()")
+  xbutton("Reset ANFs only","an.SetRates()")
+  xbutton("Reset GLGs only","SetGolgiRates()")
+  xbutton("Reset AN and GLGs","SetInputRates()")
+  xbutton("Plot Stim & AN filterbank","{ShowInputGraphs()}")  
   xbutton("Plot Golgi filterbank","ShowGolgiGraphs()")
   xbutton("SaveANFilterBank2File","SaveANFilterBank2File()")
   xbutton("RetrieveANFilterBank", "RetrieveANFilterBank()")

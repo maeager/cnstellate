@@ -102,12 +102,6 @@ ShowInputGraphs()
 ANFBgr.printfile("ClickFB.eps")
 
 
-proc SetRates(){
-	
-	an.SetRates()
-	for i=0,99 golgi[i][0].SetRates()
-	
-}
 
 proc GenInputSpikes(){local i
 	an.GenSpikes()

@@ -7,10 +7,10 @@
 // Michael Eager, University of Melbourne
 
 nchannels       = 100      // Total number of frequency channels
-nTSperchannel   = 0   // number of TS cells in each freq channel
-numTS   = nchannels*nTSperchannel   // total number of TS cells
+nTSperchannel   = 0        // number of TS cells in each freq channel
+numTS           = 0   // total number of TS cells
 nTVperchannel   = 0   // number of TV cells in each freq channel
-numTV   = nchannels*nTVperchannel   // total number of TV cells
+numTV           = 0   // total number of TV cells
 nDSperchannel   = 1   // number of DS cells in each freq channel
 numDS   = nchannels*nDSperchannel   // total number of DS cells
 nGperchannel   = 1   // number of Golgi cells in each freq channel
@@ -25,33 +25,33 @@ thresh      = -20       // mV   // threshold for detecting spikes
 strdef fileroot
 sprint(fileroot,"DS_ClickRecovery2") // root for output filenames
 system("mkdir DS_ClickRecovery2")
-inputnumber = 1         // fixed input file
+inputnumber  = 1         // fixed input file
 ttrans       = 10   // ms   // when calculating statistics, ignore
             // spikes occuring before this time
 cvode.active(0)
-dt        = 0.05   //ms
+dt           = 0.05   //ms
 steps_per_ms = 10
 setdt()
-celsius = 37
-secondorder=2
+celsius      = 37
+secondorder  = 2      // Crank-Nickolson integration method
 
 //Input stimulus
-   cfhi=40000
-   cflo=200
-   dur      = 0.3    //duration of stim (seconds)
+   cfhi     = 48000
+   cflo     = 200
+   dur      = 0.3      //duration of stim (seconds)
    spl      = 100
    srate    = 100000
    stimtdres= 1/srate
    sg_rate  = 50000
    sg_tdres = 1/sg_rate
-   stimdelay= 0.01      //sec
-   stimtype = 11      //Click Recovery
-   reps     = 25     //simulation repetions
-   ANmodel  = 7      //Zilany Bruce model version 4
-   species  = 1      //Cat
+   stimdelay= 0.01     //sec
+   stimtype = 11       //Click Recovery
+   reps     = 25       //simulation repetions
+   ANmodel  = 7        //Zilany Bruce model version 4
+   species  = 1        //Cat
    nrep     = 1        //nrep is number of repetitions within stimulus
-    usesavedfilterbanks=1
-    tstop=300
+   usesavedfilterbanks = 1
+   tstop    = 300
 //Default click times
    objref clicktimes
    clicktimes = new Vector()

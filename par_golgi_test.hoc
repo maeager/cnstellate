@@ -104,6 +104,8 @@ tonefreq				= cf.x[76]
 dur						= 0.049 	//duration of tone segment (seconds)	
 dutycycle				= 0.2		//quiet duration = dutycycle*dur
 ramplngth				= 0.001
+ANmodel					= 6		//Zilany Bruce model
+species					= 2		//Rat
 srate					= 500000.0
 stimtdres				= 1/srate
 sg_rate					= 50000		
@@ -111,8 +113,6 @@ sg_tdres				= 1/sg_rate
 stimdelay				= 0.02		//sec
 stimtype				=1	//tone
 reps					=25
-ANmodel					= 6		//Zilany Bruce model
-species					= 2		//Rat
 nrep					= 1  		//nrep is number of reps of stimulus
 
 
@@ -143,10 +143,6 @@ for i=0,99 {
     golgi[i][0] = new Golgicell(3,cf.x[i],i,2)
 }
 
-proc SetRates(){local i
-	an.SetRates()
-	for i=0,99 golgi[i][0].SetRate2()
-}
 
 proc GenInputSpikes(){local j
 	// an.GenSpikes()

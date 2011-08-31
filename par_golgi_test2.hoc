@@ -112,13 +112,13 @@ objref ANFBgr
 RefreshCF()	
 RefreshParameters()
 ANFilterBankRun()
-//	an.SetRates()
+
 //	ShowInputGraphs()
 
 
 objref an,golgi[nchannels][1],g, ANFBgr
 an = new AuditoryNerve()
-for i=0,99 {
+for i=0,nchannels-1 {
 	for j = 0, HSRsperchannel-1 {
 		//sprint(celltype,"new SGC_fast(%d,%d,%d)",4,cf.x[i],i)
 		an.HSR[i][j] = new SGC_fast(0.5)
@@ -130,19 +130,15 @@ for i=0,99 {
     golgi[i][0] = new Golgicell(3,cf.x[i],i,2)
 }
 
-proc SetRates(){local i
-	an.SetRates()
-	for i=0,99 golgi[i][0].SetRate2()
-}
 
 proc GenInputSpikes(){local j
 	an.GenSpikes()
-	for i=0,99 golgi[i][0].GenSpikes()
+	for i=0,nchannels-1 golgi[i][0].GenSpikes()
 }
 
 proc SaveSpikes(){local i
 	//  an.SaveSpikes()
-	for i=0,99 golgi[i][0].SaveSpikes()
+	for i=0,nchannels-1 golgi[i][0].SaveSpikes()
 }
 
 proc ClearSpikes(){local i
@@ -222,7 +218,7 @@ proc RatelevelGolgi1(){local ispl,i,j,count,sum,runtime,cell,xtime localobj tmp
 	stimtype	=1   //tone
 	reps		=250
 	gpstlist = new List()
-	for i=0,99 {
+	for i=0,nchannels-1 {
 		grate[i] = new Vector()
 		anrate[i] = new Vector()
 		gstdev[i] = new Vector()
@@ -237,7 +233,7 @@ proc RatelevelGolgi1(){local ispl,i,j,count,sum,runtime,cell,xtime localobj tmp
 		RefreshParameters()
 		
 		ANFilterBankRun()
-		SetRates()
+		SetInputRates()
 		
 		for j=0, reps-1{
 			GenInputSpikes()
@@ -246,7 +242,7 @@ proc RatelevelGolgi1(){local ispl,i,j,count,sum,runtime,cell,xtime localobj tmp
 			//print startsw()-x, "secs"
 		}
 		
-		for j=0,99 {
+		for j=0,nchannels-1 {
 			sum=0
 			grate[j].append(meanrate(golgi[j][0].spikes))
 			gstdev[j].append(isistdev)
@@ -283,7 +279,7 @@ proc NoiseRatelevelGolgi1(){local ispl,i,j,count,sum,runtime,cell,xtime localobj
 	stimtype	= 6   //tone
 	reps		= 250
 	gpstlist = new List()
-	for i=0,99 {
+	for i=0,nchannels-1 {
 		grate[i] = new Vector()
 		anrate[i] = new Vector()
 		gstdev[i] = new Vector()
@@ -297,7 +293,7 @@ proc NoiseRatelevelGolgi1(){local ispl,i,j,count,sum,runtime,cell,xtime localobj
 		//      ClearSpikes()
 		RefreshParameters()
 		ANFilterBankRun()
-		SetRates()
+		SetInputRates()    //includes AN and GLG updates in CochlearNucleus.hoc
 		
 		//      for j=0, reps-1{
 		//         GenInputSpikes()
@@ -306,7 +302,7 @@ proc NoiseRatelevelGolgi1(){local ispl,i,j,count,sum,runtime,cell,xtime localobj
         //print startsw()-x, "secs"
 		//      }
 		
-		for j=0,99 {
+		for j=0,nchannels-1 {
 			sum=0
 			grate[j].append(golgi[j][0].sout.mean(1000,3500))
 			//         gstdev[j].append(isistdev)
@@ -444,7 +440,7 @@ func fun2() {local j
 	//golgi[ghoshalkim_position][0].ClearSpikes()
 	RefreshParameters()
 	ANFilterBankRun()
-    SetRates()
+    an.SetRates()
     CreateGolgiSynFilter()
     golgi[ghoshalkim_position][0].SetRate2()
     

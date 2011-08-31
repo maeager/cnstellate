@@ -213,7 +213,7 @@ CT1_data()
 
 //RefreshParameters()    //Generate or get stim from file
 //ANFilterBankRun()
-//SetRates2()
+
 binwidth=0.5
 objref iv,meaniv,psthgr
 psthgr = new Graph()

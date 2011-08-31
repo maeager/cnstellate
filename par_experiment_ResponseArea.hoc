@@ -11,13 +11,6 @@
 stimtype = 1  //tone stimulus
 
 
-proc SetRates(){
-
-	an.SetRates()
-	for i=0,99 golgi[i][0].SetRates()
-	
-}
-
 proc GenSpikes(){local i
 	an.GenSpikes()
 	for i=0,numG-1 golgi[i][0].GenSpikes()

@@ -33,7 +33,7 @@
   //RefreshParameters()
   //ANFilterBankRun()
   //CheckFilterbank()
-  //SetRates()
+  //SetInputRates()
 
 objref errorvec,tempcf,indcf,refvec
   func TV_Notch_err( ) {local jj,pp,xtime
@@ -218,7 +218,7 @@ proc RateLevelNotch(){
     RefreshParameters()
     ANFilterBankRun()   //Build the filterbank
     CheckFilterbank()
-    SetRates()
+    SetInputRates()
     multi_run()
     ANSpikes()
     CNSpikes2()
@@ -253,7 +253,7 @@ proc NotchSweepHalf(){local notchwidth,ii,centrefreq
     RefreshParameters()
     //ANFilterBankRun()   //Build the filterbank
     //CheckFilterbank()
-    //SetRates()
+    //SetInputRates()
     /*
     multi_run()
     ANSpikes()
@@ -290,7 +290,7 @@ proc NotchSweepOne(){local notchwidth,ii,centrefreq
     RefreshParameters()
 //    ANFilterBankRun()   //Build the filterbank
 //    CheckFilterbank()
-//    SetRates()
+//    SetInputRates()
     /*
     multi_run()
     ANSpikes()
@@ -323,7 +323,7 @@ proc BandSweepHalf(){local notchwidth,ii,centrefreq
     RefreshParameters()
     //ANFilterBankRun()   //Build the filterbank
     //CheckFilterbank()
-    //SetRates()
+    //SetInputRates()
     /*
     multi_run()
     ANSpikes()
@@ -360,7 +360,7 @@ proc BandSweepOne(){local notchwidth,ii,centrefreq
     RefreshParameters()
 //    ANFilterBankRun()   //Build the filterbank
 //    CheckFilterbank()
-//    SetRates()
+//    SetInputRates()
     /*
     multi_run()
     ANSpikes()

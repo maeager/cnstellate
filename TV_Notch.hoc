@@ -30,29 +30,10 @@ reset_DS_ClickRecovery()
 //Setup this experiment
 xopen("par_experiment_TV_Notch.hoc")
 
-
 xopen("cngui.hoc")
 
-proc SetRates(){local icf
-	an.SetRates()
-	if (RetrieveGolgiFilterBank() == 0) { 
-		for icf=0,99 {
-			golgi[icf][0].SetRate2() //enable H and L ANFs in golgi cells
-		}
-		SaveGolgiFilterBank2File()
-	}
-	
-}
 
-proc GenSpikes2(){local i,j,count
-    startsw()
-    for i=0,nchannels-1 {for j=0,HSRsperchannel-1 {an.HSR[i][j].SGfast2(1)}}
-	// for i=0,nchannels-1 {for j=0,HSRsperchannel-1 count+=an.HSRspiketimes[i][j].size}
-    // if (count/(nchannels*HSRsperchannel) > 10) system("sleep 0.5")
-    for i=0,nchannels-1 {for j=0,LSRsperchannel-1 an.LSR[i][j].SGfast2(1)}
-    for i=0,nchannels-1 {golgi[i][0].sg.SGfast2(1)}
-    print "GenSpikes time: ", stopsw()
-}
+
 proc multi_run(){local irep
     startsw()
     ClearSpikes()
@@ -99,7 +80,7 @@ GetAudiogramData()
 RefreshParameters()
 //  ANFilterBankRun()
 //  CheckFilterbank()
-//  SetRates()
+//  SetInputRates()
 
 //xopen("TV_Notch.ses")
 
@@ -188,7 +169,7 @@ func TV_Notch_err2() {local jj,pp,xtime
 	//Rearrange synapses is using n, bw or offset parameters
 	RedefineCNmodel()
     reset_weights()
-    SetRates()
+    SetInputRates()
     tstop = 70 
     multi_run() 
     //Analyse spikes
@@ -314,13 +295,13 @@ proc printprax2(){local pp,ii,pp2
 /*  multi_run() */
 /*   RedefineCNmodel() */
 
-/*  SetRates() */
+/*  SetInputRates() */
 /*   multi_run() */
 /*     RedefineCNmodel() */
-/*   SetRates() */
+/*   SetInputRates() */
 /*   multi_run() */
 /*     RedefineCNmodel() */
-/*   SetRates() */
+/*   SetInputRates() */
 
 proc Run1Params(){
 	NPARAMS=3
@@ -400,7 +381,7 @@ proc Notch2Runspl70(){
     RefreshParameters()
     ANFilterBankRun()
     CheckFilterbank()
-    SetRates()
+    SetInputRates()
     Run2Params()
     set_params()
     sprint(fileroot,"%s/Run2/spl70/r1",origfileroot)
@@ -438,7 +419,7 @@ proc Notch2Runspl50(){
     RefreshParameters()
     ANFilterBankRun()
     CheckFilterbank()
-    SetRates()
+    SetInputRates()
     Run2Params()   
     set_params()
     sprint(fileroot,"%s/Run2/spl50/r1",origfileroot)

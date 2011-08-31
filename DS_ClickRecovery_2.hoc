@@ -21,46 +21,6 @@ xopen("cngui.hoc")
 //previous optimisation parameters
 xopen("pvec_Golgi_RateLevel.hoc")
 
-// Input rate and spike procedures
-proc SetRates(){
-	an.SetRates()
-    for i=0,99 golgi[i][0].SetRate2()
-}
-
-proc GenSpikes0(){local i,x
-    x=startsw()
-    for i=0,hsr2dsAMPAlist.count-1 hsr2dsAMPAlist.object(i).pre.SGfast(1)
-    for i=0,lsr2dsAMPAlist.count-1 lsr2dsAMPAlist.object(i).pre.SGfast(1)
-    for i=0,glg2dsGABAlist.count-1 glg2dsGABAlist.object(i).pre.SGfast(1)
-    print startsw()-x
-}
-proc GenSpikes0b(){local i,x
-    x=startsw()
-    for i=0,hsr2dsAMPAlist.count-1 hsr2dsAMPAlist.object(i).pre.SGfast2(1)
-    for i=0,lsr2dsAMPAlist.count-1 lsr2dsAMPAlist.object(i).pre.SGfast2(1)
-    for i=0,glg2dsGABAlist.count-1 glg2dsGABAlist.object(i).pre.SGfast2(1)
-    print startsw()-x
-}
-
-proc GenSpikes1(){local i,x
-	x=startsw()
-    for i=30,60{
-		for j=0,HSRsperchannel-1 an.HSR[i][j].SGfast(1)
-		for j=0,LSRsperchannel-1 an.LSR[i][j].SGfast(1)
-		golgi[i][0].GenSpikes()
-    }
-    print startsw()-x
-}
-
-proc GenSpikes2(){local i,x
-	x=startsw()
-    for i=30,60{
-		for j=0,HSRsperchannel-1 an.HSR[i][j].SGfast2(1)
-		for j=0,LSRsperchannel-1 an.LSR[i][j].SGfast2(1)
-		golgi[i][0].GenSpikes()
-    }
-    print startsw()-x
-}
 
 
 // Replacement of connect_cells in Cochlear Nucleus.hoc
@@ -71,20 +31,10 @@ proc connect_cells(){local i,p,target,source,low,high,range,channel,sourcechanne
     sprint(filename,"%s.connect",$s1)
     outfile.wopen(filename)
 	
-	hsr2tsAMPAlist.remove_all()
-	lsr2tsAMPAlist.remove_all()
-	hsr2tvAMPAlist.remove_all()
-	lsr2tvAMPAlist.remove_all()
 	hsr2dsAMPAlist.remove_all()
 	lsr2dsAMPAlist.remove_all()
-	hsr2glgAMPAlist.remove_all()
-	lsr2glgAMPAlist.remove_all()
 	glg2dsGABAlist.remove_all()
-	glg2tsGABAlist.remove_all()
-	ds2tsGLYlist.remove_all()
-	ds2tvGLYlist.remove_all()
-	tv2tsGLYlist.remove_all()
-	ts2tsAMPAlist.remove_all()
+
 	print "HSR->DS"
 	if( ( param.n.getval(hsr,ds) > 0 ) && ( nDSperchannel != 0 ) ){
 		outfile.printf("\n%d %d\n",hsr,ds)
@@ -167,7 +117,7 @@ proc connect_cells(){local i,p,target,source,low,high,range,channel,sourcechanne
 				sprint(cmd, "golgi[%d][%d].soma glg2dsGABAlist.append( new NetCon(&v(0.5),dstellate[%d][%d].GABAA,thresh,param.delay.getval(glg,ds), param.w.getval(glg,ds)))",sourcechannel, source, channel, target )
 				execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
 			} else {
-				sprint(cmd, "glg2dsGABAlist.append( new NetCon( golgi[%d][%d].s,dstellate[%d][%d].GABAA, thresh,param.delay.getval(glg,ds), param.w.getval(glg,ds)))",sourcechannel, source ,channel ,target )
+				sprint(cmd, "glg2dsGABAlist.append( new NetCon( golgi[%d][%d].sg,dstellate[%d][%d].GABAA, thresh,param.delay.getval(glg,ds), param.w.getval(glg,ds)))",sourcechannel, source ,channel ,target )
 				execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
 			}
 			outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
@@ -193,7 +143,7 @@ tstop=300
 RefreshParameters()
 ANFilterBankRun()   //Build the filterbank
 //CheckFilterbank()
-SetRates()      //Allocate filterbanks to ANFs and Golgi units
+SetInputRates()      //Allocate filterbanks to ANFs and Golgi units
 //ShowInputGraphs()
 //ShowGolgiGraphs()
 
@@ -727,7 +677,7 @@ proc April9Run(){
 			astar = iprax
 		}
 		// Default Output Plot
-		sprint(grlbl, "DS_ClickRecovery/DS_ClickRecovery_Example.%d.eps",iprax)
+		sprint(grlbl, "DS_ClickRecovery2/DS_ClickRecovery_Example.%d.eps",iprax)
 		gr.printfile(grlbl)
 		//g.printfile("DS_ClickRecovery/DS_ClickRecovery_DSpsth.eps")
 		//gg.printfile("DS_ClickRecovery/DS_ClickRecovery_Gpsth.eps")
@@ -767,7 +717,43 @@ proc April9Run(){
 }
 
 
+proc RateLevelDS(){
+	reps=50
+	sprint(cmd,"mkdir %s/rate_level",fileroot)
+	system(cmd)
+	dur 		= 0.049 	//duration of tone segment (seconds)	
+	dutycycle 	= 0.2		//quiet duration = dutycycle*dur
+	ramplngth 	= 0.001
+	srate 		= 100000.0
+	stimtdres 	= 1/srate
+	sg_rate     = 50000		
+	sg_tdres    = 1/sg_rate
+	stimdelay 	= 0.02		//sec
+	stimtype    = 6 	//noise
+	
+	for (spl=15;spl<=100;spl+=5){
+		RefreshParameters()
+		ANFilterBankRun()   //Build the filterbank
+		CheckFilterbank()
+		SetInputRates()
+		multi_run()
+		ANSpikes()
+		CNSpikes2()
+		sprint(fname,"%s/rate_level/%d.dat",fileroot,spl)
+		file.wopen(fname)
+		for icf=0,99 {
+			file.printf("%d\t%d\t%g\t%g\t%g\t%g\t%g\n",icf, cf.x[icf],CNrate[ds].x[icf],CNrate[glg].x[icf],ANFrate[0].x[icf],ANFrate[1].x[icf])
+			
+		}
+		file.close()  
+	}
+}
+
+
 /******* 31 Aug 2010  *****/
 // Big changes to Zilany model and AN spiking model
 //runprax()
 //runprax2()
+
+
+

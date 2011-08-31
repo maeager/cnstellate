@@ -93,10 +93,8 @@ stimtdres    = 1/srate
 spl=$1
 RescaleStim(spl,stim.size/5,stim.size*4/5)      //Scale the vowel
 par_ANFilterBankRun()   //Build the filterbank
-an.SetRates()      //Allocate filterbanks to ANFs
-for i=0,nchannels-1 for j=0,nGperchannel-1 if (pnm.gid_exists(glggid.x[i][j])) {
-   golgi[i][j].SetRate()
-}
+SetInputRates()      //Allocate filterbanks to ANFs
+
 
 //DummyGraphs()
 }

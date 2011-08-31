@@ -38,7 +38,7 @@ func TV_Notch_err2() {local jj,pp,xtime
 	//Rearrange synapses is using n, bw or offset parameters
 	RedefineCNmodel()
     reset_weights()
-    SetRates()
+    SetInputRates()
     tstop = 70 
     multi_run() 
     //Analyse spikes
@@ -250,7 +250,7 @@ proc Notch2Runspl70(){
     RefreshParameters()
     ANFilterBankRun()
     CheckFilterbank()
-    SetRates()
+    SetInputRates()
     Run2Params()
     set_params()
     sprint(fileroot,"%s/Run2/spl70/r1",origfileroot)
@@ -288,7 +288,7 @@ proc Notch2Runspl50(){
     RefreshParameters()
     ANFilterBankRun()
     CheckFilterbank()
-    SetRates()
+    SetInputRates()
     Run2Params()   
     set_params()
     sprint(fileroot,"%s/Run2/spl50/r1",origfileroot)

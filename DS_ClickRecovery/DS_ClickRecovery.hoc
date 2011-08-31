@@ -17,30 +17,6 @@ thresh=-20
       xopen("CochlearNucleus.hoc")         // model set-up
       xopen("cngui.hoc")
 
-
-proc SetRates(){
-   an.SetRates()
-   for i=0,99 golgi[i][0].SetRate()
-}
-
-proc GenSpikes(){local i
-   
-    for i=30,60{
-	for j=0,HSRsperchannel-1 an.HSR[i][j].SGfast(1)
-	for j=0,LSRsperchannel-1 an.LSR[i][j].SGfast(1)
-	golgi[i][0].GenSpikes()
-      }
-}
-
-proc SaveSpikes(){local i
-    //an.SaveSpikes()
-   //for i=0,99
-   i=76
-   golgi[i][0].SaveSpikes()
-}
-proc ClearSpikes(){local i
-   an.ClearSpikes()
-   for i=0,99 golgi[i][0].ClearSpikes()
 }
 
 
