@@ -273,7 +273,6 @@ if( ( param.n.getval(lsr,tv) > 0 ) && ( nTVperchannel != 0 ) ){
     source = random.discunif(0,LSRsperchannel-1)
 
  //print "LSR[",sourcechannel,"][",source,"] connected to TV[",channel,"][",target,"]"
-
 sprint(cmd, "tuberculoventral[%d][%d].soma lsr2tvAMPAlist.append( new NetCon( an.LSR[%d][%d],   tuberculoventral[%d][%d].AMPA,thresh,param.delay.getval(lsr,tv), param.w.getval(lsr,tv)))",channel,target,sourcechannel,source,channel,target)
         execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
     outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
@@ -421,6 +420,38 @@ if( ( param.n.getval(ts,ts) > 0 ) && ( nTSperchannel > 1 ) ){
  }
   printf("\rTS->TS=== done ===\n")
 }
+
+
+if( ( param.n.getval(ts,tv) > 0 ) && ( nTVperchannel != 0 ) && ( nTSperchannel != 0 ) ){
+ outfile.printf("\n%d %d\n",ts,tv)
+ for channel = 0, nchannels-1{
+  for target = 0, nTVperchannel-1 {
+   for i=0, param.n.getval(ts,tv)-1{
+    //Choose source channel
+    sourcechannel = random.normal(channel,param.bw.getval(ts,tv)/2)
+    if ((sourcechannel - int(sourcechannel)) > 0.5 ){
+        sourcechannel = 1+int(sourcechannel)
+    } else { sourcechannel = int(sourcechannel) }
+    if (sourcechannel <=0 ) sourcechannel=0
+    if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
+    //Choose random source from available cells
+    source = random.discunif(0,nTSperchannel-1)
+ // print "TS[",sourcechannel,"][",source,"] connected to "TV[",channel,"][",target,"]"
+		sprint(cmd, "tstellate[%d][%d].soma ts2tvAMPAlist.append( new NetCon(&v(0.5), tuberculoventral[%d][%d].GlyR, thresh,param.delay.getval(ts,tv), param.w.getval(ts,tv)))",sourcechannel,source,channel,target)
+        execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
+    outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
+   }
+  }
+        p = 100*(channel)/(nchannels)
+    printf("\rTS->TV=== %3d%% ===",p)
+    flushf()
+    doNotify() // Although this slows down cell creation, the
+               // process is so long that we have to allow the
+               // user to quit during the creation.
+ }
+  printf("\rTS->TV=== done ===\n")
+}
+
 
 if( ( param.n.getval(tv,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nTVperchannel != 0 ) ){
  outfile.printf("\n%d %d\n",tv,ts)
@@ -584,7 +615,46 @@ if( ( param.n.getval(glg,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nGperchannel !
  }
   printf("\rGLG->TS=== done ===\n")
 }
-  outfile.close()
+
+if( ( param.n.getval(glg,tv) > 0 ) && ( nTVperchannel != 0 ) && ( nGperchannel != 0 ) ){
+ outfile.printf("\n%d %d\n",glg,tv)
+ for channel = 0, nchannels-1{
+  for target = 0, nTVperchannel-1 {
+   for i=0, param.n.getval(glg,tv)-1{
+    //Choose source channel
+    sourcechannel = random.normal(channel,param.bw.getval(glg,tv)/2)
+    if ((sourcechannel - int(sourcechannel)) > 0.5 ){
+        sourcechannel = 1+int(sourcechannel)
+    } else { sourcechannel = int(sourcechannel) }
+   if (sourcechannel <=0 ) sourcechannel=0
+    if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
+
+    //Choose random source from available cells
+    source = random.discunif(0,nGperchannel-1)
+ // print "GLG[",sourcechannel,"][",source,"] connected to "TV[",channel,"][",target,"]"
+   if (LSR2GLG ==1 ) { //Conductance model of golgi
+	   sprint(cmd, "golgi[%d][%d].soma glg2tvGABAlist.append( new NetCon(&v(0.5),tuberculoventral[%d][%d].GABAA, thresh,param.delay.getval(glg,tv), param.w.getval(glg,tv)))",sourcechannel,source,channel,target)
+        execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
+   } else { //filter based model of golgi
+		   sprint(cmd, "glg2tvGABAlist.append( new NetCon( golgi[%d][%d].sg, tuberculoventral[%d][%d].GABAA, thresh,param.delay.getval(glg,tv), param.w.getval(glg,tv)))",sourcechannel,source,channel,target)
+        execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
+   }
+     outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
+  }
+  }
+        p = 100*(channel)/(nchannels)
+    printf("\rGLG->TV=== %3d%% ===",p)
+    flushf()
+    doNotify() // Although this slows down cell creation, the
+               // process is so long that we have to allow the
+               // user to quit during the creation.
+ }
+  printf("\rGLG->TV=== done ===\n")
+}
+
+
+
+outfile.close()
 }//end connect_cells()
 
 
@@ -802,16 +872,6 @@ for i = 0,ts2tvAMPAlist.count()-1 {
 }
 }
 
-//Obsolete
-//proc SetRates(){
-//    an.SetRates()
-//    for i=0,nchannels-1 golgi[i][0].SetRate()
-//}
-
-proc SetRates2(){
-    an.SetRates()
-	SetGolgiRates()	
-}
 
 proc SetGolgiRates(){
 	if (usesavedfilterbanks==1){
@@ -824,6 +884,14 @@ proc SetGolgiRates(){
 	}
 }
 
+
+proc SetInputRates(){
+    an.SetRates()
+	SetGolgiRates()	
+}
+
+
+//Methods for generating spikes in ANFs and golgi units
 proc GenSpikesB(){local i
     startsw()
 	//Only generate spikes from stimulators that have a connecting synapse
@@ -851,31 +919,49 @@ proc GenSpikes(){local i
   print "GenSpikes time:", stopsw()
 }
 
-proc GenSpikes2(){local i
+proc GenSpikes2(){local i,xtime
     //Use version 4 spike generator in SGC_fast
-  startsw()
-    for i=0,nchannels-1 for j=0,HSRsperchannel-1 an.HSR[i][j].SGfast2(1)
-    for i=0,nchannels-1 for j=0,LSRsperchannel-1 an.LSR[i][j].SGfast2(1)
-    for i=0,nchannels-1  golgi[i][0].sg.SGfast2(1)
-  print "GenSpikes time:", stopsw()
+  xtime = startsw()
+  for i=0,nchannels-1 {
+	  for j=0,HSRsperchannel-1 {
+	      an.HSR[i][j].SGfast2(1)
+	  }
+	  
+	  for j=0,LSRsperchannel-1 {
+		  an.LSR[i][j].SGfast2(1)
+	  }
+	  golgi[i][0].sg.SGfast2(1)
+  }
+  print "GenSpikes2 time:", startsw()-xtime
 }
 
+proc GenInputSpikes(){
+	GenSpikes2() //Preffered spike gen method
+}
 
-proc multi_run(){local ireps
+proc multi_run(){local ireps,xtime
+  xtime = startsw()
     ClearSpikes()
     for ireps = 0, reps-1 {
         GenSpikes()
         run()
         SaveSpikes()
     }
+  xtime=startsw()-xtime
+  print "multi_run time: ",xtime, " Per rep: ", xtime/reps 
+	
 }
-proc multi_run2(){local ireps
+proc multi_run2(){local ireps,xtime
+  xtime = startsw()
     ClearSpikes()
     for ireps = 0, reps-1 {
         GenSpikes2()
         run()
         SaveSpikes()
     }
+  xtime=	 startsw()-xtime
+  print "multi_run time: ",xtime, " Per rep: ", xtime/reps 
+	
 }
 
 proc ClearInputSpikes(){local ii
@@ -907,6 +993,7 @@ proc ClearSpikes(){local ii,jj
     }
  print "Cleared CN cell Spikes"
 }
+
 
 
 proc reset_DS_ClickRecovery(){local ii

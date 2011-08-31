@@ -21,29 +21,6 @@ xopen("cngui.hoc")
 //previous optimisation parameters
 xopen("pvec_Golgi_RateLevel.hoc")
 
-// Input rate and spike procedures
-proc SetRates(){
-	an.SetRates()
-	for i=0,99 golgi[i][0].SetRate2()
-}
-
-proc GenSpikes2(){local i
-	// startsw()
-	for i=0,hsr2dsAMPAlist.count-1 hsr2dsAMPAlist.object(i).pre.SGfast(1)
-	for i=0,lsr2dsAMPAlist.count-1 lsr2dsAMPAlist.object(i).pre.SGfast(1)
-	for i=0,glg2dsGABAlist.count-1 glg2dsGABAlist.object(i).pre.SGfast(1)
-	//     print stopsw()
-}
-
-proc GenSpikes(){local i
-	//  startsw()
-    for i=30,60{
-		for j=0,HSRsperchannel-1 an.HSR[i][j].SGfast(1)
-		for j=0,LSRsperchannel-1 an.LSR[i][j].SGfast(1)
-		golgi[i][0].GenSpikes()
-    }
-	//  print stopsw()
-}
 
 
 // Replacement of connect_cells in Cochlear Nucleus.hoc
@@ -177,8 +154,8 @@ tstop=300
 //--- Setup Auditory model
 RefreshParameters()
 ANFilterBankRun()   //Build the filterbank
-CheckFilterbank()
-SetRates()      //Allocate filterbanks to ANFs and Golgi units
+//CheckFilterbank()
+SetInputRates()      //Allocate filterbanks to ANFs and Golgi units
 //ShowInputGraphs()
 //ShowGolgiGraphs()
 
@@ -769,7 +746,7 @@ proc RateLevelDS(){
 		RefreshParameters()
 		ANFilterBankRun()   //Build the filterbank
 		CheckFilterbank()
-		SetRates()
+		SetInputRates()
 		multi_run()
 		ANSpikes()
 		CNSpikes2()

@@ -305,7 +305,7 @@ xopen("jitter.hoc")
 // CT1_data()
 // RefreshParameters()
 // ANFilterBankRun()  //Generate new AN instant. rates
-// SetRates2()
+// SetInputRates()
 
 // tstellate_erev_rm	=-58
 // param.w.x[ds][tv]/	=10
@@ -349,7 +349,7 @@ xopen("jitter.hoc")
 // //CS_data()
 // //RefreshParameters()
 // //ANFilterBankRun()  //Generate new AN instant. rates
-// //SetRates2()
+// //SetInputRates()
 // //QuickRun()
 //runprax()
 //printprax()
@@ -366,7 +366,7 @@ xopen("jitter.hoc")
 // CT2_data()
 // RefreshParameters()
 // ANFilterBankRun()  //Generate new AN instant. rates
-// SetRates2()
+// SetInputRates()
 // runprax()
 // printprax()
 // print "CT2 Done"
@@ -384,7 +384,7 @@ xopen("jitter.hoc")
 // CT2_data()
 // RefreshParameters()
 // ANFilterBankRun()  //Generate new AN instant. rates
-// SetRates2()
+// SetInputRates()
 // QuickRun()
 // runprax()
 // printprax()

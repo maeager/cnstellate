@@ -32,7 +32,7 @@ GetAudiogramData()
 RefreshParameters()
 ANFilterBankRun()
 CheckFilterbank()
-SetRates()
+SetInputRates()
 
 
 func TV_Notch_err( ) {local jj,pp,xtime
@@ -214,7 +214,7 @@ proc NotchRun50(){
 	RefreshParameters()
 	ANFilterBankRun()
 	CheckFilterbank()
-	SetRates()
+	SetInputRates()
 	pvec = origpvec.c
 	set_params()
 	sprint(fileroot,"%s/Run1/spl50/r1",origfileroot)
@@ -236,7 +236,7 @@ proc NotchRun110(){
 	RefreshParameters()
 	ANFilterBankRun()
 	CheckFilterbank()
-	SetRates()
+	SetInputRates()
 	pvec = origpvec.c
 	set_params()
 	reps=20
@@ -251,7 +251,7 @@ proc NotchRun100(){
 	RefreshParameters()
 	ANFilterBankRun()
 	CheckFilterbank()
-	SetRates()  
+	SetInputRates()  
 	pvec = origpvec.c  
 	set_params()
 	reps=20
@@ -265,7 +265,7 @@ proc NotchRun70(){
 	RefreshParameters()
 	ANFilterBankRun()
 	CheckFilterbank()
-	SetRates()
+	SetInputRates()
 	
 	pvec = origpvec.c
 	set_params()
@@ -288,7 +288,7 @@ proc NotchRun80(){
 	RefreshParameters()
 	ANFilterBankRun()
 	CheckFilterbank()
-	SetRates()
+	SetInputRates()
 	pvec = origpvec.c
 	set_params()
 	reps=20
@@ -304,7 +304,7 @@ proc NotchRunErev70(){
 	RefreshParameters()
 	ANFilterBankRun()
 	CheckFilterbank()
-	SetRates()
+	SetInputRates()
 	pvec = origpvec.c
 	set_params()
     for i=0,nchannels-1 tuberculoventral[i][0].soma.erev_rm = -70
@@ -328,7 +328,7 @@ proc NotchRunErev75(){
 	RefreshParameters()
 	ANFilterBankRun()
 	CheckFilterbank()
-	SetRates()
+	SetInputRates()
 	pvec = origpvec.c
 	set_params()
     for i=0,nchannels-1 tuberculoventral[i][0].soma.erev_rm = -75
@@ -345,7 +345,7 @@ proc NotchRun_negativehsrtv(){
 	RefreshParameters()
 	ANFilterBankRun()
 	CheckFilterbank()
-	SetRates()
+	SetInputRates()
 	sprint(fileroot,"%s/hsr2tvneg",origfileroot)
 	pvec = origpvec.c
     //start the optimisation at a negative value
@@ -379,7 +379,7 @@ proc RateLevelNotch(){
 		RefreshParameters()
 		ANFilterBankRun()   //Build the filterbank
 		CheckFilterbank()
-		SetRates()
+		SetInputRates()
 		multi_run()
 		ANSpikes()
 		CNSpikes2()

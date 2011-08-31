@@ -55,15 +55,6 @@ proc print_results() {
   print "Results printed to files"
 }
 
-proc SetRates(){
-   an.SetRates()
-   for i=0,99 golgi[i][0].SetRate()
-}
-
-proc GenInputSpikes(){local i
-   an.GenSpikes()
-   for i=0,99 golgi[i][0].GenSpikes()
-}
 
 objref gr,targetclick, dslist,clicktimes,stim
 proc ClickRecovery(){local i,j,count,sum,channel,hi,lo,runtime,modfreq
@@ -106,7 +97,7 @@ proc ClickRecovery(){local i,j,count,sum,channel,hi,lo,runtime,modfreq
    }
 
    ANFilterBankRun()
-   SetRates()
+   SetInputRates()
    GenInputSpikes()
       
 

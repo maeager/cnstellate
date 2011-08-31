@@ -171,25 +171,6 @@ proc ClickRecovery(){
 	ANFBgr.printfile("ClickFB.eps")
 }//ClickRecovery
 
-proc SetRates(){
-	an.SetRates()
-	for i=0,99 golgi[i][0].SetRate()
-}
-
-proc GenInputSpikes(){local i
-	an.GenSpikes()
-	for i=0,99 golgi[i][0].GenSpikes()
-}
-
-proc SaveSpikes(){local i
-	an.SaveSpikes()
-	for i=0,99 golgi[i][0].SaveSpikes()
-}
-
-proc ClearSpikes(){local i
-	an.ClearSpikes()
-	for i=0,99 golgi[i][0].ClearSpikes()
-}
 
 objref ind,isi
 isistdev =0
