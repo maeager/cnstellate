@@ -1419,8 +1419,8 @@ proc RefreshParameters() {local aa localobj tmprand
         stimdelay=0
         stimdur = stim.size*(stimtdres*1000)
         if (stimdur < 50) stim.resize(int(50/(stimtdres*1000)))  //Pad with zeroes if too small
-	stim.resample(1e5/srate)
-	srate   = 1e5   //Hz
+		stim.resample(stim,1e5/srate)
+		srate   = 1e5   //Hz
         stimtdres   = 1/srate
 	
 	
@@ -1499,7 +1499,7 @@ func GetANfileString() {local i
     if(stimtype == 3) {// Carrier freq, Mod frequency, Modulation depth, Loudness (peak)
 	sprint( ANstr, "AM_fc%d_fm%d_md%d_%gdB_dur%d", tonefreq, AM_modfreq,AM_depth*100,spl,stimdur)
     }
-    //WB noise
+    //WB noise : unused/obsolete
     if(stimtype == 4) { //SPL and sampling frequency
 	sprint(ANstr, "WBN_spl%g_smpfreq%f_del%f", spl, srate/1000,stimdelay)
     }
@@ -1507,9 +1507,9 @@ func GetANfileString() {local i
     if(stimtype == 5) {
 	sprint( ANstr, "AMN_fm%g_m%f_spl%d_sf%5.0f", AM_modfreq,AM_depth, spl, 1/stimtdres)
     }
-    //Gaussian noise
+    //Gaussian noise : BBN
     if(stimtype == 6) {
-	sprint( ANstr, "GN_m%f_v%g_spl%g_sf%5.0f", Gaussmean,Gaussvar,spl, 1/stimtdres)
+	sprint( ANstr, "GN_L%g_sf%g_dur%d_del%d",spl, 1/stimtdres,stimdur, int(stimdelay*1000))
     }
     //Stimulus Wavfile
     if (stimtype ==0){
@@ -1678,7 +1678,7 @@ proc GenerateFilterbank(){ local ii,out,icf, mycf, myohc,myihc,ZilanyImplmnt_ori
         LSRout[icf] = new Vector(stim.size,0)
         HSRout[icf] = new Vector(stim.size,0)
     	IHC[icf] = new Vector(stim.size,0)
-	ihc = new Vector(stim.size)
+		ihc = new Vector(stim.size)
 	
 	mycf = cf.x[icf]
 	myohc = cohc.x[icf]
@@ -1703,30 +1703,23 @@ proc GenerateFilterbank(){ local ii,out,icf, mycf, myohc,myihc,ZilanyImplmnt_ori
 	}
 	
 	if(ANmodel==7){
-	    out = LSRout[icf].an_zilany_v4(stim, stimtdres, mycf, LowSponFibre,ZilanyImplmnt,myihc,myohc,species, nrep,IHC[icf])
-	    if (out != LSRout[icf].size) {
-		printf("out not equal to nstim")
-		return 0
-	}
-	ii = out-1 //for ii=0,out-1 { 
-		sprint(s,"%g",IHC[icf].x[ii]) 
-		if (strcmp(s,"nan") != -1) {print "GenerateFilterbank:an_zilany_v4: found NaN in IHC"} 
-	//}
-	//for ii=0,out-1 { 
-		sprint(s,"%g",LSRout[icf].x[ii]) 
-		if (strcmp(s,"nan") != -1) {print "GenerateFilterbank:an_zilany_v4: found NaN in LSRout"} 
-	//}
-	
-	out = HSRout[icf].an_zilany_v4(stim, stimtdres, mycf, HighSponFibre,ZilanyImplmnt,myihc,myohc,species, nrep)
-	ihc.mul(0)  flushf()  doNotify()
-	ii=out-1//for ii=0,out-1 { 
-		sprint(s,"%g",HSRout[icf].x[ii]) 
-		if (strcmp(s,"nan") != -1) {print "GenerateFilterbank:an_zilany_v4: found NaN in HSRout"}
-	//}
-	if (MSRsperchannel>0){
-		MSRout[icf] = new Vector(stim.size)
-		MSRout[icf].an_zilany_v4(stim, stimtdres, mycf, MedSponFibre,ZilanyActual, myihc,myohc,species, nrep)
-	}
+		
+	    out = LSRout[icf].an_zilany_v4_1(stim, stimtdres, mycf,Lowspont,ZilanyImplmnt,myihc,myohc,species,nrep,IHC[icf])
+		sprint(s,"%g",IHC[icf].x[out-1]) 
+		if (strcmp(s,"nan") != -1) {print "GenerateFilterbank:an_zilany_v4_1: found NaN in IHC"} 
+		sprint(s,"%g",LSRout[icf].x[out-1]) 
+		if (strcmp(s,"nan") != -1) {print "GenerateFilterbank:an_zilany_v4_1: found NaN in LSRout"} 
+		flushf()  doNotify()		
+		out = HSRout[icf].an_zilany_v4_1(stim, stimtdres, mycf, Highspont,ZilanyImplmnt,myihc,myohc,species, nrep, IHC[icf])
+		ihc.mul(0)
+		flushf()  doNotify()
+		sprint(s,"%g",HSRout[icf].x[out-1]) 
+		if (strcmp(s,"nan") != -1) {print "GenerateFilterbank:an_zilany_v4_1: found NaN in HSRout"}
+		
+		if (MSRsperchannel>0){
+			MSRout[icf] = new Vector(stim.size)
+			MSRout[icf].an_zilany_v4_1(stim, stimtdres, mycf, Medspont,ZilanyActual, myihc,myohc,species, nrep,IHC[icf])
+		}
 	}
 	
 	/*

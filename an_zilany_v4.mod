@@ -11,7 +11,7 @@ ENDVERBATIM
 VERBATIM
 
 /* #define DEBUG   */
-/* #define _FFGN_ */ 
+/*#define _FFGN_ */
 
 #include "complex.c"
 #include "carneymodel.c"
@@ -122,7 +122,8 @@ static double an_zilany_v4_1(void *vv)
 {
 
   double *stim;      /*Input stimulus vector in pascals*/
-  double *ihcout,*sout;   /*Output vector containing inst. rate for channel*/
+  double *ihcout;   /*Input ihc vector */
+  double *sout;   /*Output vector containing inst. rate for channel*/
   double tdres,cf,spont,out;
   double cohc,cihc;
   int species,implnt;
@@ -199,18 +200,22 @@ static double an_zilany_v4_1(void *vv)
   if(ifarg(10)) {
     nihcout = vector_arg_px(10, &ihcout);
     if(nihcout != nstim){
-      printf("ihcout must be the same size as stim, sout\n"); return 0;}
+	printf("ihcout must be the same size as stim, sout\n"); 
+	return 0;
+    }
   } else {
     ihcout = makevector(nstim);
   }
 
-  printf("\tAN model: Zilany, Carney, Bruce, Nelson and others  (version 4 c2010)\n");
-  printf("\tIHCAN(stim,%.0f,%d,%g,%d,%g,%g,ihcout,%d)\n", cf, nrep, tdres, nstim, cohc, cihc, species);
-  IHCAN(stim, cf, nrep, tdres, nstim, cohc, cihc, ihcout,species);
-  printf("\tSingleAN(ihcout,%.0f,%d,%g,%d,%d,%d,sout,%d)\n",cf,nrep,tdres,nstim,spont,implnt,species);
+/* printf("\tAN model: Zilany, Carney, Bruce, Nelson and others  (version 4 c2010)\n");
+*/  
+  if( ihcout[nihcout-1] == 0.0 ){
+      printf("\t\tIHCAN(stim,%.0f,%d,%g,%d,%g,%g,ihcout,%d)\n", cf, nrep, tdres, nstim, cohc, cihc, species);
+      IHCAN(stim, cf, nrep, tdres, nstim, cohc, cihc, ihcout,species);
+  }
+  printf("\t\tSingleAN(ihcout,%.0f,%d,%g,%d,%d,%d,sout,%d)\n",cf,nrep,tdres,nstim,spont,implnt,species);
   out= SingleAN_v4_1(ihcout,cf,nrep,tdres,nstim,spont,implnt,sout,species);
-
-  if( !ifarg(10) ) freevector(ihcout);
+  
   return out; 
 }
 

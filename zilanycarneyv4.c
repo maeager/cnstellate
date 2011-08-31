@@ -155,7 +155,7 @@ void IHCAN(double *px, double cf, int nrep, double tdres, int totalstim,
     tauc1    = cohc * (tmptauc1 - bmTaumin[0]) + bmTaumin[0];  /* time -constant for the signal-path C1 filter */
     rsigma   = 1 / tauc1 - 1 / bmTaumax[0]; /* shift of the location of poles of the C1 filter from the initial positions */
 
-    if (1 / tauc1 < 0.0) printf("\tIHCAN: The poles are in the right-half plane; system is unstable.\n");
+    if (1 / tauc1 < 0.0) printf("\t\t\tIHCAN: The poles are in the right-half plane; system is unstable.\n");
 
     tauwb = TauWBMax + (tauc1 - bmTaumax[0]) * (TauWBMax - TauWBMin) / (bmTaumax[0] - bmTaumin[0]);
 
@@ -188,14 +188,14 @@ void IHCAN(double *px, double cf, int nrep, double tdres, int totalstim,
     ihcouttmp[n] = IhcLowPass(c1vihctmp + c2vihctmp, tdres, 3000, n, 1.0, 7);
 
     if (isnan(ihcouttmp[i])) {
-      printf("\tIHCAN: nan at %d\n\tError in an_zilany V4\n",i);
+      printf("\t\t\t\tIHCAN: nan at %d\n\tError in an_zilany V4\n",i);
       // return ;
     }
 
   }
   ;  /* End of the loop */
 #ifdef DEBUG
-  printf("\tIHCAN: End of the loop.\n");
+  printf("\t\t\t\tIHCAN: End of the loop.\n");
 #endif
   /* Stretched out the IHC output according to nrep (number of repetitions) */
 
@@ -220,7 +220,7 @@ void IHCAN(double *px, double cf, int nrep, double tdres, int totalstim,
   freevector(mey3);
   freevector(tmpgain);
 #ifdef DEBUG
-  printf("\tIHCAN: done.\n");
+  printf("\t\t\t\tIHCAN: done.\n");
 #endif
 } /* End of the IHCAN function */
 
@@ -268,7 +268,7 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
   double delay      = delay_cat(cf, species);
   int delaypoint = __max(0, (int) ceil(delay / tdres));  // from version 2
 #ifdef DEBUG    
-  printf("Synapse_av4: resamp %d delaypoint %d\n",resamp,delaypoint);
+  printf("\t\t\tSynapse_v4: resamp %d delaypoint %d\n",resamp,delaypoint);
 #endif
   double alpha1, beta1, I1, alpha2, beta2, I2, binwidth;
   int    k, j, indx, i;
@@ -316,7 +316,7 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
   /*------- Generating a random sequence ---------------------*/
   /*----------------------------------------------------------*/
 #ifdef DEBUG
-  printf("Synapse: Generating a random sequence\n");
+  printf("\t\t\tSynapse: Generating a random sequence\n");
 #endif
   int Nrand = ((int) ceil((totalstim * nrep + 2 * delaypoint) * tdres * sampFreq));
 
@@ -324,24 +324,24 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
     
 #ifdef _FFGN_ 
   if (!(ffGn(randNums, Nrand, 1 / sampFreq, 0.9, spont, -1.0))) {
-    hoc_execerror("Synapse: error calling ffGn", 0);
+    hoc_execerror("\t\t\tSynapse: error calling ffGn", 0);
     return 0;
   }
-  printf("Synapse: Completed ffGn\n");
+  printf("\t\t\tSynapse: Completed ffGn\n");
 
   for (indx = 0;indx < Nrand;indx++)  {
     if (isnan(randNums[indx])){
-      printf("Synapse: found NaN  %d\n",indx);
+      printf("\t\t\tSynapse: found NaN  %d\n",indx);
       return 0;
     }
     rmean += randNums[indx];
 
   }
   for (indx = 0;indx < Nrand;indx++) rstd += pow((randNums[indx] - rmean), 2);
-  printf("Synapse: Completed ffGn: mean  %g\t stdev %g\n", rmean, sqrt(rstd / Nrand));
+  printf("\t\t\tSynapse: Completed ffGn: mean  %g\t stdev %g\n", rmean, sqrt(rstd / Nrand));
 #else
   //     for (indx = 0;indx < Nrand;indx++)  randNums[indx]=-spont;
-  for (indx = 0;indx < Nrand;indx++)  randNums[indx]=0.0;//spont+exp(-indx);
+  //  for (indx = 0;indx < Nrand;indx++)  randNums[indx]=0.0;//spont+exp(-indx);
 #endif
 
   /*----------------------------------------------------------*/
@@ -350,7 +350,7 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
   cf_factor = dbl_exp_adaptation(cf,spont);
 
 #ifdef DEBUG
-  printf("Synapse: Generating parameters\n");
+  printf("\t\t\tSynapse: Generating parameters\n");
 #endif
 
   /*----------------------------------------------------------*/
@@ -398,7 +398,7 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
   synslope = Prest / log(2) * synstrength;
 
 #ifdef DEBUG
-  printf("Synapse: Generating exponOut\n");
+  printf("\t\t\tSynapse: Generating exponOut\n");
 #endif
 
   k = 0;
@@ -420,7 +420,7 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
   }
 
 #ifdef DEBUG
-  printf("Synapse: Generating powerLawIn\n");
+  printf("\t\t\tSynapse: Generating powerLawIn\n");
 #endif
 
   for (k = 0; k < delaypoint; k++)
@@ -434,27 +434,27 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
   /*------ Downsampling to sampFreq (Low) sampling rate ------*/
   /*----------------------------------------------------------*/
 #ifdef DEBUG
-  printf("Synapse: Downsampling to sampFreq (Low) sampling rate\n");
+  printf("\t\t\tSynapse: Downsampling to sampFreq (Low) sampling rate\n");
 #endif
 
   /* Resampling routine from libresample examples ***/
   int len = 0;
 #ifdef DEBUG
-  printf("Synapse: calling resample(%d,NULL,%d,%g)\n", &powerLawIn[0],  k, 1.0 / resamp);
+  printf("\t\t\tSynapse: calling resample(%d,NULL,%d,%g)\n", &powerLawIn[0],  k, 1.0 / resamp);
 #endif
   sampIHC = makevector( (int)((double)k / resamp) );
   len = resample(powerLawIn, sampIHC, k, 1.0/resamp);
   if (len == 0 || (sampIHC == NULL)) {
-    printf("Synapse: resample return error, copying powerLawIn\n");
+    printf("\t\t\tSynapse: resample return error, copying powerLawIn\n");
     len = k;
     if (sampIHC) {
-      /* printf("sampIHC address %x", &sampIHC[0]); */ freevector(sampIHC);
+      /* printf("\t\t\tsampIHC address %x", &sampIHC[0]); */ freevector(sampIHC);
     }
     sampIHC = makevector( (int)(k / resamp) );
     for (indx = 0;indx < (int)(k / resamp);indx++) sampIHC[indx] = powerLawIn[(int)round(indx /resamp)];
   }
 #ifdef DEBUG
-  printf("Synapse: resample done, k %d len %d \t old len %d sampIHC[0] %g\n", k, len, floor((totalstim*nrep + 2*delaypoint)*tdres*sampFreq), sampIHC[0]);
+  printf("\t\t\tSynapse: resample done, k %d len %d \t old len %d sampIHC[0] %g\n", k, len, floor((totalstim*nrep + 2*delaypoint)*tdres*sampFreq), sampIHC[0]);
 
 #endif
   freevector(powerLawIn); freevector(exponOut);
@@ -462,7 +462,7 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
   /*----- Running Power-law Adaptation -----------------------*/
   /*----------------------------------------------------------*/
 #ifdef DEBUG
-  printf("Synapse: Running Power-law Adaptation\n");
+  printf("\t\t\tSynapse: Running Power-law Adaptation\n");
 #endif
 
   k = 0;
@@ -522,7 +522,7 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
   /*----- Upsampling to original (High 100 kHz) sampling rate */
   /*----------------------------------------------------------*/
 #ifdef DEBUG
-  printf("Synapse: Upsampling to original (High 100 kHz) sampling rate\n");
+  printf("\t\t\tSynapse: Upsampling to original (High 100 kHz) sampling rate\n");
 #endif
 
   for (z = 0; z < k - 1; ++z) {
@@ -536,13 +536,13 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
     synouttmp[i] = TmpSyn[i+delaypoint];
 
 #ifdef DEBUG
-  printf("Synapse_v4: done!\n");
-  printf(" alpha1 %g beta1 %g I1 %g alpha2 %g beta2 %g I2 %g binwidth %g\n",alpha1, beta1, I1, alpha2, beta2, I2, binwidth);
-  printf(" synstrength %g synslope %g CI %g CL %g PG %g CG %g VL %g PL %g VI %g\n", synstrength, synslope, CI, CL, PG, CG, VL, PL, VI);
-  printf(" cf_factor %g PImax %g kslope %g Ass %g Asp %g TauR %g TauST %g Ar_Ast %g PTS %g Aon %g AR %g AST %g Prest %g gamma1 %g gamma2 %g k1 %g k2 %g\n",      cf_factor, PImax, kslope, Ass, Asp, TauR, TauST, Ar_Ast, PTS, Aon, AR, AST, Prest, gamma1, gamma2, k1, k2);
-  printf(" VI0 %g VI1 %g alpha %g beta %g theta1 %g theta2 %g theta3 %g vsat %g tmpst %g tmp %g PPI %g CIlast %g temp %g\n",     VI0, VI1, alpha, beta, theta1, theta2, theta3, vsat, tmpst, tmp, PPI, CIlast, temp);
+  printf("\t\t\tSynapse_v4: done!\n");
+  printf("\t\t\t alpha1 %g beta1 %g I1 %g alpha2 %g beta2 %g I2 %g binwidth %g\n",alpha1, beta1, I1, alpha2, beta2, I2, binwidth);
+  printf("\t\t\t synstrength %g synslope %g CI %g CL %g PG %g CG %g VL %g PL %g VI %g\n", synstrength, synslope, CI, CL, PG, CG, VL, PL, VI);
+  printf("\t\t\t cf_factor %g PImax %g kslope %g Ass %g Asp %g TauR %g TauST %g Ar_Ast %g PTS %g Aon %g AR %g AST %g Prest %g gamma1 %g gamma2 %g k1 %g k2 %g\n",      cf_factor, PImax, kslope, Ass, Asp, TauR, TauST, Ar_Ast, PTS, Aon, AR, AST, Prest, gamma1, gamma2, k1, k2);
+  printf("\t\t\t VI0 %g VI1 %g alpha %g beta %g theta1 %g theta2 %g theta3 %g vsat %g tmpst %g tmp %g PPI %g CIlast %g temp %g\n",     VI0, VI1, alpha, beta, theta1, theta2, theta3, vsat, tmpst, tmp, PPI, CIlast, temp);
 
-  printf("sout1[0] %g sout2[0] %g \
+  printf("\t\t\tsout1[0] %g sout2[0] %g \
     m1[0] %g m2[0] %g m3[0] %g m4[0] %g m5[0] %g \
     n1[0] %g n2[0] %g n3[0] %g synSampOut[0] %g TmpSyn[0] %g\n",
 	 sout1[0],sout2[0],
@@ -615,10 +615,10 @@ int SpikeGenerator_v4(double *synouttmp, double tdres, int totalstim, int nrep, 
      multiplying by 'tdres' once per time bin (when calculating the new value of 'Xsum').                         */
   countTime = tdres;
 
-  printf(" c0 %g\ts0 %g\tc1 %g\ts1 %g\tdead %g\n",c0, s0, c1, s1, dead);
-  printf(" nspikes %ld\tk %ld\tNoutMax %ld\tNout %ld\tdeadtimeIndex %ld\trandBufIndex %ld\n", nspikes, k, NoutMax, Nout, deadtimeIndex, randBufIndex);
-  printf("deadtimeRnd %g\tendOfLastDeadtime %g\trefracMult0 %g\trefracMult1 %g\trefracValue0 %g\trefracValue1 %g\n", deadtimeRnd, endOfLastDeadtime, refracMult0, refracMult1, refracValue0, refracValue1);
-  printf("Xsum %g\tunitRateIntrvl %g\tcountTime %g\tDT %g\n",Xsum, unitRateIntrvl, countTime, DT);
+  printf("\t\t\t c0 %g\ts0 %g\tc1 %g\ts1 %g\tdead %g\n",c0, s0, c1, s1, dead);
+  printf("\t\t\t nspikes %ld\tk %ld\tNoutMax %ld\tNout %ld\tdeadtimeIndex %ld\trandBufIndex %ld\n", nspikes, k, NoutMax, Nout, deadtimeIndex, randBufIndex);
+  printf("\t\t\tdeadtimeRnd %g\tendOfLastDeadtime %g\trefracMult0 %g\trefracMult1 %g\trefracValue0 %g\trefracValue1 %g\n", deadtimeRnd, endOfLastDeadtime, refracMult0, refracMult1, refracValue0, refracValue1);
+  printf("\t\t\tXsum %g\tunitRateIntrvl %g\tcountTime %g\tDT %g\n",Xsum, unitRateIntrvl, countTime, DT);
 
 
 
@@ -718,7 +718,7 @@ void PsthAN(double *px, double cf, int nrep, double tdres, int totalstim, double
       synout[i] = synouttmp[i];
     };    
   /*======  Spike Generations ======*/
-  printf("PsthAN: calling SpikeGenerator_v4");
+  printf("\t\t\tPsthAN: calling SpikeGenerator_v4");
   nspikes = SpikeGenerator_v4(synouttmp, tdres, totalstim, nrep, sptime);
   for(i = 0; i < nspikes; i++)
     {        

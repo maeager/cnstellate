@@ -169,7 +169,6 @@ proc runzilany2(){
     HSRout[0] = new Vector(stim.size)
     HSRout[67] = new Vector(stim.size)
     HSRout[1] = new Vector()
-    
     HSRout[0].ihc_zilany_v4(stim, stimtdres, mycf,1,1,1,1)
     HSRout[67].syn_zilany_v4(HSRout[0], stimtdres, mycf, fibertype,implnt,nrep,1,HSRout[1])
     HSRout[0] = HSRout[1].histogram(0,stim.size*stimtdres*1000,0.2)
@@ -192,7 +191,11 @@ proc runzilany3(){
 proc runzilany4(){
     HSRout[0] = new Vector(stim.size)
     HSRout[67] = new Vector(stim.size)
+    HSRout[68] = new Vector(stim.size)
+    
     HSRout[67].an_zilany_v4_1(stim, stimtdres, mycf,spont,implnt,1,1,1,nrep,HSRout[0])
+    HSRout[68].an_zilany_v4_1(stim, stimtdres, mycf,spont/100,implnt,1,1,1,nrep,HSRout[0])
+    
     ShowInputGraphs()
 }
 
@@ -270,7 +273,7 @@ ihc = new Vector(stim.size,0)
 for icf=0,99{  
     mycf = cf.x[icf]
     HSRout[icf] = new Vector(stim.size,0)
-    HSRout[icf].an_zilany_v4(stim, stimtdres, mycf,3,0,cihc.x[icf],cohc.x[icf],1,1,ihc) 
+//    HSRout[icf].an_zilany_v4(stim, stimtdres, mycf,3,0,cihc.x[icf],cohc.x[icf],1,1,ihc) 
     ihc.mul(0)
 }
-for icf=0,99{  HSRout[icf].plot(Graph[2],stimtdres) }
+//for icf=0,99{  HSRout[icf].plot(Graph[2],stimtdres) }
