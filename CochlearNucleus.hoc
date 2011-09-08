@@ -728,7 +728,6 @@ proc random_init() { local i,j, ran
 }
 
 proc SaveSpikes(){local i,j
-
 	for i=0,nchannels-1{
          for j=0,nTSperchannel-1{
             sprint(cmd, "tstellate[%d][%d].spikes.append(tstellate[%d][%d].spiketimes)",i,j,i,j)
@@ -758,118 +757,118 @@ proc SaveSpikes(){local i,j
 
 
 proc reset_weights() { local i // 1 arg - weight
-//ANF connections
-for i = 0,hsr2tsAMPAlist.count()-1 {
-    hsr2tsAMPAlist.object(i).weight = param.w.x[hsr][ts]
-}
-for i = 0,lsr2tsAMPAlist.count()-1 {
-    lsr2tsAMPAlist.object(i).weight = param.w.x[lsr][ts]
-}
-for i = 0,hsr2tvAMPAlist.count()-1 {
-    hsr2tvAMPAlist.object(i).weight = param.w.x[hsr][tv]
-}
-for i = 0,lsr2tvAMPAlist.count()-1 {
-    lsr2tvAMPAlist.object(i).weight = param.w.x[lsr][tv]
-}
-for i = 0,hsr2dsAMPAlist.count()-1 {
-    hsr2dsAMPAlist.object(i).weight = param.w.x[hsr][ds]
-}
-for i = 0,lsr2dsAMPAlist.count()-1 {
-    lsr2dsAMPAlist.object(i).weight = param.w.x[lsr][ds]
-}
-
-//Golgi connections
-for i = 0,glg2tsGABAlist.count()-1 {
-    glg2tsGABAlist.object(i).weight = param.w.x[glg][ts]
-}
-for i = 0,glg2tvGABAlist.count()-1 {
-    glg2tvGABAlist.object(i).weight = param.w.x[glg][tv]
-}
-for i = 0,glg2dsGABAlist.count()-1 {
-    glg2dsGABAlist.object(i).weight = param.w.x[glg][ds]
-}
-//Dstellate connections
-for i = 0,ds2tsGLYlist.count()-1 {
-    ds2tsGLYlist.object(i).weight = param.w.x[ds][ts]
-}
-for i = 0,ds2tvGLYlist.count()-1 {
-    ds2tvGLYlist.object(i).weight = param.w.x[ds][tv]
-}
-for i = 0,ds2glgGLYlist.count()-1 {
-    ds2glgGLYlist.object(i).weight = param.w.x[ds][glg]
-}
-//TV connections
-for i = 0,tv2tsGLYlist.count()-1 {
-    tv2tsGLYlist.object(i).weight = param.w.x[tv][ts]
-}
-for i = 0,tv2dsGLYlist.count()-1 {
-    tv2dsGLYlist.object(i).weight = param.w.x[tv][ds]
-}
-
-//TS connections
-for i = 0,ts2tsAMPAlist.count()-1 {
-    ts2tsAMPAlist.object(i).weight = param.w.x[ts][ts]
-}
-for i = 0,ts2dsAMPAlist.count()-1 {
-    ts2dsAMPAlist.object(i).weight = param.w.x[ts][ds]
-}
-for i = 0,ts2tvAMPAlist.count()-1 {
-    ts2tvAMPAlist.object(i).weight = param.w.x[ts][tv]
-}
+	//ANF connections
+	for i = 0,hsr2tsAMPAlist.count()-1 {
+		hsr2tsAMPAlist.object(i).weight = param.w.x[hsr][ts]
+	}
+	for i = 0,lsr2tsAMPAlist.count()-1 {
+		lsr2tsAMPAlist.object(i).weight = param.w.x[lsr][ts]
+	}
+	for i = 0,hsr2tvAMPAlist.count()-1 {
+		hsr2tvAMPAlist.object(i).weight = param.w.x[hsr][tv]
+	}
+	for i = 0,lsr2tvAMPAlist.count()-1 {
+		lsr2tvAMPAlist.object(i).weight = param.w.x[lsr][tv]
+	}
+	for i = 0,hsr2dsAMPAlist.count()-1 {
+		hsr2dsAMPAlist.object(i).weight = param.w.x[hsr][ds]
+	}
+	for i = 0,lsr2dsAMPAlist.count()-1 {
+		lsr2dsAMPAlist.object(i).weight = param.w.x[lsr][ds]
+	}
+	
+	//Golgi connections
+	for i = 0,glg2tsGABAlist.count()-1 {
+		glg2tsGABAlist.object(i).weight = param.w.x[glg][ts]
+	}
+	for i = 0,glg2tvGABAlist.count()-1 {
+		glg2tvGABAlist.object(i).weight = param.w.x[glg][tv]
+	}
+	for i = 0,glg2dsGABAlist.count()-1 {
+		glg2dsGABAlist.object(i).weight = param.w.x[glg][ds]
+	}
+	//Dstellate connections
+	for i = 0,ds2tsGLYlist.count()-1 {
+		ds2tsGLYlist.object(i).weight = param.w.x[ds][ts]
+	}
+	for i = 0,ds2tvGLYlist.count()-1 {
+		ds2tvGLYlist.object(i).weight = param.w.x[ds][tv]
+	}
+	for i = 0,ds2glgGLYlist.count()-1 {
+		ds2glgGLYlist.object(i).weight = param.w.x[ds][glg]
+	}
+	//TV connections
+	for i = 0,tv2tsGLYlist.count()-1 {
+		tv2tsGLYlist.object(i).weight = param.w.x[tv][ts]
+	}
+	for i = 0,tv2dsGLYlist.count()-1 {
+		tv2dsGLYlist.object(i).weight = param.w.x[tv][ds]
+	}
+	
+	//TS connections
+	for i = 0,ts2tsAMPAlist.count()-1 {
+		ts2tsAMPAlist.object(i).weight = param.w.x[ts][ts]
+	}
+	for i = 0,ts2dsAMPAlist.count()-1 {
+		ts2dsAMPAlist.object(i).weight = param.w.x[ts][ds]
+	}
+	for i = 0,ts2tvAMPAlist.count()-1 {
+		ts2tvAMPAlist.object(i).weight = param.w.x[ts][tv]
+	}
 }
 
 proc reset_delays() { local i // 1 arg - delay
-//ANF connections
-for i = 0,hsr2tsAMPAlist.count()-1 {
-    hsr2tsAMPAlist.object(i).delay = param.delay.x[hsr][ts]
-}
-for i = 0,lsr2tsAMPAlist.count()-1 {
-    lsr2tsAMPAlist.object(i).delay = param.delay.x[lsr][ts]
-}
-for i = 0,hsr2tvAMPAlist.count()-1 {
-    hsr2tvAMPAlist.object(i).delay = param.delay.x[hsr][tv]
-}
-for i = 0,lsr2tvAMPAlist.count()-1 {
-    lsr2tvAMPAlist.object(i).delay = param.delay.x[lsr][tv]
-}
-
-for i = 0,lsr2dsAMPAlist.count()-1 {
-    lsr2dsAMPAlist.object(i).delay = param.delay.x[lsr][ds]
-}
-
-
-//Golgi connections
-  for i = 0,glg2dsGABAlist.count()-1 {
-   glg2dsGABAlist.object(i).delay = param.delay.x[glg][ds]
-  }
-  for i = 0,glg2dsGABAlist.count()-1 {
-   glg2dsGABAlist.object(i).delay = param.delay.x[glg][ds]
-  }
-//Dstellate connections
-  for i = 0,ds2tsGLYlist.count()-1 {
-   ds2tsGLYlist.object(i).delay = param.delay.x[ds][ts]
-  }
-  for i = 0,ds2tvGLYlist.count()-1 {
-   ds2tvGLYlist.object(i).delay = param.delay.x[ds][tv]
-  }
-//TV connections
-  for i = 0,tv2tsGLYlist.count()-1 {
-   tv2tsGLYlist.object(i).delay = param.delay.x[tv][ts]
-  }
-  for i = 0,tv2dsGLYlist.count()-1 {
-   tv2dsGLYlist.object(i).delay = param.delay.x[tv][ds]
-  }
-
-//TS connections
-for i = 0,ts2tsAMPAlist.count()-1 {
-    ts2tsAMPAlist.object(i).delay = param.delay.x[ts][ts]
-}
-for i = 0,ts2dsAMPAlist.count()-1 {
-    ts2dsAMPAlist.object(i).delay = param.delay.x[ts][ds]
-}
-for i = 0,ts2tvAMPAlist.count()-1 {
-    ts2tvAMPAlist.object(i).delay  = param.delay.x[ts][tv]
-}
+	//ANF connections
+	for i = 0,hsr2tsAMPAlist.count()-1 {
+		hsr2tsAMPAlist.object(i).delay = param.delay.x[hsr][ts]
+	}
+	for i = 0,lsr2tsAMPAlist.count()-1 {
+		lsr2tsAMPAlist.object(i).delay = param.delay.x[lsr][ts]
+	}
+	for i = 0,hsr2tvAMPAlist.count()-1 {
+		hsr2tvAMPAlist.object(i).delay = param.delay.x[hsr][tv]
+	}
+	for i = 0,lsr2tvAMPAlist.count()-1 {
+		lsr2tvAMPAlist.object(i).delay = param.delay.x[lsr][tv]
+	}
+	
+	for i = 0,lsr2dsAMPAlist.count()-1 {
+		lsr2dsAMPAlist.object(i).delay = param.delay.x[lsr][ds]
+	}
+	
+	
+	//Golgi connections
+	for i = 0,glg2dsGABAlist.count()-1 {
+		glg2dsGABAlist.object(i).delay = param.delay.x[glg][ds]
+	}
+	for i = 0,glg2dsGABAlist.count()-1 {
+		glg2dsGABAlist.object(i).delay = param.delay.x[glg][ds]
+	}
+	//Dstellate connections
+	for i = 0,ds2tsGLYlist.count()-1 {
+		ds2tsGLYlist.object(i).delay = param.delay.x[ds][ts]
+	}
+	for i = 0,ds2tvGLYlist.count()-1 {
+		ds2tvGLYlist.object(i).delay = param.delay.x[ds][tv]
+	}
+	//TV connections
+	for i = 0,tv2tsGLYlist.count()-1 {
+		tv2tsGLYlist.object(i).delay = param.delay.x[tv][ts]
+	}
+	for i = 0,tv2dsGLYlist.count()-1 {
+		tv2dsGLYlist.object(i).delay = param.delay.x[tv][ds]
+	}
+	
+	//TS connections
+	for i = 0,ts2tsAMPAlist.count()-1 {
+		ts2tsAMPAlist.object(i).delay = param.delay.x[ts][ts]
+	}
+	for i = 0,ts2dsAMPAlist.count()-1 {
+		ts2dsAMPAlist.object(i).delay = param.delay.x[ts][ds]
+	}
+	for i = 0,ts2tvAMPAlist.count()-1 {
+		ts2tvAMPAlist.object(i).delay  = param.delay.x[ts][tv]
+	}
 }
 
 
@@ -879,8 +878,13 @@ proc SetGolgiRates(){
 			return
 		}else{
 			for i=0,nchannels-1 golgi[i][0].SetRate2()
+		  printf(" done\n")
+
 			SaveGolgiFilterBank2File()	
 		}
+	} else {
+		for i=0,nchannels-1 golgi[i][0].SetRate2()
+		printf(" done\n")
 	}
 }
 
@@ -975,19 +979,19 @@ proc ClearSpikes(){local ii,jj
     ClearInputSpikes()
     for ii=0,nchannels-1{
         for jj=0,nTSperchannel-1{
-	    sprint(cmd, "tstellate[%d][%d].spikes.resize(0)",ii,jj)
+			sprint(cmd, "tstellate[%d][%d].spikes.resize(0)",ii,jj)
             execute1(cmd)
         }
         for jj=0,nTVperchannel-1{
-	    sprint(cmd, "tuberculoventral[%d][%d].spikes.resize(0)",ii,jj)
+			sprint(cmd, "tuberculoventral[%d][%d].spikes.resize(0)",ii,jj)
             execute1(cmd)
         }
         for jj=0,nDSperchannel-1{
-	    sprint(cmd, "dstellate[%d][%d].spikes.resize(0)",ii,jj)
+			sprint(cmd, "dstellate[%d][%d].spikes.resize(0)",ii,jj)
             execute1(cmd)
         }
         for jj=0,nGperchannel-1{
-	    sprint(cmd, "golgi[%d][%d].spikes.resize(0)",ii,jj)
+			sprint(cmd, "golgi[%d][%d].spikes.resize(0)",ii,jj)
             execute1(cmd)
         }
     }

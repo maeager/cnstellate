@@ -71,4 +71,24 @@ file.close()
 
 
 
+// Target RL data
+objref tmp_rate_level, level
+
+//Note the level vector must be set prior to calling this function 
+obfunc set_target_rate_level(){localobj xdata,ydata
+	if (level.size == 0) {
+print "Error setting data"
+return tmp_rate_level
+	}
+	if ( object_id($o1) && $o1.nrow >= 2 && $o1.ncol >= 2){
+	xdata = $o1.getcol(0).add(100)  //0dBA in data ~ 100dB SPL
+	ydata = $o1.getcol(1)
+	tmp_rate_level = new Vector()
+	tmp_rate_level.interpolate(level,xdata,ydata)
+	} else {
+	print "Error interpolating data"
+	}
+return tmp_rate_level
+	
+}
 
