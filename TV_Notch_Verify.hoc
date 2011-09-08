@@ -18,8 +18,8 @@
 
   stopband				= 6      // kHz
   notchwidth			= 1
- centrepoint			=stopband*1000
- GenNotchResponsePlots()
+  centrepoint			=stopband*1000
+  GenNotchResponsePlots()
  
 
   ANFBgr				= new Graph()

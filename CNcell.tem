@@ -351,7 +351,6 @@ proc SetRate2() {local i,j,spon_factor
 	sg.SetFibreRate(sout,spiketimes,sg_tdres)
 	  //print "golgi[",i,"][",j,"]: Process ",pnm.myid," mean ", sout.mean()
 	  objref tempsout
-	  printf(" done\r")
 }
 
 proc GenSpikes(){local i,j

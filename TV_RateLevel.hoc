@@ -212,7 +212,7 @@ ANmodel				= 6      // Zilany Bruce model version 3
 species				= 1      // Cat
 ANFBgr					= new Graph()
 usesavedfilterbanks		= 1
-srate					= 200000
+srate					= 500000
 stimtdres				= 1/srate
 sg_rate					= 50000
 sg_tdres				= 1/sg_rate
@@ -402,6 +402,7 @@ proc Ratelevel(){local ispl,i,j,count,sum,runtime,cell,xtime localobj tmp
 		spl = level.x[ispl]
 		runtime = startsw()
 		ClearSpikes()
+        for j=0,1 tuberculoventral[0][j].spikes = new Vector()
 		RefreshParameters()
 		ANFilterBankRun()
 		SetInputRates()
@@ -409,13 +410,16 @@ proc Ratelevel(){local ispl,i,j,count,sum,runtime,cell,xtime localobj tmp
 		
         for j=0,1 {
 			// 	sum=0
-		 	tvrate[j].append(meanrate(tuberculoventral[0][j].spikes))
+			meanrate(tuberculoventral[0][j].spikes)
+		 	tvrate[j].append(tuberculoventral[0][j].spikes.size / (reps *0.05))
 		 	tvstdev[j].append(isistdev)
 		}
 		
 		ANSpikes()
 		for j=0,nchannels-1 {
-			dsrate[j].append(meanrate(dstellate[j][0].spikes))
+			meanrate(dstellate[j][0].spikes)
+			 
+			dsrate[j].append(dstellate[j][0].spikes.size / (reps * 0.05))
 			hsrrate[j].append(ANFrate[0].x[j])
 			lsrrate[j].append(ANFrate[1].x[j])
 		}		
@@ -441,7 +445,7 @@ proc save_rate_level(){
 	sprint(fname,"%s/rate_level.dat",fileroot)
 	file.aopen(fname)
 	for i=0,level.size-1{
-		file.printf("%d\t%g\t%g\t%g\t%g\t%g\t%g\n",level.x[i],\
+		file.printf("%d\t%g\t%g\t%g\t%g\t%g\n",level.x[i],\
 		tvrate[0].x[i],tvrate[1].x[i],\
 		dsrate[50].x[i],hsrrate[0].x[i],\
 		lsrrate[1].x[i])
@@ -471,13 +475,14 @@ for i = 0, nchannels-1 {
 	dstellate[i][0].soma.gkltbar_klt=0.0163897
 }
 
-param.w.x[lsr][tv] = 0.00128707
-param.w.x[hsr][tv] = 0.00026168
+param.w.x[lsr][tv] = 0.0021707
+param.w.x[hsr][tv] = 0.0006168
 
 param.w.x[glg][ds]	= 0.000532	
 param.w.x[hsr][ds]	= 0.00127  
 param.w.x[lsr][ds]	= 0.00309  
 param.w.x[tv][ds]	= 0.00  
+param.w.x[ds][tv]	= 0.0018  
 reset_weights()
 
 
@@ -493,13 +498,13 @@ objref origpvec
 
 
 
-TV_BFtone()
-level=new Vector(20)
-level.indgen().mul(3).add(20) //20:3:60
+//TV_BFtone()
+//level=new Vector(20)
+//level.indgen().mul(3).add(20) //20:3:60
 //Ratelevel()
-TV_Noise()
-level=new Vector(20)
-level.indgen().mul(2).add(50) //50:2:88
+//TV_Noise()
+//level=new Vector(20)
+//level.indgen().mul(2).add(50) //50:2:88
 //Ratelevel()
 
 // Target RL data
@@ -531,7 +536,7 @@ func TV_RateLevel_err(){local jj,pp,xtime
 	reset_weights()
 	for i = 0, ds2tvGLYlist.count-1 if(ds2tvGLYlist.object(i).postcell() == tuberculoventral[0][1]) print ds2tvGLYlist.object(i).weight=0
 	TV_BFtone()
-	level=new Vector(20)
+	level=new Vector(10)
 	level.indgen().mul(3).add(20) //20:3:60
 	Ratelevel()
 	target_rate_level[0] = set_target_rate_level(SpirouFig8B_Control_Tone)
@@ -544,8 +549,8 @@ func TV_RateLevel_err(){local jj,pp,xtime
 	save_rate_level()	
 	
 	TV_Noise()
-	level=new Vector(20)
-	level.indgen().mul(2).add(50)
+	level=new Vector(10)
+	level.indgen().mul(5).add(50)
 	Ratelevel()
 	target_rate_level[2] =set_target_rate_level(SpirouFig8B_Control_Noise)
 	error3 = sqrt(tvrate[0].meansqerr(target_rate_level[2]))
@@ -565,18 +570,19 @@ func TV_RateLevel_err(){local jj,pp,xtime
      target_rate_level[3].plot(fitgr,level,2,1)
 
      sprint(grlbl,"Error1 = %g", error1)
-     gr.label(0.05,0.85,grlbl)
+     fitgr.label(0.05,0.85,grlbl)
 	 sprint(grlbl,"Error2 = %g", error2)
-	 gr.label(0.05,0.75,grlbl)
+	 fitgr.label(0.05,0.75,grlbl)
 	 sprint(grlbl,"Error3 = %g", error3)
-	 gr.label(0.05,0.65,grlbl)
+	 fitgr.label(0.05,0.65,grlbl)
 	 sprint(grlbl,"Error4 = %g", error4)
-     gr.label(0.05,0.55,grlbl)
+     fitgr.label(0.05,0.55,grlbl)
 	 
 	 for jj=0,NPARAMS-1{
 		sprint(grlbl,"%s = %g", pvec_name.object(jj).s,pvec.x[jj])
-		gr.label(0.65,0.45-0.05*jj,grlbl)
+		fitgr.label(0.65,0.45-0.05*jj,grlbl)
     }
+	fitgr.exec_menu("View = plot")	
 	doNotify()
 	
 	sprint(fname,"%s/error_out.dat",fileroot)
@@ -587,7 +593,7 @@ func TV_RateLevel_err(){local jj,pp,xtime
 	file.printf("%g\n",error1+error2+error3+error4)
 	file.close()
 	
-	print "TV_RateLevel_err complete. Error ", error1+error2+error3+error4, " time ", startsw() - xtime
+	print "TV_RateLevel_err complete. Error ", error1+error2+error3+error4, " time (sec)", startsw() - xtime
 	
     return error1+error2+error3+error4
 }
@@ -598,4 +604,20 @@ proc QuickRun(){
     print TV_RateLevel_err(0,&pvec.x[0])
 }
 
+dt=0.1
 QuickRun()
+
+
+
+proc Rerun_ANmodel(){
+	stimtype=6
+	for (spl=50;spl<=100;spl+=5){
+RefreshParameters() 
+RefreshParameters()
+ANFilterBankRun()
+SaveANFilterBank2File()
+for i=0,nchannels-1 golgi[i][0].SetRate2()
+SaveGolgiFilterBank2File()
+}
+}
+
