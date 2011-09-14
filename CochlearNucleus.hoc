@@ -728,30 +728,28 @@ proc random_init() { local i,j, ran
 }
 
 proc SaveSpikes(){local i,j
+	an.SaveSpikes()	
+	print "Saved AN spikes"
 	for i=0,nchannels-1{
          for j=0,nTSperchannel-1{
-            sprint(cmd, "tstellate[%d][%d].spikes.append(tstellate[%d][%d].spiketimes)",i,j,i,j)
+            sprint(cmd, "tstellate[%d][%d].SaveSpikes()",i,j)
             execute1(cmd)
          }
          for j=0,nTVperchannel-1{
-            sprint(cmd, "tuberculoventral[%d][%d].spikes.append(tuberculoventral[%d][%d].spiketimes)",i,j,i,j)
+            sprint(cmd, "tuberculoventral[%d][%d].SaveSpikes()",i,j)
 	    execute1(cmd)
          }
          for j=0,nDSperchannel-1{
-            sprint(cmd, "dstellate[%d][%d].spikes.append(dstellate[%d][%d].spiketimes)",i,j,i,j)
+            sprint(cmd, "dstellate[%d][%d].SaveSpikes()",i,j)
             execute1(cmd)
          }
          for j=0,nGperchannel-1{
-            sprint(cmd, "golgi[%d][%d].spikes.append(golgi[%d][%d].spiketimes)",i,j,i,j)
+            sprint(cmd, "golgi[%d][%d].SaveSpikes()",i,j)
             execute1(cmd)
-         }
-         for j=0,HSRsperchannel-1{
-	     an.HSRspikes[i][j].append(an.HSRspiketimes[i][j])
-         }
-         for j=0,LSRsperchannel-1{
-	     an.LSRspikes[i][j].append(an.LSRspiketimes[i][j])
-         }
-      }
+        }
+    }
+	print "Saved CN spikes"
+	
 }
 
 
@@ -943,16 +941,17 @@ proc GenInputSpikes(){
 	GenSpikes2() //Preffered spike gen method
 }
 
-proc multi_run(){local ireps,xtime
-  xtime = startsw()
+proc multi_run(){local ireps,xtime,starttime
+  starttime = startsw()
     ClearSpikes()
     for ireps = 0, reps-1 {
         GenSpikes()
         run()
         SaveSpikes()
+		
     }
   xtime=startsw()-xtime
-  print "multi_run time: ",xtime, " Per rep: ", xtime/reps 
+  print "Total multi_run time: ",starttime, " Per rep: ", starttime/reps 
 	
 }
 proc multi_run2(){local ireps,xtime

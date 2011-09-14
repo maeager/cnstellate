@@ -39,9 +39,9 @@ execute1(cmd)
 sprint(cmd, "tuberculoventral[%d][%d] = new CNcell(1,cf.x[%d],%d)",0,1,50,50)
 execute1(cmd)
 
+//mimick connect_CNcells from CochlearNucleus.hoc
 proc connect_TV() {local i,p,target,source,low,high,range,channel,sourcechannel
-	
-	
+		
 	print "Connecting cells."
 	sprint(filename,"%s.connect",$s1)
 	outfile.wopen(filename)
@@ -161,23 +161,52 @@ proc connect_TV() {local i,p,target,source,low,high,range,channel,sourcechannel
 	outfile.close()
 }
 
+
+param.offset=0
+param.n.x[ds][tv] = 20
+param.bw.x[ds][tv] = 15
+
 connect_TV(fileroot)
 
-
-proc SaveSpikes(){local i,j //overload CochlearNucleus
+//overload SaveSpikes from CochlearNucleus.hoc
+proc SaveSpikes(){local i,j 
 	an.SaveSpikes()
 	i=0	
 	for j=0,1{
-        sprint(cmd, "tuberculoventral[%d][%d].spikes.append(tuberculoventral[%d][%d].spiketimes)",i,j,i,j)
+		sprint(cmd, "tuberculoventral[%d][%d].SaveSpikes()",i,j)
+		execute1(cmd)
+	}
+	for i=0,nchannels-1 {
+        sprint(cmd, "dstellate[%d][0].SaveSpikes()",i)
 	    execute1(cmd)
 	}
 	for i=0,nchannels-1 {
-        sprint(cmd, "dstellate[%d][0].spikes.append(dstellate[%d][0].spiketimes)",i,i)
+        sprint(cmd, "golgi[%d][0].SaveSpikes()",i)
 	    execute1(cmd)
 	}
-
+	
 }
 
+//overload ClearSpikes from CochlearNucleus.hoc
+proc ClearSpikes(){local ii,jj
+    ClearInputSpikes()
+       for jj=0,1{
+			sprint(cmd, "tuberculoventral[0][%d].spikes.resize(0)",jj)
+            execute1(cmd)
+        }
+ 	
+	for ii=0,nchannels-1{
+        for jj=0,nDSperchannel-1{
+			sprint(cmd, "dstellate[%d][%d].spikes.resize(0)",ii,jj)
+            execute1(cmd)
+        }
+        for jj=0,nGperchannel-1{
+			sprint(cmd, "golgi[%d][%d].spikes.resize(0)",ii,jj)
+            execute1(cmd)
+        }
+    }
+ print "Cleared CN cell Spikes"
+}
 
 
 proc multi_run(){local irep,xtime
@@ -359,7 +388,7 @@ func meanrate(){ local i localobj spikes
 	}
 	if (ind.size > 0) for i=0, ind.size-1 { 
 		isi.remove(ind.x[i]-i)
-		print "removing ", ind.x[i] 
+//		print "removing ", ind.x[i] 
 	}
 	ind.indvwhere(isi,">", (dur+ramplngth/2)*1000)
 	if (ind.size >= 1) {
@@ -367,11 +396,13 @@ func meanrate(){ local i localobj spikes
 			isistdev = 15
 			return spikes.size()/(reps*(dur+ramplngth/2))
 		}
-		for i=0, ind.size-1 { isi.remove(ind.x[i]-i)
-		print "removing ", ind.x[i] }
+		for i=0, ind.size-1 { 
+			isi.remove(ind.x[i]-i)
+//			print "removing ", ind.x[i] 
+		}
 	}
 	print "print isi.size", isi.size
-	
+	 
 	if (isi.size < 3) {
 		isistdev = 1e6
 		return spikes.size()/(reps*(dur+ramplngth/2))
@@ -382,10 +413,9 @@ func meanrate(){ local i localobj spikes
 }
 
 
-objref tvpstlist, dsrate[nchannels],tvrate[nchannels],hsrrate[nchannels],lsrrate[nchannels],rate_level_graph, tvstdev[nchannels],level,fvec
+objref tvpstlist, grate[nchannels],dsrate[nchannels],tvrate[nchannels],hsrrate[nchannels],lsrrate[nchannels],rate_level_graph, tvstdev[nchannels],level,fvec
 proc Ratelevel(){local ispl,i,j,count,sum,runtime,cell,xtime localobj tmp	
 	count = 0
-	reps=5
 	tvpstlist = new List()
 	for i=0,99 {
 		tvrate[i] = new Vector()
@@ -393,7 +423,7 @@ proc Ratelevel(){local ispl,i,j,count,sum,runtime,cell,xtime localobj tmp
 		lsrrate[i] = new Vector()
 		hsrrate[i] = new Vector()
 		tvstdev[i] = new Vector()
-		
+		grate[i] = new Vector()
 	}
 	fvec = new Vector()
 	//RefreshParameters()
@@ -408,21 +438,27 @@ proc Ratelevel(){local ispl,i,j,count,sum,runtime,cell,xtime localobj tmp
 		SetInputRates()
 		multi_run()
 		
-        for j=0,1 {
-			// 	sum=0
-			meanrate(tuberculoventral[0][j].spikes)
-		 	tvrate[j].append(tuberculoventral[0][j].spikes.size / (reps *0.05))
-		 	tvstdev[j].append(isistdev)
-		}
-		
-		ANSpikes()
-		for j=0,nchannels-1 {
-			meanrate(dstellate[j][0].spikes)
-			 
-			dsrate[j].append(dstellate[j][0].spikes.size / (reps * 0.05))
-			hsrrate[j].append(ANFrate[0].x[j])
-			lsrrate[j].append(ANFrate[1].x[j])
-		}		
+for j=0,1 {
+	//	sum=0
+	meanrate(tuberculoventral[0][j].spikes)
+	tvrate[j].append(tuberculoventral[0][j].spikes.size / (reps *0.05))
+	tvstdev[j].append(isistdev)
+}
+
+ANSpikes()
+for j=0,nchannels-1 {
+	meanrate(dstellate[j][0].spikes)
+	meanrate(golgi[j][0].spikes)
+	grate[j].append(golgi[j][0].spikes.size / (reps * 0.05))
+	dsrate[j].append(dstellate[j][0].spikes.size / (reps * 0.05))
+	for i=1,HSRsperchannel-1 an.HSRspikes[j][0].append(an.HSRspikes[j][i])
+	for i=1,LSRsperchannel-1 an.LSRspikes[j][0].append(an.LSRspikes[j][i])
+	meanrate(an.HSRspikes[j][0])
+	meanrate(an.LSRspikes[j][0])
+
+	hsrrate[j].append(an.HSRspikes[j][0].size / (HSRsperchannel * reps * 0.05))
+	lsrrate[j].append(an.LSRspikes[j][0].size / (LSRsperchannel * reps * 0.05))
+}
 
 		
 		count+=1
@@ -434,6 +470,7 @@ proc Ratelevel(){local ispl,i,j,count,sum,runtime,cell,xtime localobj tmp
 //	fvec.plot(rate_level_graph,2,2)
 	tvrate[0].plot(rate_level_graph,level ,1,1)
 	tvrate[1].plot(rate_level_graph,level ,2,1)
+	grate[50].plot(rate_level_graph,level,5,1)	
 	dsrate[50].plot(rate_level_graph,level,3,1)	
 	hsrrate[50].plot(rate_level_graph,level,4,1)
 	lsrrate[50].plot(rate_level_graph,level,5,1)
@@ -445,10 +482,10 @@ proc save_rate_level(){
 	sprint(fname,"%s/rate_level.dat",fileroot)
 	file.aopen(fname)
 	for i=0,level.size-1{
-		file.printf("%d\t%g\t%g\t%g\t%g\t%g\n",level.x[i],\
+		file.printf("%d\t%g\t%g\t%g\t%g\t%g\t%g\n",level.x[i],\
 		tvrate[0].x[i],tvrate[1].x[i],\
-		dsrate[50].x[i],hsrrate[0].x[i],\
-		lsrrate[1].x[i])
+		dsrate[50].x[i],grate[50].x[i], \
+		hsrrate[50].x[i],lsrrate[50].x[i])
 			
 	}
 	file.close()
@@ -508,7 +545,7 @@ objref origpvec
 //Ratelevel()
 
 // Target RL data
-objref target_rate_level[4],fitgr, tmpRL[4]
+objref target_rate_level[4],fitgr, tmpRL[8]
 fitgr = new Graph()
 
 error1=0
@@ -546,6 +583,11 @@ func TV_RateLevel_err(){local jj,pp,xtime
 	tmpRL[0] = 	tvrate[0].c
 	tmpRL[1] = 	tvrate[1].c
 	tmpRL[2] = 	level.c
+	tmpRL[3] =  dsrate[50].c
+	tmpRL[4] =  grate[50].c
+	tmpRL[5] =  hsrrate[50].c
+	tmpRL[6] =  lsrrate[50].c
+	
 	save_rate_level()	
 	
 	TV_Noise()
@@ -598,14 +640,204 @@ func TV_RateLevel_err(){local jj,pp,xtime
     return error1+error2+error3+error4
 }
 
+
+func TV_RateLevel_err2(){local jj,pp,xtime
+    xtime=startsw()
+    //check for bad values
+    for pp=0,NPARAMS-1 {
+		if (($&2[pp] <= pvec_ranges.x[pp][0]) || ($&2[pp] > pvec_ranges.x[pp][1])) {
+			return 1e9
+		}
+    }
+	//print variables
+	print "TV_RateLevel_err ", $1 
+    for pp=0,NPARAMS-1 { printf("%s = %g * %g",pvec_name.object(pp).s,$&2[pp],pvec_factor.x[pp]) }
+	//Set the parameters (see parameters_TV_Notch.hoc)
+	for pp=0,NPARAMS-1 {
+		sprint(cmd,"%s = %g * %g ",pvec_name.object(pp).s,$&2[pp],pvec_factor.x[pp])
+		execute1(cmd)
+    }
+	//Rearrange synapses is using weight parameters
+	reset_weights()
+	for i = 0, ds2tvGLYlist.count-1 if(ds2tvGLYlist.object(i).postcell() == tuberculoventral[0][1]) print ds2tvGLYlist.object(i).weight=0
+	TV_BFtone()
+	level=new Vector(3)
+	level.indgen().mul(15).add(20) //20:3:60
+	Ratelevel()
+	target_rate_level[0] = set_target_rate_level(SpirouFig8B_Control_Tone)
+	error1 = sqrt(tvrate[0].meansqerr(target_rate_level))
+	target_rate_level[1] = set_target_rate_level(SpirouFig8B_wStr_Tone)
+	error2 = sqrt(tvrate[1].meansqerr(target_rate_level))
+	tmpRL[0] = 	tvrate[0].c
+	tmpRL[1] = 	tvrate[1].c
+	tmpRL[2] = 	level.c
+	tmpRL[3] =  dsrate[50].c
+	tmpRL[4] =  grate[50].c
+	tmpRL[5] =  hsrrate[50].c
+	tmpRL[6] =  lsrrate[50].c
+	
+	save_rate_level()	
+	
+	TV_Noise()
+	level=new Vector(3)
+	level.indgen().mul(20).add(50)
+	Ratelevel()
+	target_rate_level[2] =set_target_rate_level(SpirouFig8B_Control_Noise)
+	error3 = sqrt(tvrate[0].meansqerr(target_rate_level[2]))
+	target_rate_level[3] =set_target_rate_level(SpirouFig8B_wStr_Noise)
+	error4 = sqrt(tvrate[1].meansqerr(target_rate_level[3]))
+	save_rate_level()	
+	//Plot the results
+	 if(object_id(fitgr)==0) fitgr = new Graph()
+	 fitgr.erase_all()
+     tmpRL[0].plot(fitgr,tmpRL[2],1,2)
+     tmpRL[1].plot(fitgr,tmpRL[2],2,2)
+     tvrate[0].plot(fitgr,level,1,2)
+     tvrate[1].plot(fitgr,level,2,2)
+     target_rate_level[0].plot(fitgr,tmpRL[2],1,1)
+     target_rate_level[1].plot(fitgr,tmpRL[2],2,1)
+     target_rate_level[2].plot(fitgr,level,1,1)
+     target_rate_level[3].plot(fitgr,level,2,1)
+
+     sprint(grlbl,"Error1 = %g", error1)
+     fitgr.label(0.05,0.85,grlbl)
+	 sprint(grlbl,"Error2 = %g", error2)
+	 fitgr.label(0.05,0.75,grlbl)
+	 sprint(grlbl,"Error3 = %g", error3)
+	 fitgr.label(0.05,0.65,grlbl)
+	 sprint(grlbl,"Error4 = %g", error4)
+     fitgr.label(0.05,0.55,grlbl)
+	 
+	 for jj=0,NPARAMS-1{
+		sprint(grlbl,"%s = %g", pvec_name.object(jj).s,pvec.x[jj])
+		fitgr.label(0.65,0.45-0.05*jj,grlbl)
+    }
+	fitgr.exec_menu("View = plot")	
+	doNotify()
+	
+	sprint(fname,"%s/error_out.dat",fileroot)
+	file.aopen(fname)
+	for pp=0,NPARAMS-1 {
+		file.printf("%g\t",$&2[pp]*pvec_factor.x[pp])
+    }
+	file.printf("%g\n",error1+error2+error3+error4)
+	file.close()
+	
+	print "TV_RateLevel_err complete. Error ", error1+error2+error3+error4, " time (sec)", startsw() - xtime
+	
+    return error1+error2+error3+error4
+}
+
+
 proc QuickRun(){
 	set_pvec()
     pvec.printf
-    print TV_RateLevel_err(0,&pvec.x[0])
+    print TV_RateLevel_err2(0,&pvec.x[0])
 }
 
+proc runprax2(){
+    sprint(cmd,"mkdir -p %s",fileroot)
+    system(cmd)
+    sprint(cmd,"touch %s/error_out.dat",fileroot)
+    system(cmd)
+    attr_praxis(0.01, 0.1, 3)
+    fit_praxis(NPARAMS,"TV_RateLevel_err",&pvec.x[0])
+}
+
+proc runprax(){
+	attr_praxis(0.001, 0.01, 3)
+	fit_praxis(NPARAMS,"TV_RateLevel_err2",&pvec.x[0])
+}
+
+
+
+proc printprax2(){local pp,ii,pp2,error
+	//Output model data with best parameters
+	
+    sprint(cmd,"mkdir -p %s",fileroot)
+    system(cmd)
+   	    
+	print error=TV_RateLevel_err(0,&pvec.x[0])
+	system("date",datestr)
+    sprint(fname,"%s/%s.Fit.dat",fileroot,origfileroot)
+	file.wopen(fname)
+	if (file.isopen()){
+		file.printf("# %s Optimisation\n",fileroot)
+		file.printf("# %s \n",datestr)
+		for pp=0,NPARAMS-1 {
+			file.printf("#%s = %g\t[%g,%g]\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp],pvec_ranges.x[pp][0],pvec_ranges.x[pp][1])
+		}
+		file.printf("# RL Error = %g\n", error1)
+		file.printf("# RL without DS Error	 = %g\n", error2)
+		file.printf("# NRL Error = %g\n", error3)
+		file.printf("# NRL without DS Error = %g\n", error4)
+		file.printf("# Final error = %g\n",error)
+
+		
+		/*
+		file.printf("# Principle axis matrix\n")
+		for pp=0,NPARAMS-1 {
+			pval[pp] = new Vector(NPARAMS)
+			pval_praxis(pp,&pval[pp].x[0])
+			
+			file.printf("#\t")
+			if (pval[pp].size == NPARAMS){
+				for pp2=0,NPARAMS-1 file.printf("%g\t",pval[pp].x[pp2])
+			}
+			file.printf("\n")
+		}
+		*/
+		file.printf("# Level, TV Model, TV Model without DS, DS, GLG, HSR, LSR (sp/s)\n")
+		for i=0,level.size-1{
+			file.printf("%d\t%g\t%g\t%g\t%g\t%g\t%g\n",level.x[i],\
+			tvrate[0].x[i],tvrate[1].x[i],\
+			dsrate[50].x[i],grate[50].x[i],\
+			hsrrate[50].x[i],lsrrate[50].x[i])
+		}
+		file.printf("\n\n",error)
+		for i=0,tmpRL[2].size-1{
+			file.printf("%d\t%g\t%g\t%g\t%g\t%g\t%g\n",tmpRL[2].x[i],\
+			tmpRL[0].x[i],tmpRL[1].x[i],\
+			tmpRL[3].x[i],tmpRL[4].x[i],\
+			tmpRL[5].x[i],tmpRL[6].x[i])
+		}		
+		file.printf("#Other values \n")
+		// file.printf("#spl = %g\n",spl)
+		// file.printf("#  halfoct_compress = %g\n",  halfoct_compress)
+		// file.printf("#  halfoct_shift = %g\n",  halfoct_shift)
+		// file.printf("# oct_compress = %g\n", oct_compress)
+		// file.printf("# oct_shift  = %g\n", oct_shift )
+		// file.printf("# centrepoint = %g\n",centrepoint)
+		file.printf("# TV erev = %g\n",tuberculoventral[0][0].soma.erev_rm)
+		param.printparams(file,"#") //let Network Parameters print the struct
+		file.close()
+	
+	}
+	
+		//Write parameters to general optimisation file
+	sprint(fname,"%s/pvec_%s.hoc",fileroot,origfileroot)
+	file.aopen(fname)
+	file.printf(" // %s  \n",datestr)
+	for pp=0,NPARAMS-1 {
+		file.printf("%s = %g\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp])
+    }
+	file.close()
+}
+
+
 dt=0.1
-QuickRun()
+//QuickRun()
+
+
+//xopen("pvec_TV_RateLevel.hoc")
+set_pvec()
+reps=10
+runprax()
+runprax()
+//runprax()
+
+reps=50
+printprax2()
 
 
 
@@ -620,4 +852,3 @@ for i=0,nchannels-1 golgi[i][0].SetRate2()
 SaveGolgiFilterBank2File()
 }
 }
-

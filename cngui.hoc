@@ -73,9 +73,9 @@ proc ShowGolgiGraphs() {
 }//Dummy Graphs
 
 
-/************************************************************************
+/***********************************************
  *      Auditory Nerve Raster Plot
- *********************************************************************** */
+ ***********************************************/
 
 objref ANFgr[2],ANspksL[nchannels],ANspksH[nchannels],ANFhist,ANFrate[2]
 proc ANSpikes(){local i, icf
@@ -142,9 +142,9 @@ proc PlotAudiogram(){
 }
 
 
-/************************************************************************
- *       Raster Plot of CN cells
- ************************************************************************/
+/*********************************************
+ *		 Raster Plot of CN cells
+ *********************************************/
 
 objref CNgr[4],CNspks[nchannels][4],CNhist,CNrate[4],CNrategr
 proc CNSpikes(){local i, icf

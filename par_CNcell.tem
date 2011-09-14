@@ -32,6 +32,7 @@ public spikes,spiketimes       //storage vectors
 public connect2target, synlist //synapse connection function and list 
 public cf,model,channel 	 //identifying parameters ...
 public set_tstellate, set_dstellate,set_tuberc,set_golgi, nstomho,qt //member functions
+public SaveSpikes
 
 external thresh,Erest
 external ampa_decay,ampa_erev,gly_decay,gly_erev,gly_rise, gaba_decay, gaba_erev,gaba_rise
@@ -205,6 +206,10 @@ proc set_golgi() {
 	}
 }
 
+proc SaveSpikes(){
+    if (object_id(spikes)==0) spikes = new Vector()
+    spikes.append(spiketimes)
+}
 
 endtemplate CNcell
 
@@ -282,6 +287,7 @@ begintemplate Golgicell
 }
 objref tempsout
 /* Obsolete - replaced with SetRate2*/
+/*
 proc SetRate() {local i,j,spon_factor
 	w = new Vector(nchannels)
 	w.indgen()
@@ -300,6 +306,7 @@ proc SetRate() {local i,j,spon_factor
     //print "golgi[",i,"][",j,"]: Process ",pnm.myid," mean ", sout.mean()
     objref tempsout
 }
+*/
 proc SetRate2() {local i,j,spon_factor
     printf("golgi %d", channel)
 	tempsout = new Vector(LSRout[0].size)
@@ -363,8 +370,8 @@ proc GenSpikes2(){local i,j
 
 
 proc SaveSpikes(){
-	if (object_id(spikes)==0) spikes = new Vector() 
-	spikes.append(spiketimes)
+    if (object_id(spikes)==0) spikes = new Vector()
+    spikes.append(spiketimes.c)
 }
 proc ClearSpikes(){
 	spiketimes.resize(0)
