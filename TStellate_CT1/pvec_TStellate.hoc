@@ -1,0 +1,23 @@
+ // Fri May 27 03:09:53 EST 2011
+  
+param.w.x[lsr][ts] = 0.00207781*1
+param.w.x[hsr][ts] = 0.0032825*1
+param.w.x[ds][ts] = 0.000913722*1
+param.w.x[tv][ts] = 0.000916113*1
+param.w.x[glg][ts] = 0.0012793*1
+ // Sat Jun  4 21:09:36 EST 2011
+  
+param.w.x[lsr][ts] = 0.000822193*1
+param.w.x[hsr][ts] = 0.000620294*1
+param.w.x[ds][ts] = 0.000148518*1
+param.w.x[tv][ts] = 0.000195416*1
+param.w.x[glg][ts] = 1.70742e-05*1
+tstellate_gleak_rm = 0.000409819*1
+ // Mon Jun 13 23:58:17 EST 2011
+  
+tstellate_gleak_rm = 0.000494097*1
+tstellate_gkhtbar_rm = 0.000189416*100
+param.w.x[lsr][ts] = 0.000774459*1
+param.w.x[hsr][ts] = 0.000817015*1
+param.w.x[ds][ts] = 6.38011e-05*1
+param.w.x[tv][ts] = 6.46063e-05*1

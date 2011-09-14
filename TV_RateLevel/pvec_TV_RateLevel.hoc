@@ -1,0 +1,20 @@
+ // Mon Sep 12 14:07:59 EST 2011
+  
+param.w.x[lsr][tv] = 0.0021707
+param.w.x[hsr][tv] = 0.0006168
+param.w.x[ds][tv] = 0.0018
+ // Mon Sep 12 19:22:56 EST 2011
+  
+param.w.x[lsr][tv] = 0.0021707
+param.w.x[hsr][tv] = 0.0006168
+param.w.x[ds][tv] = 0.0018
+ // Wed Sep 14 04:08:25 EST 2011
+  
+param.w.x[lsr][tv] = 0.0021707
+param.w.x[hsr][tv] = 0.0006168
+param.w.x[ds][tv] = 0.0018
+ // Wed Sep 14 20:25:29 EST 2011
+  
+param.w.x[lsr][tv] = 0.0021707
+param.w.x[hsr][tv] = 0.0006168
+param.w.x[ds][tv] = 0.0018
