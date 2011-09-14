@@ -67,8 +67,8 @@ centrepoint = 6000
     overlapsweeps()
 
 
-    //Convert Octaves to Frequency (Depends on centre point)
-    func oct2freq1(){local ratio //Standard Musical Octave Calculation,  $1 centre freq, $2 octave factor
+//Convert Octaves to Frequency (Depends on centre point)
+func oct2freq1(){local ratio //Standard Musical Octave Calculation,  $1 centre freq, $2 octave factor
 	ratio = 2.0^($2)
 	return $1*ratio
 	}
