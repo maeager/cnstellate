@@ -18,3 +18,8 @@ param.w.x[ds][tv] = 0.0018
 param.w.x[lsr][tv] = 0.0021707
 param.w.x[hsr][tv] = 0.0006168
 param.w.x[ds][tv] = 0.0018
+ // Thu Sep 15 08:42:24 EST 2011
+  
+param.w.x[lsr][tv] = 0.00234573
+param.w.x[hsr][tv] = 0.00032952
+param.w.x[ds][tv] = 0.000593417

@@ -29,10 +29,9 @@ reset_DS_ClickRecovery()
 
 //Setup this experiment
 xopen("par_experiment_TV_RateLevel.hoc")
-
 xopen("cngui.hoc")
 
-
+//Require 2 TV units with CF = f(position 50)
 objref tuberculoventral[1][2]
 sprint(cmd, "tuberculoventral[%d][%d] = new CNcell(1,cf.x[%d],%d)",0,0,50,50)
 execute1(cmd)
@@ -412,6 +411,7 @@ func meanrate(){ local i localobj spikes
 	return 1000/isi.mean()
 }
 
+level_offset=25
 
 objref tvpstlist, grate[nchannels],dsrate[nchannels],tvrate[nchannels],hsrrate[nchannels],lsrrate[nchannels],rate_level_graph, tvstdev[nchannels],level,fvec
 proc Ratelevel(){local ispl,i,j,count,sum,runtime,cell,xtime localobj tmp	
@@ -429,7 +429,7 @@ proc Ratelevel(){local ispl,i,j,count,sum,runtime,cell,xtime localobj tmp
 	//RefreshParameters()
 	//ANFilterBankRun()
 	for ispl=0,level.size-1 {
-		spl = level.x[ispl]
+		spl = level.x[ispl] - level_offset
 		runtime = startsw()
 		ClearSpikes()
         for j=0,1 tuberculoventral[0][j].spikes = new Vector()
@@ -829,15 +829,15 @@ dt=0.1
 //QuickRun()
 
 
-//xopen("pvec_TV_RateLevel.hoc")
+xopen("TV_RateLevel/pvec_TV_RateLevel.hoc")
 set_pvec()
-reps=10
-runprax()
-runprax()
+//reps=10
+//runprax()
+//runprax()
 //runprax()
 
-reps=50
-printprax2()
+//reps=50
+//printprax2()
 
 
 
