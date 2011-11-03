@@ -33,14 +33,18 @@ xopen("cngui.hoc")
 
 //Require 2 TV units with CF = f(position 50)
 objref tuberculoventral[1][2]
-sprint(cmd, "tuberculoventral[%d][%d] = new CNcell(1,cf.x[%d],%d)",0,0,50,50)
-execute1(cmd)
-sprint(cmd, "tuberculoventral[%d][%d] = new CNcell(1,cf.x[%d],%d)",0,1,50,50)
-execute1(cmd)
 
 //mimick connect_CNcells from CochlearNucleus.hoc
-proc connect_TV() {local i,p,target,source,low,high,range,channel,sourcechannel
-		
+proc create_connect_TV() {local i,p,target,source,low,high,range,channel,sourcechannel
+
+  //Require 2 TV units with CF = f(position 50)
+  objref tuberculoventral[1][2]
+  sprint(cmd, "tuberculoventral[%d][%d] = new CNcell(1,cf.x[%d],%d)",0,0,50,50)
+  execute1(cmd)
+  sprint(cmd, "tuberculoventral[%d][%d] = new CNcell(1,cf.x[%d],%d)",0,1,50,50)
+  execute1(cmd)
+
+
 	print "Connecting cells."
 	sprint(filename,"%s.connect",$s1)
 	outfile.wopen(filename)
@@ -158,14 +162,17 @@ proc connect_TV() {local i,p,target,source,low,high,range,channel,sourcechannel
 		printf("GLG->TV=== done ===\n")
 	}
 	outfile.close()
+	
+	tuberculoventral[0][0].soma.erev_rm = param.tv_erev
+	tuberculoventral[0][1].soma.erev_rm = param.tv_erev
 }
 
-
+param.tv_erev=-65
 param.offset=0
 param.n.x[ds][tv] = 20
 param.bw.x[ds][tv] = 15
 
-connect_TV(fileroot)
+create_connect_TV(fileroot)
 
 //overload SaveSpikes from CochlearNucleus.hoc
 proc SaveSpikes(){local i,j 
@@ -658,6 +665,7 @@ func TV_RateLevel_err2(){local jj,pp,xtime
 		execute1(cmd)
     }
 	//Rearrange synapses is using weight parameters
+	create_connect_TV(fileroot)
 	reset_weights()
 	for i = 0, ds2tvGLYlist.count-1 if(ds2tvGLYlist.object(i).postcell() == tuberculoventral[0][1]) print ds2tvGLYlist.object(i).weight=0
 	TV_BFtone()
@@ -745,7 +753,7 @@ proc runprax2(){
 }
 
 proc runprax(){
-	attr_praxis(0.001, 0.01, 3)
+	attr_praxis(0.001, 0.001, 3)
 	fit_praxis(NPARAMS,"TV_RateLevel_err2",&pvec.x[0])
 }
 
@@ -829,15 +837,16 @@ dt=0.1
 //QuickRun()
 
 
-xopen("TV_RateLevel/pvec_TV_RateLevel.hoc")
+//xopen("TV_RateLevel/pvec_TV_RateLevel.hoc")
 set_pvec()
-//reps=10
-//runprax()
-//runprax()
-//runprax()
+reps=10
+runprax()
+runprax()
+//reps=5
+runprax2()
 
-//reps=50
-//printprax2()
+reps=50
+printprax2()
 
 
 
