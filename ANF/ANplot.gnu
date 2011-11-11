@@ -5,6 +5,11 @@
 # AUTHOR: Michael Eager
 
 reset
+load 'cf.gpi'
+# eps
+set terminal postscript eps size 7,5 enhanced color \
+    font 'Helvetica,20'
+set output 'ANplot.eps'
 
 # wxt
 # set terminal wxt size 350,262 enhanced font 'Verdana,10' persist
@@ -68,16 +73,20 @@ set zrange [ 0 : 4000 ]
 set tics nomirror out
 
 unset key
+set xlabel 'Time (ms)'
 
 
-set palette defined (0 "white",50 "#00ffff", 500 "blue",1000 "yellow",2000 "red",5000 "#990000")
+
+set palette defined (0 "white",50 "#00ffff", 100 "blue",500 "yellow",2000 "red",5000 "#990000")
 set cbrange [0:5000]
+set cblabel "Firing Rate (spikes/s)"
+# set logscale cb
 unset ytics
 
 set parametric
-set parametric
-splot '<  sed -ne "11~6p" /media/data/sounds/bruce/Cat/FilteredFile_Notch-sb6-1oct_L50_Del10_Dur95.dat' matrix u ($1/50000):2:3 w pm3d
-# splot '<  sed -ne "11~6p" /media/data/sounds/bruce/FilteredFile_Notch-sb10-1oct_L50_Del20_Dur49.dat' matrix u ($1/50000):2:3 w pm3d
+
+#splot '<  sed -ne "11~6p" /media/data/sounds/bruce/Cat/FilteredFile_Notch-sb6-1oct_L50_Del10_Dur95.dat' matrix u ($1/50000):2:3 w pm3d
+splot '<  sed -ne "11~6p" /media/data/sounds/bruce/FilteredFile_Notch-sb10-1oct_L50_Del20_Dur49.dat' matrix u ($1/50000):2:3 w pm3d
 
 
 unset pm3d
@@ -90,15 +99,21 @@ unset key
 #
 set lmargin at screen 0.10
 set rmargin at screen 0.30
-
-unset ytics
-set xtics mirror
-
+set border 3
+set ytics nomirror in 0,10,99
+set xtics nomirror out 0,100,400
 
 set xrange [*:*]
 set parametric
-plot '<sed -ne "11~6p" /media/data/sounds/bruce/Cat/FilteredFile_Notch-sb6-1oct_L50_Del10_Dur95.dat| awk "{sum=0; for(i=1; i<=NF; i++){sum+=\$i}; sum/=NF; print sum}"' u 1:0 w l 
-# plot '<sed -ne "11~6p" /media/data/sounds/bruce/FilteredFile_Notch-sb10-1oct_L50_Del20_Dur49.dat| awk "{sum=0; for(i=1; i<=NF; i++){sum+=\$i}; sum/=NF; print sum}"' u 1:0 w l 
+
+set ylabel 'Centre Frequency (kHz)'
+
+set ytics axis nomirror norotate ("0.2  0" 0, sprintf("%.2f  25",cf(25)/1000.0) 25,sprintf("%.2f  50",cf(50)/1000.0) 50,sprintf("%.2f  75",cf(75)/1000.0) 75,"48  99" 99)
+
+
+#plot '<sed -ne "11~6p" /media/data/sounds/bruce/Cat/FilteredFile_Notch-sb6-1oct_L50_Del10_Dur95.dat| awk "{sum=0; for(i=1; i<=NF; i++){sum+=\$i}; sum/=NF; print sum}"' u 1:0 w l 
+plot '<sed -ne "11~6p" /media/data/sounds/bruce/FilteredFile_Notch-sb10-1oct_L50_Del20_Dur49.dat| awk "{sum=0; for(i=1; i<=NF; i++){sum+=\$i}; sum/=NF; print sum}"'  u 1:0 t "HSR" w l, \
+     '<sed -ne "9~6p" /media/data/sounds/bruce/FilteredFile_Notch-sb10-1oct_L50_Del20_Dur49.dat| awk "{sum=0; for(i=1; i<=NF; i++){sum+=\$i}; sum/=NF; print sum}"' u 1:0 t "LSR" w l lc "black"
 
 
 
