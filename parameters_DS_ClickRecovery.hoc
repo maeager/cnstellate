@@ -36,8 +36,8 @@ celsius							= 37
 secondorder						=2
 
 //Input stimulus
-   cfhi							=64000
-   cflo							=200
+   cfhi							= 64000
+   cflo							= 200
    dur							= 0.3    //duration of stim (seconds)
    spl							= 100
    srate						= 500000
@@ -50,8 +50,8 @@ secondorder						=2
    ANmodel						= 6      //Zilany Bruce model
    species						= 2      //Rat
    nrep							= 1        //nrep is number of repetitions within stimulus
-    usesavedfilterbanks			=1
-    tstop						=300
+    usesavedfilterbanks			= 1
+    tstop						= 300
 //Default click times
    objref clicktimes
    clicktimes					= new Vector()
@@ -63,7 +63,7 @@ secondorder						=2
 print "Optimisation parameters"
 NPARAMS							=7
 objref pvec,fvec,pvec_ranges,pvec_name,pvec_factor
-pvec							= new Vector(NPARAMS) //contains the parameters to be fitted
+pvec			  				= new Vector(NPARAMS) //contains the parameters to be fitted
 pvec_ranges						= new Matrix(NPARAMS,2) // (min,max) pairs for each param
 pvec_name						= new List() //names of parameters in String list
 pvec_factor						= new Vector(NPARAMS,1)
@@ -88,14 +88,14 @@ pvec_name.append(new String("gaba_rise"))
 pvec_name.append(new String("dstellate_gleak_rm"))
 
 //min
- for i							=0,NPARAMS-1 pvec_ranges.x[i][0]= 0.000001
+ for i	=0,NPARAMS-1 pvec_ranges.x[i][0]= 0.000001
 
 //max
- for i							=0,NPARAMS-1 pvec_ranges.x[i][1]= 0.03
+ for i	=0,NPARAMS-1 pvec_ranges.x[i][1]= 0.03
 
 // cmd is a strdef variable that should be used in local routines and not passed across proc's
 proc set_pvec(){local pp
-    for pp						=0,NPARAMS-1 {
+    for pp=0,NPARAMS-1 {
         sprint(cmd,"pvec.x[%d]	= %s / pvec_factor.x[%d]\n",pp,pvec_name.object(pp).s,pp)
         execute1(cmd)
     }

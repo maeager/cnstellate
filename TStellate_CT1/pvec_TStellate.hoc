@@ -1,23 +1,36 @@
- // Fri May 27 03:09:53 EST 2011
+ // Fri Nov 25 12:30:43 EST 2011
   
-param.w.x[lsr][ts] = 0.00207781*1
-param.w.x[hsr][ts] = 0.0032825*1
-param.w.x[ds][ts] = 0.000913722*1
-param.w.x[tv][ts] = 0.000916113*1
-param.w.x[glg][ts] = 0.0012793*1
- // Sat Jun  4 21:09:36 EST 2011
+param.n.x[lsr][ts] = 0.00994258*1000
+param.n.x[hsr][ts] = 0.0111412*1000
+param.n.x[ds][ts] = 0.0211264*1000
+param.n.x[tv][ts] = 0.021*1000
+param.n.x[glg][ts] = 0.0149578*1000
+param.w.x[lsr][ts] = 0.002*1
+param.w.x[hsr][ts] = 0.003*1
+param.w.x[ds][ts] = 0.0001*1
+param.w.x[tv][ts] = 0.0002*1
+param.w.x[glg][ts] = 0.0005*1
+tstellate_gleak_rm = 0.000473539*1
+ // Mon Nov 28 14:51:25 EST 2011
   
-param.w.x[lsr][ts] = 0.000822193*1
-param.w.x[hsr][ts] = 0.000620294*1
-param.w.x[ds][ts] = 0.000148518*1
-param.w.x[tv][ts] = 0.000195416*1
-param.w.x[glg][ts] = 1.70742e-05*1
-tstellate_gleak_rm = 0.000409819*1
- // Mon Jun 13 23:58:17 EST 2011
+tstellate_erev_rm = 0.0527193*-1000
+tstellate_ghbar_rm = 0.000347005*1
+tstellate_gleak_rm = 0.000263401*1
+param.n.x[lsr][ts] = 0.0105138*1000
+param.n.x[hsr][ts] = 0.010676*1000
+param.n.x[ds][ts] = 0.0195531*1000
+param.n.x[tv][ts] = 0.0202273*1000
+param.n.x[glg][ts] = 0.0145615*1000
+tstellate_gkabar_ka = 0.0148656*1
+ // Wed Nov 30 17:37:20 EST 2011
   
-tstellate_gleak_rm = 0.000494097*1
-tstellate_gkhtbar_rm = 0.000189416*100
-param.w.x[lsr][ts] = 0.000774459*1
-param.w.x[hsr][ts] = 0.000817015*1
-param.w.x[ds][ts] = 6.38011e-05*1
-param.w.x[tv][ts] = 6.46063e-05*1
+param.n.x[lsr][ts] = 0.012*1000
+param.n.x[hsr][ts] = 0.010432*1000
+param.n.x[ds][ts] = 0.0209368*1000
+param.n.x[tv][ts] = 0.0211256*1000
+param.n.x[glg][ts] = 0.0149972*1000
+param.w.x[lsr][ts] = 0.001*1
+param.w.x[hsr][ts] = 0.00294874*1
+param.w.x[ds][ts] = 0.0001*1
+param.w.x[tv][ts] = 0.0002*1
+param.w.x[glg][ts] = 0.0005*1

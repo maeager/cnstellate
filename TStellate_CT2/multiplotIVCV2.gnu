@@ -26,7 +26,7 @@ plot [-10:90] 'psth_0.25.dat' i 0 u 1:2 w boxes lc "black"
 
 set key outside horiz center top  nobox
 
-#load '../Responses/default.gnu'
+#load '/media/data/Work/cnstellate/Responses/default.gnu'
 set xtics nomirror out ("0-10" 0,"10-20" 1,"20-30" 2,"30-40" 3,"40-50" 4)
 set xrange [-0.5:4.5]
 set yrange [0.1:0.5]
@@ -41,7 +41,7 @@ unset obj
 set label 1 "B" at screen 0.55, screen 1 font "Helvetica,24"
 
 plot 'psth_10.dat' i 1 u 1:2 t "Test" w lp ls 1 lc "black", \
-     '../TStellate/PaoliniBalancedInh-Fig2.png.dat' i 0 u 1:2:3 notitle w yerr lc rgb '#0060ad', \
+     '/media/data/Work/cnstellate/TStellate/PaoliniBalancedInh-Fig2.png.dat' i 0 u 1:2:3 notitle w yerr lc rgb '#0060ad', \
      '' i 0 u 1:2 t "Ref" w lp lc rgb '#0060ad' lt 1 lw 2 pt 5 ps 1.5
 
 unset key

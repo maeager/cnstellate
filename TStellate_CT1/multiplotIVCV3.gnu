@@ -36,8 +36,8 @@ set ytics nomirror out 0.1,0.1,0.4
 unset obj
 set label 1 "B" at screen 0.55, screen 1 font "Helvetica,24"
 plot '< tail -4 TStellate.Fit.dat |  awk ''{print $3}'' ' u ($0):1 t "Test" w lp ls 1 lc 'black', \
-'../TStellate/PaoliniBalancedInh-Fig2.png.dat' i 1 u 1:2:3 notitle w yerr lc rgb '#0060ad', \
-'' i 1 u 1:2 t "Ref" w lp lc rgb '#0060ad' lt 1 lw 2 pt 5 ps 1.5
+     '/media/data/Work/cnstellate/TStellate/PaoliniBalancedInh-Fig2.png.dat' i 1 u 1:2:3 notitle w yerr lc rgb '#0060ad', \
+     '' i 1 u 1:2 t "Ref" w lp lc rgb '#0060ad' lt 1 lw 2 pt 5 ps 1.5
 
 unset key
 #load '../Responses/default.gnu'

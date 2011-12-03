@@ -42,17 +42,17 @@ delay					= 0.02
 dur						= 0.045
 ramplngth				= 0.005
 dutycycle				= 0.8        // get an extra 40msec post-tone
-cfhi					= 40000
-cflo					= 400
+cfhi					= 48000
+cflo					= 200
 srate					= 100000      // 500k is no longer needed
 stimtdres				= 1/srate
 sg_rate					= 20000
 sg_tdres				= 1/sg_rate
-tstop					=110
+tstop					= 110
 ANmodel					= 6
 species					= 2 //Rat
 audiogram_file			= "rat_bruce_audiogram.dat"
-reps					=25
+reps					= 25
 usesavedfilterbanks		= 1
 
 
@@ -215,8 +215,9 @@ CT1_data()
 //ANFilterBankRun()
 
 binwidth=0.5
-objref iv,meaniv,psthgr
+objref iv,meaniv,psthgr,tstellate_spikes
 psthgr = new Graph()
+
 proc RunTStellate(){
     objref iv,meaniv,tvec
 //    ClearSpikes()
@@ -224,13 +225,13 @@ proc RunTStellate(){
     iv.record(&tstellate[whichcell][0].soma.v(0.5))
     meaniv = new Vector(tstop/dt + 1,0)
     //tstellate[whichcell][0].spikes.resize(0)
-	tstellate[whichcell][0].spikes = new List()
+	tstellate_spikes = new List()
     for ireps = 0, reps-1 {
         GenSpikes2()
         print ireps
         run()
         //SaveSpikes()
-        tstellate[whichcell][0].spikes.append(tstellate[whichcell][0].spiketimes.c)
+        tstellate_spikes.append(tstellate[whichcell][0].spiketimes.c)
         for i=0,tstop/dt-1{
          if (iv.x[i] > thresh) iv.x[i] = thresh
         }
@@ -247,22 +248,22 @@ proc RunTStellate(){
   CalcIVMeasures(meaniv)
   //psth = tstellate[whichcell][0].spikes.histogram(0,110,binwidth)
   //psth.plot(psthgr,binwidth) psthgr.exec_menu("View = plot")
-  PSTHcell(tstellate[whichcell][0].spikes,10,1)
+  PSTHcell(tstellate_spikes,10,1)
 }
 
 
 proc reset_TStellate(){local ii
     print "updating features for T stellate optimisation routines"
     for ii = 0,nchannels-1 {
-        if(ii == 20 || ii == 38 || ii == 51){
-            sprint(cmd,"tstellate[%d][0].soma.gnabar_rm  = tstellate_gnabar_rm",ii) execute1(cmd)
-            sprint(cmd,"tstellate[%d][0].soma.gkhtbar_rm = tstellate_gkhtbar_rm",ii) execute1(cmd)
-            sprint(cmd,"tstellate[%d][0].soma.gleak_rm   = tstellate_gleak_rm",ii) execute1(cmd)
-            sprint(cmd,"tstellate[%d][0].soma.erev_rm    = tstellate_erev_rm",ii) execute1(cmd)
-            sprint(cmd,"tstellate[%d][0].soma.ghbar_rm   = tstellate_ghbar_rm",ii) execute1(cmd)
-            sprint(cmd,"tstellate[%d][0].soma.gkabar_ka  = tstellate_gkabar_ka",ii) execute1(cmd)
-        }
-    }
+//        if(ii == 20 || ii == 38 || ii == 51){
+sprint(cmd,"tstellate[%d][0].soma.gnabar_rm  = tstellate_gnabar_rm",ii) execute1(cmd)
+sprint(cmd,"tstellate[%d][0].soma.gkhtbar_rm = tstellate_gkhtbar_rm",ii) execute1(cmd)
+sprint(cmd,"tstellate[%d][0].soma.gleak_rm   = tstellate_gleak_rm",ii) execute1(cmd)
+sprint(cmd,"tstellate[%d][0].soma.erev_rm    = tstellate_erev_rm",ii) execute1(cmd)
+sprint(cmd,"tstellate[%d][0].soma.ghbar_rm   = tstellate_ghbar_rm",ii) execute1(cmd)
+sprint(cmd,"tstellate[%d][0].soma.gkabar_ka  = tstellate_gkabar_ka",ii) execute1(cmd)
+//        }
+}
 }
 
 
@@ -292,5 +293,235 @@ proc IVMeasures(){local offset
 	print "level of initial depolarization         ", onset_ratio
 	print "adaptation of sustained depolarization  ", adaptation_ratio
 	print "post-tone hyperpolarization             ", offset_hyperpol
-
+	
 }
+
+
+
+//mimick connect_CNcells from CochlearNucleus.hoc
+proc connect_TS() {local i,p,target,source,low,high,range,channel,sourcechannel
+	
+	objref tstellate[nchannels][nTSperchannel]
+	
+  for i_chan = 0, nchannels-1 {
+    if (nTSperchannel > 0) for j_cell = 0, nTSperchannel-1 {
+        sprint(cmd, "tstellate[%d][%d] = new CNcell(0,cf.x[%d],%d)",i_chan,j_cell,i_chan,i_chan)
+        execute1(cmd)
+    }
+  }	
+	
+	
+	
+	
+	print "Connecting cells."
+	sprint(filename,"%s.connect",$s1)
+	outfile.wopen(filename)
+	
+	
+	objref 	hsr2tsAMPAlist,	lsr2tsAMPAlist,	glg2tsGABAlist,	ds2tsGLYlist,	tv2tsGLYlist,	ts2tsAMPAlist
+	
+	hsr2tsAMPAlist = new List()
+	lsr2tsAMPAlist = new List()
+	glg2tsGABAlist = new List()
+	ds2tsGLYlist  = new List() 
+	tv2tsGLYlist  = new List() 
+	ts2tsAMPAlist  = new List()
+	
+	
+
+if( ( param.n.getval(hsr,ts) > 0 ) && ( nTSperchannel != 0 ) ){
+outfile.printf("\n%d %d\n",hsr,ts)
+ for channel = 0, nchannels-1{
+  for target = 0, nTSperchannel-1 {
+   for i=0, param.n.getval(hsr,ts)-1{
+    //Choose source channel
+    sourcechannel = random.normal(channel,param.bw.getval(hsr,ts)/2)
+    if ((sourcechannel - int(sourcechannel)) > 0.5 ){
+        sourcechannel = 1+int(sourcechannel)
+    } else { sourcechannel = int(sourcechannel) }
+    if (sourcechannel <=0 ) sourcechannel=0
+    if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
+    //Choose random source from available cells in sourcechannel
+    source = random.discunif(0,HSRsperchannel-1)
+	//print "HSR[",sourcechannel,"][",source,"] connected to TS[",channel,"][",target,"]"
+	sprint(cmd, "tstellate[%d][%d].soma hsr2tsAMPAlist.append( new NetCon( an.HSR[%d][%d], tstellate[%d][%d].AMPA, thresh,param.delay.getval(hsr,ts), param.w.getval(hsr,ts)))",channel,target,sourcechannel,source,channel,target)
+	execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
+	outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
+
+   }
+  }
+    p = 100*(channel)/(nchannels)
+    printf("\rHSR->TS === %3d%% ===",p)
+    flushf()
+    doNotify() // Although this slows down cell creation, the
+               // process is so long that we have to allow the
+               // user to quit during the creation.
+ }
+ printf("\rHSR->TS === done ===\n")
+}
+
+if( ( param.n.getval(lsr,ts) > 0 ) && ( nTSperchannel != 0 ) ){
+ outfile.printf("\n%d %d\n",lsr,ts)
+ for channel = 0, nchannels-1{
+  for target = 0, nTSperchannel-1 {
+   for i=0, param.n.getval(lsr,ts)-1{
+    //Choose source channel
+    sourcechannel = random.normal(channel,param.bw.getval(lsr,ts)/2)
+    if ((sourcechannel - int(sourcechannel)) > 0.5 ){
+        sourcechannel = 1+int(sourcechannel)
+    } else { sourcechannel = int(sourcechannel) }
+    if (sourcechannel <=0 ) sourcechannel=0
+    if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
+    //Choose random source from available cells
+    source = random.discunif(0,LSRsperchannel-1)
+ //print "LSR[",sourcechannel,"][",source,"] connected to TS[",channel,"][",target,"]"
+ sprint(cmd, "tstellate[%d][%d].soma lsr2tsAMPAlist.append( new NetCon( an.LSR[%d][%d], tstellate[%d][%d].AMPA, thresh,param.delay.getval(lsr,ts), param.w.getval(lsr,ts)))",channel,target,sourcechannel,source,channel,target)
+        execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
+  outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
+
+   }
+  }
+    p = 100*(channel)/(nchannels)
+    printf("\rLSR->TS=== %3d%% ===",p)
+    flushf()
+    doNotify() // Although this slows down cell creation, the
+               // process is so long that we have to allow the
+               // user to quit during the creation.
+ }
+ printf("\rLSR->TS=== done ===\n")
+}
+	
+	
+	print "Connecting CN network cells to TS cells"
+	
+	
+if( ( param.n.getval(ts,ts) > 0 ) && ( nTSperchannel > 1 ) ){
+ outfile.printf("%d %d\n",ts,ts)
+ for channel = 0, nchannels-1{
+  for target = 0, nTSperchannel-1 {
+   for i=0, param.n.getval(ts,ts)-1{
+    //Choose random source from available cells
+    source = random.discunif(0,nTSperchannel-1)
+    while( source == target)  source = random.repick()  //Don't connect to self
+ // print "TS[",channel,"][",source,"] connected to "TS[",channel,"][",target,"]"
+ // tscells[channel*numTSperchannel+target].connect_pre(tscells[source], 1, param.delay.getval(ts,ts), param.w.getval(ts,ts))
+ sprint(cmd, "tstellate[%d][%d].soma ts2tsAMPAlist.append( new NetCon(&v(0.5), tstellate[%d][%d].AMPA, thresh,param.delay.getval(ts,ts), param.w.getval(ts,ts)))",sourcechannel,source,channel,target)
+        execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
+    outfile.printf("%d %d %d %d\n",channel,source,channel,target)
+
+   }
+  }
+        p = 100*(channel)/(nchannels)
+    printf("\rTS->TS=== %3d%% ===",p)
+    flushf()
+    doNotify() // Although this slows down cell creation, the
+               // process is so long that we have to allow the
+               // user to quit during the creation.
+ }
+  printf("\rTS->TS=== done ===\n")
+}
+
+
+if( ( param.n.getval(tv,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nTVperchannel != 0 ) ){
+ outfile.printf("\n%d %d\n",tv,ts)
+ for channel = 0, nchannels-1{
+  for target = 0, nTSperchannel-1 {
+   for i=0, param.n.getval(tv,ts)-1{
+    //Choose source channel
+    sourcechannel = random.normal(channel,param.bw.getval(tv,ts)/2)
+    if ((sourcechannel - int(sourcechannel)) > 0.5 ){
+        sourcechannel = 1+int(sourcechannel)
+    } else { sourcechannel = int(sourcechannel) }
+    if (sourcechannel <=0 ) sourcechannel=0
+    if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
+    //Choose random source from available cells
+    source = random.discunif(0,nTVperchannel-1)
+ // print "TV[",sourcechannel,"][",source,"] connected to "TS[",channel,"][",target,"]"
+				sprint(cmd, "tuberculoventral[%d][%d].soma tv2tsGLYlist.append( new NetCon(&v(0.5), tstellate[%d][%d].GlyR,  thresh,param.delay.getval(tv,ts), param.w.getval(tv,ts)))",sourcechannel,source,channel,target)
+        execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
+   outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
+
+   }
+  }
+        p = 100*(channel)/(nchannels)
+    printf("\rTV->TS=== %3d%% ===",p)
+    flushf()
+    doNotify() // Although this slows down cell creation, the
+               // process is so long that we have to allow the
+               // user to quit during the creation.
+ }
+  printf("\rTV->TS=== done ===\n")
+}
+
+if( ( param.n.getval(ds,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nDSperchannel != 0 ) ){
+ outfile.printf("\n%d %d\n",ds,ts)
+ for channel = 0, nchannels-1{
+  for target = 0, nTSperchannel-1 {
+   for i=0, param.n.getval(ds,ts)-1{
+    //Choose source channel
+    sourcechannel = random.normal(channel,param.bw.getval(ds,ts)/2)
+    if ((sourcechannel - int(sourcechannel)) > 0.5 ){
+        sourcechannel = 1+int(sourcechannel)
+    } else { sourcechannel = int(sourcechannel) }
+    if (sourcechannel <=0 ) sourcechannel=0
+    if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
+    //Choose random source from available cells
+    source = random.discunif(0,nDSperchannel-1)
+ // print "DS[",sourcechannel,"][",source,"] connected to "TS[",channel,"][",target,"]"
+				sprint(cmd, "dstellate[%d][%d].soma ds2tsGLYlist.append( new NetCon(&v(0.5), tstellate[%d][%d].GlyR, thresh,param.delay.getval(ds,ts), param.w.getval(ds,ts)))",sourcechannel,source,channel,target)
+        execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
+  outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
+  }
+  }
+        p = 100*(channel)/(nchannels)
+    printf("\rDS->TS=== %3d%% ===",p)
+    flushf()
+    doNotify() // Although this slows down cell creation, the
+               // process is so long that we have to allow the
+               // user to quit during the creation.
+ }
+  printf("\rDS->TS=== done ===\n")
+}
+
+
+if( ( param.n.getval(glg,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nGperchannel != 0 ) ){
+ outfile.printf("\n%d %d\n",glg,ts)
+ for channel = 0, nchannels-1{
+  for target = 0, nTSperchannel-1 {
+   for i=0, param.n.getval(glg,ts)-1{
+    //Choose source channel
+    sourcechannel = random.normal(channel,param.bw.getval(glg,ts)/2)
+    if ((sourcechannel - int(sourcechannel)) > 0.5 ){
+        sourcechannel = 1+int(sourcechannel)
+    } else { sourcechannel = int(sourcechannel) }
+   if (sourcechannel <=0 ) sourcechannel=0
+    if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
+
+    //Choose random source from available cells
+    source = random.discunif(0,nGperchannel-1)
+ // print "GLG[",sourcechannel,"][",source,"] connected to "TS[",channel,"][",target,"]"
+   if (LSR2GLG ==1 ) { //Conductance model of golgi
+	   sprint(cmd, "golgi[%d][%d].soma glg2tsGABAlist.append( new NetCon(&v(0.5),tstellate[%d][%d].GABAA, thresh,param.delay.getval(glg,ts), param.w.getval(glg,ts)))",sourcechannel,source,channel,target)
+        execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
+   } else { //filter based model of golgi
+		   sprint(cmd, "glg2tsGABAlist.append( new NetCon( golgi[%d][%d].sg, tstellate[%d][%d].GABAA, thresh,param.delay.getval(glg,ts), param.w.getval(glg,ts)))",sourcechannel,source,channel,target)
+        execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
+   }
+     outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
+  }
+  }
+        p = 100*(channel)/(nchannels)
+    printf("\rGLG->TS=== %3d%% ===",p)
+    flushf()
+    doNotify() // Although this slows down cell creation, the
+               // process is so long that we have to allow the
+               // user to quit during the creation.
+ }
+  printf("\rGLG->TS=== done ===\n")
+}
+
+
+	outfile.close()
+	
+}
+

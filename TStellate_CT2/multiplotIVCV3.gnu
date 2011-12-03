@@ -36,7 +36,7 @@ set ytics nomirror out 0.1,0.1,0.4
 unset obj
 set label 1 "B" at screen 0.55, screen 1 font "Helvetica,24"
 plot '< tail -4 TStellate.Fit.dat |  awk ''{print $3}'' ' u ($0):1 t "Test" w lp ls 1 lc 'black', \
-'../TStellate/PaoliniBalancedInh-Fig2.png.dat' i 1 u 1:2:3 notitle w yerr lc rgb '#0060ad', \
+'/media/data/Work/cnstellate/TStellate/PaoliniBalancedInh-Fig2.png.dat' i 1 u 1:2:3 notitle w yerr lc rgb '#0060ad', \
 '' i 1 u 1:2 t "Ref" w lp lc rgb '#0060ad' lt 1 lw 2 pt 5 ps 1.5
 
 unset key
@@ -80,15 +80,16 @@ set ylabel "Ratio" font "Helvetica,18"
 set y2label "Relative MP (mV)" font "Helvetica,18"
 set xtics nomirror out ("Onset" 0,"Adaptation" 1,"Offset " 2)
 set ytics nomirror 0,1,2
-set y2tics nomirror 0,3,9
+set y2tics nomirror 0,3,12
 set tics out
 #set autoscale  y
 #set autoscale y2
-set yrange [0:2]
-set y2range [0:9]
+
+set yrange [0:1.1]
+set y2range [-2:*]
 set xrange [-0.5:2.5]
 set x2range [-0.5:2.5]
-set label 1 "D" at screen 0.55,screen 0.5 font "Helvetica,24"
+set label 1 "F" at screen 0.55,screen 0.5 font "Helvetica,24"
 
 plot '< tail -7 TStellate.Fit.dat | head -1 | awk ''{print $3}'' ' axes x1y1 t "Test" w lp lc "black" lt 1 lw 2 pt 7 ps 1.5,\
      '< tail -7 TStellate.Fit.dat | head -1 | awk ''{print $2}'' ' axes x1y1 t "Ref" w lp ls 1 pt 5 ps 1.5, \

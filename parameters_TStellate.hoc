@@ -51,18 +51,18 @@ tstellate_gkabar_ka						= 0.01539
 print "Optimisation parameters for T Stellate cell"
 
   objref pvec,fvec,pvec_ranges,pvec_name,pvec_factor
-  pvec									= new Vector()//NPARAMS) //contains the parameters to be fitted
-  pvec_name								= new List()             //names of parameters in String list
-  pvec_factor							= new Vector() //NPARAMS,1)
+  pvec			= new Vector()//NPARAMS) //contains the parameters to be fitted
+  pvec_name		= new List()			 //names of parameters in String list
+  pvec_factor	= new Vector() //NPARAMS,1)
   //mul factor
-  //for i								=0,NPARAMS-1 pvec_factor.x[i] = 1
+  //for i		=0,NPARAMS-1 pvec_factor.x[i] = 1
 
-  NPARAMS								=6
-  pvec_ranges							= new Matrix(NPARAMS,2) // (min,max) pairs for each param
+  NPARAMS		= 11
+  pvec_ranges	= new Matrix(NPARAMS,2) // (min,max) pairs for each param
   //min
-  for i									=0,NPARAMS-1 pvec_ranges.x[i][0]= 0.00001
+  for i			=0,NPARAMS-1 pvec_ranges.x[i][0]= 0.00001
   //max
-  for i									=0,NPARAMS-1 pvec_ranges.x[i][1]= 0.003
+  for i			=0,NPARAMS-1 pvec_ranges.x[i][1]= 0.003
 
   proc add_param(){
 //	  add to parameter vector used in optimisation
@@ -78,23 +78,32 @@ print "Optimisation parameters for T Stellate cell"
  pvec_name.append(new String("tstellate_gleak_rm"))	pvec.append(0.000473539) pvec_factor.append(1)  
  pvec_ranges.x[pvec.size()-1][0]		=5e-05  
  pvec_ranges.x[pvec.size()-1][1]		=0.005
- pvec_name.append(new String("tstellate_gkhtbar_rm"))	pvec.append(0.000189416 )	 pvec_factor.append(100) 
- pvec_ranges.x[pvec.size()-1][0]		=0.0001  
- pvec_ranges.x[pvec.size()-1][1]		=0.0005
+// pvec_name.append(new String("tstellate_gkhtbar_rm"))	pvec.append(0.000189416 )	 pvec_factor.append(100) 
+// pvec_ranges.x[pvec.size()-1][0]		=0.0001  
+// pvec_ranges.x[pvec.size()-1][1]		=0.0005
   pvec_name.append(new String("param.w.x[lsr][ts]"))	pvec.append(0.0008)	pvec_factor.append(1)
   pvec_name.append(new String("param.w.x[hsr][ts]"))	pvec.append(0.0008)	pvec_factor.append(1)
   pvec_name.append(new String("param.w.x[ds][ts]"))	    pvec.append(0.000170)	pvec_factor.append(1)
   pvec_name.append(new String("param.w.x[tv][ts]"))	    pvec.append(0.00010)	    pvec_factor.append(1)
-  //pvec_name.append(new String("param.w.x[glg][ts]"))	pvec.append(0.000130)	pvec_factor.append(1)
-
+  pvec_name.append(new String("param.w.x[glg][ts]"))	pvec.append(0.000130)	pvec_factor.append(1)
+  
+  pvec_name.append(new String("param.n.x[lsr][ts]"))	pvec.append(0.015)	   pvec_factor.append(1000)
+  pvec_name.append(new String("param.n.x[hsr][ts]"))	pvec.append(0.008)	   pvec_factor.append(1000)
+  pvec_name.append(new String("param.n.x[ds][ts]"))	    pvec.append(0.017)  pvec_factor.append(1000)
+  pvec_name.append(new String("param.n.x[tv][ts]"))	    pvec.append(0.015)   pvec_factor.append(1000)
+  pvec_name.append(new String("param.n.x[glg][ts]"))	pvec.append(0.005)	pvec_factor.append(1000)
+  //Set ranges for 'n' variables assuming all five are selected above
+  for i=pvec.size()-5,pvec.size()-1 {
+   pvec_ranges.x[i][0]		=0.001  // 1 to
+   pvec_ranges.x[i][1]		=0.1    // 100
+  }
+  
   // pvec_name.append(new String("tstellate_gnabar_rm"))	pvec.append(0.23677)	 pvec_factor.append(1)
   //pvec_name.append(new String("tstellate_gkhtbar_rm"))	pvec.append(0.0189416 )	 pvec_factor.append(1)
-
-
   /* // Reversal potential
    pvec_name.append(new String("tstellate_erev_rm"))	    pvec.append(0.0055 )     pvec_factor.append(-10000)
    pvec_ranges.x[4][0]					=0.0045
-   pvec_ranges.x[4][1]					=0.0070
+   pvec_ranges.x[4][1]					=0.00700
   */
   //  pvec_name.append(new String("tstellate_ghbar_rm"))	pvec.append(6.20392e-04) pvec_factor.append(10)
 
@@ -108,22 +117,22 @@ print "Optimisation parameters for T Stellate cell"
   // cmd is a strdef variable that should be used in local routines and not passed across procedures
 strdef cmd
 proc set_pvec(){local pp
-    for pp								=0,NPARAMS-1 {
-		sprint(cmd,"pvec.x[%d]			= %s / %g ",pp,pvec_name.object(pp).s,pvec_factor.x[pp])
+    for pp=0,NPARAMS-1 {
+		sprint(cmd,"pvec.x[%d]= %s / %g ",pp,pvec_name.object(pp).s,pvec_factor.x[pp])
 		execute1(cmd)
     }
 }
 
 proc set_params(){local pp
-    for pp								=0,NPARAMS-1 {
-		sprint(cmd,"%s					= %g * %g ",pvec_name.object(pp).s,pvec.x[pp],pvec_factor.x[pp])
+    for pp=0,NPARAMS-1 {
+		sprint(cmd,"%s= %g * %g ",pvec_name.object(pp).s,pvec.x[pp],pvec_factor.x[pp])
 		execute1(cmd)
     }
 }
 
 proc show_pvec(){local pp
     pvec.printf
-    for pp								=0,NPARAMS-1 {
+    for pp =0,NPARAMS-1 {
 		sprint(cmd,"print %s ",pvec_name.object(pp).s)
 		execute1(cmd)
     }

@@ -19,16 +19,28 @@ xopen("par_CNcell.tem")      // CN cell template
 //Previous optimisation parameters
 xopen("pvec_Golgi_RateLevel.hoc")
 xopen("pvec_DS_ClickRecovery.hoc")
-xopen("pvec_TV_Notch.hoc")
+xopen("TV_RateLevel/pvec_TV_RateLevel.hoc")
+xopen("pvec_TV_Notch_spl50.hoc")
+
+//Parameters for this optimisation
 xopen("parameters_TStellate.hoc")
 
 //--- Setup CN Stellate Network model
  xopen("CochlearNucleus.hoc")         // model set-up
-// xopen("par_CochlearNucleus.hoc")         // model set-up
+// xopen("par_CochlearNucleus.hoc")   // parallel model set-up
 
 
  xopen("calcisilag.hoc")
-
+ 
+ 
+ cfhi=48000
+ cflo=200
+ RefreshCF()
+ 
+ 
+ 
+ 
+ 
 // reset_DS_ClickRecovery()
 // param.w.x[hsr][ds]*	=10
 // param.w.x[ds][tv]/	=10
@@ -36,8 +48,9 @@ xopen("parameters_TStellate.hoc")
 // usesavedfilterbanks	=1
 
 
-param.w.x[hsr][ts]		= 0.0005
-param.w.x[lsr][ts]		= 0.0005
+//Initial values
+param.w.x[hsr][ts]		= 0.001
+param.w.x[lsr][ts]		= 0.001
 param.w.x[ds][ts]		= 0.0001
 param.w.x[tv][ts]		= 0.0002
 param.w.x[glg][ts]		= 0.0005
@@ -50,9 +63,8 @@ param.delay.x[hsr][tv]  = 0.5
 param.delay.x[hsr][tv]  = 0.5
 param.delay.x[lsr][glg] = 1
 
-
-param.n.x[hsr][ts]		= 20
-param.n.x[lsr][ts]		= 30
+param.n.x[hsr][ts]		= 10
+param.n.x[lsr][ts]		= 10
 param.n.x[ds][ts]		= 20
 param.n.x[tv][ts]		= 20
 param.n.x[glg][ts]		= 15
@@ -63,9 +75,13 @@ objref nil
  connect_cells(fileroot)
  connect_CNcells(fileroot)
 
- xopen("psth.hoc")
- xopen("par_experiment_TStellate.hoc")
+xopen("psth.hoc")
 
+ xopen("par_experiment_TStellate.hoc")
+ CS_data()
+ RefreshParameters()
+ ANFilterBankRun()
+ SetInputRates()
 
 strdef datestr,grlbl
 
@@ -89,20 +105,20 @@ func TStellate_err( ) {local jj,pp,xtime,error,penaly,sustainedrate,inputresista
     execute1(cmd)
     }
   //plot variables
-  /*{
-    tgr[0].line($&2[0], $&2[1])
-    tgr[0].flush()
-    tgr[1].line($&2[1], $&2[2])
-    tgr[1].flush()
-    doNotify()
-    print $1, $&2[0], $&2[2], $&2[3]
-    }
-  */
+  // {
+  //   tgr[0].line($&2[0], $&2[1])
+  //   tgr[0].flush()
+  //   tgr[1].line($&2[1], $&2[2])
+  //   tgr[1].flush()
+  //   doNotify()
+  //   print $1, $&2[0], $&2[2], $&2[3]
+  //   }
+  
 
 
-  reset_weights()
+  connect_TS(fileroot)
   reset_TStellate()
-    RunTStellate()
+  RunTStellate()
 
     //Analyse spikes
     doNotify()
@@ -122,7 +138,7 @@ func TStellate_err( ) {local jj,pp,xtime,error,penaly,sustainedrate,inputresista
   errorvec.interpolate(tvec,ivdata[0],ivdata[1])
   IVMeasures(tvec,errorvec,ref,2.5)
   IVMeasures(tvec,meaniv,test,2.5)
-  PSTHcell(tstellate[whichcell][0].spikes,10,1)
+  PSTHcell(tstellate_spikes,10,1)
   test.copy(cvISI, 3, 0, 3, 1, 1)
   ref.copy(CV_data, 3, 0, 3, 1, 1)
   
@@ -236,14 +252,10 @@ file.printf("%s = %g*%g\n",pvec_name.object(pp).s,pvec.x[pp],pvec_factor.x[pp])
 }
 file.close()
 reps = cur_reps
-PSTHcell(tstellate[whichcell][0].spikes,10,2)
-PSTHcell(tstellate[whichcell][0].spikes,1,2)
-PSTHcell(tstellate[whichcell][0].spikes,0.25,2)
+PSTHcell(tstellate_spikes,10,2)
+PSTHcell(tstellate_spikes,1,2)
+PSTHcell(tstellate_spikes,0.25,2)
 }
-
-
-
-
 
 
 xopen("cngui.hoc")
@@ -275,9 +287,8 @@ proc TSPanel(){
   xbutton("Run Fitting Procedure","runprax()")
   xbutton("QuickRun","QuickRun()")
   xvalue("PSTH resolution", "binwidth")
-  xbutton("PSTH","PSTHcell(tstellate[whichcell][0].spikes,binwidth,1)")
-  xbutton("Print PSTH","PSTHcell(tstellate[whichcell][0].spikes,binwidth,2)")
-
+  xbutton("PSTH","PSTHcell(tstellate_spikes,binwidth,1)")
+  xbutton("Print PSTH","PSTHcell(tstellate_spikes,binwidth,2)")
   xpanel()
 }
 
@@ -285,7 +296,6 @@ TSPanel()
 nrncontrolmenu()
 
 objref nil
-for i=0,99 if(!(i == 20 || i == 38 || i == 51)) tstellate[i][0] = nil
 access tstellate[whichcell][0].soma
 xopen("reset_weights.hoc")
 xopen("voltage.ses")
@@ -346,18 +356,48 @@ xopen("jitter.hoc")
 // set_pvec()
 
 
-// //CS_data()
-// //RefreshParameters()
-// //ANFilterBankRun()  //Generate new AN instant. rates
-// //SetInputRates()
-// //QuickRun()
+proc optimise_CS(){
+CS_data()
+RefreshParameters()
+ANFilterBankRun()  //Generate new AN instant. rates
+SetInputRates()
+QuickRun()
+runprax()
 //runprax()
-//printprax()
-//print "CS Done"
-// //PSTHcell(tstellate[whichcell][0].spikes,10,2)
-// //PSTHcell(tstellate[whichcell][0].spikes,0.25,2)
+printprax()
+print "CS Done"
+PSTHcell(tstellate_spikes,10,2)
+PSTHcell(tstellate_spikes,0.25,2)
+}
 
 
+proc optimise_CT1(){
+CT1_data()
+RefreshParameters()
+ANFilterBankRun()  //Generate new AN instant. rates
+SetInputRates()
+QuickRun()
+runprax()
+//runprax()
+printprax()
+print "CT1 Done"
+PSTHcell(tstellate_spikes,10,2)
+PSTHcell(tstellate_spikes,0.25,2)
+}
+
+proc optimise_CT2(){
+CT2_data()
+RefreshParameters()
+ANFilterBankRun()  //Generate new AN instant. rates
+SetInputRates()
+QuickRun()
+runprax()
+//runprax()
+printprax()
+print "CT2 Done"
+PSTHcell(tstellate_spikes,10,2)
+PSTHcell(tstellate_spikes,0.25,2)
+}
 
 // //runprax()
 // //printprax()
