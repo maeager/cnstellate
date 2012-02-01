@@ -1,7 +1,9 @@
 // calcisilag.hoc
-// Olfactory bulb network model: calculate inter-spike interval
-//                             : and lag time statistics
-// Andrew Davison, The Babraham Institute, 2000.
+// Adapted by Michael Eager from  Andrew Davison (The Babraham Institute, 2000) 
+// Original Olfactory bulb network model: calculate inter-spike interval and lag time statistics
+// 
+
+
 
 /* The following procedures are defined for writing results to file
  * fileroot is the filename root. A suffix will be added to
@@ -46,9 +48,9 @@ proc CalcVectorStrength() {local i,j,k,sumxi,sumyi,n,period,thetai,binwidth
 
 	n=$o1.sum()
 	if (n <= 0) return
-
-		      binwidth=$2   
-		      period = $3  
+	
+	binwidth=$2   
+	period = $3  
 	for i=0, $o1.size()-1 {
 		theta = (((binwidth*i)%period) /period)*2*PI
 		sumxi+=$o1.x[i]*cos(theta)
@@ -56,7 +58,8 @@ proc CalcVectorStrength() {local i,j,k,sumxi,sumyi,n,period,thetai,binwidth
 	}
 	VectorStrength=sqrt((sumxi^2)+(sumyi^2))/n
 	RayleighTest=2*n*(VectorStrength)^2
-}
+	
+    }
 
 objref period_psth[nchannels]
 proc period_hist(){local i,j,period
