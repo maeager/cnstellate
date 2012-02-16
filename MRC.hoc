@@ -106,15 +106,18 @@ reps=10
 proc MaskedResponseArea(){local i,j,count,sum, channel, hi, lo,runtime, incr, startf, stopf 
 	objref MRA[sp.cells.count],MRAgr, mrafreq,psth
 	//objref mratimes
-	psth				=new Vector(1001)
+	
+	reps				= $1	
+	
+	psth				= new Vector(1001)
 	mrafreq				= new Vector()
 startf					= startsw()
 	for i=0,sp.cells.count-1 { MRA[i] = new Vector() }
 //	mratimes			= new Vector()
 	count				=0
-	reps				=$1
+
 	AdditiveNoise		= 1
-	NoiseLevel			= 50		//dbSPL max amplitude
+	NoiseLevel			= 50		//db SPL max amplitude
 	stimtype			= 1
 	tonefreq			= cf.x[icentre]	//Hz
 	dur					= 0.095 	//duration of tone segment (seconds)

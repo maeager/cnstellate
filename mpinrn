@@ -1,14 +1,16 @@
 #!/bin/sh
+## Execute neuron in parallel
 
-
-NRNHOME="$HOME/neuron/nrn-7.1/nrnmpi"
-NRNBIN="$NRNHOME/i686/bin/"
+ARCH=`arch`
+NRNHOME="$HOME/neuron/nrn/nrnmpi"
+NRNBIN="${NRNHOME}/${ARCH}/bin/"
 NRNIV="${NRNBIN}nrniv"
 LNRNMECH="./mpi/.libs/libnrnmech.so"
-MPIBIN="$HOME/mpich2-1.0/bin/"
+#MPIBIN="$HOME/mpich2-1.0/bin/"
+MPIBIN=/usr/bin/
 MPIRUN="${MPIBIN}mpirun"
 
-"${MPIRUN}" -np 1 "${NRNIV}" -dll "${LNRNMECH}" "$@"
+"${MPIRUN}" -np 3 "${NRNIV}" -dll "${LNRNMECH}" "$@"
 
 
 
