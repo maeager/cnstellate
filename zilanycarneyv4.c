@@ -66,7 +66,7 @@ void IHCAN(double *px, double cf, int nrep, double tdres, int totalstim,
   int    i, n, delaypoint, grdelay[1], bmorder, wborder;
   double wbout1, wbout, ohcnonlinout, ohcout, tmptauc1, tauc1, rsigma, wb_gain;
 
-  nrep = 1; /* stim should be what you want */
+  nrep = 1; /* restrict stim should be what is presented in px, not multiples */
 
   /* Allocate dynamic memory for the temporary variables */
   ihcouttmp  = makevector(totalstim*nrep);
