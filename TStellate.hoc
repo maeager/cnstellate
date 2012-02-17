@@ -87,8 +87,9 @@ strdef datestr,grlbl
 
 objref errorvec,tempcf,indcf,refvec,gr,ref,test,weightvec
 gr = new Graph()
-
-func TStellate_err( ) {local jj,pp,xtime,error,penaly,sustainedrate,inputresistance
+ref_shift=0
+test_shift=0
+func TStellate_err( ) {local jj,pp,xtime,error,penalty,sustainedrate,inputresistance
 
     //check for bad values
     for pp=0,NPARAMS-1 {
@@ -136,8 +137,10 @@ func TStellate_err( ) {local jj,pp,xtime,error,penaly,sustainedrate,inputresista
   test = new Vector(7,0)
 
   errorvec.interpolate(tvec,ivdata[0],ivdata[1])
-  IVMeasures(tvec,errorvec,ref,2.5)
-  IVMeasures(tvec,meaniv,test,2.5)
+  ref_shift = (errorvec.max_ind(220,250)/10) - 2.5
+  test_shift = (meaniv.max_ind(220,250)/10) -2.5
+  IVMeasures(tvec,errorvec,ref,ref_shift)
+  IVMeasures(tvec,meaniv,test,test_shift)
   PSTHcell(tstellate_spikes,10,1)
   test.copy(cvISI, 3, 0, 3, 1, 1)
   ref.copy(CV_data, 3, 0, 3, 1, 1)
@@ -147,18 +150,19 @@ func TStellate_err( ) {local jj,pp,xtime,error,penaly,sustainedrate,inputresista
   if(sustainedrate < 10) penalty += 12 - sustainedrate //penalty for lack of spikes during tone
   if(checkedtrials < 0.9*reps) penalty += 5
   if(cvISI.x[0] > 0.2) penalty += 5
-  if(cvISI.x[1] > 0.4 || cvISI.x[1] == 0) penalty += 10
-  if(cvISI.x[2] > 0.5 || cvISI.x[2] == 0) penalty += 10
-  if(cvISI.x[3] > 0.5 || cvISI.x[3] == 0) penalty += 10
+   if(cvISI.x[0] > 0.3) penalty += 5
+  if(cvISI.x[1] > 0.5 || cvISI.x[1] == 0) penalty += 10
+  if(cvISI.x[2] > 0.55 || cvISI.x[2] == 0) penalty += 10
+  if(cvISI.x[3] > 0.55 || cvISI.x[3] == 0) penalty += 10
   inputresistance = rn()  
   if(inputresistance < 30 || inputresistance > 400) penalty += 10
 //  weightvec.x[0]/=10 //initial depolarisation approx -50 to -30  mV
 //  weightvec.x[1]*=20 //adaptation approx 0.2-0.5
 //  weightvec.x[2]/=10 //post-tone hyperpolarisation approx 0 to -5 mV
-  weightvec.x[3]*=10 //CV
-  weightvec.x[4]*=10
-  weightvec.x[5]*=10
-  weightvec.x[6]*=10
+  weightvec.x[3]*=2 //CV
+  weightvec.x[4]*=2
+  weightvec.x[5]*=2
+  weightvec.x[6]*=2
   
   print error=sqrt(ref.meansqerr(test,weightvec))+penalty
 
@@ -234,6 +238,7 @@ file.printf("#  tonefreq = %g\n",tonefreq)
 param.printparams(file,"#") //let Network Parameters print the struct
 file.printf("#\n#IV Measures  Reference Test\n")
 file.printf("#RMP\t%g\t%g\n", ivdata[1].mean(0,ivdata[0].indwhere(">",0)),meaniv.mean(ivdata[0].indwhere(">",-10),ivdata[0].indwhere(">",0)))
+file.printf("#IVshift\t%g\t%g\n", ref_shift, test_shift)
 file.printf("#IVOnset\t%g\t%g\n", ref.x[0], test.x[0])
 file.printf("#IVAdaptation\t%g\t%g\n", ref.x[1], test.x[1])
 file.printf("#IVOffset\t%g\t%g\n",ref.x[2], test.x[2])
@@ -361,9 +366,15 @@ CS_data()
 RefreshParameters()
 ANFilterBankRun()  //Generate new AN instant. rates
 SetInputRates()
+xopen("TStellate_CS/Nov25/pvec_TStellate.hoc")
 QuickRun()
 runprax()
-//runprax()
+printprax()
+runprax()
+printprax()
+runprax()
+printprax()
+runprax()
 printprax()
 print "CS Done"
 PSTHcell(tstellate_spikes,10,2)
@@ -376,9 +387,15 @@ CT1_data()
 RefreshParameters()
 ANFilterBankRun()  //Generate new AN instant. rates
 SetInputRates()
+xopen("TStellate_CT1/Nov25/pvec_TStellate.hoc")
 QuickRun()
 runprax()
-//runprax()
+printprax()
+runprax()
+printprax()
+runprax()
+printprax()
+runprax()
 printprax()
 print "CT1 Done"
 PSTHcell(tstellate_spikes,10,2)
@@ -390,9 +407,15 @@ CT2_data()
 RefreshParameters()
 ANFilterBankRun()  //Generate new AN instant. rates
 SetInputRates()
+xopen("TStellate_CT2/Nov25/pvec_TStellate.hoc")
 QuickRun()
 runprax()
-//runprax()
+printprax()
+runprax()
+printprax()
+runprax()
+printprax()
+runprax()
 printprax()
 print "CT2 Done"
 PSTHcell(tstellate_spikes,10,2)
@@ -431,4 +454,4 @@ PSTHcell(tstellate_spikes,0.25,2)
 // print "CT2 Done"
 
 // //RunTStellate()
-
+tstellate_erev_rm = -55

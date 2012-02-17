@@ -92,3 +92,12 @@ return tmp_rate_level
 	
 }
 
+
+proc reset_TV_RateLevel(){local i
+  
+  for i=0,nchannels -1 {
+  	tuberculoventral[i][0].soma.erev_rm = param.tv_erev
+  }
+}
+
+

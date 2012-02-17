@@ -251,6 +251,12 @@ proc RunTStellate(){
   PSTHcell(tstellate_spikes,10,1)
 }
 
+tstellate_gnabar_rm						= 0.23677
+tstellate_gkhtbar_rm					= 0.0189416
+tstellate_gleak_rm						= 0.000473539
+tstellate_erev_rm						= -55
+tstellate_ghbar_rm						= 6.20392e-05
+tstellate_gkabar_ka						= 0.01539
 
 proc reset_TStellate(){local ii
     print "updating features for T stellate optimisation routines"

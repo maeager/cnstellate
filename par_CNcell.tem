@@ -81,7 +81,7 @@ proc init() { local length,RM, p, q, r, Atotal
     GlyR.e 		= gly_erev
 	
     GABAA = new Exp2Syn(0.5)
-	synlist.append(GABAA)
+    synlist.append(GABAA)
     GABAA.tau2 	= gaba_decay
     GABAA.tau1 	= gaba_rise
     GABAA.e 	= gaba_erev
