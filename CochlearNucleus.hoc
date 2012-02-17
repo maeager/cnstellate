@@ -945,12 +945,12 @@ proc multi_run(){local ireps,xtime,starttime
   starttime = startsw()
     ClearSpikes()
     for ireps = 0, reps-1 {
-        GenSpikes()
+        GenInputSpikes()
         run()
         SaveSpikes()
 		
     }
-  xtime=startsw()-xtime
+  starttime=startsw()-xtime
   print "Total multi_run time: ",starttime, " Per rep: ", starttime/reps 
 	
 }
@@ -959,11 +959,12 @@ proc multi_run2(){local ireps,xtime
     ClearSpikes()
     for ireps = 0, reps-1 {
         GenSpikes2()
+	print " Rep ", ireps, " of ", reps
         run()
         SaveSpikes()
     }
   xtime=	 startsw()-xtime
-  print "multi_run time: ",xtime, " Per rep: ", xtime/reps 
+  print "multi_run2 time: ",xtime, " Per rep: ", xtime/reps 
 	
 }
 
@@ -976,6 +977,7 @@ proc ClearInputSpikes(){local ii
 
 proc ClearSpikes(){local ii,jj
     ClearInputSpikes()
+    //Resize spike trains stored in the cell templates
     for ii=0,nchannels-1{
         for jj=0,nTSperchannel-1{
 			sprint(cmd, "tstellate[%d][%d].spikes.resize(0)",ii,jj)

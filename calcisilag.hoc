@@ -45,29 +45,100 @@ proc CalcVectorStrength() {local i,j,k,sumxi,sumyi,n,period,thetai,binwidth
 // From Kajikawa and Hackett: J Neurosci meth 
 	VectorStrength=0
         RayleighTest=0
-
+    sumxi=0
+    sumyi=0
 	n=$o1.sum()
 	if (n <= 0) return
 	
 	binwidth=$2   
 	period = $3  
 	for i=0, $o1.size()-1 {
-		theta = (((binwidth*i)%period) /period)*2*PI
-		sumxi+=$o1.x[i]*cos(theta)
-		sumyi+=$o1.x[i]*sin(theta)
+		thetai = (((binwidth*i)%period) /period)*2*PI
+		sumxi+=$o1.x[i]*cos(thetai)
+		sumyi+=$o1.x[i]*sin(thetai)
 	}
 	VectorStrength=sqrt((sumxi^2)+(sumyi^2))/n
 	RayleighTest=2*n*(VectorStrength)^2
-	
+}
+
+
+
+proc CalcVectorStrengthSpikes() {local i,sumxi,sumyi,n,period,thetai,t_start, t_end localobj spikes
+
+	// $1 cell type
+        //$2 cell number
+	//$3 period length T in ms (i.e. 1000/AM_modfreq)
+        //$4 start time, ignore spikes before this
+        //$5 end time
+// From Kajikawa and Hackett: J Neurosci meth
+// Also Chang et al. 10.1073/pnas.0508239102
+//The Rayleigh statistic is 2n(vector strength) (6), with critical values of 5.991 for a= 0.05 and 13.816 for a = 0.001.
+//6. Shannon, R. V., Zeng, F. G., Kamath, V., Wygonski, J. & Ekelid, M. (1995) Science 270, 303304.
+    if($1==ts) spikes = tstellate[$2][0].spikes
+    if($1==tv) spikes = tuberculoventral[$2][0].spikes
+    if($1==ds) spikes = dstellate[$2][0].spikes
+    if($1==glg) spikes = golgi[$2][0].spikes
+    if($1==hsr){
+	  spikes = new Vector()
+	  for i=0,HSRsperchannel-1 {
+	    if( an.HSRspikes[$2][i].size() == 0) {
+	      spikes.append(an.HSRspiketimes[$2][i])
+	    } else {
+	      spikes.append(an.HSRspikes[$2][i])
+	    }
+	  }
+    }
+    if($1==lsr){
+        
+	    spikes = new Vector()
+	    for i=0,LSRsperchannel-1 {
+	      if( an.LSRspikes[$2][i].size() == 0) {
+		spikes.append(an.LSRspiketimes[$2][i])
+	      } else {
+		spikes.append(an.LSRspikes[$2][i])
+	      }
+	    }
+      
     }
 
+    sumxi=0
+    sumyi=0
+	VectorStrength=0
+    RayleighTest=0
+	n=spikes.size()
+    if (n <= 0) return
+    period = $3
+    t_start = $4
+    if (t_start < 0  || t_start > tstop) tstart =0
+    t_end = $5
+    if (t_end < 0  || t_end > tstop || t_end <= t_start) t_end = tstop
+
+    for i=0, n-1 {
+        if( spikes.x[i] >= t_start && spikes.x[i] <= t_end){
+		  thetai =  (((spikes.x[i])%period)/period)*2*PI
+		  sumxi+=cos(thetai)
+		  sumyi+=sin(thetai)
+        }
+	}
+	VectorStrength=sqrt((sumxi^2)+(sumyi^2))/n
+	RayleighTest=2*n*(VectorStrength)^2
+}
+
+
+
+
 objref period_psth[nchannels]
-proc period_hist(){local i,j,period
+proc period_hist(){local i,j,period, periodsize
     //reformat the PSTH to fold into period T of modulation freq.
     //$1 is the modulation freq in Hz
  period = int((1000/$1)/binwidth)
+ if ($1 >= 600) {
+   periodsize=period+1
+ } else {
+    periodsize = period
+ }
  for i = 0, nchannels-1 {
-    period_psth[i] = new Vector(period,0)
+    period_psth[i] = new Vector(periodsize,0)
     for j=0,psth[0].size()-1 period_psth[i].x[j%period] += psth[i].x[j] 
  } 
 }
@@ -295,6 +366,7 @@ func phaselock_index() { local n,i1,j1,i2,j2
 // Procedures for writing out data --------------------------------
 
 proc calc_psth(){local i
+ objref psth[nchannels]
  for i = 0, nchannels-1 {
     psth[i] = new Vector()
     if($1==ts) psth[i] = tstellate[i][0].spikes.histogram(0,tstop,binwidth)
@@ -375,6 +447,35 @@ proc print_periodpsth() { // 3 args - celltype, str: filename root, str: name of
   }
   outfile.close()
 
+    //Print vector strength and rayleigh coefficient
+  sprint(filename,"%s/vsSPIKES.%d.dat",$s2,$1)
+  outfile.wopen(filename)
+  outfile.printf("# %s Vector strength and Rayleigh Coefficient for period %d Hz\n",$s3,AM_modfreq)
+  for i=0, nchannels-1{
+      CalcVectorStrengthSpikes($1,i,1000/AM_modfreq, t_ignore_before*binwidth, t_ignore_after*binwidth)
+outfile.printf("%d\t%0.6f\t%8.2f\t%d\n",i,VectorStrength,RayleighTest, psth[i].sum())
+  }
+  outfile.close()
+
+//Print spectrogram of PSTH hist
+  sprint(filename,"%s/spctFULL.%d.dat",$s2,$1)
+  outfile.wopen(filename)
+  outfile.printf("# %s cell PSTH spectrogram\n",$s3)
+  for i=0, nchannels-1{
+    work.resize(0)
+    work.spctrm(psth[i])
+ if (work.size() >= 2 ){
+    for j=0,work.size-1 outfile.printf("%d\t%d\t%8.4f\n",i,j,work.x[j])
+    outfile.printf("\n")
+    } else {
+    outfile.printf("%d\t0.0\t0.0\n",i)
+    }
+  }
+  outfile.close()
+
+  
+  
+  
 //Print spectrogram of period hist
   sprint(filename,"%s/spct.%d.dat",$s2,$1)
   outfile.wopen(filename)
@@ -386,7 +487,11 @@ proc print_periodpsth() { // 3 args - celltype, str: filename root, str: name of
 	work.spctrm(period_psth[i])
 	for j=0,work.size-1 outfile.printf("%d\t%d\t%8.4f\n",i,j,work.x[j])
         outfile.printf("\n")
-	file.printf("%d\t%g\t%g",i,work.x[1],work.x[0])
+	if (work.size >= 2) {
+	    file.printf("%d\t%g\t%g",i,work.x[1],work.x[0])
+	} else {
+	   file.printf("%d\t%g\t%g",i,0,work.x[0])
+	}  
   }
   outfile.close()
     file.close()
