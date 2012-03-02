@@ -1,0 +1,264 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+strdef sstr1,sstr2
+proc SAVE_RESPONSES(){
+    sstr1 = $s1  //Response type
+    sstr2 = $s2 //Cell type
+    sprint(filename,"%s/%s_%d_%g",fileroot, sstr1,sstr2,spl,tonefreq) 
+}
+num_stim=0
+total_time=0
+
+proc CREATEFILTERBANKS(){
+    RefreshParameters()
+    ANFilterBankRun()
+    print "num_stim ",num_stim=num_stim+1," total_time ",total_time=total_time+(stim.size/srate)
+}
+
+proc MULTIRUN(){local nreps
+    RefreshParameters()
+    ANFilterBankRun()
+    SetInputRates()
+    multi_run2()   
+}
+
+load_file("calcisilag.hoc")
+strdef fileroot_,cmd
+
+proc print_results() {
+	t_ignore_before=stimdelay*1000/binwidth
+	t_ignore_after=(stimdelay+dur+ramplngth*2)*1000/binwidth
+	sprint(cmd,"mkdir -p ./%s",fileroot_)
+	system(cmd)
+	print_an_raster(fileroot_)
+	print_ts_raster(fileroot_)
+	print_ds_raster(fileroot_)
+	print_tv_raster(fileroot_)
+	print_golgi_raster(fileroot_)
+	print_an_hist(dt*3,fileroot_)
+	print_smooth_hist(dt*3, fileroot_)
+	//   print_isi_stats(fileroot_)
+	//   print_isis(fileroot_)
+    //print_si(fileroot_)
+	
+	binwidth=0.3
+	print_psth(ts,fileroot_,"T stellate")
+	print_psth(tv,fileroot_,"Tuberculoventral")
+	print_psth(ds,fileroot_,"D stellate")
+	print_psth(glg,fileroot_,"Golgi")
+	print "Results printed to files"
+}
+
+
+
+
+
+
+
+
+/*********Default Parameters *************/
+ANsoundspath = "/media/data/sounds"  //local sounds path
+ANmodel      = 6      //Zilany Bruce model
+species      = 1      //Cat
+nrep         = 1      //nrep is number of reps of stimulus
+cfhi         = 48000
+cflo         = 200
+srate        = 100000.0
+stimtdres    = 1/srate
+sg_rate      = 50000
+sg_tdres     = 1/sg_rate
+usesavedfilterbanks=1
+RefreshCF()
+/****************************************/
+
+
+
+// Run RLF
+proc RateLevelFunction(){
+	tonefreq=cf.x[50]
+	reps=50
+	ramplngth	= 0.005
+	dur		= 0.045    //duration of stim (seconds)
+	stimdelay	= 0.02      //sec
+	stimtype	= 1      //tone
+	reps		= 25
+	t_ignore_before = stimdelay*1000/binwidth
+	t_ignore_after  = (stimdelay+dur+ramplngth)*1000/binwidth
+	
+	for (spl=50;spl<=90;spl=spl+20){
+		//CREATEFILTERBANKS()
+		MULTIRUN()
+		sprint(fileroot_,"%s/RateLevel/%g",fileroot,spl)
+		print_results()
+		
+		//    SAVEDATA()
+		//    if act=0 BREAK
+	}
+	
+	//Calculate
+	//fit RL
+	//Find thresh, Max rate, spon rate, DR
+	//30dB re thresh PSTH -> ISI, CV
+	
+	
+}//RateLevelFunction
+
+
+// Run Noise RF
+proc NoiseRateLevelFunction(){
+	ramplngth	= 0.005
+	dur		= 0.045    //duration of stim (seconds)
+	stimdelay	= 0.02      //sec
+	stimtype=6
+	t_ignore_before=stimdelay*1000/binwidth
+	t_ignore_after=(stimdelay+dur+ramplngth)*1000/binwidth
+	
+	for (spl=40;spl<=120;spl=spl+5){
+		MULTIRUN()
+		sprint(fileroot_,"%s/NoiseRateLevel/%g",fileroot,spl)
+		print_results()
+		
+		//    SAVEDATA()
+		//    if act=0 BREAK
+	}
+	//fit NRL
+	//Find thresh, Max rate, spon rate, DR
+	
+	sprint(fileroot_,"%s/NoiseRateLevel",fileroot)
+	print_results()
+	
+	
+}
+
+// Run tone RF with 50%noise
+proc MaskedResponseCurve(){local ifreq,freq_increment, myCF
+	stimtype=7 //tone and noise
+	ramplngth	= 0.005
+	dur		= 0.045    //duration of stim (seconds)
+	stimdelay	= 0.02      //sec
+	
+	tonefreq=cf.x[50]
+	NoiseLevel=50 //(50% mark SPL)
+	dur       = 0.024    //duration of stim (seconds)
+	
+	freq_increment=cf.x[50]/8
+	myCF = cf.x[50]
+	//Masked RL
+	for (spl=20; spl<=90;spl=spl+5){
+		MULTIRUN()
+		sprint(fileroot_,"%s/MaskedRateLevel/%g",fileroot,spl)
+		print_results()
+		
+	}
+	
+	//MRC Masked Responses curve
+	spl=80
+	for (ifreq=20; ifreq<= 70; ifreq= ifreq+1) {
+		tonefreq = cf.x[ifreq]
+		MULTIRUN()
+		sprint(fileroot_,"%s/MaskedResponseCurve/%d",fileroot,int(tonefreq))
+		print_results()
+	}
+
+	//  for (tonefreq=myCF-freq_increment, tonefreq>= cf.x[0]; tonefreq= tonefreq-freq_increment) {
+	//  MULTIRUN()
+	//  }
+}
+
+//Run RA
+//1dB steps
+//1/8th octave steps
+//short stim  25 ms
+proc ResponseArea(){local myCF,ifreq
+	stimtype=1 //tone
+	dur       = 0.024    //duration of stim (seconds)
+	freq_increment=cf.x[50]/8
+	myCF = cf.x[50]
+	for (spl=0; spl<=90; spl=spl+2.5){
+		
+		for (ifreq=20; ifreq<= 70; ifreq= ifreq+1) {
+			tonefreq = cf.x[ifreq]
+			MULTIRUN()
+			sprint(fileroot_,"%s/ResponseArea/%g/%d",fileroot,spl,int(tonefreq))
+			print_results()
+			
+		}
+	}
+	
+	//    for (tonefreq=CF+freq_increment; tonefreq<= myCF*2; tonefreq= tonefreq+freq_increment/ {
+	//    	MULTIRUN()
+	//	SAVEDATA
+	//	if act=0 BREAK
+	//    }
+	// for tonefreq=CF-freq_increment, tonefreq>= myCF/8; tonefreq= tonefreq-freq_increment {
+	//    	MULTIRUN()
+	//	SAVEDATA
+	//	if act=0 BREAK
+	//    }
+	
+	
+}
+
+//Run MTF
+proc ModulationTransferFunction(){
+	stimtype	= 3 	//AM tone
+	dur		= 0.149
+	ramplngth	= 0.002
+	stimdelay	= 0.01
+	tonefreq	= $1
+        reps		= 50
+	tstop		= 170
+	for (spl=80; spl >= 20; spl=spl-20){
+
+//	  for (AM_modfreq=400;AM_modfreq<=700;AM_modfreq=AM_modfreq+50) {
+for (AM_modfreq=50;AM_modfreq<=1200;AM_modfreq=AM_modfreq+50) {
+	    MULTIRUN()
+	    //	SAVEDATA
+	    sprint(fileroot_,"%s/ModulationTransferFunction/%d/%d",fileroot,spl,AM_modfreq)
+	    print_results()
+	    binwidth=0.1
+	    print_periodpsth(ts,fileroot_,"T stellate")
+	    print_periodpsth(tv,fileroot_,"Tuberculoventral")
+	    print_periodpsth(ds,fileroot_,"D stellate")
+	    print_periodpsth(glg,fileroot_,"Golgi")
+	    print_periodpsth(hsr,fileroot_,"HSR ANFs")
+	    print_periodpsth(lsr,fileroot_,"LSR ANFs")	  }
+		//plot rMTF
+		//plot tMTF
+		
+	}
+	
+}
+
+
+//Run f0 response
+proc F0_Response(){
+	stimtype=3 	//AM tone
+	dur=0.149
+	ramplngth	= 0.002
+	stimdelay=0.01
+	tonefreq=$1
+	AM_modfreq=150
+        reps=50
+	for (spl=0; spl <= 90; spl=spl+5){
+    	    MULTIRUN()
+	    //	SAVEDATA
+	    sprint(fileroot_,"%s/F0Response/%d",fileroot,spl)
+	    print_results()
+	    binwidth=0.1
+	    print_periodpsth(ts,fileroot_,"T stellate")
+	    print_periodpsth(tv,fileroot_,"Tuberculoventral")
+	    print_periodpsth(ds,fileroot_,"D stellate")
+	    print_periodpsth(glg,fileroot_,"Golgi")
+	    print_periodpsth(hsr,fileroot_,"HSR ANFs")
+	    print_periodpsth(lsr,fileroot_,"LSR ANFs")	    
+	  } 
+	  	//plot rMTF
+		//plot tMTF
+		
+}
+	
+
+
+
+
