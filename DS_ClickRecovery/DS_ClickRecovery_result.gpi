@@ -4,14 +4,14 @@
 # gnuplot is available from http://www.gnuplot.info
 ## FONTSIZE 18
 reset
-set terminal postscript eps enhanced defaultplex \
-    leveldefault color  \
-    solid dashlength 1.0 linewidth 2.0 butt noclip \
-    palfuncparam 2000,0.003 \
-    "Helvetica" 18 
+#set terminal postscript eps enhanced defaultplex \
+#    leveldefault color  \
+#    solid dashlength 1.0 linewidth 2.0 butt noclip \
+#    palfuncparam 2000,0.003 \
+#    "Helvetica" 18 
 # set term postscript enhanced color solid "Helvetica" 16
-set output "DS_ClickRecovery_result.eps"
-load 'default.gpi'
+#set output "DS_ClickRecovery_result.eps"
+load '/media/data/Work/cnstellate/DS_ClickRecovery/default.gpi'
 set border 3 linewidth 1.5
 set ytics nomirror
 set xtics nomirror
@@ -43,32 +43,32 @@ set style line 4 lt 1 lw 1 pt 0 pi -1 ps 2  lc rgb '#777777'
 # set size 2.5,1
 set multiplot layout 2,2 #xscale 2
 
-plot "DS_ClickRecovery.Fit0.dat" using 1:5 with l notitle ls 4, \
- "DS_ClickRecovery.Fit1.dat" using 1:5 with l notitle ls 4, \
- "DS_ClickRecovery.Fit2.dat" using 1:5 with l notitle ls 4, \
- "DS_ClickRecovery.Fit3.dat" using 1:5 with l notitle ls 4, \
- "DS_ClickRecovery.Fit4.dat" using 1:5 with l notitle ls 4, \
- "DS_ClickRecovery.Fit5.dat" using 1:5 with l notitle ls 4, \
- "DS_ClickRecovery.Fit6.dat" using 1:5 with l notitle ls 4, \
- "DS_ClickRecovery.Fit7.dat" using 1:5 with l notitle ls 4, \
- "DS_ClickRecovery.Fit8.dat" using 1:5 with l notitle ls 4, \
- "DS_ClickRecovery.Fit9.dat" using 1:5 with l notitle ls 4, \
- "DS_ClickRecovery.Fit4.dat" using 1:5 with l notitle ls 4, \
- "DS_ClickRecovery.Fit11.dat" using 1:5 with l notitle ls 4, \
- "DS_ClickRecovery.Fit12.dat" using 1:5 with l notitle ls 4, \
- "DS_ClickRecovery.Fit13.dat" using 1:5 with l notitle ls 4, \
- "DS_ClickRecovery.Fit14.dat" using 1:5 with l notitle ls 4, \
- "DS_ClickRecovery.Fit15.dat" using 1:5 with l notitle ls 4, \
- "DS_ClickRecovery.Fit16.dat" using 1:5 with l notitle ls 4, \
- "DS_ClickRecovery.Fit17.dat" using 1:5 with l notitle ls 4, \
- "DS_ClickRecovery.Fit18.dat" using 1:5 with l notitle ls 4, \
- "DS_ClickRecovery.Fit19.dat" using 1:5 with l notitle ls 4
+plot "/media/data/Work/cnstellate/DS_ClickRecovery/DS_ClickRecovery.Fit0.dat" using 1:5 with l notitle ls 4, \
+ "/media/data/Work/cnstellate/DS_ClickRecovery/DS_ClickRecovery.Fit1.dat" using 1:5 with l notitle ls 4, \
+ "/media/data/Work/cnstellate/DS_ClickRecovery/DS_ClickRecovery.Fit2.dat" using 1:5 with l notitle ls 4, \
+ "/media/data/Work/cnstellate/DS_ClickRecovery/DS_ClickRecovery.Fit3.dat" using 1:5 with l notitle ls 4, \
+ "/media/data/Work/cnstellate/DS_ClickRecovery/DS_ClickRecovery.Fit4.dat" using 1:5 with l notitle ls 4, \
+ "/media/data/Work/cnstellate/DS_ClickRecovery/DS_ClickRecovery.Fit5.dat" using 1:5 with l notitle ls 4, \
+ "/media/data/Work/cnstellate/DS_ClickRecovery/DS_ClickRecovery.Fit6.dat" using 1:5 with l notitle ls 4, \
+ "/media/data/Work/cnstellate/DS_ClickRecovery/DS_ClickRecovery.Fit7.dat" using 1:5 with l notitle ls 4, \
+ "/media/data/Work/cnstellate/DS_ClickRecovery/DS_ClickRecovery.Fit8.dat" using 1:5 with l notitle ls 4, \
+ "/media/data/Work/cnstellate/DS_ClickRecovery/DS_ClickRecovery.Fit9.dat" using 1:5 with l notitle ls 4, \
+ "/media/data/Work/cnstellate/DS_ClickRecovery/DS_ClickRecovery.Fit4.dat" using 1:5 with l notitle ls 4, \
+ "/media/data/Work/cnstellate/DS_ClickRecovery/DS_ClickRecovery.Fit11.dat" using 1:5 with l notitle ls 4, \
+ "/media/data/Work/cnstellate/DS_ClickRecovery/DS_ClickRecovery.Fit12.dat" using 1:5 with l notitle ls 4, \
+ "/media/data/Work/cnstellate/DS_ClickRecovery/DS_ClickRecovery.Fit13.dat" using 1:5 with l notitle ls 4, \
+ "/media/data/Work/cnstellate/DS_ClickRecovery/DS_ClickRecovery.Fit14.dat" using 1:5 with l notitle ls 4, \
+ "/media/data/Work/cnstellate/DS_ClickRecovery/DS_ClickRecovery.Fit15.dat" using 1:5 with l notitle ls 4, \
+ "/media/data/Work/cnstellate/DS_ClickRecovery/DS_ClickRecovery.Fit16.dat" using 1:5 with l notitle ls 4, \
+ "/media/data/Work/cnstellate/DS_ClickRecovery/DS_ClickRecovery.Fit17.dat" using 1:5 with l notitle ls 4, \
+ "/media/data/Work/cnstellate/DS_ClickRecovery/DS_ClickRecovery.Fit18.dat" using 1:5 with l notitle ls 4, \
+ "/media/data/Work/cnstellate/DS_ClickRecovery/DS_ClickRecovery.Fit19.dat" using 1:5 with l notitle ls 4
 
-plot "DS_ClickRecovery.Fit.dat" using 1:3 title "Target" with linespoints ls 1, \
- "DS_ClickRecovery.Fit.dat" using 1:5 with linespoints title "Model" ls 3
+plot "/media/data/Work/cnstellate/DS_ClickRecovery/DS_ClickRecovery.Fit.dat" using 1:3 title "Target" with linespoints ls 1, \
+ "/media/data/Work/cnstellate/DS_ClickRecovery/DS_ClickRecovery.Fit.dat" using 1:5 with linespoints title "Model" ls 3
 
 # "DS_ClickRecovery.Fit.dat" using 1:2 with linespoints title "Mask Click" ls 2
 
 unset multiplot
 
-!fixbb DS_ClickRecovery_result.eps
+# !fixbb DS_ClickRecovery_result.eps
