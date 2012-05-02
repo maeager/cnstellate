@@ -1,12 +1,12 @@
 
 ## FONTSIZE=18
 
-#set terminal postscript eps enhanced defaultplex \
-#    leveldefault color \
-#    solid dashlength 1.0 linewidth 2.0 butt noclip \
-#    palfuncparam 2000,0.003 \
-#    "Helvetica" 18 
-#set output 'TV_RateLevel_Fig8.eps'
+set terminal postscript eps enhanced defaultplex \
+    leveldefault color \
+    solid dashlength 1.0 linewidth 2.0 butt noclip \
+    palfuncparam 2000,0.003 \
+    "Helvetica" 18 
+set output 'TV_RateLevel_Fig8.eps'
 unset clip points
 set clip one
 unset clip two
@@ -159,4 +159,4 @@ plot  'Spirou-Fig8B-RL-withStry-Control-Tone-Noise.png.dat' i 1  using 1:2  titl
       '' i 2 u 1:2 notitle  w l ls 2 pt 4
 
       
-#  fixbb 'TV_RateLevel_Fig8.eps'
+!fixbb 'TV_RateLevel_Fig8.eps'

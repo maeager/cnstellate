@@ -1,6 +1,7 @@
 function getnotchcheb(Fs,fstop1,notchwidth,Rs,filename,printflag)
 %close all;
 %Fs = 100e3
+
 x = 2e-5*10^(100/20)*randn(1,Fs/10); %get 100 ms of noise from Fs=100KHz
 xstep=ceil(2*Fs/1000);    % one spectral slice every 20 ms
 window=ceil(10*Fs/1000); % 10 ms data window

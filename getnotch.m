@@ -25,6 +25,6 @@ sb2 = fstop2/(Fs/2)
 f = [0 sb1 sb1 sb2 sb2   1]
 m = [1 1 depth depth 1 1]
 [b,a] = fir2(100,f,m)
-  [h, w] = freqz(b,a);
-  plot(f,m,';target response;',w/pi,abs(h),';filter response;');
+[h, w] = freqz(b,a);
+ plot(f,m,';target response;',w/pi,abs(h),';filter response;');
 
