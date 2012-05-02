@@ -78,7 +78,7 @@ proc RateLevelFunction(){
 	tonefreq=cf.x[50]
 	reps=50
 	ramplngth	= 0.005
-	dur		= 0.045    //duration of stim (seconds)
+	dur		    = 0.045    //duration of stim (seconds) minus risefall
 	stimdelay	= 0.02      //sec
 	stimtype	= 1      //tone
 	reps		= 25
@@ -109,7 +109,7 @@ proc NoiseRateLevelFunction(){
 	ramplngth	= 0.005
 	dur		= 0.045    //duration of stim (seconds)
 	stimdelay	= 0.02      //sec
-	stimtype=6
+	stimtype = 6
 	t_ignore_before=stimdelay*1000/binwidth
 	t_ignore_after=(stimdelay+dur+ramplngth)*1000/binwidth
 	

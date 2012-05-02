@@ -44,7 +44,7 @@ centrepoint = 6000
       //x2 =dlmread("./TV_Notch/Reiss_Fig10_Bi_Mean1oct.png.dat"," ",2,0)
       // plot([0.5-x1(1:9,1)' 1-x2(15:end,1)' ],[x1(1:9,3)' x2(15:end,3)'],'g+-') // 2nd element is empty
       
-		       // Upper section
+      // Upper section
       for ii=0,type2_halfoct_sweep[0].size()-1{
       	  //x-axis (best frequency)
 	  ifreq =  (halfoct_shift - type2_halfoct_sweep[0].x[ii])/halfoct_compress
