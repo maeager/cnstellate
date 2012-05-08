@@ -29,7 +29,6 @@ reset_DS_ClickRecovery()
 
 //Setup this experiment
 xopen("par_experiment_TV_Notch.hoc")
-
 xopen("cngui.hoc")
 
 

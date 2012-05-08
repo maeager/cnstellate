@@ -1,8 +1,8 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
 /*
- *   TStellate.hoc
- *   Optimise parameters controlling TS cells
+    TStellate.hoc
+    Optimise parameters controlling TS cells
  */
 
 load_file("nrngui.hoc")
@@ -28,17 +28,11 @@ xopen("parameters_TStellate.hoc")
 //--- Setup CN Stellate Network model
  xopen("CochlearNucleus.hoc")         // model set-up
 // xopen("par_CochlearNucleus.hoc")   // parallel model set-up
-
-
  xopen("calcisilag.hoc")
- 
- 
+  
  cfhi=48000
  cflo=200
  RefreshCF()
- 
- 
- 
  
  
 // reset_DS_ClickRecovery()
@@ -71,24 +65,28 @@ param.n.x[glg][ts]		= 15
 
 create_cells()
 objref nil
+// Comment out next line to kill all TS cells not covered by experimental data
+// subtypes' CFs. It reduces processing time by a fraction - enough when
+// simulating multiple times
 // for i=0,99 if(i != 20 || i !=38 || i != 51) tstellate[i][0] = nil
- connect_cells(fileroot)
- connect_CNcells(fileroot)
+
+connect_cells(fileroot)
+connect_CNcells(fileroot)
 
 xopen("psth.hoc")
-
- xopen("par_experiment_TStellate.hoc")
+xopen("par_experiment_TStellate.hoc")
  CS_data()
  RefreshParameters()
  ANFilterBankRun()
  SetInputRates()
 
 strdef datestr,grlbl
-
 objref errorvec,tempcf,indcf,refvec,gr,ref,test,weightvec
 gr = new Graph()
 ref_shift=0
 test_shift=0
+plot_variables=0
+
 func TStellate_err( ) {local jj,pp,xtime,error,penalty,sustainedrate,inputresistance
 
     //check for bad values
@@ -105,33 +103,26 @@ func TStellate_err( ) {local jj,pp,xtime,error,penalty,sustainedrate,inputresist
     sprint(cmd,"%s = %g * %g ",pvec_name.object(pp).s,$&2[pp],pvec_factor.x[pp])
     execute1(cmd)
     }
-  //plot variables
-  // {
-  //   tgr[0].line($&2[0], $&2[1])
-  //   tgr[0].flush()
-  //   tgr[1].line($&2[1], $&2[2])
-  //   tgr[1].flush()
-  //   doNotify()
-  //   print $1, $&2[0], $&2[2], $&2[3]
-  //   }
+  if (plot_variables == 1)
+  {
+    tgr[0].line($&2[0], $&2[1])
+    tgr[0].flush()
+    tgr[1].line($&2[1], $&2[2])
+    tgr[1].flush()
+    doNotify()
+    print $1, $&2[0], $&2[2], $&2[3]
+  }
   
-
-
   connect_TS(fileroot)
   reset_TStellate()
   RunTStellate()
-
     //Analyse spikes
     doNotify()
     //CNSpikes2()
 
-    // plot_fitgr()
-    objref errorvec,weightvec,ref,test
+  // Calculate fitness
+  objref errorvec,weightvec,ref,test
   errorvec = new Vector()
-  //    errorvec.interpolate(ivdata[0],tvec,meaniv)
-  //    print a=errorvec.meansqerr(ivdata[1])
-
-
   weightvec = new Vector(7,1)
   ref = new Vector(7,0)
   test = new Vector(7,0)
@@ -145,6 +136,7 @@ func TStellate_err( ) {local jj,pp,xtime,error,penalty,sustainedrate,inputresist
   test.copy(cvISI, 3, 0, 3, 1, 1)
   ref.copy(CV_data, 3, 0, 3, 1, 1)
   
+  //Calculate additional penalties
   penalty =0
   sustainedrate = psth.sum(2,6)/25
   if(sustainedrate < 10) penalty += 12 - sustainedrate //penalty for lack of spikes during tone
@@ -154,7 +146,7 @@ func TStellate_err( ) {local jj,pp,xtime,error,penalty,sustainedrate,inputresist
   if(cvISI.x[1] > 0.5 || cvISI.x[1] == 0) penalty += 10
   if(cvISI.x[2] > 0.55 || cvISI.x[2] == 0) penalty += 10
   if(cvISI.x[3] > 0.55 || cvISI.x[3] == 0) penalty += 10
-  inputresistance = rn()  
+  inputresistance = rn()    
   if(inputresistance < 30 || inputresistance > 400) penalty += 10
 //  weightvec.x[0]/=10 //initial depolarisation approx -50 to -30  mV
 //  weightvec.x[1]*=20 //adaptation approx 0.2-0.5
@@ -164,7 +156,7 @@ func TStellate_err( ) {local jj,pp,xtime,error,penalty,sustainedrate,inputresist
   weightvec.x[5]*=2
   weightvec.x[6]*=2
   
-  print error=sqrt(ref.meansqerr(test,weightvec))+penalty
+  print error=sqrt(ref.meansqerr(test,weightvec)) + penalty
 
     //plot the result
     // gr.erase_all()
@@ -183,8 +175,8 @@ func TStellate_err( ) {local jj,pp,xtime,error,penalty,sustainedrate,inputresist
 //tstop=300
 proc QuickRun(){
   set_pvec()
-    pvec.printf
-    print TStellate_err(0,&pvec.x[0])
+  pvec.printf
+  print TStellate_err(0,&pvec.x[0])
 }
 
 tolerance = 0.0001
