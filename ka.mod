@@ -1,4 +1,4 @@
-TITLE klt.mod  The low threshold conductance of cochlear nucleus neurons
+TITLE ka.mod  The A-type potassium conductance of cochlear nucleus neurons
 
 COMMENT
 
@@ -46,7 +46,7 @@ PARAMETER {
         gkabar = 0.00477 (mho/cm2) <0,1e9>
    qt    (/ms)
    q10 = 3
-   q = 0.19245 (ms)
+   q = 0.19245 (ms) : assumes temp = 37 degrees C
 }
 
 STATE {

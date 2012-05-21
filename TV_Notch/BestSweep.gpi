@@ -1,7 +1,8 @@
 #
-
+cd "/media/data/Work/cnstellate/TV_Notch/"
 #set term post enh color font "Helvetica,14"
 #set output "BestSweep.eps"
+
 set border 3
 set xtics nomirror
 set ytics nomirror

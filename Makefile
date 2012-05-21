@@ -32,12 +32,13 @@ rebuild-an: remove-an libresample
 
 gui: libresample
 	$(GUIMODL) $(MODLFLAGS)
+	[ -d gui ] && rm -rf gui
 	mv $(ARCH) gui
 	cd gui
-	sed -i 's/cnstellate\/$(ARCH)/cnstellate\/gui/g' *
+	sed -i 's_cnstellate/$(ARCH)_cnstellate/gui_g' *
 
 mpi: libresample
 	$(MPIMODL) $(MODLFLAGS)
+	[ -d mpi ] && rm -rf mpi
 	mv $(ARCH) mpi
-	cd mpi
-	sed -i 's/cnstellate\/$(ARCH)/cnstellate\/mpi/g' *
+	(cd mpi; find -type f -exec sed -i 's_cnstellate/$(ARCH)_cnstellate/mpi_g' {} \; )
