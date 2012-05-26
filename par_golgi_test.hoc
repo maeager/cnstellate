@@ -111,17 +111,17 @@ stimtdres				= 1/srate
 sg_rate					= 50000		
 sg_tdres				= 1/sg_rate
 stimdelay				= 0.02		//sec
-stimtype				=1	//tone
-reps					=25
+stimtype				= 1	//tone
+reps					= 25
 nrep					= 1  		//nrep is number of reps of stimulus
 
 
 
 ANFBgr					= new Graph()
-usesavedfilterbanks		=1
+usesavedfilterbanks		= 1
 
-reps					=25
-binsize					=0.1
+reps					= 25
+binsize					= 0.1
 
 objref ANFBgr
 RefreshParameters()

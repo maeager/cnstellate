@@ -58,7 +58,7 @@ proc SetRates() {local i,j
 proc GenSpikes() {local i,j
 	for i=0,nchannels-1  {
 		for j=0,HSRsperchannel-1 {
-			HSR[i][j].SGfast(1)
+ 			HSR[i][j].SGfast(1)
 		}
 		//system("sleep 0.1")
 		for j=0,LSRsperchannel-1 {
