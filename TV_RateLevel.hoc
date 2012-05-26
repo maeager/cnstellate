@@ -275,7 +275,7 @@ proc TV_2tone(){
 }
 
 proc TV_BFtone(){
-	stimtype			= 1     //TwoTone
+	stimtype			= 1     // Pure Tone
 	dur				    = 0.049  // duration of stim (seconds)
 	tstop				= 70    // ms
 	spl				    = 20     //dB SPL
