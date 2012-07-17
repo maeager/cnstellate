@@ -1,11 +1,12 @@
 
-set terminal postscript eps enhanced defaultplex \
-   leveldefault mono solid\
-   dashlength 1.0 linewidth 2.0 butt noclip \
-   palfuncparam 2000,0.003 \
-   "Helvetica" 18 
+# set terminal postscript eps enhanced defaultplex \
+#   leveldefault mono solid\
+#   dashlength 1.0 linewidth 2.0 butt noclip \
+#   palfuncparam 2000,0.003 \
+#   "Helvetica" 18 
 #color solid 
-set output "PaoliniCV.eps"
+# set output "PaoliniCV.eps"
+## FONTSIZE 18
 
 set xtics nomirror out ("0-10" 0,"10-20" 1,"20-30" 2,"30-40" 3,"40-50" 4)
 set xrange [-0.5:4.5]

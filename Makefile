@@ -34,8 +34,7 @@ gui: libresample
 	$(GUIMODL) $(MODLFLAGS)
 	[ -d gui ] && rm -rf gui
 	mv $(ARCH) gui
-	cd gui
-	sed -i 's_cnstellate/$(ARCH)_cnstellate/gui_g' *
+	(cd gui; sed -i 's_cnstellate/$(ARCH)_cnstellate/gui_g' special)
 
 mpi: libresample
 	$(MPIMODL) $(MODLFLAGS)
