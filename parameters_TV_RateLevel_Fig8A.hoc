@@ -27,8 +27,8 @@
   sprint(fileroot,"TV_RateLevel/OptFig8A") // root for output filenames
 
   inputnumber		= 1		   // fixed input file
-  stimtype		= 9		   // Two tone 
-  tstop			= 120	   // ms   total simulation time
+  stimtype		= 1		   //  tone 
+  tstop			= 70	   // ms   total simulation time
   ttrans		= 20	   // ms,  when calculating statistics, ignore spikes occuring before this time
   cvode.active(0)
   dt			= 0.05		//ms  cannot be any higher than 0.1
@@ -37,7 +37,16 @@
   celsius		= 37
   secondorder		= 2		//Crank-Nicholson Integration method 
   param.tv_erev         = -65
-
+  cfhi=48000
+  cflo=200
+ srate=200000
+  spl=50
+  species = 1
+  ANmodel = 7
+  RefreshCF()
+  GetAudiogramData()
+  tonefreq = cf.x[icentre]
+  
   //Optimisation parameters
   print "Optimisation parameters for TV Notch"
   NPARAMS		= 5

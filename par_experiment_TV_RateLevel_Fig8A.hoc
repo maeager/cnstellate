@@ -67,12 +67,37 @@ file.ropen("TV_RateLevel/Spirou-Fig8A-RL-withBic-Noise.png.dat")
 if (file.isopen()) SpirouFig8A_wBic_Noise.scanf(file,20,2)
 file.close()
 
-
+/*  D stellate cell (OnC) rate-level */
+// wc -l  ../../cnstellate/TV_RateLevel/Arnott2004_Fig*.dat
+//  20 ../../cnstellate/TV_RateLevel/Arnott2004_Fig3_CF6.3kHz.Noise.dat
+//  20 ../../cnstellate/TV_RateLevel/Arnott2004_Fig3_CF6.3kHz.Tone.dat
+objref Arnott2004_Fig3_Noise, Arnott2004_Fig3_Tone
+file.ropen("TV_RateLevel/Arnott2004_Fig3_CF6.3kHz.Noise.dat")
+if (file.isopen()) Arnott2004_Fig3_Tone.scanf(file,20,2)
+file.close()
+file.ropen("TV_RateLevel/Arnott2004_Fig3_CF6.3kHz.Tone.dat")
+if (file.isopen()) Arnott2004_Fig3_Noise.scanf(file,20,2)
+file.close()
 
 
 
 // Target RL data
-objref tmp_rate_level, level
+objref tmp_rate_level, level, tvrate[nchannels], tvrate[nchannels], \
+dsrate[nchannels],grate[nchannels], hsrrate[nchannels],lsrrate[nchannels]
+
+/// Save rate-level values to file
+proc save_rate_level(){
+	sprint(fname,"%s/rate_level.dat",fileroot)
+	file.aopen(fname)
+	for i=0,level.size-1{
+		file.printf("%d\t%g\t%g\t%g\t%g\t%g\t%g\n",level.x[i],\
+		tvrate[0].x[i],tvrate[1].x[i],\
+		dsrate[50].x[i],grate[50].x[i], \
+		hsrrate[50].x[i],lsrrate[50].x[i])
+			
+	}
+	file.close()
+}	
 
 //Note the level vector must be set prior to calling this function 
 obfunc set_target_rate_level(){localobj xdata,ydata

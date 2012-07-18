@@ -16,6 +16,8 @@ xopen("AuditoryNerve.hoc")
 xopen("par_CNcell.tem")      // CN cell template
 xopen("parameters_TV_RateLevel_Fig8A.hoc")     //This model's parameters
 xopen("CochlearNucleus.hoc")         // model set-up
+xopen("cngui.hoc")
+
 //--- Setup Auditory and CN Stellate model
 create_cells()
 connect_cells(fileroot)
@@ -485,18 +487,6 @@ for j=0,nchannels-1 {
 	
 }//Ratelevel
 
-proc save_rate_level(){
-	sprint(fname,"%s/rate_level.dat",fileroot)
-	file.aopen(fname)
-	for i=0,level.size-1{
-		file.printf("%d\t%g\t%g\t%g\t%g\t%g\t%g\n",level.x[i],\
-		tvrate[0].x[i],tvrate[1].x[i],\
-		dsrate[50].x[i],grate[50].x[i], \
-		hsrrate[50].x[i],lsrrate[50].x[i])
-			
-	}
-	file.close()
-}	
 
 /*
 TV_BFtone()
@@ -552,7 +542,7 @@ objref origpvec
 //Ratelevel()
 
 // Target RL data
-objref target_rate_level[4],fitgr, tmpRL[8]
+objref target_rate_level[4],fitgr, toneRL[8]
 fitgr = new Graph()
 
 error1=0
@@ -584,16 +574,17 @@ func TV_RateLevel_err(){local jj,pp,xtime
 	level.indgen().mul(3).add(20) //20:3:60
 	Ratelevel()
 	target_rate_level[0] = set_target_rate_level(SpirouFig8A_Control_Tone)
-	error1 = sqrt(tvrate[0].meansqerr(target_rate_level))
+	error1 = sqrt(tvrate[0].meansqerr(target_rate_level[0]))
 	target_rate_level[1] = set_target_rate_level(SpirouFig8A_wStr_Tone)
-	error2 = sqrt(tvrate[1].meansqerr(target_rate_level))
-	tmpRL[0] = 	tvrate[0].c
-	tmpRL[1] = 	tvrate[1].c
-	tmpRL[2] = 	level.c
-	tmpRL[3] =  dsrate[50].c
-	tmpRL[4] =  grate[50].c
-	tmpRL[5] =  hsrrate[50].c
-	tmpRL[6] =  lsrrate[50].c
+	
+	error2 = sqrt(tvrate[1].meansqerr(target_rate_level[1]))
+	toneRL[0] = tvrate[0].c
+	toneRL[1] = tvrate[1].c
+	toneRL[2] = level.c
+	toneRL[3] = dsrate[50].c
+	toneRL[4] = grate[50].c
+	toneRL[5] = hsrrate[50].c
+	toneRL[6] = lsrrate[50].c
 	
 	save_rate_level()	
 	
@@ -609,12 +600,12 @@ func TV_RateLevel_err(){local jj,pp,xtime
 	//Plot the results
 	 if(object_id(fitgr)==0) fitgr = new Graph()
 	 fitgr.erase_all()
-     tmpRL[0].plot(fitgr,tmpRL[2],1,2)
-     tmpRL[1].plot(fitgr,tmpRL[2],2,2)
+     toneRL[0].plot(fitgr,toneRL[2],1,2)
+     toneRL[1].plot(fitgr,toneRL[2],2,2)
      tvrate[0].plot(fitgr,level,1,2)
      tvrate[1].plot(fitgr,level,2,2)
-     target_rate_level[0].plot(fitgr,tmpRL[2],1,1)
-     target_rate_level[1].plot(fitgr,tmpRL[2],2,1)
+     target_rate_level[0].plot(fitgr,toneRL[2],1,1)
+     target_rate_level[1].plot(fitgr,toneRL[2],2,1)
      target_rate_level[2].plot(fitgr,level,1,1)
      target_rate_level[3].plot(fitgr,level,2,1)
 
@@ -676,16 +667,15 @@ func TV_RateLevel_err2(){local jj,pp,xtime
 	error1 = sqrt(tvrate[0].meansqerr(target_rate_level))
 	target_rate_level[1] = set_target_rate_level(SpirouFig8A_wStr_Tone)
 	error2 = sqrt(tvrate[1].meansqerr(target_rate_level))
-	tmpRL[0] = 	tvrate[0].c
-	tmpRL[1] = 	tvrate[1].c
-	tmpRL[2] = 	level.c
-	tmpRL[3] =  dsrate[50].c
-	tmpRL[4] =  grate[50].c
-	tmpRL[5] =  hsrrate[50].c
-	tmpRL[6] =  lsrrate[50].c
+	toneRL[0] = 	tvrate[0].c
+	toneRL[1] = 	tvrate[1].c
+	toneRL[2] = 	level.c
+	toneRL[3] =  dsrate[50].c
+	toneRL[4] =  grate[50].c
+	toneRL[5] =  hsrrate[50].c
+	toneRL[6] =  lsrrate[50].c
 	
 	save_rate_level()	
-	
 	TV_Noise()
 	level=new Vector(3)
 	level.indgen().mul(20).add(50) //50:20:90
@@ -698,12 +688,12 @@ func TV_RateLevel_err2(){local jj,pp,xtime
 	//Plot the results
 	 if(object_id(fitgr)==0) fitgr = new Graph()
 	 fitgr.erase_all()
-     tmpRL[0].plot(fitgr,tmpRL[2],1,2)
-     tmpRL[1].plot(fitgr,tmpRL[2],2,2)
+     toneRL[0].plot(fitgr,toneRL[2],1,2)
+     toneRL[1].plot(fitgr,toneRL[2],2,2)
      tvrate[0].plot(fitgr,level,1,2)
      tvrate[1].plot(fitgr,level,2,2)
-     target_rate_level[0].plot(fitgr,tmpRL[2],1,1)
-     target_rate_level[1].plot(fitgr,tmpRL[2],2,1)
+     target_rate_level[0].plot(fitgr,toneRL[2],1,1)
+     target_rate_level[1].plot(fitgr,toneRL[2],2,1)
      target_rate_level[2].plot(fitgr,level,1,1)
      target_rate_level[3].plot(fitgr,level,2,1)
 
@@ -803,11 +793,11 @@ proc printprax2(){local pp,ii,pp2,error
 			hsrrate[50].x[i],lsrrate[50].x[i])
 		}
 		file.printf("\n\n",error)
-		for i=0,tmpRL[2].size-1{
-			file.printf("%d\t%g\t%g\t%g\t%g\t%g\t%g\n",tmpRL[2].x[i],\
-			tmpRL[0].x[i],tmpRL[1].x[i],\
-			tmpRL[3].x[i],tmpRL[4].x[i],\
-			tmpRL[5].x[i],tmpRL[6].x[i])
+		for i=0,toneRL[2].size-1{
+			file.printf("%d\t%g\t%g\t%g\t%g\t%g\t%g\n",toneRL[2].x[i],\
+			toneRL[0].x[i],toneRL[1].x[i],\
+			toneRL[3].x[i],toneRL[4].x[i],\
+			toneRL[5].x[i],toneRL[6].x[i])
 		}		
 		file.printf("#Other values \n")
 		// file.printf("#spl = %g\n",spl)
@@ -833,10 +823,6 @@ proc printprax2(){local pp,ii,pp2,error
 }
 
 
-dt=0.1
-//QuickRun()
-
-
 //xopen("TV_RateLevel/pvec_TV_RateLevel.hoc")
 set_pvec()
 reps=10
@@ -844,7 +830,6 @@ runprax()
 runprax()
 //reps=5
 runprax2()
-
 reps=50
 printprax2()
 
@@ -853,11 +838,10 @@ printprax2()
 proc Rerun_ANmodel(){
 	stimtype=6
 	for (spl=50;spl<=100;spl+=5){
-RefreshParameters() 
-RefreshParameters()
-ANFilterBankRun()
-SaveANFilterBank2File()
-for i=0,nchannels-1 golgi[i][0].SetRate2()
-SaveGolgiFilterBank2File()
-}
+	    RefreshParameters()
+	    ANFilterBankRun()
+	    SaveANFilterBank2File()
+	    for i=0,nchannels-1 golgi[i][0].SetRate2()
+	    SaveGolgiFilterBank2File()
+	}
 }
