@@ -35,8 +35,8 @@ proc ShowInputGraphs() {
       Sout[icf] = HSRout[icf].c
       Sout[icf].mul(2).add(300*icf)
       Sout[icf].plot(ANFBgr,sg_tdres, 1, 0)
-      sprint(lbl, "%g ", cf.x[icf])
-      ANFBgr.label(0.92, 0.810*(icf/(nchannels-1))+0.075, lbl)
+      sprint(lbl, "%d %g ", icf, cf.x[icf])
+      if (icf%10 ==9 || icf==0) ANFBgr.label(0.92, 0.810*(icf/(nchannels-1))+0.075, lbl)
    }
    //system("date")
    //ANFBgr.exec_menu("View = plot")
@@ -138,7 +138,7 @@ proc PlotAudiogram(){
     audiogramgr.label(0.1,0.95, "Audiogram Data - Extrapolated for experimental data")
     audiogramgr.label(0.1,0.90, "File: ")
     audiogramgr.label(0.2,0.90, audiogram_file)
-      audiogramgr.exec_menu("View = plot")
+    audiogramgr.exec_menu("View = plot")
 }
 
 
