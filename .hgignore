@@ -14,7 +14,7 @@ syntax: glob
 *.log
 *.toc
 *.eps
-*.dat
+# *.dat
 *.png
 *.pdf
 *.hist
