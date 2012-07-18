@@ -145,10 +145,6 @@ dstellate[50][0] = new CNcell(2,cf.x[50],50)
 connect_cells(fileroot)
 tstop=300
 
-
-
-
-
 //--- Setup Auditory model
 RefreshParameters()
 ANFilterBankRun()   //Build the filterbank
@@ -157,14 +153,6 @@ SetInputRates()      //Allocate filterbanks to ANFs and Golgi units
 //ShowInputGraphs()
 //ShowGolgiGraphs()
 
-
-
-
-
-
-
-
-//ShowGolgiGraphs()
 
 //D-stellate Click train PSTH   (Backoff et al. 1997)
 objref gr,targetclickrecovery, dslist, fvec,dvec,ivec,wclick
@@ -243,7 +231,7 @@ func fun() {local f
 	errorvec = new Vector()
 	//Find the mean number of spikes in the first click
 	maxrate = (DSvec.sum(240,260) + DSvec.sum(740,760)+ DSvec.sum(1340,1360))/3
-	//Calc ratio of number of spikes in second clcik relative to mean first click
+	//Calc ratio of number of spikes in second click relative to mean first click
 	errorvec.append( DSvec.sum(260,280) / maxrate )
 	errorvec.append(DSvec.sum(780,800) / maxrate )
 	errorvec.append( DSvec.sum(1420,1440)/ maxrate )
