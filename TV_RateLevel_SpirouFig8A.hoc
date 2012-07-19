@@ -824,6 +824,7 @@ proc printprax2(){local pp,ii,pp2,error
 
 
 //xopen("TV_RateLevel/pvec_TV_RateLevel.hoc")
+proc run_multipleprax(){
 set_pvec()
 reps=10
 runprax()
@@ -833,7 +834,7 @@ runprax2()
 reps=50
 printprax2()
 
-
+}
 
 proc Rerun_ANmodel(){
 	stimtype=6

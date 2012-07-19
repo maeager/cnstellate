@@ -72,6 +72,8 @@ file.close()
 //  20 ../../cnstellate/TV_RateLevel/Arnott2004_Fig3_CF6.3kHz.Noise.dat
 //  20 ../../cnstellate/TV_RateLevel/Arnott2004_Fig3_CF6.3kHz.Tone.dat
 objref Arnott2004_Fig3_Noise, Arnott2004_Fig3_Tone
+Arnott2004_Fig3_Tone = new Matrix()
+Arnott2004_Fig3_Noise = new Matrix()
 file.ropen("TV_RateLevel/Arnott2004_Fig3_CF6.3kHz.Noise.dat")
 if (file.isopen()) Arnott2004_Fig3_Tone.scanf(file,20,2)
 file.close()
