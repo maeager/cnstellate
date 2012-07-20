@@ -1,0 +1,1142 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+
+begintemplate NetworkParameters
+public bw, n, w,delay   //bandwidth, number, weight, delay
+public offset
+public ncol, nrow
+//functions
+public test, getparameters, saveparameters,printparams,randomise
+external random,ds
+objref bw, n, w,delay
+offset=3
+proc init(){
+    nrow = $1  ncol = $2
+    bw = new Matrix(nrow, ncol)
+    n = new Matrix(nrow, ncol)
+    w = new Matrix(nrow, ncol)
+    delay = new Matrix(nrow,ncol)
+    offset=0
+
+}
+
+objref file
+strdef filename
+proc getparameters(){
+    objref file
+    filename = $s1
+    file = new File()
+    file.ropen(filename)
+    bw.scanf(file)
+    n.scanf(file)
+    w.scanf(file)
+    delay.scanf(file)
+    offset = file.scanvar()
+    file.close()
+
+}
+proc getdelay() {
+    objref file
+    filename = "delays.dat"
+    file= new File()
+    file.ropen(filename)
+    delay.scanf(file)
+    file.close()
+}
+proc saveparameters(){
+    objref file
+    filename = $s1
+    file = new File()
+    file.wopen(filename)
+    bw.fprint(file)
+    n.fprint(file)
+    w.fprint(file)
+    delay.fprint(file)
+    file.printf("%d\n",offset)
+    file.close()
+    objref file
+}
+proc test(){local i
+    i=startsw()
+    bw.ident()
+    bw.muls(10)
+    n.ident()
+    n.muls(4)
+    w.ident()
+    w.muls(5)
+    filename = "testparams.dat"
+    saveparameters(filename)
+    bw.ident()
+    n.ident()
+    w.ident()
+    printparams()
+    getparameters(filename)
+    printparams()
+    i=startsw()-i
+    print i
+}
+proc printparams(){
+    print "bandwidth\n", bw.printf
+    print "number of syn\n",    n.printf
+    print "weights\n",  w.printf
+        print "delays\n",   delay.printf
+}
+objref  vec
+proc randomise(){local i
+    Rand.uniform(0.5,1.5)
+    vec = new Vector(ncol)
+    for i=0, nrow-1 {vec.setrand(Rand) w.setrow(i, w.getrow(i).mul(vec))}
+    Rand.uniform(0.7,1.5)
+    for i=0, nrow-1 {vec.setrand(Rand) n.setrow(i, n.getrow(i).mul(vec))}
+    Rand.uniform(0.5,1.5)
+    vec.setrand(Rand)
+    bw.setrow(ds, bw.getrow(ds).mul(vec))
+}
+endtemplate NetworkParameters
+strdef str
+
+begintemplate CochlearNucleusRec
+public tscells, dscells,tvcells, param,golgi
+public declarecells, connectcells,Getcells,reset_gbars, reset_weights
+public  TS_num, DS_num,TV_num,G_num,lowchan,onets
+external ts,tv,ds,glg,cf, nchannels,icentre,highindex,Rand
+external gaba_rise,gaba_decay,gaba_erev,str
+objref tscells[1],dscells[1],tvcells[1],golgi[1],param
+numTSperchannel=3
+lowchan = 0
+strdef s
+proc init() {local i,j,count, ch, lowds
+    numTSperchannel=$1
+
+    param = $o2
+    TS_num  = numTSperchannel*nchannels//31//
+    DS_num  = nchannels//31//
+    TV_num  = nchannels//31
+    G_num = nchannels //31
+    objref  tscells[TS_num],dscells[DS_num],tvcells[TV_num],golgi[G_num]
+
+    count=0
+    //for ch=icentre-15,icentre+15 {
+    for ch = 0, nchannels-1{
+        for j=0, numTSperchannel - 1 {
+            tscells[ch*numTSperchannel +j] =  new RMCell()
+            //tscells[ch*numTSperchannel +j] = new RMCell2(3) //soma+dend(d_seg)
+            //tscells[ch*numTSperchannel +j] = new BanksSachs(3,0) //axon(nseg=2)+soma+dend(d_seg,d_active)
+
+            tscells[ch*numTSperchannel +j].set_Type1t()
+            tscells[ch*numTSperchannel +j].channel = ch
+            tscells[ch*numTSperchannel +j].cf = cf.x[ch]
+            tscells[ch*numTSperchannel +j].model=1
+        }
+
+        dscells[ch] = new RMCell()
+        dscells[ch].soma.L = 25
+        dscells[ch].soma.diam = 25
+        dscells[ch].set_Type12()
+        dscells[ch].channel = ch
+        dscells[ch].cf = cf.x[ch]
+        dscells[ch].model=3
+
+        tvcells[ch] = new RMCell()
+        tvcells[ch].set_Type1c()
+        tvcells[ch].channel = ch
+        tvcells[ch].cf = cf.x[ch]
+        tvcells[ch].model=2
+
+
+        golgi[ch] = new RMCell()
+        golgi[ch].set_Type1c()
+        golgi[ch].cf = cf.x[ch]
+        golgi[ch].soma.L = 15
+        golgi[ch].soma.diam = 15
+        golgi[ch].model=4
+        golgi[ch].channel = ch
+       }
+
+
+}
+proc onets(){local i
+
+    for i = 0, TS_num-1 tscells[i] = tscells[15]
+
+}
+proc connectcells() {local i,target,source,low,high,glo,ghi, dslo, dshi, tvlo, tvhi, range,channel
+    //access tscell[0].soma
+dslo = dscells[0].channel
+dshi = dscells[DS_num-1].channel
+tvlo = tvcells[0].channel
+tvhi = tvcells[TV_num-1].channel
+
+
+print "TS->TS"
+if( numTSperchannel > 1){
+if (param.n.getval(ts,ts)!=0){
+ for channel = 0, nchannels-1{
+  for target = 0, numTSperchannel-1 {
+   for i=0, param.n.getval(ts,ts)-1{
+    //Choose random source from available cells
+source = channel*numTSperchannel+int(mcell_ran4(&highindex)*1000)%(numTSperchannel)
+while( source == channel*numTSperchannel+target){
+    source = channel*numTSperchannel+int(mcell_ran4(&highindex)*1000)%(numTSperchannel)
+
+}
+ // print "TS[",source,"] connected to TS[",channel*numTSperchannel+target,"]"
+    tscells[channel*numTSperchannel+target].connect_pre(tscells[source], 1, param.delay.getval(ts,ts), param.w.getval(ts,ts))
+   }
+  }
+ }
+}}
+
+print "TV->TS"
+ for channel = 0,TV_num-1{
+    tvlo = tvcells[channel].channel-(param.bw.getval(tv,ts)/2)
+    if (tvlo < tvcells[0].channel) tvlo = tvcells[0].channel
+    tvhi = tvcells[channel].channel+(param.bw.getval(tv,ts)/2)
+    if (tvhi > tvcells[TV_num-1].channel) tvhi = tvcells[TV_num-1].channel
+    if (tvlo > tvhi || tvhi < tvlo) continue
+//  print tvlo, " ", tvhi
+    tvlo=int(tvlo - tvcells[0].channel)
+    tvhi=int(tvhi - tvcells[0].channel)
+//  print tvlo, " ", tvhi
+
+  for target = 0, numTSperchannel-1 {
+   for i=0, param.n.getval(tv,ts)-1{
+    //Choose random source from available cells
+    source = tvlo + int(mcell_ran4(&highindex)*1000)%(tvhi+1-tvlo)
+//  print "TV[",source,"] connected to TS[",channel*numTSperchannel+target,"]"
+    if(TS_num==1) {tscells[0].connect_pre(tvcells[source], 1, param.delay.getval(tv,ts), param.w.getval(tv,ts))
+    }else {
+    tscells[channel*numTSperchannel+target].connect_pre(tvcells[source], 1, param.delay.getval(tv,ts), param.w.getval(tv,ts))
+    }
+   }
+  }
+
+ }
+print "DS->TS"
+ for channel = 0,DS_num-1{
+    dslo = dscells[channel].channel-(param.bw.getval(ds,ts)/2)
+    if (dslo < dscells[0].channel) dslo = dscells[0].channel
+    dshi = dscells[channel].channel+(param.bw.getval(ds,ts)/2)
+    if (dshi > dscells[DS_num-1].channel) dshi = dscells[DS_num-1].channel
+    if (dslo > dshi || dshi < dslo) continue
+//  print dslo, " ", dshi
+    dslo=int(dslo-dscells[0].channel)
+    dshi=int(dshi-dscells[0].channel)
+//  print dslo, " ", dshi
+
+  for target = 0, numTSperchannel-1 {
+   for i=0, param.n.getval(ds,ts)-1{
+
+    //Choose random source from available cells
+    source = dslo + int(mcell_ran4(&highindex)*1000)%(dshi+1-dslo)
+//  print "DS[",source,"] connected to TS[",channel*numTSperchannel+target,"]"
+    tscells[channel*numTSperchannel+target].connect_pre(dscells[source], 1,  param.delay.getval(ds,ts),param.w.getval(ds,ts))
+   }
+  }
+ }
+
+print "DS->TV"
+for target = 0, TV_num-1 {
+    dslo = dscells[target].channel+param.offset-(param.bw.getval(ds,tv)/2)
+    if (dslo < dscells[0].channel) dslo = dscells[0].channel
+    dshi = dscells[target].channel+(param.bw.getval(ds,tv)/2) +param.offset
+    if (dshi > dscells[DS_num-1].channel) dshi = dscells[DS_num-1].channel
+    if (dslo > dshi || dshi < dslo) continue
+//  print dslo, " ", dshi
+    dslo=int(dslo-dscells[0].channel)
+    dshi=int(dshi-dscells[0].channel)
+//  print dslo, " ", dshi
+  for i=0, param.n.getval(ds,tv)-1{
+    //Choose random DS cell from range
+    source = dslo + int(mcell_ran4(&highindex)*1000)%(dshi+1-dslo)
+//  print "DS[",source,"] connected to TV[",target,"]"
+    tvcells[target].connect_pre(dscells[source],1,param.delay.getval(ds,tv),param.w.getval(ds,tv))
+  }
+
+}
+print "TV->DS"
+for target = 0, DS_num-1 {
+    tvlo = tvcells[target].channel+param.offset-(param.bw.getval(tv,ds)/2)
+    if (tvlo < tvcells[0].channel) tvlo = tvcells[0].channel
+    tvhi = tvcells[target].channel+(param.bw.getval(tv,ds)/2)
+    if (tvhi > tvcells[TV_num-1].channel) tvhi = tvcells[TV_num-1].channel
+    if (tvlo > tvhi || tvhi < tvlo) continue
+//  print tvlo, " ", tvhi
+    tvlo=int(tvlo-tvcells[0].channel)
+    tvhi=int(tvhi-tvcells[0].channel)
+//  print tvlo, " ", tvhi
+  for i=0, param.n.getval(tv,ds)-1{
+    //Choose random DS cell from range
+    source = tvlo + int(mcell_ran4(&highindex)*1000)%(tvhi+1-tvlo)
+//  print "TV[",source,"] connected to DS[",target,"]"
+    dscells[target].connect_pre(tvcells[source],1,param.delay.getval(tv,ds),param.w.getval(tv,ds))
+  }
+
+}
+print "G->DS"
+for target = 0, DS_num-1 {
+  dscells[target].soma dscells[target].gaba = new Exp2Syn(0.5)
+ dscells[target].gaba.tau1 = gaba_rise
+  dscells[target].gaba.tau2 = gaba_decay
+  dscells[target].gaba.e = gaba_erev
+
+    glo = golgi[target].channel - param.bw.getval(glg,ds)/2
+    if (glo < golgi[0].channel) glo = golgi[0].channel
+    ghi = golgi[target].channel+(param.bw.getval(glg,ds)/2)
+    if (ghi > golgi[G_num-1].channel) ghi = golgi[G_num-1].channel
+    if (glo > ghi ) continue
+//  print glo, " ", ghi
+    glo=int(glo-golgi[0].channel)
+    ghi=int(ghi-golgi[0].channel)
+//  print glo,  ghi
+  for i=0, param.n.getval(glg,ds)-1{
+    //Choose random DS cell from range
+    source = glo + int(mcell_ran4(&highindex)*1000)%(ghi+1-glo)
+//  print "Golgi[",source,"] connected to DS[",target,"]"
+    dscells[target].connect_pre(golgi[source],2,param.delay.getval(glg,ds),param.w.getval(glg,ds))
+  }
+}
+
+print "G->TS"
+for channel = 0, G_num-1 {
+    glo = golgi[channel].channel - param.bw.getval(glg,ts)/2
+    if (glo < golgi[0].channel) glo = golgi[0].channel
+    ghi = golgi[channel].channel+(param.bw.getval(glg,ts)/2)
+    if (ghi > golgi[G_num-1].channel) ghi = golgi[G_num-1].channel
+    if (glo > ghi ) continue
+//  print glo, " ", ghi
+    glo=int(glo-golgi[0].channel)
+    ghi=int(ghi-golgi[0].channel)
+//  print glo,  ghi
+    print target
+
+  for target = 0, numTSperchannel-1 {
+  tscells[channel*numTSperchannel+target].soma tscells[channel*numTSperchannel+target].gaba = new Exp2Syn(0.5)
+ tscells[channel*numTSperchannel+target].gaba.tau1 = gaba_rise
+  tscells[channel*numTSperchannel+target].gaba.tau2 = gaba_decay
+  tscells[channel*numTSperchannel+target].gaba.e = gaba_erev
+  for i=0, param.n.getval(glg,ts)-1{
+    //Choose random TS cell from range
+    source = glo + int(mcell_ran4(&highindex)*1000)%(ghi+1-glo)
+//  print "Golgi[",source,"] connected to TS[",target,"]"
+    tscells[channel*numTSperchannel+target].connect_pre(golgi[source],2,param.delay.getval(glg,ts),param.w.getval(glg,ts))
+  }
+}}
+
+
+
+
+}//end connectcells()
+
+proc reset_gbars(){
+    //if(TS_num==1){tscells[0].set_Type1t()}else{for i=0,TS_num-1 tscells[i].set_Type1t()}
+    //sprint(s,"if(TS_num>1) for i=0,TS_num-1 tscells[i].set_Type1t()")
+    //execute1(s,this)
+    for i=0,TS_num-1 tscells[i].set_Type1t()
+    for i=0, DS_num - 1 dscells[i].set_Type12()
+    for i=0, TV_num - 1 tvcells[i].set_Type1c()
+    for i=0, G_num-1 golgi[i].set_Type1c()
+}
+
+proc Getcells() {local i
+    //sprint(s,"if(TS_num>1) for i=0, TS_num-1 %s.append(tscells[i])",$o1)
+    //execute1(s,this)
+for i=0, TS_num-1 $o1.append(tscells[i])
+    for i=0, TV_num-1 $o1.append(tvcells[i])
+    for i=0, DS_num-1 $o1.append(dscells[i])
+    for i=0, G_num-1 $o1.append(golgi[i])
+}
+
+
+endtemplate CochlearNucleusRec
+
+begintemplate TStellateSingle
+public tschan,self, tscells, dscells,tvcells, param,golgi
+public declarecells, connectcells,Getcells,reset_gbars, reset_weights
+public  TS_num, DS_num,TV_num,G_num,lowchan,onets
+external ts,tv,ds,glg,cf, nchannels,icentre,highindex,Rand
+external gaba_rise,gaba_decay,gaba_erev,str
+objref tscells[1],dscells[1],tvcells[1],golgi[1],param
+numTSperchannel=3
+lowchan = 0
+strdef s
+tschan =1
+self = 0  //TS-TS self excitation
+proc init() {local i,j,count, ch, lowds
+    numTSperchannel=$1
+
+    param = $o2
+    TS_num  = numTSperchannel
+    DS_num  = nchannels
+    TV_num  = nchannels
+    G_num = nchannels
+    objref  tscells[TS_num],dscells[DS_num],tvcells[TV_num],golgi[G_num]
+
+    count=0
+ch = icentre
+    for j=0, numTSperchannel - 1 {
+            //tscells[ch*numTSperchannel +j] =  new RMCell()
+            tscells[j] = new RMCell2(3) //soma+dend(d_seg)
+            //tscells[ch*numTSperchannel +j] = new BanksSachs(3,0) //axon(nseg=2)+soma+dend(d_seg,d_active)
+
+            tscells[j].set_Type1t()
+            tscells[j].channel = icentre
+            tscells[j].cf = cf.x[icentre]
+            tscells[j].model=1
+        }
+    for ch = 0, nchannels-1{
+        dscells[ch] = new SGC_fast(0.5)
+        dscells[ch].channel = ch
+        dscells[ch].cf = cf.x[ch]
+        dscells[ch].model=3
+
+        tvcells[ch] = new SGC_fast(0.5)
+        tvcells[ch].channel = ch
+        tvcells[ch].cf = cf.x[ch]
+        tvcells[ch].model=2
+
+
+        golgi[ch] = new SGC_fast(0.5)
+        golgi[ch].cf = cf.x[ch]
+        golgi[ch].model=4
+        golgi[ch].channel = ch
+       }
+
+
+}
+
+proc connectcells() {local i,target,source,low,high,glo,ghi, dslo, dshi, tvlo, tvhi, range,channel
+    //access tscell[0].soma
+dslo = dscells[0].channel
+dshi = dscells[DS_num-1].channel
+tvlo = tvcells[0].channel
+tvhi = tvcells[TV_num-1].channel
+
+
+print "TS->TS"
+if (param.n.getval(ts,ts)!=0){
+
+  for target = 0, numTSperchannel-1 {
+   for i=0, param.n.getval(ts,ts)-1{
+    //Choose random source from available cells
+source = int(mcell_ran4(&highindex)*1000)%(numTSperchannel)
+while( source == target){
+    source = int(mcell_ran4(&highindex)*1000)%(numTSperchannel)
+
+}
+ // print "TS[",source,"] connected to TS[",channel*numTSperchannel+target,"]"
+    tscells[target].connect_pre(tscells[source], 1, param.delay.getval(ts,ts), param.w.getval(ts,ts))
+   }
+  }
+ }
+
+print "TV->TS"
+
+channel = tscells[0].ch
+    tvlo = tvcells[channel].channel-(param.bw.getval(tv,ts)/2)
+    if (tvlo < tvcells[0].channel) tvlo = tvcells[0].channel
+    tvhi = tvcells[channel].channel+(param.bw.getval(tv,ts)/2)
+    if (tvhi > tvcells[TV_num-1].channel) tvhi = tvcells[TV_num-1].channel
+    if (tvlo > tvhi || tvhi < tvlo) continue
+//  print tvlo, " ", tvhi
+    tvlo=int(tvlo - tvcells[0].channel)
+    tvhi=int(tvhi - tvcells[0].channel)
+//  print tvlo, " ", tvhi
+
+for target = 0, numTSperchannel-1 {
+   for i=0, param.n.getval(tv,ts)-1{
+    //Choose random source from available cells
+    source = tvlo + int(mcell_ran4(&highindex)*1000)%(tvhi+1-tvlo)
+//  print "TV[",source,"] connected to TS[",target,"]"
+
+    tscells[target].connect_pre(tvcells[source], 1, param.delay.getval(tv,ts), param.w.getval(tv,ts))
+
+   }
+  }
+
+
+print "DS->TS"
+channel = tscells[0].ch
+    dslo = dscells[channel].channel-(param.bw.getval(ds,ts)/2)
+    if (dslo < dscells[0].channel) dslo = dscells[0].channel
+    dshi = dscells[channel].channel+(param.bw.getval(ds,ts)/2)
+    if (dshi > dscells[DS_num-1].channel) dshi = dscells[DS_num-1].channel
+    if (dslo > dshi || dshi < dslo) continue
+//  print dslo, " ", dshi
+    dslo=int(dslo-dscells[0].channel)
+    dshi=int(dshi-dscells[0].channel)
+//  print dslo, " ", dshi
+
+  for target = 0, numTSperchannel-1 {
+   for i=0, param.n.getval(ds,ts)-1{
+
+    //Choose random source from available cells
+    source = dslo + int(mcell_ran4(&highindex)*1000)%(dshi+1-dslo)
+//  print "DS[",source,"] connected to TS[",target,"]"
+    tscells[target].connect_pre(dscells[source], 1,  param.delay.getval(ds,ts),param.w.getval(ds,ts))
+   }
+  }
+
+
+print "DS->TV"
+for target = 0, TV_num-1 {
+    dslo = dscells[target].channel+param.offset-(param.bw.getval(ds,tv)/2)
+    if (dslo < dscells[0].channel) dslo = dscells[0].channel
+    dshi = dscells[target].channel+(param.bw.getval(ds,tv)/2) +param.offset
+    if (dshi > dscells[DS_num-1].channel) dshi = dscells[DS_num-1].channel
+    if (dslo > dshi || dshi < dslo) continue
+//  print dslo, " ", dshi
+    dslo=int(dslo-dscells[0].channel)
+    dshi=int(dshi-dscells[0].channel)
+//  print dslo, " ", dshi
+  for i=0, param.n.getval(ds,tv)-1{
+    //Choose random DS cell from range
+    source = dslo + int(mcell_ran4(&highindex)*1000)%(dshi+1-dslo)
+//  print "DS[",source,"] connected to TV[",target,"]"
+    tvcells[target].connect_pre(dscells[source],1,param.delay.getval(ds,tv),param.w.getval(ds,tv))
+  }
+
+}
+print "TV->DS"
+for target = 0, DS_num-1 {
+    tvlo = tvcells[target].channel+param.offset-(param.bw.getval(tv,ds)/2)
+    if (tvlo < tvcells[0].channel) tvlo = tvcells[0].channel
+    tvhi = tvcells[target].channel+(param.bw.getval(tv,ds)/2)
+    if (tvhi > tvcells[TV_num-1].channel) tvhi = tvcells[TV_num-1].channel
+    if (tvlo > tvhi || tvhi < tvlo) continue
+//  print tvlo, " ", tvhi
+    tvlo=int(tvlo-tvcells[0].channel)
+    tvhi=int(tvhi-tvcells[0].channel)
+//  print tvlo, " ", tvhi
+  for i=0, param.n.getval(tv,ds)-1{
+    //Choose random DS cell from range
+    source = tvlo + int(mcell_ran4(&highindex)*1000)%(tvhi+1-tvlo)
+//  print "TV[",source,"] connected to DS[",target,"]"
+    dscells[target].connect_pre(tvcells[source],1,param.delay.getval(tv,ds),param.w.getval(tv,ds))
+  }
+
+}
+print "G->DS"
+for target = 0, DS_num-1 {
+  dscells[target].soma dscells[target].gaba = new Exp2Syn(0.5)
+ dscells[target].gaba.tau1 = gaba_rise
+  dscells[target].gaba.tau2 = gaba_decay
+  dscells[target].gaba.e = gaba_erev
+
+    glo = golgi[target].channel - param.bw.getval(glg,ds)/2
+    if (glo < golgi[0].channel) glo = golgi[0].channel
+    ghi = golgi[target].channel+(param.bw.getval(glg,ds)/2)
+    if (ghi > golgi[G_num-1].channel) ghi = golgi[G_num-1].channel
+    if (glo > ghi ) continue
+//  print glo, " ", ghi
+    glo=int(glo-golgi[0].channel)
+    ghi=int(ghi-golgi[0].channel)
+//  print glo,  ghi
+  for i=0, param.n.getval(glg,ds)-1{
+    //Choose random DS cell from range
+    source = glo + int(mcell_ran4(&highindex)*1000)%(ghi+1-glo)
+//  print "Golgi[",source,"] connected to DS[",target,"]"
+    dscells[target].connect_pre(golgi[source],2,param.delay.getval(glg,ds),param.w.getval(glg,ds))
+  }
+}
+
+print "G->TS"
+channel = tscells[0].ch
+
+
+    glo = golgi[channel].channel - param.bw.getval(glg,ts)/2
+    if (glo < golgi[0].channel) glo = golgi[0].channel
+    ghi = golgi[channel].channel+(param.bw.getval(glg,ts)/2)
+    if (ghi > golgi[G_num-1].channel) ghi = golgi[G_num-1].channel
+    if (glo > ghi ) continue
+//  print glo, " ", ghi
+    glo=int(glo-golgi[0].channel)
+    ghi=int(ghi-golgi[0].channel)
+//  print glo,  ghi
+    print target
+
+  for target = 0, numTSperchannel-1 {
+  tscells[target].soma tscells[target].gaba = new Exp2Syn(0.5)
+ tscells[target].gaba.tau1 = gaba_rise
+  tscells[target].gaba.tau2 = gaba_decay
+  tscells[target].gaba.e = gaba_erev
+     for i=0, param.n.getval(glg,ts)-1{
+    //Choose random TS cell from range
+    source = glo + int(mcell_ran4(&highindex)*1000)%(ghi+1-glo)
+//  print "Golgi[",source,"] connected to TS[",target,"]"
+    tscells[target].connect_pre(golgi[source],2,param.delay.getval(glg,ts),param.w.getval(glg,ts))
+  }
+}
+
+
+
+
+}//end connectcells()
+
+proc reset_gbars(){
+    //if(TS_num==1){tscells[0].set_Type1t()}else{for i=0,TS_num-1 tscells[i].set_Type1t()}
+    //sprint(s,"if(TS_num>1) for i=0,TS_num-1 tscells[i].set_Type1t()")
+    //execute1(s,this)
+    for i=0,TS_num-1 tscells[i].set_Type1t()
+    for i=0, DS_num - 1 dscells[i].set_Type12()
+    for i=0, TV_num - 1 tvcells[i].set_Type1c()
+    for i=0, G_num-1 golgi[i].set_Type1c()
+}
+
+proc Getcells() {local i
+    //sprint(s,"if(TS_num>1) for i=0, TS_num-1 %s.append(tscells[i])",$o1)
+    //execute1(s,this)
+for i=0, TS_num-1 $o1.append(tscells[i])
+    for i=0, TV_num-1 $o1.append(tvcells[i])
+    for i=0, DS_num-1 $o1.append(dscells[i])
+    for i=0, G_num-1 $o1.append(golgi[i])
+}
+
+
+endtemplate TStellateSingle
+
+//One SGC object acts as the spike generator whilst
+// the others are merely VecStim's
+// use  HSRsperchannel,LSRsperchannel and Highspont,Lowspont
+// to instantiate ANchannel object
+
+func GetCF(){
+    return cf.x[$1]
+}
+reps=50
+
+
+begintemplate ANF
+  public spiketimes, spikecount,c
+  public connect2target, cf,model,channel
+  external thresh,
+cf=0
+channel=0
+
+  proc init() {
+    synlist = new List()
+    spiketimes = new Vector()
+    lastspikecount = 0
+    c =  new SGC_fast(0.5)       //Spiral Ganglion Cell
+    c.spont = spont
+    c.cf = cf_
+
+  }   // end init()
+
+
+
+
+endtemplate ANF
+
+begintemplate ANchannel
+public Rate, Spikes, Cells, Connected   //vector variables
+public flag,cf_,channel,tdres,spont,nspks,ncells,reorder  //scalar variables
+public SetRate,ReorderSpikes, Shock,CalcSpikes,ClearSpks,mkcells,SetSR,makeredundant,SetNspks,SetSpikes,Printspks //functions
+
+external GetCF,Rand,reps,cvode
+objref Rate,Cells[1],Spikes[1]
+objref tmpANF, Connected
+cf_ = 0
+channel=0
+flag=0
+nspks=10
+ncells=10
+reorder=0
+proc init() {local i//$o1 Rate, $2 spont, $3 channel, $4number of cells required, $5 tdres
+    objref Rate
+    Rate = $o1
+    spont = $2
+    channel = $3
+    cf_ = GetCF(channel)
+    ncells = $4
+    tdres = $5
+    //Make the Spiral Ganglion stimulating cells
+    objref Spikes[ncells],Cells[ncells]
+
+    for i=0,ncells-1 {
+        Spikes[i] = new Vector()
+        Cells[i] =  new SGC_fast(0.5)       //Spiral Ganglion Cell
+        Cells[i].spont = spont
+        Cells[i].cf = cf_
+        Cells[i].SetFibreRate(Rate,Spikes[i],tdres)
+
+    }
+    nspks=ncells
+    reorder= 0
+
+
+}
+proc SetRate() {local i
+    Rate = $o1
+    tdres = $2
+    for i=0,ncells-1 {
+        if (object_id(Cells[i])){Cells[i].spont = spont
+        Cells[i].cf = cf_
+        Cells[i].SetFibreRate(Rate,Spikes[i],tdres)
+        }
+
+    }
+    if (flag==2) flag = 1
+    reorder=0
+
+}
+proc ClearSpks(){local i
+    for i=0, nspks-1 { Spikes[i].resize(0) }
+    for i=0, ncells-1 {
+        if (object_id(Cells[i])){
+        Cells[i].SetSpikes(Spikes[i])
+        }
+    }
+
+
+}
+proc Shock(){local i
+    for i=0, nspks-1 { Spikes[i].resize(0).append(20) }
+    for i=0, ncells-1 {
+        if (object_id(Cells[i])){
+        Cells[i].SetSpikes(Spikes[i])
+        }
+    }
+}
+proc Printspks(){local i
+
+    for i=0,nspks-1 print Spikes[i].size()
+
+}
+proc SetNspks(){local i
+    nspks = $1
+    objref Spikes[nspks]
+    for i=0,nspks-1 Spikes[i] = new Vector()
+    reorder=0
+    flag = 3
+
+}
+
+proc SetSpikes(){local i,count
+/*   if (!object_id(Connected)){
+    Connected = new Vector()
+    for i=0, ncells-1 if (object_id(Cells[i])){Connected.append(i)}
+//  print "Connected formed ", channel
+}*/
+    count =0
+    reorder=0
+    for i=0, ncells-1 {
+        if (object_id(Cells[i]) && object_id(Spikes[i])){
+        Cells[i].SetSpikes(Spikes[i])
+        Cells[i].spikecount = Spikes[i].size()
+        count+=1
+        }
+    }
+//  print "channel ", channel, " connected ", count
+    flag=3
+
+}
+
+
+proc CalcSpikes() {local i, first
+/*
+Calls spike generator function SGfast()then distributes spikes to Cells.
+    If Reorder flag is on, a pool of spikes are saved and simply
+    reordered among the Cells upon successive calls to CalcSpikes
+*/
+   if (!object_id(Connected)){
+    Connected = new Vector()
+    for i=0, ncells-1 if (object_id(Cells[i])){Connected.append(i)}
+   }
+
+   if (flag>=2){ ReorderSpikes()}
+   if (flag==0){
+    for i=0, Connected.size()-1 Cells[Connected.x[i]].SGfast(1)
+
+   }
+   if (flag==1){
+        reorder=0
+        if (Connected.size()!=0){
+            nspks = reps
+            if (nspks < ncells) nspks = ncells
+            objref Spikes[nspks]
+            Spikes[0]= new Vector()
+            first= Connected.x[0]
+            Cells[first].SetSpikes(Spikes[0])
+            for i=1, nspks-1 {
+         Spikes[i] = new Vector()
+         Cells[first].SGfast(1) //1 rep
+         Spikes[i].copy(Spikes[0])
+        }
+            ReorderSpikes()
+        }
+        flag=2
+   }
+
+
+}
+
+proc ReorderSpikes() {local i
+    for i=0, Connected.size()-1 {
+        Cells[Connected.x[i]].SetSpikes(Spikes[(reorder+i)%(nspks)])
+        Cells[Connected.x[i]].spikecount = Spikes[(reorder+i)%(nspks)].size()
+    }
+    reorder+=1
+}
+proc makeredundant(){ local i localobj xo
+    for i=0,ncells-1 {
+        xo = new List()
+        xo = cvode.netconlist(Cells[i],"","")
+        if (xo.count()==0) Cells[i] = tmpANF
+    }
+    Connected = new Vector()
+    for i=0, ncells-1 if (object_id(Cells[i])){Connected.append(i)}
+}
+proc SetSR(){local i
+    spont = $1
+    reorder=0
+    for i=0,ncells-1 if (object_id(Cells[i])){Cells[i].spont = spont}
+}
+
+endtemplate ANchannel
+
+begintemplate AuditoryNerve
+//variables
+public HSR,LSR,lowest, highest, reorder
+//functions
+public SetSR,PrCons,ReorderSpikes, reset,flag, GenSpikes,ClearSpikes,SetSpikes,redundant,Shock,nspks,Printspks
+//externals
+external nchannels, HSRout, LSRout,sg_rate,Lowspont,Highspont
+external LSRsperchannel, HSRsperchannel,highindex
+
+objref HSR[1], LSR[1]
+//lowest = 0
+//highest = nchannels-1
+proc init(){local i
+    objref HSR[nchannels], LSR[nchannels]
+    lowest = 0
+    highest = nchannels-1
+
+    for i=0, nchannels-1 {
+        HSR[i] = new ANchannel(HSRout[i],Highspont,i,HSRsperchannel, 1/sg_rate)
+        LSR[i] = new ANchannel(LSRout[i],Lowspont,i,LSRsperchannel, 1/sg_rate)
+
+    }
+}
+
+reorder = 0     //Reorder flag enables storage of extra spike times
+            //0 = generate new spike times each run
+            //1 = generates multiple spike time vectors on first pass
+            //then reorders which anfs receive which spike vector
+            //each run
+
+func flag(){        //flag(int) sets the reorder flag in ANF channels
+            //flag() returns the current state
+    if (numarg()==1){
+    for i=lowest, highest {
+        HSR[i].flag =$1
+        LSR[i].flag = $1
+    }
+    reorder = $1
+    }
+    return reorder
+}
+objref nul
+proc reset() {local i
+    //for i=0,lowest-1 {HSRout[i]=nul LSRout[i]=nul}
+    for i=lowest, highest {
+        HSR[i].SetRate(HSRout[i],1/sg_rate)     //also resets reorder variable
+        LSR[i].SetRate(LSRout[i],1/sg_rate)
+    }
+    if (reorder==2) reorder=1
+    flag(reorder)
+}
+func nspks(){local i,sum
+    //counts number of Spike vectors that are stored
+    sum=0
+    for i=lowest, highest {
+        sum+=HSR[i].nspks
+        sum+=LSR[i].nspks
+
+    }
+    print sum, " spikes in ", i-lowest, " channels "
+    return sum
+}
+proc redundant() {local i
+    lowest = $1
+    i=0
+    while (i < lowest ) { HSR[i]=nul LSR[i]=nul i+=1}
+    highest =$2
+    i = nchannels-1
+    while (i > highest ) { HSR[i]=nul LSR[i]=nul i-=1}
+    //for i = lowest,highest{HSR[i].makeredundant() LSR[i].makeredundant()}
+    print "AN Filterbank Reduced to channels ", lowest," to ",highest
+}
+
+proc GenSpikes(){local i
+    for i=lowest, highest  {
+        HSR[i].CalcSpikes()
+        LSR[i].CalcSpikes()
+    }
+}
+proc ReorderSpikes(){local i
+    for i=lowest, highest  {
+        HSR[i].ReorderSpikes()
+        LSR[i].ReorderSpikes()
+    }
+}
+proc SetSpikes(){local i
+    for i=lowest, highest  {
+        HSR[i].SetSpikes()
+        LSR[i].SetSpikes()
+    }
+}
+proc Shock(){local i
+    for i=lowest, highest  {
+        HSR[i].Shock()
+        LSR[i].Shock()
+    }
+}
+proc ClearSpikes(){local i
+    for i=lowest, highest  {
+        HSR[i].ClearSpks()
+        LSR[i].ClearSpks()
+    }
+}
+proc SetSR() {local i
+    for i=lowest, highest  {
+        HSR[i].SetSR(Highspont)
+        LSR[i].SetSR(Lowspont)
+    }
+}
+proc Printspks() {local i
+    for i=lowest, highest  {
+        HSR[i].Printspks()
+        LSR[i].Printspks()
+    }
+}
+proc PrCons() {local i
+    for i=lowest, highest  {
+    HSR[i].Connected.printf()
+    LSR[i].Connected.printf()
+
+    }
+}
+endtemplate AuditoryNerve
+
+
+
+
+
+
+
+
+
+
+// Global Cochlear Nucleus, Auditory Nerve and Parameter Objects
+objref cn,an,p
+create acell_home_
+access acell_home_
+num_TS = 5
+
+
+
+
+
+obfunc GetANF1(){local anfrand, channel,lo
+    //$1 index centre
+    //$2 high or low spont ANF flag
+    //$3 bandwidth
+    if (numarg()==3 && $3 !=1) {
+        //channel = Rand.discunif($1-int($3/2),$1+int($3/2))
+        channel = int(Rand.normal($1,$3/2))
+    }else { if (numarg()==4){
+        lo = MaxBWChannel($1,-2)
+        channel = int(Rand.normal($1,lo/2))
+        if (channel > $1 && Rand.normal(0,1) < 0) channel = 2*$1- channel
+        } else {
+        channel = $1
+        }
+    }
+    if (channel < an.lowest) channel = an.lowest
+    if (channel > an.highest) channel= an.highest
+//  print channel
+    if (!$2){anfrand = Rand.discunif(0,HSRsperchannel-1)
+        return an.HSR[channel].Cells[anfrand]
+    }else {
+        anfrand = Rand.discunif(0,LSRsperchannel-1)
+        return an.LSR[channel].Cells[anfrand]
+    }
+}
+noanf=0
+
+
+
+
+
+objref tempANF
+proc Connect_ANFs2CN() {local i,j,channel, cell, count, anfrand
+    objref tempANF
+    noanf=0
+    //T Stellate Input
+    for i= 0, cn.TS_num-1 {
+        for j=0, p.n.getval(hsr,ts)-1 {
+            tempANF = GetANF1(cn.tscells[i].channel,0,p.bw.getval(hsr,ts))
+            if (!object_id(tempANF)) noanf+=1
+            cn.tscells[i].connect_anf(tempANF,p.delay.getval(hsr,ts), p.w.getval(hsr,ts))
+        }
+        for j=0, p.n.getval(lsr,ts)-1 {
+            tempANF = GetANF1(cn.tscells[i].channel,1,p.bw.getval(lsr,ts))
+            if (!object_id(tempANF)) noanf+=1
+            cn.tscells[i].connect_anf(tempANF,p.delay.getval(lsr,ts), p.w.getval(lsr,ts))
+        }
+
+    }
+    //Tuberculoventral Input
+    for i= 0, cn.TV_num-1 {
+        for j=0, p.n.getval(hsr,tv)-1 {
+            tempANF = GetANF1(cn.tvcells[i].channel,0,p.bw.getval(hsr,tv))
+            if (!object_id(tempANF)) noanf+=1
+            cn.tvcells[i].connect_anf(tempANF,p.delay.getval(hsr,tv), p.w.getval(hsr,tv))
+        }
+        for j=0, p.n.getval(lsr,tv)-1 {
+            tempANF = GetANF1(cn.tvcells[i].channel,1,p.bw.getval(lsr,tv))
+            if (!object_id(tempANF)) noanf+=1
+            cn.tvcells[i].connect_anf(tempANF,p.delay.getval(lsr,tv), p.w.getval(lsr,tv))
+        }
+
+    }
+    //D Stellate Input
+    for i= 0, cn.DS_num-1 {
+        for j=0, p.n.getval(hsr,ds)-1 {
+            tempANF = GetANF1(cn.dscells[i].channel,0,p.bw.getval(hsr,ds),1)
+            if (!object_id(tempANF)) noanf+=1
+            cn.dscells[i].connect_anf(tempANF,p.delay.getval(hsr,ds), p.w.getval(hsr,ds))
+        }
+        for j=0, p.n.getval(lsr,ds)-1 {
+            tempANF = GetANF1(cn.dscells[i].channel,1,p.bw.getval(lsr,ds),1)
+            if (!object_id(tempANF)) noanf+=1
+            cn.dscells[i].connect_anf(tempANF,p.delay.getval(lsr,ds), p.w.getval(lsr,ds))
+        }
+
+    }
+    //Golgi Input   - from LSR only
+    for i= 0, cn.G_num-1 {
+        for j=0, p.n.getval(lsr,glg)-1 {
+            tempANF = GetANF1(cn.golgi[i].channel,1,p.bw.getval(lsr,glg))
+            cn.golgi[i].connect_anf(tempANF,p.delay.getval(lsr,glg), p.w.getval(lsr,glg))
+        }
+    }
+    print "Number of bad calls to GetANF ", noanf
+}
+
+proc RefinedModel(){local lowerbound, upperbound
+    lowerbound = icentre-int(p.bw.getval(ds,ts)/2)//-int(p.bw.getval(hsr,ds)/2)
+    upperbound = icentre + int(p.bw.getval(ds,ts)/2)//+int(p.bw.getval(hsr,ds)/2)
+    if (lowerbound < 0) lowerbound=0
+    if (upperbound >= nchannels) upperbound = nchannels-1
+    an.redundant(lowerbound , upperbound)
+    sg_rate = 10000
+    //RefreshParameters()
+    //ANFilterBankRun()
+    an.reset()
+}
+
+
+//procedure for refining the model
+proc SuperRefinedModel(){local lowerbound, upperbound
+    lowerbound = icentre-15-int(p.bw.getval(hsr,ds)/2)
+    upperbound = icentre + 15+int(p.bw.getval(hsr,ds)/2)
+    if (lowerbound < 0) lowerbound=0
+    if (upperbound >= nchannels) upperbound = nchannels-1
+    an.redundant(lowerbound , upperbound)
+    sg_rate = 10000
+    //RefreshParameters()
+    //ANFilterBankRun()
+    an.reset()
+}
+
+
+proc checkbw(){local ch
+    ch = icentre - (p.bw.getval(2,0)/2)
+    if (ch < 0){
+        print "DS channel out of range"
+        print "Setting New DS bandwidth ", p.bw.getval(2,0)-1
+        p.bw.x[2][0] -=1
+    }
+    ch = icentre + (p.bw.getval(2,0)/2)
+    if (ch  >= nchannels){
+        print "DS channel out of range"
+        print "Setting New DS bandwidth ", p.bw.getval(2,0)-1
+        p.bw.x[2][0] -=1
+    }
+}
+
+num_TS = 5
+proc do_setup_recurrent() { local x
+    x = startsw()
+    setup_time = -1
+    run_time = -1
+    invalid = 1
+    an_time=-1
+    doNotify()
+    objref an,cn,p
+    RefreshParameters()
+    ANFilterBankRun()
+    p = new NetworkParameters(6,4)
+    if (generate_dev_params==1){
+        p.getparameters("optimum.dat")
+        p.randomise()               // comment this when running sims
+       p.saveparameters("defaultrecurrentparams.dat")  //comment this when you are happy with defaultparams
+   }else p.getparameters("defaultrecurrentparams.dat")
+   if(using_gene==1) opt4params(gene)
+//Create Network
+    cn = new CochlearNucleusRec(num_TS,p)
+    cn.connectcells()
+    an = new AuditoryNerve()
+    Connect_ANFs2CN()
+    setup_time = startsw() - x
+    invalid = 0
+    forall {Ra = 150 cm=0.9}
+}
+
+
+proc RecurrentGUI(){
+
+xpanel("CN Recurrent Model Control Panel")
+
+xbutton("Refine Model","SuperRefinedModel()")
+xvalue("Temperature (degC)", "celsius")
+xbutton("Reset Conductances", "cn.reset_gbars()")
+xpvalue("# TS comptmnt", &ns, 1, "invalid=1")
+xpvalue("#TS per channel", &num_TS, 1, "invalid=1")
+xcheckbox("Need to Setup", &invalid, "do_setup_recurrent()")
+
+
+xbutton("RecurrecntParamGui","RecurrecntParamGui()")
+xpanel(50, 300)
+
+}
+
+proc RecurrecntParamGui(){
+xpanel("TS 2 TS")
+
+xlabel("TS2TS")
+xpvalue("weight", &p.w.x[ts][ts], p.w.x[ts][ts], "invalid=1")
+xpvalue("number of cons", &p.n.x[ts][ts], p.n.x[ts][ts], "invalid=1")
+xlabel("DS2TS")
+xpvalue("weight", &p.w.x[ds][ts], p.w.x[ds][ts], "invalid=1")
+xpvalue("number of cons", &p.n.x[ds][ts], p.n.x[ds][ts], "invalid=1")
+xpvalue("bandwidth", &p.bw.x[ds][ts], p.bw.x[ds][ts], "invalid=1")
+xlabel("TV2TS")
+xpvalue("weight", &p.w.x[tv][ts], p.w.x[tv][ts], "invalid=1")
+xpvalue("number of cons", &p.n.x[tv][ts], p.n.x[tv][ts], "invalid=1")
+xpvalue("bandwidth", &p.bw.x[tv][ts], p.bw.x[tv][ts], "invalid=1")
+xlabel("G2TS")
+xpvalue("weight", &p.w.x[glg][ts], p.w.x[glg][ts], "invalid=1")
+xpvalue("number of cons", &p.n.x[glg][ts], p.n.x[glg][ts], "invalid=1")
+xpvalue("bandwidth", &p.bw.x[glg][ts], p.bw.x[glg][ts], "invalid=1")
+xcheckbox("Need to Setup", &invalid, "do_setup_recurrent()")
+
+xpanel()
+}
+
+
+if (using_gui==1) {
+RecurrentGUI()
+}

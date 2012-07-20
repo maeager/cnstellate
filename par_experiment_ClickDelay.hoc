@@ -1,0 +1,115 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+
+// par_experiment_ClickDelay.hoc
+// Cochlear Nucleus network model: experiment file
+
+
+
+forall {Ra = 150 cm=0.9}
+// *** Set-up recording
+objref dsvec, tvec, vstel, vtv //, iclamp
+record_step = 0.1
+record_vec_size = int(tstop/record_step)+1
+dsvec = new Vector(record_vec_size)
+tvec = new Vector(record_vec_size)
+vstel = new Vector(record_vec_size)
+vtv = new Vector(record_vec_size)
+//iclamp = new Vector(record_vec_size)
+record_step = 0.1
+if (pnm.gid_exists(dsgid.x[icentre][0])) dsvec.record(&dstellate[icentre][0].soma.v(0.5),record_step)
+if (pnm.myid == 0) tvec.record(&t,record_step)
+if (pnm.gid_exists(tsgid.x[icentre][0])) vstel.record(&tstellate[icentre][0].soma.v(0.5),record_step)
+if (pnm.gid_exists(tvgid.x[icentre][0])) vtv.record(&tuberculoventral[icentre][0].soma.v(0.5),record_step)
+//if (pnm.gid_exists(tsgid.x[3][3])) iclamp.record(&vclamp.i,record_step)
+
+proc post_record() {
+	if (pnm.gid_exists(dsgid.x[icentre][0])) pnm.pc.post("dsvec", dsvec)
+	if (pnm.gid_exists(tsgid.x[icentre][0])) pnm.pc.post("vstel", vstel)
+	if (pnm.gid_exists(tvgid.x[icentre][0])) pnm.pc.post("vtv", vtv)
+	//if (pnm.gid_exists(tsgid.x[3][3])) pnm.pc.post("iclamp", iclamp)
+}
+proc take_record() {
+	pnm.pc.context("post_record()")
+	if (!pnm.pc.gid_exists(dsgid.x[icentre][0])) pnm.pc.take("dsvec", dsvec)
+	if (!pnm.pc.gid_exists(tsgid.x[icentre][0])) pnm.pc.take("vstel", vstel)
+	if (!pnm.pc.gid_exists(tvgid.x[icentre][0])) pnm.pc.take("vtv", vtv)
+	//if (!pnm.pc.gid_exists(tsgid.x[3][3])) pnm.pc.take("iclamp", iclamp)
+}
+
+// *** Process data and print out results
+xopen("par_calcisilag.hoc") // everybody needs this for the post_results
+
+proc print_results() {
+	print_raster(fileroot)
+	print_an_raster(fileroot)
+	print_an_hist(1,fileroot)
+	sprint(filename,"%s.curvs",fileroot)
+	outfile.wopen(filename)
+	take_record()
+	for i = 0, tvec.size()-1 {
+		if (i>=dsvec.size() || i>=vstel.size() || i>=vtv.size()) break
+		outfile.printf("%8.3g %8.3g %8.3g %8.3g \n",tvec.x[i],dsvec.x[i],vstel.x[i],vtv.x[i])
+	}
+	outfile.close()
+	print "Results printed to files"
+}
+
+
+objref gr,targetclick, dslist,clicktimes,stim
+proc ClickDelay(){local i,j,count,sum,channel,hi,lo,runtime,modfreq
+	
+	
+    runtime				= startsw()
+    ClearSpikes()
+    cfhi				=64000
+	cflo				=200
+	usesavedfilterbanks	=0
+	dur					= 0.08    //duration of stim (seconds)
+	srate				= 500000.0
+	stimtdres			= 1/srate
+	sg_rate				= 500000
+	sg_tdres			= 1/sg_rate
+	stimdelay			= 0.01      //sec
+	stimtype			= 2      //Silence
+	reps				= 25
+	ANmodel				= 6      //Zilany Bruce model
+	species				= 2      //Rat
+	nrep				= 1        //nrep is number of reps of stimulus
+	objref gr,targetclick, dslist,clicktimes,stim
+	
+	
+	clicktimes			= new Vector()
+	clicktimes.append(20,22,40,44,60,68).mul(srate/1000)
+	
+	
+	
+	//Target response
+	//Fraction of repetitions that ellicit a response
+	targetclick			= new Vector()
+	targetclick.append(1,0.2,1,0.45,1,0.6)
+	
+	//Create the stimulus
+	RefreshParameters()
+	stim = new Vector(int(dur/stimtdres),0)
+	for i=0,clicktimes.size-1{//click width=20/srate
+		for j=0,20 stim.x[clicktimes.x[i]+j] = spl2ampl(80)
+	}
+	
+	ANFilterBankRun()
+	SetInputRates()
+	GenInputSpikes()
+    
+	
+}
+
+
+if (!object_id(pnm)) {
+	xpanel("Click Delay")
+	xbutton("Click Delay", "ClickDelay()")
+	xbutton("Plot FSL mean", "ClickDelayPlot()")
+	xpanel()
+}
+
+
+ClickDelay()
