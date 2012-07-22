@@ -134,10 +134,8 @@ param.golgi_spon						= golgi_spon
 
 
 proc DS_params(){
-xopen("pvec_DS_ClickRecovery.hoc")
-param.w.x[glg][ds]						= 0.000531549
-param.w.x[hsr][ds]						= 0.000167221
-param.w.x[lsr][ds]						= 0.013091
+	xopen("pvec_DS_ClickRecovery.hoc")
+	xopen("pvec_DS_RateLevel.hoc")
 param.dstellate_gkltbar					= dstellate_gkltbar
 param.gaba_decay						= gaba_decay
 param.gaba_rise							= gaba_rise
