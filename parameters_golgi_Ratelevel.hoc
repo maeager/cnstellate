@@ -44,6 +44,7 @@ secondorder=2
 	
 	dutycycle 	= 0.2		//quiet duration = dutycycle*dur
 	ramplngth 	= 0.001
+	ANmodel = 6
 	srate 		= 500000.0  
 	stimtdres 	= 1/srate
 	sg_rate = 50000		
