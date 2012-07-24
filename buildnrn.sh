@@ -1,4 +1,5 @@
 #!/bin/sh
+set -eu
 
 # Force rebuilding of AN model files
 rm -f i686/an*
