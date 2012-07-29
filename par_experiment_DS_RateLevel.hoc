@@ -16,6 +16,32 @@ Data is in spikes per stimulus for a 50 ms tone/noise burst.  This needs to be c
 
 */
 
+//////////Default Parameters for DS_RateLevel///////////////
+
+ANsoundspath	    = "../../sounds"
+cfhi				= 48000
+cflo				= 200
+dur                 = 0.049
+ramplngth			= 0.002
+stimdelay			= 0.02   //sec, 20 msec
+dutycycle                       = 0.2 //, usually 0.2
+reps				= 25     //
+ANmodel				= 6      // Zilany Bruce model version 3
+species				= 1      // Cat
+ANFBgr					= new Graph()
+usesavedfilterbanks		= 1
+srate					= 500000
+stimtdres				= 1/srate
+sg_rate					= 50000
+sg_tdres				= 1/sg_rate
+RefreshCF()
+GetAudiogramData()
+
+
+
+
+
+
 // wc -l  ../../cnstellate/TV_RateLevel/Arnott2004_Fig*.dat
 //  20 ../../cnstellate/TV_RateLevel/Arnott2004_Fig3_CF6.3kHz.Noise.dat
 //  20 ../../cnstellate/TV_RateLevel/Arnott2004_Fig3_CF6.3kHz.Tone.dat
@@ -63,13 +89,33 @@ proc save_rate_level(){
 
 //Note the level vector must be set prior to calling this function 
 obfunc set_target_rate_level(){localobj xdata,ydata
+	
 	if (level.size == 0) {
 print "Error setting data"
 return tmp_rate_level
 	}
 	if ( object_id($o1) && $o1.nrow >= 2 && $o1.ncol >= 2){
 	xdata = $o1.getcol(0).add(100)  //0 dBA in data approx. 40dB SPL
-	ydata = $o1.getcol(1).div(0.05) //convert spikes per stimulus to spikes per ms
+	ydata = $o1.getcol(1).div(0.05) //convert spikes per stimulus to spikes per ms for a 50 ms stimulus
+	tmp_rate_level = new Vector()
+	tmp_rate_level.interpolate(level,xdata,ydata)
+	} else {
+	print "Error interpolating data"
+	}
+return tmp_rate_level
+
+}
+
+//Note the level vector must be set prior to calling this function 
+obfunc set_target_rate_level_noise(){localobj xdata,ydata
+	
+	if (level.size == 0) {
+print "Error setting data"
+return tmp_rate_level
+	}
+	if ( object_id($o1) && $o1.nrow >= 2 && $o1.ncol >= 2){
+	xdata = $o1.getcol(0).add(100)  //0 dBA in data approx. 40dB SPL
+	ydata = $o1.getcol(1).div(0.05) //convert spikes per stimulus to spikes per ms for a 50 ms stimulus
 	tmp_rate_level = new Vector()
 	tmp_rate_level.interpolate(level,xdata,ydata)
 	} else {
@@ -86,8 +132,11 @@ proc reset_DS_RateLevel(){local i
   	  if (object_id(dstellate[i][0])) {
 		  sprint(cmd,"dstellate[%d][0].soma.gleak_rm = param.dstellate_gleak_rm",i)
 		  execute1(cmd)
-		  sprint(cmd,"dstellate[%d][0].soma.gkltbar_rm =  dstellate_gkltbar",i)
+		  sprint(cmd,"dstellate[%d][0].soma.gkltbar_klt =  param.dstellate_gkltbar",i)
 		  execute1(cmd)
+		  sprint(cmd,"dstellate[%d][0].soma.gkltbar_rm =  param.dstellate_gnabar_rm",i)
+		  execute1(cmd)
+	  
 	  }
   }
 }
