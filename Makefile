@@ -22,7 +22,7 @@ clean-all: clean
 	-(cd libresample-0.1.3; make clean)
 
 
-gui:  libresample-0.1.3/libresample.a
+gui:  # libresample-0.1.3/libresample.a
 	$(GUIMODL) $(MODLFLAGS)
 	[ -d gui ] && rm -rf gui
 	mv $(ARCH) gui

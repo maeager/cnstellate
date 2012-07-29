@@ -44,7 +44,7 @@ ampa_erev										= 0
 
 //Glycine Receptor time constants see Leao J Neurophysiol  (2004); MNTB mice neurons
 // HartyManis:1998 Slice prep 30C; VCN guinea pigs
-//1mM Gly-> activation time constant 0.8 to 4.6 ms, with a mean of 2.0 � 1.2 ms
+//1mM Gly-> activation time constant 0.8 to 4.6 ms, with a mean of 2.0 +/- 1.2 ms
 // deactivation to 1s glycine ; 2 exponentials, tau f was 15.5 ms and tau s was 73.4 ms
 // LimOleskevichEtAl:2003,AwatramaniTurecekEtAl:2005,LeaoOleskevichEtAl:2004
 gly_decay										= 2.5
@@ -59,7 +59,7 @@ gaba_rise										= 0.7
 gaba_erev										=-72      // in T stellates this is more likely to be closer to RMP as
 //Ferragamo et al. 1998 found no GABAergic IPSPs but the cells were still
 //sensitive to bicuculine
-dstellate_gleak_rm								= 0.0008
+// param.dstellate_gleak_rm								= 0.0008
 
 cfhi											= 20000     //FilterBank upper and lower frequency (Hz)
 cflo											= 200
