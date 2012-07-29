@@ -13,7 +13,7 @@ public ncol,nrow
 //GolgiRateLevel
 public golgi_spatial_filter_variance_LSR,golgi_syn_filter_scale_factor,golgi_spon
 //DS_ClickRecovery
-public dstellate_gkltbar, gaba_decay, gaba_rise, dstellate_gleak_rm, DS_params
+public dstellate_gkltbar, gaba_decay, gaba_rise, dstellate_gleak_rm, dstellate_gnabar_rm, DS_params
 //TV_Notch
 public offset, tv_erev
 //functions
@@ -28,7 +28,21 @@ proc init(){
     w = new Matrix(nrow, ncol)
     delay = new Matrix(nrow,ncol)
     offset=0
-
+	
+	//Default values
+	golgi_spatial_filter_variance_LSR		= 2  //channel units when N=100, cfhi=64k, cflo=200	
+	golgi_syn_filter_scale_factor			= 1														
+	golgi_spon								= 3	
+	
+	dstellate_gkltbar					    = 0.0163897	 //default gleak for Type I-II RM model	 
+	gaba_decay								= 9
+	gaba_rise								= 0.7
+	dstellate_gleak_rm				        = 0.00274146 // default gleak	 
+	dstellate_gnabar_rm				        = 0.408307  //2 times default TypeI-II RM model	   
+	
+	
+	
+	
 }
 
 objref file
@@ -68,24 +82,6 @@ proc saveparameters(){
     objref file
 }
 
-proc golgi_params(){
-golgi_spatial_filter_variance_LSR		= 2.4837
-golgi_syn_filter_scale_factor			= 1.00
-w.x[lsr][glg]							= 0.5166
-w.x[hsr][glg]							= 0.0487
-golgi_spon								= 3.7271
-}
-
-
-proc DS_params(){
-w.x[glg][ds]							= 0.000531549
-w.x[hsr][ds]							= 0.000167221
-w.x[lsr][ds]							= 0.013091
-dstellate_gkltbar						= 0.0163897
-gaba_decay								= 5.43235
-gaba_rise								= 0.261939
-dstellate_gleak_rm						= 0.00274146
-}
 
 proc printparams(){local irow,jcol
      //first object is file 
@@ -115,36 +111,62 @@ proc printparams(){local irow,jcol
 	 file.printf("%s",$s2)
 	 for jcol=0,ncol-1 file.printf("\t%.4f",delay.getval(irow,jcol))
 	 file.printf("\n")
-     }
-    file.printf("%s offset %g\n",$s2,offset)
-     }
-
+ }
+ file.printf("%s golgi_spatial_filter_variance_LSR	 %g\n",$s2,golgi_spatial_filter_variance_LSR	)
+ file.printf("%s golgi_syn_filter_scale_factor %g\n",$s2,golgi_syn_filter_scale_factor	)
+ file.printf("%s golgi_spon %g\n",$s2,golgi_spon)
+ file.printf("%s dstellate_gkltbar	 %g\n",$s2,dstellate_gkltbar)
+ file.printf("%s gaba_decay			 %g\n",$s2,gaba_decay)
+ file.printf("%s gaba_rise			 %g\n",$s2,gaba_rise)
+ file.printf("%s dstellate_gleak_rm  %g\n",$s2,dstellate_gleak_rm)
+file.printf("%s dstellate_gnabar_rm  %g\n",$s2, dstellate_gnabar_rm)
+}
 }
 
 endtemplate NetworkParameters
 
+//default values from Golgi rate-level optimisation
+// proc golgi_params(){
+// param.golgi_spatial_filter_variance_LSR		= 2.4837  //channel units when N=100, cfhi=64k, cflo=200
+// param.golgi_syn_filter_scale_factor			= 1.00
+// param.w.x[lsr][glg]							= 0.5166
+// param.w.x[hsr][glg]							= 0.0487
+// param.golgi_spon								= 3.7271
+// }
+
+// //default values
+// proc DS_params(){
+// param.w.x[glg][ds]							= 0.000531549
+// param.w.x[hsr][ds]							= 0.000167221
+// param.w.x[lsr][ds]							= 0.013091
+// param.dstellate_gkltbar					= 0.0163897
+// param.gaba_decay								= 5.43235
+// param.gaba_rise								= 0.261939
+// param.dstellate_gleak_rm				= 0.00274146
+// param.dstellate_gnabar_rm               = 0.408307
+// }
 
 
-proc golgi_params(){
-xopen("pvec_Golgi_RateLevel.hoc")
-param.golgi_spatial_filter_variance_LSR = golgi_spatial_filter_variance_LSR
-param.golgi_syn_filter_scale_factor		= golgi_syn_filter_scale_factor
-param.golgi_spon						= golgi_spon
-}
+// proc golgi_params(){
+// xopen("pvec_Golgi_RateLevel.hoc")
+// param.golgi_spatial_filter_variance_LSR = golgi_spatial_filter_variance_LSR
+// param.golgi_syn_filter_scale_factor		= golgi_syn_filter_scale_factor
+// param.golgi_spon						= golgi_spon
+// }
 
 
-proc DS_params(){
-	xopen("pvec_DS_ClickRecovery.hoc")
-	xopen("pvec_DS_RateLevel.hoc")
-param.dstellate_gkltbar					= dstellate_gkltbar
-param.gaba_decay						= gaba_decay
-param.gaba_rise							= gaba_rise
-param.dstellate_gleak_rm				= dstellate_gleak_rm
-}
+// proc DS_params(){
+// 	xopen("pvec_DS_ClickRecovery.hoc")
+// 	xopen("pvec_DS_RateLevel.hoc")
+// param.dstellate_gkltbar					= dstellate_gkltbar
+// param.gaba_decay						= gaba_decay
+// param.gaba_rise							= gaba_rise
+// param.dstellate_gleak_rm				= dstellate_gleak_rm
+// }
 
 strdef paramfilename
 param = new NetworkParameters(6,4)
 sprint(paramfilename,"%s/defaultrecurrentparams.dat",cnstellate_dir)
 param.getnetparameters(paramfilename)
-    golgi_params()
-    DS_params()
+//    golgi_params()
+//    DS_params()
