@@ -1004,10 +1004,10 @@ proc ClearSpikes(){local ii,jj
 proc reset_DS_ClickRecovery(){local ii
 	print "updating features for DS_ClickRecovery optimisation routines"
    for ii = 0,nchannels-1 {
-    dstellate[ii][0].soma.gleak_rm = dstellate_gleak_rm
-    dstellate[ii][0].soma.gkltbar_klt =dstellate_gkltbar
-    dstellate[ii][0].GABAA.tau2 = gaba_decay
-    dstellate[ii][0].GABAA.tau1 = gaba_rise
+    dstellate[ii][0].soma.gleak_rm = param.dstellate_gleak_rm
+    dstellate[ii][0].soma.gkltbar_klt = param.dstellate_gkltbar
+    dstellate[ii][0].GABAA.tau2 = param.gaba_decay
+    dstellate[ii][0].GABAA.tau1 = param.gaba_rise
   }
 
 }
