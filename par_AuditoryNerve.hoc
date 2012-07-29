@@ -39,17 +39,19 @@ proc SetRates() {local i,j
 for i=0,nchannels-1  {
 for j=0,HSRsperchannel-1 {
 if (pnm.gid_exists(hsrgid.x[i][j])) {
-   HSR[i][j].cf = cf.x[i]
-   HSR[i][j].spont = Highspont
-HSR[i][j].SetFibreRate(HSRout[i],HSRspiketimes[i][j],sg_tdres)
+	HSR[i][j].channel = i	
+	HSR[i][j].cf = cf.x[i]
+	HSR[i][j].spont = Highspont
+	HSR[i][j].SetFibreRate(HSRout[i],HSRspiketimes[i][j],sg_tdres)
    //      print "HSR[",i,"][",j,"]: Process ",pnm.myid," mean ", HSRout[i].mean()
 }
 }
 for j=0,LSRsperchannel-1 {
 if (pnm.gid_exists(lsrgid.x[i][j])) {
-   LSR[i][j].cf = cf.x[i]
-   LSR[i][j].spont = Lowspont
-   LSR[i][j].SetFibreRate(LSRout[i],LSRspiketimes[i][j],sg_tdres)
+	LSR[i][j].channel = i
+	LSR[i][j].cf = cf.x[i]
+	LSR[i][j].spont = Lowspont
+	LSR[i][j].SetFibreRate(LSRout[i],LSRspiketimes[i][j],sg_tdres)
 }
 }
 }
@@ -151,7 +153,9 @@ endtemplate AuditoryNerve
 // Post and take ANF spiketimes vectors
 
 strdef tempstr
-      /*
+
+/*
+
 proc post_ANF_spikes() {local i,j
    for i=0,nchannels-1  {
       for j=0,HSRsperchannel-1 {
