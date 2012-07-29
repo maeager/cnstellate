@@ -202,13 +202,13 @@ proc multi_run(){local irep,xtime
 
 
 
-//////////Default Parameters for TV_RateLevel///////////////
+//////////Default Parameters for DS_RateLevel///////////////
 
-ANsoundspath			= "../../sounds"
+ANsoundspath	    = "../../sounds"
 cfhi				= 48000
 cflo				= 200
 RefreshCF()
-dur             = 0.049
+dur                 = 0.049
 ramplngth			= 0.002
 stimdelay			= 0.02   //sec, 20 msec
 dutycycle                       = 0.2 //, usually 0.2
@@ -226,7 +226,6 @@ whichcell = ArnottFig3_CFpos
 proc DS_BFtone(){
 	stimtype	= 1     // Pure Tone
 	dur		= 0.049  // duration of stim (seconds)
-	tstop		= 70    // ms
 	tonefreq        = cf.x[whichcell] //Hz, unit 1 CF
 	GetAudiogramData()
 	RefreshParameters()
@@ -489,7 +488,7 @@ Ratelevel()
 
 
 // Target RL data
-objref target_rate_level[4],fitgr, toneRL[8]
+objref target_rate_level[4],fitgr, toneRL[8], noiseRL[8]
 fitgr = new Graph()
 
 error1=0
@@ -497,6 +496,23 @@ error2=0
 error3=0
 error4=0
 
+proc show_fit_curves(){
+	level=new Vector(5)
+	level.indgen().mul(20).add(20) //20:20:100
+	target_rate_level[0] = set_target_rate_level(Arnott2004_Fig3_Tone)
+
+	level=new Vector(6)
+	level.indgen().mul(10).add(50) //50:10:100
+	target_rate_level[2] = set_target_rate_level_noise(Arnott2004_Fig3_Noise)
+	
+	 fitgr = new Graph()
+	  
+     target_rate_level[0].plot(fitgr)
+     //target_rate_level[1].plot(fitgr,toneRL[0],2,1)
+     target_rate_level[2].plot(fitgr)
+     //target_rate_level[3].plot(fitgr,level,2,1)
+	 fitgr.exec_menu("View = plot")
+}
 
 
 func DS_RateLevel_err(){local jj,pp,xtime
@@ -516,17 +532,18 @@ func DS_RateLevel_err(){local jj,pp,xtime
 		execute1(cmd)
     }
 	//Rearrange synapses is using weight parameters
-	// connect_cells_DS(fileroot)
+	connect_cells(fileroot)
+        connect_CNcells(fileroot)
 	reset_weights()
 
 	DS_BFtone()
-	level=new Vector(8)
+	level=new Vector(5)
 	level.indgen().mul(20).add(20) //20:20:100
 	Ratelevel()
 	target_rate_level[0] = set_target_rate_level(Arnott2004_Fig3_Tone)
 	error1 = sqrt(dsrate[whichcell].meansqerr(target_rate_level))
 
-	toneRL[0] = 	level.c
+	toneRL[0] =  level.c
 	toneRL[1] =  dsrate[whichcell].c
 	toneRL[2] =  grate[whichcell].c
 	toneRL[3] =  hsrrate[whichcell].c
@@ -608,75 +625,69 @@ proc runprax(){
 	fit_praxis(NPARAMS,"DS_RateLevel_err",&pvec.x[0])
 }
 
-
+strdef origfileroot
+origfileroot=fileroot
 
 proc printprax2(){local pp,ii,pp2,error
-	//Output model data with best parameters
-	
-    sprint(cmd,"mkdir -p %s",fileroot)
-    system(cmd)
-   	    
-	print error=DS_RateLevel_err(0,&pvec.x[0])
-	system("date",datestr)
-    sprint(fname,"%s/%s.Fit.dat",fileroot,origfileroot)
-	file.wopen(fname)
-	if (file.isopen()){
-		file.printf("# %s Optimisation\n",fileroot)
-		file.printf("# %s \n",datestr)
-		for pp=0,NPARAMS-1 {
-			file.printf("#%s = %g\t[%g,%g]\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp],pvec_ranges.x[pp][0],pvec_ranges.x[pp][1])
-		}
-		file.printf("# RL Error = %g\n", error1)
-		
-		file.printf("# NRL Error = %g\n", error3)
-		
-		file.printf("# Final error = %g\n",error)
-
-		// file.printf("# Principle axis matrix\n")
-		// for pp=0,NPARAMS-1 {
-		// 	pval[pp] = new Vector(NPARAMS)
-		// 	pval_praxis(pp,&pval[pp].x[0])	
-		// 	file.printf("#\t")
-		// 	if (pval[pp].size == NPARAMS){
-		// 		for pp2=0,NPARAMS-1 file.printf("%g\t",pval[pp].x[pp2])
-		// 	}
-		// 	file.printf("\n")
-		// }
-		
-		file.printf("# Level, DS Model, GLG, HSR, LSR (sp/s)\n")
-		for i=0,level.size-1{
-			file.printf("%d\t%g\t%g\t%g\t%g\n",level.x[i],\
-			dsrate[whichcell].x[i],grate[whichcell].x[i],\
-			hsrrate[whichcell].x[i],lsrrate[whichcell].x[i])
-		}
-		file.printf("\n\n",error)
-		for i=0,toneRL[2].size-1{
-			file.printf("%d\t%g\t%g\t%g\t%g\t%g\t%g\n",toneRL[2].x[i],\
-			toneRL[0].x[i],toneRL[1].x[i],\
-			toneRL[3].x[i],toneRL[4].x[i],\
-			toneRL[5].x[i],toneRL[6].x[i])
-		}		
-		file.printf("#Other values \n")
-		 file.printf("#tonefreq = %g\n",cf.x[whichcell])
-		// file.printf("#  halfoct_compress = %g\n",  halfoct_compress)
-		// file.printf("#  halfoct_shift = %g\n",  halfoct_shift)
-		// file.printf("# oct_compress = %g\n", oct_compress)
-		// file.printf("# oct_shift  = %g\n", oct_shift )
-		// file.printf("# centrepoint = %g\n",centrepoint)
-		//file.printf("# DS erev = %g\n",tuberculoventral[0][0].soma.erev_rm)
-		param.printparams(file,"#") //let Network Parameters print the struct
-		file.close()
-	
-	}
-	
-		//Write parameters to general optimisation file
-	sprint(fname,"%s/pvec_%s.hoc",fileroot,origfileroot)
-	file.aopen(fname)
-	file.printf(" // %s  \n",datestr)
-	for pp=0,NPARAMS-1 {
-		file.printf("%s = %g\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp])
+//Output model data with best parameters
+  sprint(cmd,"mkdir -p %s",fileroot)
+  system(cmd)
+print error=DS_RateLevel_err(0,&pvec.x[0])
+system("date",datestr)
+sprint(fname,"%s/%s.Fit.dat",fileroot,origfileroot)
+file.wopen(fname)
+if (file.isopen()){
+file.printf("# %s Optimisation\n",fileroot)
+file.printf("# %s \n",datestr)
+for pp=0,NPARAMS-1 {
+file.printf("#%s = %g\t[%g,%g]\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp],pvec_ranges.x[pp][0],pvec_ranges.x[pp][1])
+}
+file.printf("# RL Error = %g\n", error1)
+file.printf("# NRL Error = %g\n", error3)
+file.printf("# Final error = %g\n",error)
+// file.printf("# Principle axis matrix\n")
+// for pp=0,NPARAMS-1 {
+// 	pval[pp] = new Vector(NPARAMS)
+// 	pval_praxis(pp,&pval[pp].x[0])	
+//	file.printf("#\t")
+//	if (pval[pp].size == NPARAMS){
+//for pp2=0,NPARAMS-1 file.printf("%g\t",pval[pp].x[pp2])
+//	}
+//	file.printf("\n")
+// }
+file.printf("# Level, DS Model, GLG, HSR, LSR (sp/s)\n")
+for i=0,level.size-1{
+	file.printf("%d\t%g\t%g\t%g\t%g\t%g\n",level.x[i],\
+	target_rate_level[2].x[i],\
+	dsrate[whichcell].x[i],grate[whichcell].x[i],\
+	hsrrate[whichcell].x[i],lsrrate[whichcell].x[i])
+}
+file.printf("\n\n",error)
+for i=0,toneRL[0].size-1{
+	file.printf("%d\t%g\t%g\t%g\t%g\t%g\n",toneRL[0].x[i],\
+	target_rate_level[0].x[i],\
+	toneRL[1].x[i],toneRL[2].x[i],\
+	toneRL[3].x[i],toneRL[4].x[i])
+}		
+file.printf("#Other values \n")
+ file.printf("#tonefreq = %g\n",cf.x[whichcell])
+// file.printf("#  halfoct_compress = %g\n",  halfoct_compress)
+// file.printf("#  halfoct_shift = %g\n",  halfoct_shift)
+// file.printf("# oct_compress = %g\n", oct_compress)
+// file.printf("# oct_shift  = %g\n", oct_shift )
+// file.printf("# centrepoint = %g\n",centrepoint)
+//file.printf("# DS erev = %g\n",tuberculoventral[0][0].soma.erev_rm)
+param.printparams(file,"#") //let Network Parameters print the struct
+file.close()
+}
+//Write parameters to general optimisation file
+sprint(fname,"%s/pvec_%s.hoc",fileroot,origfileroot)
+file.aopen(fname)
+file.printf(" // %s  \n",datestr)
+for pp=0,NPARAMS-1 {
+file.printf("%s = %g\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp])
     }
-	file.close()
+file.close()
 }
 
 
@@ -696,15 +707,95 @@ reps=50
 }
 //run_multipleprax()
 
-proc Rerun_ANmodel(){
-	stimtype=1
+proc Rerun_ANmodel_tone(){
+	DS_BFtone()
+	
+	create_cells()
+	for i=0,99 {
+		dsrate[i] = new Vector()
+		lsrrate[i] = new Vector()
+		hsrrate[i] = new Vector()
+		grate[i] = new Vector()
+	}	
+	for (spl=20;spl<=100;spl+=20){
+    RefreshParameters()
+    ANFilterBankRun()
+    //SaveANFilterBank2File()
+    //for i=0,nchannels-1 golgi[i][0].SetRate2()
+    //SaveGolgiFilterBank2File()
+    SetInputRates()	
+
+    ClearSpikes()
+    for irep=0,reps-1{
+		GenInputSpikes()
+        SaveSpikes()
+    }	
+	ANSpikes()
+	for j=0,nchannels-1 {
+		
+			meanrate(golgi[j][0].spikes)
+			grate[j].append(golgi[j][0].spikes.size / (reps * 0.05))
+		
+			for i=1,HSRsperchannel-1 an.HSRspikes[j][0].append(an.HSRspikes[j][i])
+			for i=1,LSRsperchannel-1 an.LSRspikes[j][0].append(an.LSRspikes[j][i])
+			meanrate(an.HSRspikes[j][0])
+			meanrate(an.LSRspikes[j][0])
+			
+			hsrrate[j].append(an.HSRspikes[j][0].size / (HSRsperchannel * reps * 0.05))
+			lsrrate[j].append(an.LSRspikes[j][0].size / (LSRsperchannel * reps * 0.05))
+		}
+		
+		
+	} 
+    fitgr.erase_all()
+    hsrrate[whichcell].plot(fitgr,20,1,1)
+    lsrrate[whichcell].plot(fitgr,20,2,1)
+    grate[whichcell].plot(fitgr,20,3,1)
+}
+
+proc Rerun_ANmodel_noise(){
+
+	DS_Noise()
+	create_cells()
+	for i=0,99 {
+		dsrate[i] = new Vector()
+		lsrrate[i] = new Vector()
+		hsrrate[i] = new Vector()
+		grate[i] = new Vector()
+	}	
 	for (spl=50;spl<=100;spl+=10){
     RefreshParameters()
     ANFilterBankRun()
-    SaveANFilterBank2File()
-    for i=0,nchannels-1 golgi[i][0].SetRate2()
-    SaveGolgiFilterBank2File()
-	}
-}
+    //SaveANFilterBank2File()
+    //for i=0,nchannels-1 golgi[i][0].SetRate2()
+    //SaveGolgiFilterBank2File()
+    SetInputRates()	
 
+    ClearSpikes()
+    for irep=0,reps-1{
+		GenInputSpikes()
+        SaveSpikes()
+    }	
+	ANSpikes()
+	for j=0,nchannels-1 {
+		
+			meanrate(golgi[j][0].spikes)
+			grate[j].append(golgi[j][0].spikes.size / (reps * 0.05))
+		
+			for i=1,HSRsperchannel-1 an.HSRspikes[j][0].append(an.HSRspikes[j][i])
+			for i=1,LSRsperchannel-1 an.LSRspikes[j][0].append(an.LSRspikes[j][i])
+			meanrate(an.HSRspikes[j][0])
+			meanrate(an.LSRspikes[j][0])
+			
+			hsrrate[j].append(an.HSRspikes[j][0].size / (HSRsperchannel * reps * 0.05))
+			lsrrate[j].append(an.LSRspikes[j][0].size / (LSRsperchannel * reps * 0.05))
+		}
+		
+		
+	} 
+    fitgr.erase_all()
+    hsrrate[whichcell].plot(fitgr,10,1,1)
+    lsrrate[whichcell].plot(fitgr,10,2,1)
+    grate[whichcell].plot(fitgr,10,3,1)
+}
 
