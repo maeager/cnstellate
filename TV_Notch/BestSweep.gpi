@@ -3,18 +3,44 @@ cd "/media/data/Work/cnstellate/TV_Notch/"
 #set term post enh color font "Helvetica,14"
 #set output "BestSweep.eps"
 
+## FONTSIZE 18
+## SIZE 7,5
+# reset
+#set terminal postscript eps enhanced defaultplex \
+#    leveldefault color  \
+#    solid dashlength 1.0 linewidth 2.0 butt noclip \
+#    palfuncparam 2000,0.003 \
+#    "Helvetica" 18 
+# set term postscript enhanced color solid "Helvetica" 16
+#set output "DS_ClickRecovery_result.eps"
+set terminal postscript eps size 7,5 enhanced defaultplex \
+   leveldefault color \
+   dashlength 1.0 linewidth 2.0 butt noclip \
+   palfuncparam 2000,0.003 \
+   "Helvetica" 18 
+set output 'BestSweep.eps'
+
+
 set border 3
 set xtics nomirror
 set ytics nomirror
 set style function lines
-set size 1.0, 0.5
+#set size 1.0, 0.5
 #set origin 0.0, 0.0
-set multiplot layout 1,2
-set size 0.5,0.5
-#set origin 0.0,0.5
 
 set xlabel "Rising Edge (octaves)"
-set ylabel "Discharge Rate (sp/s)"
+set xlabel  offset character 0, 0, 0 font "Helvetica,18" textcolor lt -1 norotate
+set x2label  offset character 0, 0, 0 font "" textcolor lt -1 norotate
+set xrange [ * : * ] noreverse nowriteback  # (currently [0.00000:100.000] )
+set x2range [ * : * ] noreverse nowriteback  # (currently [0.00000:97.0000] )
+set ylabel "Discharge Rate (sp/s)" 
+set ylabel  offset character +1, 0, 0 font "Helvetica,18" textcolor lt -1 rotate by -270
+
+set size 1. ,1. #0.5,0.5
+set multiplot layout 2,2
+
+#set origin 0.0,0.5
+
 plot '< grep "^70" half_sweep/*.dat |sed -e "s/.dat:/ /" -e "s#^.*/##"|sort -n ' using (log($1/12700)/log(2)):4 t "1/2 oct" w l ls 1, \
  '< grep "^70" one_sweep/*.dat |sed -e "s/.dat:/ /" -e "s#^.*/##"|sort -n  ' using (log($1/12700)/log(2)):4 t "1 oct" w l ls 1 lc rgb "blue"
 set size 0.5,0.5
@@ -24,3 +50,6 @@ set ylabel "Discharge Rate (sp/s)"
 plot '< grep "^70" half_bsweep/*.dat |sed -e "s/.dat:/ /" -e "s#^.*/##"|sort -n ' using (log($1/12700)/log(2)):4 t "1/2 oct" w l ls 1, \
  '< grep "^70" one_bsweep/*.dat |sed -e "s/.dat:/ /" -e "s#^.*/##"|sort -n  ' using (log($1/12700)/log(2)):4 t "1 oct" w l ls 1 lc rgb "blue"
 
+unset multiplot
+
+!fixbb BestSweep.eps
