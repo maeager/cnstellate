@@ -94,9 +94,8 @@ proc save_rate_level(){
 	for i=0,level.size-1{
 		file.printf("%d\t%g\t%g\t%g\t%g\t%g\t%g\n",level.x[i],\
 		tvrate[0].x[i],tvrate[1].x[i],\
-		dsrate[50].x[i],grate[50].x[i], \
-		hsrrate[50].x[i],lsrrate[50].x[i])
-			
+		dsrate[whichcell].x[i],grate[whichcell].x[i], \
+		hsrrate[whichcell].x[i],lsrrate[whichcell].x[i])			
 	}
 	file.close()
 }	
