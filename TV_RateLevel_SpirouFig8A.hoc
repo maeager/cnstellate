@@ -25,6 +25,7 @@ connect_CNcells(fileroot)
 //Previous optimisation parameters
 xopen("pvec_Golgi_RateLevel.hoc")
 xopen("pvec_DS_ClickRecovery.hoc")
+xopen("pvec_DS_RateLevel.hoc")
 
 reset_weights()
 reset_DS_ClickRecovery()
@@ -281,7 +282,7 @@ proc TV_BFtone(){
 	dur		= 0.049  // duration of stim (seconds)
 	tstop		= 70    // ms
 	spl		= 20     //dB SPL
-	tonefreq        = cf.x[50] //Hz, unit 1 CF
+	tonefreq        = cf.x[whichcell] //Hz, unit 1 CF
 	GetAudiogramData()
 	RefreshParameters()
 	ANFilterBankRun()
@@ -294,7 +295,7 @@ proc TV_Noise(){
 	dur				    = 0.049  // duration of stim (seconds)
 	tstop				= 70    // ms
 	spl				    = 20     //dB SPL
-	tonefreq            = cf.x[50] //Hz, unit 1 CF
+	tonefreq            = cf.x[whichcell] //Hz, unit 1 CF
 	GetAudiogramData()
 	RefreshParameters()
 	ANFilterBankRun()
@@ -479,10 +480,10 @@ for j=0,nchannels-1 {
 //	fvec.plot(rate_level_graph,2,2)
 	tvrate[0].plot(rate_level_graph,level ,1,1)
 	tvrate[1].plot(rate_level_graph,level ,2,1)
-	grate[50].plot(rate_level_graph,level,5,1)	
-	dsrate[50].plot(rate_level_graph,level,3,1)	
-	hsrrate[50].plot(rate_level_graph,level,4,1)
-	lsrrate[50].plot(rate_level_graph,level,5,1)
+	grate[whichcell].plot(rate_level_graph,level,5,1)	
+	dsrate[whichcell].plot(rate_level_graph,level,3,1)	
+	hsrrate[whichcell].plot(rate_level_graph,level,4,1)
+	lsrrate[whichcell].plot(rate_level_graph,level,5,1)
 	rate_level_graph.exec_menu("View = plot")
 	
 }//Ratelevel
@@ -571,7 +572,7 @@ func TV_RateLevel_err(){local jj,pp,xtime
 	for i = 0, ds2tvGLYlist.count-1 if(ds2tvGLYlist.object(i).postcell() == tuberculoventral[0][1]) print ds2tvGLYlist.object(i).weight=0
 	TV_BFtone()
 	level=new Vector(10)
-	level.indgen().mul(3).add(20) //20:3:60
+	level.indgen().mul(5).add(20) //20:3:60
 	Ratelevel()
 	target_rate_level[0] = set_target_rate_level(SpirouFig8A_Control_Tone)
 	error1 = sqrt(tvrate[0].meansqerr(target_rate_level[0]))
@@ -581,10 +582,10 @@ func TV_RateLevel_err(){local jj,pp,xtime
 	toneRL[0] = tvrate[0].c
 	toneRL[1] = tvrate[1].c
 	toneRL[2] = level.c
-	toneRL[3] = dsrate[50].c
-	toneRL[4] = grate[50].c
-	toneRL[5] = hsrrate[50].c
-	toneRL[6] = lsrrate[50].c
+	toneRL[3] = dsrate[whichcell].c
+	toneRL[4] = grate[whichcell].c
+	toneRL[5] = hsrrate[whichcell].c
+	toneRL[6] = lsrrate[whichcell].c
 	
 	save_rate_level()	
 	
@@ -661,19 +662,19 @@ func TV_RateLevel_err2(){local jj,pp,xtime
 	for i = 0, ds2tvGLYlist.count-1 if(ds2tvGLYlist.object(i).postcell() == tuberculoventral[0][1]) print ds2tvGLYlist.object(i).weight=0
 	TV_BFtone()
 	level=new Vector(3)
-	level.indgen().mul(15).add(20) //20:3:60
+	level.indgen().mul(15).add(20) //20:15:60
 	Ratelevel()
 	target_rate_level[0] = set_target_rate_level(SpirouFig8A_Control_Tone)
-	error1 = sqrt(tvrate[0].meansqerr(target_rate_level))
+	error1 = sqrt(tvrate[0].meansqerr(target_rate_level[0]))
 	target_rate_level[1] = set_target_rate_level(SpirouFig8A_wStr_Tone)
-	error2 = sqrt(tvrate[1].meansqerr(target_rate_level))
+	error2 = sqrt(tvrate[1].meansqerr(target_rate_level[1]))
 	toneRL[0] = 	tvrate[0].c
 	toneRL[1] = 	tvrate[1].c
 	toneRL[2] = 	level.c
-	toneRL[3] =  dsrate[50].c
-	toneRL[4] =  grate[50].c
-	toneRL[5] =  hsrrate[50].c
-	toneRL[6] =  lsrrate[50].c
+	toneRL[3] =  dsrate[whichcell].c
+	toneRL[4] =  grate[whichcell].c
+	toneRL[5] =  hsrrate[whichcell].c
+	toneRL[6] =  lsrrate[whichcell].c
 	
 	save_rate_level()	
 	TV_Noise()
@@ -730,7 +731,7 @@ func TV_RateLevel_err2(){local jj,pp,xtime
 proc QuickRun(){
 	set_pvec()
     pvec.printf
-    print TV_RateLevel_err2(0,&pvec.x[0])
+    print TV_RateLevel_err(0,&pvec.x[0])
 }
 
 proc runprax2(){
@@ -744,7 +745,7 @@ proc runprax2(){
 
 proc runprax(){
 	attr_praxis(0.001, 0.001, 3)
-	fit_praxis(NPARAMS,"TV_RateLevel_err2",&pvec.x[0])
+	fit_praxis(NPARAMS,"TV_RateLevel_err",&pvec.x[0])
 }
 
 
@@ -789,8 +790,8 @@ proc printprax2(){local pp,ii,pp2,error
 		for i=0,level.size-1{
 			file.printf("%d\t%g\t%g\t%g\t%g\t%g\t%g\n",level.x[i],\
 			tvrate[0].x[i],tvrate[1].x[i],\
-			dsrate[50].x[i],grate[50].x[i],\
-			hsrrate[50].x[i],lsrrate[50].x[i])
+			dsrate[whichcell].x[i],grate[whichcell].x[i],\
+			hsrrate[whichcell].x[i],lsrrate[whichcell].x[i])
 		}
 		file.printf("\n\n",error)
 		for i=0,toneRL[2].size-1{
@@ -846,3 +847,84 @@ proc Rerun_ANmodel(){
 	    SaveGolgiFilterBank2File()
 	}
 }
+
+proc Rerun_ANmodel_tone(){
+	DS_BFtone()
+		create_cells()
+	for i=0,99 {
+		dsrate[i] = new Vector()
+		lsrrate[i] = new Vector()
+		hsrrate[i] = new Vector()
+		grate[i] = new Vector()
+	}	
+	for (spl=20;spl<=100;spl+=10){
+    RefreshParameters()
+    ANFilterBankRun()
+    //SaveANFilterBank2File()
+    //for i=0,nchannels-1 golgi[i][0].SetRate2()
+    //SaveGolgiFilterBank2File()
+    SetInputRates()	
+
+    ClearSpikes()
+    for irep=0,reps-1{
+		GenInputSpikes()
+        SaveSpikes()
+    }	
+	ANSpikes()
+	for j=0,nchannels-1 {
+			meanrate(golgi[j][0].spikes)
+			grate[j].append(golgi[j][0].spikes.size / (reps * 0.05))
+			for i=1,HSRsperchannel-1 an.HSRspikes[j][0].append(an.HSRspikes[j][i])
+			for i=1,LSRsperchannel-1 an.LSRspikes[j][0].append(an.LSRspikes[j][i])
+			meanrate(an.HSRspikes[j][0])
+			meanrate(an.LSRspikes[j][0])
+			hsrrate[j].append(an.HSRspikes[j][0].size / (HSRsperchannel * reps * 0.05))
+			lsrrate[j].append(an.LSRspikes[j][0].size / (LSRsperchannel * reps * 0.05))
+		}
+	} 
+    fitgr.erase_all()
+    hsrrate[whichcell].plot(fitgr,20,1,1)
+    lsrrate[whichcell].plot(fitgr,20,2,1)
+    grate[whichcell].plot(fitgr,20,3,1)
+}
+
+proc Rerun_ANmodel_noise(){
+
+	DS_Noise()
+	create_cells()
+	for i=0,99 {
+		dsrate[i] = new Vector()
+		lsrrate[i] = new Vector()
+		hsrrate[i] = new Vector()
+		grate[i] = new Vector()
+	}	
+	for (spl=40;spl<=100;spl+=10){
+    RefreshParameters()
+    ANFilterBankRun()
+    //SaveANFilterBank2File()
+    //for i=0,nchannels-1 golgi[i][0].SetRate2()
+    //SaveGolgiFilterBank2File()
+    SetInputRates()	
+    ClearSpikes()
+    for irep=0,reps-1{
+		GenInputSpikes()
+        SaveSpikes()
+    }	
+	ANSpikes()
+	for j=0,nchannels-1 {
+			meanrate(golgi[j][0].spikes)
+			grate[j].append(golgi[j][0].spikes.size / (reps * 0.05))
+			for i=1,HSRsperchannel-1 an.HSRspikes[j][0].append(an.HSRspikes[j][i])
+			for i=1,LSRsperchannel-1 an.LSRspikes[j][0].append(an.LSRspikes[j][i])
+			meanrate(an.HSRspikes[j][0])
+			meanrate(an.LSRspikes[j][0])
+			hsrrate[j].append(an.HSRspikes[j][0].size / (HSRsperchannel * reps * 0.05))
+			lsrrate[j].append(an.LSRspikes[j][0].size / (LSRsperchannel * reps * 0.05))
+		}
+	} 
+    fitgr.erase_all()
+    hsrrate[whichcell].plot(fitgr,10,1,1)
+    lsrrate[whichcell].plot(fitgr,10,2,1)
+    grate[whichcell].plot(fitgr,10,3,1)
+}
+
