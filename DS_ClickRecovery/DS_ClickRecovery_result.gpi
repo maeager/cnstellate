@@ -41,7 +41,7 @@ set style line 4 lt 1 lw 1 pt 0 pi -1 ps 2  lc rgb '#777777'
 # set term svg size 350,262 font 'Verdana,10'
 # set output "DS_ClickRecovery_result.svg"
 # set size 2.5,1
-set multiplot layout 2,2 #xscale 2
+set multiplot layout 2,1 #xscale 2
 
 plot "/media/data/Work/cnstellate/DS_ClickRecovery/DS_ClickRecovery.Fit0.dat" using 1:5 with l notitle ls 4, \
  "/media/data/Work/cnstellate/DS_ClickRecovery/DS_ClickRecovery.Fit1.dat" using 1:5 with l notitle ls 4, \

@@ -1,4 +1,5 @@
-
+#!/bin/sh
+set -e
 
 ./i686/special TV_Notch.hoc -c "NotchRun110()" -c "quit()"
 ./i686/special TV_Notch.hoc -c "NotchRun100()"  -c "quit()"

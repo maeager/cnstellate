@@ -1,4 +1,6 @@
 #!/bin/sh
+set -o errexit
+
 
 mpispecial -np 1 par_golgi_Ratelevel.hoc
 
