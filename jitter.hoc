@@ -1,0 +1,25 @@
+
+
+
+proc jitterdelay() { local i // 1 arg - weight
+//jitter ANF->TS connections
+Rand.normal($1,$2)
+for i = 0,lsr2tsAMPAlist.count()-1 {
+    hsr2tsAMPAlist.object(i).delay += abs(Rand.repick()) 
+}
+for i = 0,lsr2tsAMPAlist.count()-1 {
+    lsr2tsAMPAlist.object(i).delay += abs(Rand.repick()) 
+}
+}
+
+
+proc jitterdelay_DS() { local i // 1 arg - weight
+//jitter ANF->TS connections
+Rand.normal($1,$2)
+for i = 0,hsr2dsAMPAlist.count()-1 {
+    hsr2dsAMPAlist.object(i).delay += abs(Rand.repick()) 
+}
+for i = 0,lsr2dsAMPAlist.count()-1 {
+    lsr2dsAMPAlist.object(i).delay += abs(Rand.repick()) 
+}
+}
