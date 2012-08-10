@@ -32,7 +32,7 @@ public spikes,spiketimes       //storage vectors
 public connect2target, synlist //synapse connection function and list 
 public cf,model,channel 	 //identifying parameters ...
 public set_tstellate, set_dstellate,set_tuberc,set_golgi, nstomho,qt //member functions
-public SaveSpikes
+public SaveSpikes,ClearSpikes
 
 external thresh,Erest
 external ampa_decay,ampa_erev,gly_decay,gly_erev,gly_rise, gaba_decay, gaba_erev,gaba_rise
@@ -209,6 +209,13 @@ proc set_golgi() {
 proc SaveSpikes(){
     if (object_id(spikes)==0) spikes = new Vector()
     spikes.append(spiketimes)
+}
+
+proc ClearSpikes(){
+if (object_id(spikes)==0) spikes = new Vector()
+    spikes.resize(0)
+    spiketimes.resize(0)
+	
 }
 
 endtemplate CNcell
