@@ -1,0 +1,42 @@
+syntax: glob
+*.curvs
+*.connect
+*.bak
+*.sav
+*~
+*.o
+*.backup
+*.out
+*.aux
+*.bbl
+*.lot
+*.lof
+*.log
+*.toc
+*.eps
+# *.dat
+*.png
+*.pdf
+*.hist
+mpi/*
+gui/*
+i686/*
+x86_64/*
+.svn/*
+$pfebk/*
+*.ps
+*.pdf
+Responses*/*
+Responses*/*/*.dat
+Responses*/*/*/*.dat
+Responses*/*/*/*/*.dat
+libresample-0.1.3/*
+TV_Notch/*
+TV_Notch_spl50/*
+
+syntax: regexp
+.*\#.*\#$
+
+glob:*.diff
+glob:tags
+glob:*.orig

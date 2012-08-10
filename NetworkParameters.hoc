@@ -1,0 +1,172 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+/*
+ *  NetworkParameters.hoc
+ */
+
+
+objref param
+
+begintemplate NetworkParameters
+public bw,n,w,delay   //bandwidth(spread), number, weight, delay
+public ncol,nrow
+//GolgiRateLevel
+public golgi_spatial_filter_variance_LSR,golgi_syn_filter_scale_factor,golgi_spon
+//DS_ClickRecovery
+public dstellate_gkltbar, gaba_decay, gaba_rise, dstellate_gleak_rm, dstellate_gnabar_rm, DS_params
+//TV_Notch
+public offset, tv_erev
+//functions
+public getnetparameters, saveparameters,printparams
+objref bw, n, w,delay
+offset=3
+tv_erev=-65
+proc init(){
+    nrow = $1  ncol = $2
+    bw = new Matrix(nrow, ncol)
+    n = new Matrix(nrow, ncol)
+    w = new Matrix(nrow, ncol)
+    delay = new Matrix(nrow,ncol)
+    offset=0
+	
+	//Default values
+	golgi_spatial_filter_variance_LSR		= 2  //channel units when N=100, cfhi=64k, cflo=200	
+	golgi_syn_filter_scale_factor			= 1														
+	golgi_spon								= 3	
+	
+	dstellate_gkltbar					    = 0.0163897	 //default gleak for Type I-II RM model	 
+	gaba_decay								= 9
+	gaba_rise								= 0.7
+	dstellate_gleak_rm				        = 0.00274146 // default gleak	 
+	dstellate_gnabar_rm				        = 0.408307  //2 times default TypeI-II RM model	   
+	
+	
+	
+	
+}
+
+objref file
+strdef filename
+proc getnetparameters(){
+    objref file
+    filename = $s1
+    file = new File()
+    file.ropen(filename)
+    bw.scanf(file)
+    n.scanf(file)
+    w.scanf(file)
+    delay.scanf(file)
+    offset = file.scanvar()
+    file.close()
+
+}
+proc getdelay() {
+    objref file
+    filename = "delays.dat"
+    file= new File()
+    file.ropen(filename)
+    delay.scanf(file)
+    file.close()
+}
+proc saveparameters(){
+    objref file
+    filename = $s1
+    file = new File()
+    file.wopen(filename)
+    bw.fprint(file)
+    n.fprint(file)
+    w.fprint(file)
+    delay.fprint(file)
+    file.printf("%d\n",offset)
+    file.close()
+    objref file
+}
+
+
+proc printparams(){local irow,jcol
+     //first object is file 
+     //second variable is string
+ file = $o1
+     if (file.isopen()){
+    file.printf("%s bandwidth\n",$s2)
+     for irow=0, nrow-1 {
+	 file.printf("%s",$s2)
+	 for jcol=0,ncol-1 file.printf("\t%.4f",bw.getval(irow,jcol))
+	 file.printf("\n")
+     }
+     file.printf("%s num. connections\n",$s2)
+     for irow=0, nrow-1 {
+	 file.printf("%s",$s2)
+	 for jcol=0,ncol-1 file.printf("\t%d",n.getval(irow,jcol))
+	 file.printf("\n")      
+     }
+     file.printf("%s weights\n",$s2)
+     for irow=0, nrow-1 {
+	 file.printf("%s",$s2)
+	 for jcol=0,ncol-1 file.printf("\t%.8g",w.getval(irow,jcol))
+	 file.printf("\n")
+     }
+     file.printf("%s delay\n",$s2)
+     for irow=0, nrow-1 {
+	 file.printf("%s",$s2)
+	 for jcol=0,ncol-1 file.printf("\t%.4f",delay.getval(irow,jcol))
+	 file.printf("\n")
+ }
+ file.printf("%s golgi_spatial_filter_variance_LSR	 %g\n",$s2,golgi_spatial_filter_variance_LSR	)
+ file.printf("%s golgi_syn_filter_scale_factor %g\n",$s2,golgi_syn_filter_scale_factor	)
+ file.printf("%s golgi_spon %g\n",$s2,golgi_spon)
+ file.printf("%s dstellate_gkltbar	 %g\n",$s2,dstellate_gkltbar)
+ file.printf("%s gaba_decay			 %g\n",$s2,gaba_decay)
+ file.printf("%s gaba_rise			 %g\n",$s2,gaba_rise)
+ file.printf("%s dstellate_gleak_rm  %g\n",$s2,dstellate_gleak_rm)
+file.printf("%s dstellate_gnabar_rm  %g\n",$s2, dstellate_gnabar_rm)
+}
+}
+
+endtemplate NetworkParameters
+
+//default values from Golgi rate-level optimisation
+// proc golgi_params(){
+// param.golgi_spatial_filter_variance_LSR		= 2.4837  //channel units when N=100, cfhi=64k, cflo=200
+// param.golgi_syn_filter_scale_factor			= 1.00
+// param.w.x[lsr][glg]							= 0.5166
+// param.w.x[hsr][glg]							= 0.0487
+// param.golgi_spon								= 3.7271
+// }
+
+// //default values
+// proc DS_params(){
+// param.w.x[glg][ds]							= 0.000531549
+// param.w.x[hsr][ds]							= 0.000167221
+// param.w.x[lsr][ds]							= 0.013091
+// param.dstellate_gkltbar					= 0.0163897
+// param.gaba_decay								= 5.43235
+// param.gaba_rise								= 0.261939
+// param.dstellate_gleak_rm				= 0.00274146
+// param.dstellate_gnabar_rm               = 0.408307
+// }
+
+
+// proc golgi_params(){
+// xopen("pvec_Golgi_RateLevel.hoc")
+// param.golgi_spatial_filter_variance_LSR = golgi_spatial_filter_variance_LSR
+// param.golgi_syn_filter_scale_factor		= golgi_syn_filter_scale_factor
+// param.golgi_spon						= golgi_spon
+// }
+
+
+// proc DS_params(){
+// 	xopen("pvec_DS_ClickRecovery.hoc")
+// 	xopen("pvec_DS_RateLevel.hoc")
+// param.dstellate_gkltbar					= dstellate_gkltbar
+// param.gaba_decay						= gaba_decay
+// param.gaba_rise							= gaba_rise
+// param.dstellate_gleak_rm				= dstellate_gleak_rm
+// }
+
+strdef paramfilename
+param = new NetworkParameters(6,4)
+sprint(paramfilename,"%s/defaultrecurrentparams.dat",cnstellate_dir)
+param.getnetparameters(paramfilename)
+//    golgi_params()
+//    DS_params()

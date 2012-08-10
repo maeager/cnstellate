@@ -1,0 +1,45 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+create acell_home_
+access acell_home_
+load_file("netparmpi.hoc")
+objref pnm, nil, hsrgid,lsrgid,tsgid, tvgid,dsgid,glggid
+pnm = new ParallelNetManager(0)
+
+proc netpar_mkpnm() {local ncell
+    hsrgid = new Matrix(nchannels, HSRsperchannel)
+	lsrgid = new Matrix(nchannels, LSRsperchannel)
+	tsgid = new Matrix(nchannels, nTSperchannel)
+	tvgid = new Matrix(nchannels, nTVperchannel)
+    dsgid = new Matrix(nchannels, nDSperchannel)
+    glggid= new Matrix(nchannels, nGperchannel)
+	ncell = nchannels*(HSRsperchannel+LSRsperchannel+nTSperchannel + nTVperchannel+ nDSperchannel + nGperchannel)
+	pnm.ncell = ncell
+	print "ncell=",ncell
+	pnm.round_robin()
+	gidcnt=0
+}
+
+obfunc netpar_create() {localobj cell
+	cell = pnm.create_cell(gidcnt, $s1)
+	$o2.x[$3][$4] = gidcnt
+	gidcnt += 1
+	return cell
+}
+
+func netpar_connect() { local i
+	i = pnm.nc_append($o1.x[$2][$3], $o4.x[$5][$6], $7,  $9, $8)
+	return i
+}
+
+proc netpar_weight() {
+	if ($o1.x[$2] != -1) {
+		pnm.nclist.object($o1.x[$2]).weight = $3
+	}
+}
+
+proc netpar_delay() {
+	if ($o1.x[$2] != -1) {
+		pnm.nclist.object($o1.x[$2]).delay = $3
+	}
+}

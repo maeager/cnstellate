@@ -1,0 +1,36 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+
+
+// Cochlear Nucleus network model: parameters file
+// based on parameters_odour_baseline.hoc by Andrew Davison
+// Michael Eager, University of Melbourne
+
+nchannels		= 100               // Total number of frequency channels
+nTSperchannel   = 1           // number of TS cells in each freq channel
+numTS			= nchannels*nTSperchannel   // total number of TS cells
+nTVperchannel   = 1           // number of TV cells in each freq channel
+numTV			= nchannels*nTVperchannel       // total number of TV cells
+nDSperchannel   = 1           // number of DS cells in each freq channel
+numDS			= nchannels*nDSperchannel       // total number of DS cells
+nGperchannel	= 1          // number of Golgi cells in each freq channel
+numG			= nchannels*nGperchannel       // total number of Golgi cells
+
+seed			= 0         // seed for random number generator see InitRandom()
+thresh			= -10       // mV, threshold for detecting spikes
+
+
+strdef fileroot
+sprint(fileroot,"vowel_baseline")   // root for output filenames
+vowelnumber		= 1                       // which vowel
+inputnumber		= 1                         // fixed input file
+tstop			= 400                             // ms, total simulation time
+ttrans			= 20                           // ms,  when calculating statistics, ignore
+                                              // spikes occuring before this time
+cvode.active(0)
+dt				= 0.05
+steps_per_ms	= 10                   // NEURON variable
+setdt()
+dt				=0.1                                       //ms, integration time step
+celsius			= 37                               //degrees C, body  temperature
+secondorder		=2                          //second order integration

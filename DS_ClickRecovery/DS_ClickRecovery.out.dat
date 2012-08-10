@@ -1,0 +1,15 @@
+# DS_ClickRecovery data
+# Mon Sep 14 00:26:51 EST 2009
+# weight GLG->DS =0.00
+# weight ANF->DS =0.00
+# final error=0.00
+# Index	Target Rate (normalised)	 Output
+0	1.000	0.200	1.000	0.000
+1	1.000	0.300	1.000	0.120
+2	1.000	0.450	1.000	0.280
+3	1.000	0.630	1.000	1.000
+4	1.000	1.000	1.000	1.000
+# Error in quiet regions#  0.080
+#  0.760
+#  0.080
+#  0.320
