@@ -45,7 +45,8 @@
   ANmodel = 7
   RefreshCF()
   GetAudiogramData()
-  tonefreq = cf.x[icentre]
+whichcell = icentre  
+  tonefreq = cf.x[whichcell]
   
   //Optimisation parameters
   print "Optimisation parameters for TV Notch"
@@ -68,7 +69,7 @@
   pvec_name.append(new String("param.n.x[ds][tv]"))	    pvec.append(0.020 )     pvec_factor.append(1000)	
   pvec_ranges.x[3][1]=0.2  
   pvec_ranges.x[3][0]=0.001
-pvec_name.append(new String("param.tv_erev"))	pvec.append(-0.065)	pvec_factor.append(1000) pvec_ranges.x[4][0] =-0.08
+  pvec_name.append(new String("param.tv_erev"))	pvec.append(-0.065)	pvec_factor.append(1000) pvec_ranges.x[4][0] =-0.08
   pvec_ranges.x[4][1]=-0.05 
 
 //  pvec_name.append(new String("param.bw.x[ds][tv]"))	pvec.append(0.0008)	pvec_factor.append(1000)
