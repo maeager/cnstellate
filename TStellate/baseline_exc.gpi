@@ -3,15 +3,12 @@
 
 load '/media/data/Work/cnstellate/Responses/default.gnu'
 
-# set terminal postscript eps enhanced defaultplex \
-#   leveldefault mono solid\
-#   dashlength 1.0 linewidth 2.0 butt noclip \
-#   palfuncparam 2000,0.003 \
-#   "Helvetica" 18 
-
-
-
-# set output "baseline_exc.eps"
+set terminal postscript eps enhanced size 7,5 defaultplex \
+   leveldefault mono solid\
+   dashlength 1.0 linewidth 2.0 butt noclip \
+   palfuncparam 2000,0.003 \
+   "Helvetica" 18 
+set output "baseline_exc.eps"
 
 set multiplot layout 1,2 scale 1,0.3
 unset key
@@ -20,7 +17,7 @@ unset border
 unset ytics
 set tmargin 0
 set rmargin 0
-unset arrow 2
+#unset arrow 2
 
 set label 1 '{/Helvetica=20 A}' at 10,-50
 set label 3 '{/Helvetica=14 10 mV}' at 0,-65 right rotate 
@@ -35,3 +32,5 @@ plot [10:110][-70:-50] "/media/data/Work/cnstellate/TStellate/hsr_single_noNa.da
 
 
 unset multiplot
+
+!fixbb baseline_exc.eps
