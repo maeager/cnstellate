@@ -1,8 +1,9 @@
 % This m file can be used to extract AN filter bank responses to be used
 % in plotting
+
 ANfile = fopen(tmpANstr)
 if (isopen(ANfile))
-  tmp = fscanf(ANfile,"%d\n",6);       
+  tmp = fscanf(ANfile,"%d\n",6);
   sg_rate = tmp(1);
   nsize = tmp(2);
   nchannels = tmp(3);
@@ -14,7 +15,7 @@ if (isopen(ANfile))
   cf = zeroes(nchannels,1);
   for icf = 1:nchannels
     if (fscanf(ANfile,"%d\n",1) == icf)
-      cf(icf) = fscanf(ANfile,"%d\n",1) 
+      cf(icf) = fscanf(ANfile,"%d\n",1)
       LSRout(:,icf) = fscanf(ANfile,"%.3f\t",nsize);
       HSRout(:,icf) = fscanf(ANfile,"%.3f\t",nsize);
     end
