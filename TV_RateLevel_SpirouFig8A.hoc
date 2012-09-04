@@ -1,9 +1,10 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
 /*
-*   TV_Notch.hoc
+*   TV_Notch.hoc for the Unit in Fig 8A of Spirou et al 1999
 *
 */
+
 load_file("nrngui.hoc")
 //load_file("par_netpar.hoc")
 //load_file("par_init.hoc")

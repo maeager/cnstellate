@@ -71,16 +71,17 @@ func cochlea_x2f() { local species, f, dist
         }
         f=165.4*((10^(0.06*dist))-0.88)
     } \
-    else{ if (species == 2) {
-        // rat
-        f = 7613.3*((10^(dist/8.65))-1.0)
-    } \
-    else{
-        //cat
-        f = 456.0*((10^(dist/11.9))-0.80)
-    }
-}
-return f
+    else{ 
+		if (species == 2) {
+			// rat
+			f = 7613.3*((10^(dist/8.65))-1.0)
+		} \
+		else{
+			//cat
+			f = 456.0*((10^(dist/11.9))-0.80)
+		}
+	}
+	return f
 }
 
 /********************************************************
@@ -94,17 +95,17 @@ proc InitRandom() {
     
     seed = 0
     if (use_seed) {
-	system("date +%s", seedstr)
-	sscanf(seedstr, "%f", &seed)
-	if (name_declared("pnm") == 0) print "Random seed:" , seed
-	Rand = new Random(seed)
+		system("date +%s", seedstr)
+		sscanf(seedstr, "%f", &seed)
+		if (name_declared("pnm") == 0) print "Random seed:" , seed
+		Rand = new Random(seed)
     } \
     else{
-	highindex = 0
-	lowindex = mcell_ran4_init()
-	variable_domain(&highindex, 0, 2^32-1)
-	if (name_declared("pnm") == 0) print "RNG initialised ",lowindex, " ", highindex
-	Rand = new Random()
+		highindex = 0
+		lowindex = mcell_ran4_init()
+		variable_domain(&highindex, 0, 2^32-1)
+		if (name_declared("pnm") == 0) print "RNG initialised ",lowindex, " ", highindex
+		Rand = new Random()
     }
 }
 InitRandom()
@@ -548,17 +549,17 @@ proc FilteredNoise() {local rampts, rstep, totalpts, steadypts, duration,spl,cyc
     notchdepth			= $8
     inputsound			= new Vector()
     if(notchwidth > 10){
-	sprint(wavdatafile,"./TV_Notch/Notch-sb%g-sb%g.dat",stopband1,notchwidth)
+		sprint(wavdatafile,"./TV_Notch/Notch-sb%g-sb%g.dat",stopband1,notchwidth)
     } \
     else {
-	sprint(wavdatafile,"./TV_Notch/Notch-sb%g-%goct.dat",stopband1,notchwidth)
+		sprint(wavdatafile,"./TV_Notch/Notch-sb%g-%goct.dat",stopband1,notchwidth)
     }
     print wavdatafile
     file.ropen(wavdatafile)
     if (file.isopen()	== 0){
-	sprint(tmpstr,"octave --eval \"getnotchcheb(%d,%g,%g,%g,\\\"%s\\\")\" 2> /dev/null",int(srate),stopband1,notchwidth,notchdepth,wavdatafile)
-	print tmpstr
-	system(tmpstr)
+		sprint(tmpstr,"octave --eval \"getnotchcheb(%d,%g,%g,%g,\\\"%s\\\")\" 2> /dev/null",int(srate),stopband1,notchwidth,notchdepth,wavdatafile)
+		print tmpstr
+		system(tmpstr)
         file.ropen(wavdatafile)
     }
     if (file.isopen()	== 0){ printf("Unusable filter file.") return}
@@ -599,7 +600,7 @@ proc FilteredNoise() {local rampts, rstep, totalpts, steadypts, duration,spl,cyc
     else if(inputsound.size < envelope.size){
         print "Stim data size is not big enough to fit in envelope."
         print "Please try another dur."
-	
+		
     }
     aa = spl2amplNoise((spl))/spl2amplNoise(Decibels(inputsound,0,inputsound.size-1))
     inputsound.mul(aa).mul(envelope)
@@ -639,10 +640,10 @@ proc NotchSweepNoise() {local rampts, rstep, totalpts, steadypts, duration,spl,c
     print wavdatafile
     file.ropen(wavdatafile)
     if (file.isopen()	== 0){
-	sprint(tmpstr,"octave -f --eval \"pkg load signal;getnotchcheb(%d,%g,%g,%g,\\\"%s\\\")\" 2> /dev/null",int(srate),stopband1,stopband2,notchdepth,wavdatafile)
-	print "Calling ", tmpstr
-	system(tmpstr)
-	file.ropen(wavdatafile)
+		sprint(tmpstr,"octave -f --eval \"pkg load signal;getnotchcheb(%d,%g,%g,%g,\\\"%s\\\")\" 2> /dev/null",int(srate),stopband1,stopband2,notchdepth,wavdatafile)
+		print "Calling ", tmpstr
+		system(tmpstr)
+		file.ropen(wavdatafile)
     }
     if (file.isopen()	== 0){ printf("Unusable filter file.") return}
     Readfile(stim,file)
@@ -683,7 +684,7 @@ proc NotchSweepNoise() {local rampts, rstep, totalpts, steadypts, duration,spl,c
     else if(inputsound.size < envelope.size){
         print "Stim data size is not big enough to fit in envelope."
         print "Please try another dur."
-	
+		
     }
     aa = spl2amplNoise((spl))/spl2amplNoise(Decibels(inputsound,0,inputsound.size-1))
     inputsound.mul(aa).mul(envelope)
@@ -719,10 +720,10 @@ proc BandSweepNoise() {local rampts, rstep, totalpts, steadypts, duration,spl,cy
     print wavdatafile
     file.ropen(wavdatafile)
     if (file.isopen()	== 0){
-	sprint(tmpstr,"octave -f --eval \"pkg load signal;getbandcheb(%d,%g,%g,%g,\\\"%s\\\")\" 2> /dev/null",int(srate),stopband1,stopband2,notchdepth,wavdatafile)
-	print "Calling ", tmpstr
-	system(tmpstr)
-	file.ropen(wavdatafile)
+		sprint(tmpstr,"octave -f --eval \"pkg load signal;getbandcheb(%d,%g,%g,%g,\\\"%s\\\")\" 2> /dev/null",int(srate),stopband1,stopband2,notchdepth,wavdatafile)
+		print "Calling ", tmpstr
+		system(tmpstr)
+		file.ropen(wavdatafile)
     }
     if (file.isopen()	== 0){ printf("Unusable filter file.") return}
     Readfile(stim,file)
@@ -763,7 +764,7 @@ proc BandSweepNoise() {local rampts, rstep, totalpts, steadypts, duration,spl,cy
     else if(inputsound.size < envelope.size){
         print "Stim data size is not big enough to fit in envelope."
         print "Please try another dur."
-	
+		
     }
     aa = spl2amplNoise((spl))/spl2amplNoise(Decibels(inputsound,0,inputsound.size-1))
     inputsound.mul(aa).mul(envelope)
@@ -1001,7 +1002,7 @@ proc filemenu() {
     xpanel("")
     xmenu("Recent directories", "recent_working_dirs()")
     xmenu()
-    xlabel("Michael's wavfile chooser")
+    xlabel("WAV file chooser")
     xpanel()
     box.intercept(0)
 }
@@ -1083,11 +1084,11 @@ proc recent_working_dirs() {local i
 objref strobj
 strobj = new StringFunctions()
 proc checker() {
-   chdir(path)
+	chdir(path)
     ldfile.chooser("", "Find .DAT files:", "*.dat", "Choose File", "Done", getcwd())
     while (ldfile.chooser()) {
         ldfile.getname(fname)
-//      strobj.right(fname, 2)
+		//      strobj.right(fname, 2)
         print fname
         break
     }    
@@ -1239,437 +1240,445 @@ func FindInd() {local value, index, diff
         //print "index ", index, " value ", cf.get(index)
         if (value < cf.get(index)){ 
 			break
-        } else{ index +=1 }
-    }
-    if (index == 0) { return 0}
-    if (index < nchannels-1) {
-        if ((cf.get(index) - value) > (value - cf.get(index-1))){
-            index-=1
-        }
-    } else { index = nchannels-1 }
-    //print "index ", index, " value ", value
-    return index    
+		} else{ 
+			index +=1 
+		}
+	}
+	if (index == 0) { 
+		return 0
+	}
+	if (index < nchannels-1) {
+		if ((cf.get(index) - value) > (value - cf.get(index-1))){
+			index-=1
+		}
+	} else { 
+		index = nchannels-1 
+	}
+	//print "index ", index, " value ", value
+	return index    
 }
 
 /*******************************************************************
 *  Find the channel index (bandwidth) away in octaves
 *******************************************************************/
 func MaxBWChannel() { local curind, curcf, maxcf, bw,maxind
-    curind = $1
-    bw = $2     //in octaves
-    curcf = cf.x[curind]
-    if (bw !=0 ) {
-        maxcf = curcf*sqrt(2^bw)
-        maxind = FindInd(maxcf)
-    } else {
-        maxind = curind
-    }
-    //print curind, " ", curcf," ", bw," ", maxcf, " ", maxind
-    return maxind
+	curind = $1
+	bw = $2     //in octaves
+	curcf = cf.x[curind]
+	if (bw !=0 ) {
+		maxcf = curcf*sqrt(2^bw)
+		maxind = FindInd(maxcf)
+	} else {
+		maxind = curind
+	}
+	//print curind, " ", curcf," ", bw," ", maxcf, " ", maxind
+	return maxind
 }
 
 
 
 proc Setwavfile(){
-    stimtype = 0
-    GetWavfile(wavdatafile)  //returns with filename string in 'wavdatafile'
-    
+	stimtype = 0
+	GetWavfile(wavdatafile)  //returns with filename string in 'wavdatafile'
+	
 }
 
 proc RefreshCF(){local icf
-/*Recalculate filterbank centre frequencies, original routine from Frank Zhang's Auditory model */
-    cf = new Vector(nchannels)
-    xlo = cochlea_f2x(species,cflo)
-    xhi = cochlea_f2x(species,cfhi)
-    xcenter = (xhi - xlo)/2. + xlo
-    delx = (xhi-xlo)/(nchannels-1)
-    cf.x[int(nchannels/2)] = cochlea_x2f(species,xcenter)
-    icentre = int(nchannels/2)-1
-    
-    for icf = 0, nchannels-1 {
-	x = xlo + (icf)*delx
-	cf.x[icf] = int(cochlea_x2f(species,x))
-    }
+	/*Recalculate filterbank centre frequencies, original routine from Frank Zhang's Auditory model */
+	cf = new Vector(nchannels)
+	xlo = cochlea_f2x(species,cflo)
+	xhi = cochlea_f2x(species,cfhi)
+	xcenter = (xhi - xlo)/2. + xlo
+	delx = (xhi-xlo)/(nchannels-1)
+	cf.x[int(nchannels/2)] = cochlea_x2f(species,xcenter)
+	icentre = int(nchannels/2)-1
+	
+	for icf = 0, nchannels-1 {
+		x = xlo + (icf)*delx
+		cf.x[icf] = int(cochlea_x2f(species,x))
+	}
 }
 
 proc RefreshParameters() {local aa localobj tmprand
-    objref cf,stim, file, tvec, b1
-    //strdef grlbl
-    tvec = new Vector()
-    file = new File()
-    stim = new Vector()
-    
-    //Check on changes to filterbank cf 
-    RefreshCF()
-    
-    //Nothing
-    if (stimtype < 0){
-	objref stim
-	grlbl=""
-    }
-    
-    
-    //Tone
-    if (stimtype == 1){
-	if((srate != 1e5) && ((tonefreq > 20e3) && srate != 200000)) print "You should be using a better sampling rate"
-	//Generate Stimulus, must have stim available
-	SPLTone(tonefreq, srate, dur, spl, dutycycle, ramplngth,nrep, stimdelay)
-        sprint( grlbl, "Tonefreq Stimulus %d Hz, Sound Level %d dBSPL", tonefreq, spl)
-    }
-    //Quiet
-    if (stimtype == 2){
-        objref stim
-        stim  = new Vector(int(dur/stimtdres), 0 )
-        if (nrep > 1) { for i=2,nrep { stim.append(new Vector(int(stimdur/stimtdres), 0 ))} }
-        sprint(grlbl,"Silence %.0f ms", dur*1000)
-    }
-    //AM tone
-    if(stimtype == 3) {
-	if((srate != 1e5) && ((tonefreq > 20e3) && srate != 200000)) print "You should be using a better sampling rate"
-        //Generate Stimulus, must have stim available
-        AMtone(tonefreq, srate, dur, spl, dutycycle, ramplngth,nrep, stimdelay, AM_modfreq, AM_depth)
-        sprint( grlbl, "AM Stimulus fc %d Hz fm %d Hz m %.2f %d dB SPL", tonefreq, AM_modfreq,AM_depth,spl)
-    }
-    //WB noise
-    if(stimtype ==4) {
-        objref stim
-	if((srate != 1e5) && ((tonefreq > 20e3) && srate != 200000)) print "You should be using a better sampling rate"
-        WBnoise(srate, dur, spl, dutycycle, ramplngth,nrep, stimdelay)
-	
-        sprint( grlbl, "Wide-band Noise:  %d dB SPL Sampling freq %5.0f", spl, srate)
-    }
-    //AM noise
-    if(stimtype ==5) {
-        objref stim
-	if((srate != 1e5) && ((tonefreq > 20e3) && srate != 200000)) print "You should be using a better sampling rate"
-        AMnoise(srate,AM_modfreq, AM_depth, nrep, spl, stimdelay)
-	
-        sprint( grlbl, "Wide-band Noise with Amplitude Modulation  fm %d (Hz) m %.3f %d (dB SPL) Sampling freq %.0f (Hz)", AM_modfreq,AM_depth, spl, srate)
-    }
-    //Gaussian noise
-    if(stimtype ==6) {
-        objref stim
-	if((srate != 1e5) && ((tonefreq > 20e3) && srate < 200000)) print "You should be using a better sampling rate"
-        GaussianNoise(srate, dur, spl, dutycycle, ramplngth,nrep, stimdelay, Gaussmean, Gaussvar)
-        sprint( grlbl, "Gaussian Noise:  mean %.2f, variance %.2, %d dB SPL, Sampling freq %d", Gaussmean,Gaussvar,spl, int(srate))
-    }
-    //Tone and Noise
-    if(stimtype ==7) {
-        objref stim
-	if((srate != 1e5) && ((tonefreq > 20e3) && srate < 200000)) print "You should be using a better sampling rate"
-        ToneplusNoise(tonefreq, srate, dur, spl, dutycycle, ramplngth,nrep, stimdelay, NoiseLevel)
-        sprint( grlbl, "Tone + Noise:  %g dB SPL, %g Hz tone plus %g dB SPL noise, Sampling freq %5.0f", spl,tonefreq,NoiseLevel, 1/stimtdres)
-    }
-    //Notch Noise
-    if(stimtype ==8) {
-        objref stim
-	if(srate != 1e5) print "You should be using a better sampling rate"
-        NotchNoise( dur, spl, dutycycle, ramplngth, stimdelay)
-	sprint( grlbl, "Notch Noise:  Stopband centred on 5kHz, 1/2 octave bandwidth, Sampling freq %g", srate)
-    }
-    //Two Tone
-    if (stimtype == 9){
-	if((srate != 1e5) && ((tonefreq > 20e3  || tone2freq> 20e3) && srate != 2e5)) print "You should be using a better sampling rate"
-        //Generate Stimulus, must have stim available
-        TwoTone()
-        sprint( grlbl, "Two-Tone Stimulus: %dHz, %ddBSPL &%dHz, %ddBSPL ", tonefreq, spl,tone2freq,tone2spl)
-    }
-    //Ramp Tone
-    if (stimtype == 10){
-	if((srate != 1e5) && ((tonefreq > 20e3) && srate != 200000)) print "You should be using a better sampling rate"
-        //Generate Stimulus, must have stim available
-        RampTone(tonefreq, srate, dur, spl, dutycycle, nrep, stimdelay)
-        sprint( grlbl, "RampTone at %dHz, 0dB to %ddB SPL in %g msec ", tonefreq, spl,dur*1000)
-    }
-    //Click Recovery
-    if (stimtype == 11){
-        objref stim
-		if((ANmodel ==6 && srate < 4e5)||(ANmodel ==7 && srate < 1e5))  		print "You should be using a better sampling rate"
-        stim = new Vector(int(dur/stimtdres),0)
-        for i=0,clicktimes.size-1{
-            for j=0,20 stim.x[clicktimes.x[i]+j] = spl2ampl(120)
-        }
-        sprint(grlbl,"ClickRecovery")
-    }
-    //Filtered Noise - only notch noise available
-    if(stimtype ==12) {
-        objref stim
-        FilteredNoise( dur, spl, dutycycle, ramplngth, stimdelay,stopband,notchwidth,notchdepth)
-        sprint( grlbl, "Notch Noise: %d dB SPL, Stopband falling edge %d kHz, %.3f octave bandwidth, Sampling freq %d",int(spl),int(stopband),notchwidth, int(srate))
-    }
-    //NotchSweep Noise 
-    if(stimtype == 13) {
-        objref stim
-        NotchSweepNoise(dur,spl, dutycycle, ramplngth, stimdelay,stopband1,stopband2,notchdepth)
-	sprint( grlbl, "Notch Noise: %d dB SPL, Stopband falling edge %d kHz, rising edge %d Hz, Sampling freq %d",int(spl),int(stopband1),int(stopband2), int(srate))
-    }
-    //BandSweep Noise 
-    if(stimtype == 14) {
-        objref stim
-        BandSweepNoise(dur,spl, dutycycle, ramplngth, stimdelay,stopband1,stopband2,notchdepth)
-	sprint( grlbl, "BandPass Noise: %d dB SPL, rising edge %d kHz, falling edge %d Hz, Sampling freq %d",int(spl),int(stopband1),int(stopband2), int(srate))
-    }
-    if (stimtype ==0){
-	//Get Stimulus from Wavefile
+	objref cf,stim, file, tvec, b1
+	//strdef grlbl
+	tvec = new Vector()
 	file = new File()
-        file.ropen(wavdatafile)
-        Readfile(stim,file)
-        file.close()
-        srate   = 44100.0   //Hz
-        stimtdres   = 1/srate
-        dur=stim.size*(stimtdres)
-        stimdelay=0
-        stimdur = stim.size*(stimtdres*1000)
-        if (stimdur < 50) stim.resize(int(50/(stimtdres*1000)))  //Pad with zeroes if too small
+	stim = new Vector()
+	
+	//Check on changes to filterbank cf 
+	RefreshCF()
+	
+	//Nothing
+	if (stimtype < 0){
+		objref stim
+		grlbl=""
+	}
+	
+	
+	//Tone
+	if (stimtype == 1){
+		if((srate != 1e5) && ((tonefreq > 20e3) && srate != 200000)) print "You should be using a better sampling rate"
+		//Generate Stimulus, must have stim available
+		SPLTone(tonefreq, srate, dur, spl, dutycycle, ramplngth,nrep, stimdelay)
+		sprint( grlbl, "Tonefreq Stimulus %d Hz, Sound Level %d dBSPL", tonefreq, spl)
+	}
+	//Quiet
+	if (stimtype == 2){
+		objref stim
+		stim  = new Vector(int(dur/stimtdres), 0 )
+		if (nrep > 1) { for i=2,nrep { stim.append(new Vector(int(stimdur/stimtdres), 0 ))} }
+		sprint(grlbl,"Silence %.0f ms", dur*1000)
+	}
+	//AM tone
+	if(stimtype == 3) {
+		if((srate != 1e5) && ((tonefreq > 20e3) && srate != 200000)) print "You should be using a better sampling rate"
+		//Generate Stimulus, must have stim available
+		AMtone(tonefreq, srate, dur, spl, dutycycle, ramplngth,nrep, stimdelay, AM_modfreq, AM_depth)
+		sprint( grlbl, "AM Stimulus fc %d Hz fm %d Hz m %.2f %d dB SPL", tonefreq, AM_modfreq,AM_depth,spl)
+	}
+	//WB noise
+	if(stimtype ==4) {
+		objref stim
+		if((srate != 1e5) && ((tonefreq > 20e3) && srate != 200000)) print "You should be using a better sampling rate"
+		WBnoise(srate, dur, spl, dutycycle, ramplngth,nrep, stimdelay)
+		
+		sprint( grlbl, "Wide-band Noise:  %d dB SPL Sampling freq %5.0f", spl, srate)
+	}
+	//AM noise
+	if(stimtype ==5) {
+		objref stim
+		if((srate != 1e5) && ((tonefreq > 20e3) && srate != 200000)) print "You should be using a better sampling rate"
+		AMnoise(srate,AM_modfreq, AM_depth, nrep, spl, stimdelay)
+		
+		sprint( grlbl, "Wide-band Noise with Amplitude Modulation  fm %d (Hz) m %.3f %d (dB SPL) Sampling freq %.0f (Hz)", AM_modfreq,AM_depth, spl, srate)
+	}
+	//Gaussian noise
+	if(stimtype ==6) {
+		objref stim
+		if((srate != 1e5) && ((tonefreq > 20e3) && srate < 200000)) print "You should be using a better sampling rate"
+		GaussianNoise(srate, dur, spl, dutycycle, ramplngth,nrep, stimdelay, Gaussmean, Gaussvar)
+		sprint( grlbl, "Gaussian Noise:  mean %.2f, variance %.2, %d dB SPL, Sampling freq %d", Gaussmean,Gaussvar,spl, int(srate))
+	}
+	//Tone and Noise
+	if(stimtype ==7) {
+		objref stim
+		if((srate != 1e5) && ((tonefreq > 20e3) && srate < 200000)) print "You should be using a better sampling rate"
+		ToneplusNoise(tonefreq, srate, dur, spl, dutycycle, ramplngth,nrep, stimdelay, NoiseLevel)
+		sprint( grlbl, "Tone + Noise:  %g dB SPL, %g Hz tone plus %g dB SPL noise, Sampling freq %5.0f", spl,tonefreq,NoiseLevel, 1/stimtdres)
+	}
+	//Notch Noise
+	if(stimtype ==8) {
+		objref stim
+		if(srate != 1e5) print "You should be using a better sampling rate"
+		NotchNoise( dur, spl, dutycycle, ramplngth, stimdelay)
+		sprint( grlbl, "Notch Noise:  Stopband centred on 5kHz, 1/2 octave bandwidth, Sampling freq %g", srate)
+	}
+	//Two Tone
+	if (stimtype == 9){
+		if((srate != 1e5) && ((tonefreq > 20e3  || tone2freq> 20e3) && srate != 2e5)) print "You should be using a better sampling rate"
+		//Generate Stimulus, must have stim available
+		TwoTone()
+		sprint( grlbl, "Two-Tone Stimulus: %dHz, %ddBSPL &%dHz, %ddBSPL ", tonefreq, spl,tone2freq,tone2spl)
+	}
+	//Ramp Tone
+	if (stimtype == 10){
+		if((srate != 1e5) && ((tonefreq > 20e3) && srate != 200000)) print "You should be using a better sampling rate"
+		//Generate Stimulus, must have stim available
+		RampTone(tonefreq, srate, dur, spl, dutycycle, nrep, stimdelay)
+		sprint( grlbl, "RampTone at %dHz, 0dB to %ddB SPL in %g msec ", tonefreq, spl,dur*1000)
+	}
+	//Click Recovery
+	if (stimtype == 11){
+		objref stim
+		if((ANmodel ==6 && srate < 4e5)||(ANmodel ==7 && srate < 1e5))  		print "You should be using a better sampling rate"
+		stim = new Vector(int(dur/stimtdres),0)
+		for i=0,clicktimes.size-1{
+			for j=0,20 stim.x[clicktimes.x[i]+j] = spl2ampl(120)
+		}
+		sprint(grlbl,"ClickRecovery")
+	}
+	//Filtered Noise - only notch noise available
+	if(stimtype ==12) {
+		objref stim
+		FilteredNoise( dur, spl, dutycycle, ramplngth, stimdelay,stopband,notchwidth,notchdepth)
+		sprint( grlbl, "Notch Noise: %d dB SPL, Stopband falling edge %d kHz, %.3f octave bandwidth, Sampling freq %d",int(spl),int(stopband),notchwidth, int(srate))
+	}
+	//NotchSweep Noise 
+	if(stimtype == 13) {
+		objref stim
+		NotchSweepNoise(dur,spl, dutycycle, ramplngth, stimdelay,stopband1,stopband2,notchdepth)
+		sprint( grlbl, "Notch Noise: %d dB SPL, Stopband falling edge %d kHz, rising edge %d Hz, Sampling freq %d",int(spl),int(stopband1),int(stopband2), int(srate))
+	}
+	//BandSweep Noise 
+	if(stimtype == 14) {
+		objref stim
+		BandSweepNoise(dur,spl, dutycycle, ramplngth, stimdelay,stopband1,stopband2,notchdepth)
+		sprint( grlbl, "BandPass Noise: %d dB SPL, rising edge %d kHz, falling edge %d Hz, Sampling freq %d",int(spl),int(stopband1),int(stopband2), int(srate))
+	}
+	if (stimtype ==0){
+		//Get Stimulus from Wavefile
+		file = new File()
+		file.ropen(wavdatafile)
+		Readfile(stim,file)
+		file.close()
+		srate   = 44100.0   //Hz
+		stimtdres   = 1/srate
+		dur=stim.size*(stimtdres)
+		stimdelay=0
+		stimdur = stim.size*(stimtdres*1000)
+		if (stimdur < 50) stim.resize(int(50/(stimtdres*1000)))  //Pad with zeroes if too small
 		stim.resample(stim,1e5/srate)
 		srate   = 1e5   //Hz
-        stimtdres   = 1/srate
+		stimtdres   = 1/srate
+		
+		
+		sprint( grlbl, "Wavefile Stimulus %s", wavdatafile)
+		if (nrep > 1) {
+			objref tobj
+			tobj = stim.c
+			for i=2,nrep { stim.append(tobj)}
+			objref tobj
+		}
+	}
+	/*****Resize short stimuli and add delay****/
+	stimdur = stim.size*(stimtdres*1000)
+	tstop = stimdur
+	if (stimdur < 20) {stim.resize(int(30/(stimtdres*1000)))}  //Pad with zeroes if too small
+	stimdur = stim.size*(stimtdres*1000)
+	tstop = stimdur
+	/***Set up time - axis information ****/
+	tvec.indgen(0, (stim.size)*stimtdres, stimtdres)
+	tvec.mul(1000)
 	
 	
-        sprint( grlbl, "Wavefile Stimulus %s", wavdatafile)
-        if (nrep > 1) {
-            objref tobj
-            tobj = stim.c
-            for i=2,nrep { stim.append(tobj)}
-            objref tobj
-        }
-    }
-    /*****Resize short stimuli and add delay****/
-    stimdur = stim.size*(stimtdres*1000)
-    tstop = stimdur
-    if (stimdur < 20) {stim.resize(int(30/(stimtdres*1000)))}  //Pad with zeroes if too small
-    stimdur = stim.size*(stimtdres*1000)
-    tstop = stimdur
-    /***Set up time - axis information ****/
-    tvec.indgen(0, (stim.size)*stimtdres, stimtdres)
-    tvec.mul(1000)
-    
-    
-    //Add Noise
-    if (AdditiveNoise==1) {
-        Rand.normal(-1,1)
-        tmprand=new Vector(stim.size)
-        tmprand.setrand(Rand)
-        aa = Decibels(tmprand)
-        tmprand.mul(spl2amplNoise(NoiseLevel)/aa)
-        stim.add(tmprand)
-        sprint(grlbl, "%s with %d dB Noise", grlbl, int(NoiseLevel))
-	
-    }
-    print grlbl
-    print "stimsize ", stim.size()        
+	//Add Noise
+	if (AdditiveNoise==1) {
+		Rand.normal(-1,1)
+		tmprand=new Vector(stim.size)
+		tmprand.setrand(Rand)
+		aa = Decibels(tmprand)
+		tmprand.mul(spl2amplNoise(NoiseLevel)/aa)
+		stim.add(tmprand)
+		sprint(grlbl, "%s with %d dB Noise", grlbl, int(NoiseLevel))
+		
+	}
+	print grlbl
+	print "stimsize ", stim.size()        
 }
 
 proc ResampleANFilterBank() {local smpl_ratio
-    smpl_ratio = $1
-    for icf = 0, nchannels-1 {
-        LSRout[icf].resample(LSRout[icf],smpl_ratio)
-        HSRout[icf].resample(HSRout[icf],smpl_ratio)
-    }
-    sg_tdres = 1/sg_rate
-    
+	smpl_ratio = $1
+	for icf = 0, nchannels-1 {
+		LSRout[icf].resample(LSRout[icf],smpl_ratio)
+		HSRout[icf].resample(HSRout[icf],smpl_ratio)
+	}
+	sg_tdres = 1/sg_rate
+	
 }
 
 strdef tmpANstr
 func GetANfileString() {local i
-    sprint(ANpath, "%s",ANsoundspath)
-    
-    
-    //Subfolder ANmodel
-    if(ANmodel == 3) sprint(ANpath, "%s/tan",ANpath)
-    if(ANmodel == 4) sprint(ANpath, "%s/arlo",ANpath)
-    if(ANmodel == 6) sprint(ANpath, "%s/bruce",ANpath)
-    if(ANmodel == 7) sprint(ANpath, "%s/zbmodelv4_%d",ANpath,ZilanyImplmnt)
-    //Subfolder Species
-    if(species == 2) { 
+	sprint(ANpath, "%s",ANsoundspath)
+	
+	
+	//Subfolder ANmodel
+	if(ANmodel == 3) sprint(ANpath, "%s/tan",ANpath)
+	if(ANmodel == 4) sprint(ANpath, "%s/arlo",ANpath)
+	if(ANmodel == 6) sprint(ANpath, "%s/bruce",ANpath)
+	if(ANmodel == 7) sprint(ANpath, "%s/zbmodelv4_%d",ANpath,ZilanyImplmnt)
+	//Subfolder Species
+	if(species == 2) { 
 		sprint(ANpath, "%s/Rat",ANpath)  
-    } \
-    else if(species == 0) {
+	} \
+	else if(species == 0) {
 		sprint(ANpath, "%s/Human",ANpath)
-    } \
-    else { 
+	} \
+	else { 
 		/* Default Cat  (species ==1 || species == 9)*/ 
 		sprint(ANpath, "%s/Cat",ANpath) 
-    }
-    sprint(tmpANstr,"mkdir -p %s",ANpath)
-    system(tmpANstr)
-    
-    if (stimtype == 1){ //Tone _ Loudness
-	sprint(ANstr,"T%.0f_L%g_dur%d_del%d", tonefreq,spl,stimdur, int(stimdelay*1000))
-    }
-    if (stimtype == 2){
-	sprint(ANstr,"Silence_dur%d",int(dur*1000))
-    }
-    //AM tone
-    if(stimtype == 3) {// Carrier freq, Mod frequency, Modulation depth, Loudness (peak)
-	sprint( ANstr, "AM_fc%d_fm%d_md%d_%gdB_dur%d", tonefreq, AM_modfreq,AM_depth*100,spl,stimdur)
-    }
-    //WB noise : unused/obsolete
-    if(stimtype == 4) { //SPL and sampling frequency
-	sprint(ANstr, "WBN_spl%g_smpfreq%f_del%f", spl, srate/1000,stimdelay)
-    }
-    //AM noise
-    if(stimtype == 5) {
-	sprint( ANstr, "AMN_fm%g_m%f_spl%d_sf%5.0f", AM_modfreq,AM_depth, spl, 1/stimtdres)
-    }
-    //Gaussian noise : BBN
-    if(stimtype == 6) {
-	sprint( ANstr, "GN_L%g_sf%g_dur%d_del%d",spl, 1/stimtdres,stimdur, int(stimdelay*1000))
-    }
-    //Stimulus Wavfile
-    if (stimtype ==0){
-	sprint(ANstr,"%s", wavdatafile)
-	sf_.right(ANstr,sf_.len(path))
-	if (sf_.substr(ANstr,".")!=-1) sf_.left(ANstr, sf_.substr(ANstr,"."))
-	sprint(ANstr,"Wav_%s_%gdB",ANstr, spl)
-    }
-    if (stimtype==7){ //Tone _ Loudness  _ Sampling Rate
-	sprint(ANstr,"SimTN%.0f_L%g_N%g_dur%d_del%d", tonefreq,spl,NoiseLevel,int(dur*1000), int(stimdelay*1000))
-    }
-    if (stimtype==8){ //NotchNoise delay,spl,dur,ramp
-	sprint(ANstr,"Notch_L%d_Del%d_Dur%d", spl,stimdelay*1000,dur*1000)
-    }
-    if (stimtype==9){ //Twotone
-	sprint(ANstr,"TwoTone_1F%.0fL%d_2F%.0fL%d_Del%d_Dur%d",tonefreq, spl,tone2freq,tone2spl,stimdelay*1000,dur*1000)
-    }
-    if (stimtype==10){ //Ramptone
-	sprint(ANstr,"RampTone_F%.0fL%d_Del%d_Dur%d",tonefreq, spl,stimdelay*1000,dur*1000)
-    }
-    if (stimtype==11){ //Click Recovery
+	}
+	sprint(tmpANstr,"mkdir -p %s",ANpath)
+	system(tmpANstr)
+	
+	if (stimtype == 1){ //Tone _ Loudness
+		sprint(ANstr,"T%.0f_L%g_dur%d_del%d", tonefreq,spl,stimdur, int(stimdelay*1000))
+	}
+	if (stimtype == 2){
+		sprint(ANstr,"Silence_dur%d",int(dur*1000))
+	}
+	//AM tone
+	if(stimtype == 3) {// Carrier freq, Mod frequency, Modulation depth, Loudness (peak)
+		sprint( ANstr, "AM_fc%d_fm%d_md%d_%gdB_dur%d", tonefreq, AM_modfreq,AM_depth*100,spl,stimdur)
+	}
+	//WB noise : unused/obsolete
+	if(stimtype == 4) { //SPL and sampling frequency
+		sprint(ANstr, "WBN_spl%g_smpfreq%f_del%f", spl, srate/1000,stimdelay)
+	}
+	//AM noise
+	if(stimtype == 5) {
+		sprint( ANstr, "AMN_fm%g_m%f_spl%d_sf%5.0f", AM_modfreq,AM_depth, spl, 1/stimtdres)
+	}
+	//Gaussian noise : BBN
+	if(stimtype == 6) {
+		sprint( ANstr, "GN_L%g_sf%g_dur%d_del%d",spl, 1/stimtdres,stimdur, int(stimdelay*1000))
+	}
+	//Stimulus Wavfile
+	if (stimtype ==0){
+		sprint(ANstr,"%s", wavdatafile)
+		sf_.right(ANstr,sf_.len(path))
+		if (sf_.substr(ANstr,".")!=-1) sf_.left(ANstr, sf_.substr(ANstr,"."))
+		sprint(ANstr,"Wav_%s_%gdB",ANstr, spl)
+	}
+	if (stimtype==7){ //Tone _ Loudness  _ Sampling Rate
+		sprint(ANstr,"SimTN%.0f_L%g_N%g_dur%d_del%d", tonefreq,spl,NoiseLevel,int(dur*1000), int(stimdelay*1000))
+	}
+	if (stimtype==8){ //NotchNoise delay,spl,dur,ramp
+		sprint(ANstr,"Notch_L%d_Del%d_Dur%d", spl,stimdelay*1000,dur*1000)
+	}
+	if (stimtype==9){ //Twotone
+		sprint(ANstr,"TwoTone_1F%.0fL%d_2F%.0fL%d_Del%d_Dur%d",tonefreq, spl,tone2freq,tone2spl,stimdelay*1000,dur*1000)
+	}
+	if (stimtype==10){ //Ramptone
+		sprint(ANstr,"RampTone_F%.0fL%d_Del%d_Dur%d",tonefreq, spl,stimdelay*1000,dur*1000)
+	}
+	if (stimtype==11){ //Click Recovery
 		sprint(ANstr,"Click_Recovery")
 		for i=0,clicktimes.size-1 sprint(ANstr,"%s_%d",ANstr,clicktimes.x[i])
-    }
-    if (stimtype==12){ //FilteredNoise
+	}
+	if (stimtype==12){ //FilteredNoise
 		sprint(ANstr,"%s", wavdatafile)
 		sf_.right(ANstr,sf_.len("./TV_Notch/"))
 		sf_.left(ANstr, sf_.len(ANstr)-4)
 		sprint(ANstr,"FilteredFile_%s_L%d_Del%d_Dur%d",ANstr, spl,stimdelay*1000,dur*1000)
-    }
-    if (stimtype==13){ //NotchSweep
+	}
+	if (stimtype==13){ //NotchSweep
 		sprint(ANstr,"%s", wavdatafile)
 		sf_.right(ANstr,sf_.len("./TV_Notch/"))
 		sf_.left(ANstr, sf_.len(ANstr)-4)
 		sprint(ANstr,"%s_L%d_Del%d_Dur%d",ANstr, int(spl),int(stimdelay*1000),int(dur*1000))
-    }
-    if (stimtype==14){ //BandSweep
-	sprint(ANstr,"%s", wavdatafile)
-	sf_.right(ANstr,sf_.len("./TV_Notch/"))
-	sf_.left(ANstr, sf_.len(ANstr)-4)
-	sprint(ANstr,"%s_L%d_Del%d_Dur%d",ANstr, int(spl),int(stimdelay*1000),int(dur*1000))
-    }
-    if (AdditiveNoise==1) {
-	sprint(ANstr, "%s+Noise_%d", ANstr, NoiseLevel)
-    }
-    if (!strcmp(ANstr, "")){
-	return 0
-    } \
-    else {
-	sprint(ANstr,"%s.dat",ANstr)
-	print "ANstr: ", ANstr
-	return 1
-    }
+	}
+	if (stimtype==14){ //BandSweep
+		sprint(ANstr,"%s", wavdatafile)
+		sf_.right(ANstr,sf_.len("./TV_Notch/"))
+		sf_.left(ANstr, sf_.len(ANstr)-4)
+		sprint(ANstr,"%s_L%d_Del%d_Dur%d",ANstr, int(spl),int(stimdelay*1000),int(dur*1000))
+	}
+	if (AdditiveNoise==1) {
+		sprint(ANstr, "%s+Noise_%d", ANstr, NoiseLevel)
+	}
+	if (!strcmp(ANstr, "")){
+		return 0
+	} \
+	else {
+		sprint(ANstr,"%s.dat",ANstr)
+		print "ANstr: ", ANstr
+		return 1
+	}
 }
 
 proc SaveANFilterBank2File(){local nchan
-    objref ANfile
-    
-    GetANfileString()
-    sprint(tmpANstr,"[ -d %s ] && mkdir -p %s",ANpath,ANpath)
-    system(tmpANstr)
-    ANfile = new File()
-    sprint(tmpANstr,"%s/%s",ANpath,ANstr)
-    ANfile.wopen(tmpANstr)
-    if (ANfile.isopen()){
-	ANfile.printf("%d\n%d\n%d\n%d\n%d\n%d\n", sg_rate, HSRout[0].size, nchannels,cflo,cfhi,species)
-	for icf = 0, nchannels-1 {
-            ANfile.printf("%d\n%d\n", icf, cf.x[icf])
-            LSRout[icf].printf(ANfile,"%.3f\t")
-            ANfile.printf("\n")
-            HSRout[icf].printf(ANfile,"%.3f\t")
-            ANfile.printf("\n")
-	}
+	objref ANfile
 	
-	ANfile.close()
-    } \
-    else print "Unable to Save file ", tmpANstr
-    
+	GetANfileString()
+	sprint(tmpANstr,"[ -d %s ] && mkdir -p %s",ANpath,ANpath)
+	system(tmpANstr)
+	ANfile = new File()
+	sprint(tmpANstr,"%s/%s",ANpath,ANstr)
+	ANfile.wopen(tmpANstr)
+	if (ANfile.isopen()){
+		ANfile.printf("%d\n%d\n%d\n%d\n%d\n%d\n", sg_rate, HSRout[0].size, nchannels,cflo,cfhi,species)
+		for icf = 0, nchannels-1 {
+			ANfile.printf("%d\n%d\n", icf, cf.x[icf])
+			LSRout[icf].printf(ANfile,"%.3f\t")
+			ANfile.printf("\n")
+			HSRout[icf].printf(ANfile,"%.3f\t")
+			ANfile.printf("\n")
+		}
+		
+		ANfile.close()
+	} \
+	else print "Unable to Save file ", tmpANstr
+	
 }
 
 
 say_once = 0
 func RetrieveANFilterBank(){local nsize, nchan, temp
-    objref ANfile
-    objref  LSRout[nchannels], HSRout[nchannels]
-    nsize = stim.size*(sg_rate/srate)
-    GetANfileString()
-    ANfile = new File()
-    sprint(tmpANstr,"%s/%s",ANpath,ANstr)
-    ANfile.ropen(tmpANstr)
-    if (ANfile.isopen()){
-        if (name_declared("pnm") == 0 && say_once!=1) print "Retrieving AN Filterbank: ", ANstr
-	if ((temp = ANfile.scanvar()) != sg_rate){
-            print "sg_rate not the same in ", tmpANstr
-            return 0
+	objref ANfile
+	objref  LSRout[nchannels], HSRout[nchannels]
+	nsize = stim.size*(sg_rate/srate)
+	GetANfileString()
+	ANfile = new File()
+	sprint(tmpANstr,"%s/%s",ANpath,ANstr)
+	ANfile.ropen(tmpANstr)
+	if (ANfile.isopen()){
+		if (name_declared("pnm") == 0 && say_once!=1) print "Retrieving AN Filterbank: ", ANstr
+		if ((temp = ANfile.scanvar()) != sg_rate){
+			print "sg_rate not the same in ", tmpANstr
+			return 0
+		}
+		if ((temp = ANfile.scanvar()) != nsize){
+			print "nsize not the same in ", tmpANstr
+			return 0
+		}
+		if ((temp = ANfile.scanvar()) != nchannels){
+			print "nchannels not the same in ", tmpANstr
+			return 0
+		}
+		if ((temp = ANfile.scanvar()) != cflo){
+			print "cflo not the same in ", tmpANstr
+			return 0
+		}
+		if ((temp = ANfile.scanvar()) != cfhi){
+			print "cfhi not the same in ", tmpANstr
+			return 0
+		}
+		if ((temp = ANfile.scanvar()) != species){
+			print "species not the same in ", tmpANstr
+			return 0
+		}
+		
+		for icf = 0, nchannels-1 {
+			LSRout[icf] = new Vector(nsize)
+			HSRout[icf] = new Vector(nsize)
+			if (ANfile.scanvar() == icf){
+				cf.x[icf] = ANfile.scanvar()
+				LSRout[icf].scanf(ANfile,nsize)
+				HSRout[icf].scanf(ANfile,nsize)
+				// if (MSRsperchannel>0) MSRout[icf].scanf(ANfile,nsize)
+			}
+		}
+		sg_tdres = 1/sg_rate
+		ANfile.close()
+		return 1
+	} \
+	else {
+		print "Unable to load file ", tmpANstr
+		return 0
 	}
-	if ((temp = ANfile.scanvar()) != nsize){
-            print "nsize not the same in ", tmpANstr
-            return 0
-	}
-	if ((temp = ANfile.scanvar()) != nchannels){
-            print "nchannels not the same in ", tmpANstr
-            return 0
-	}
-	if ((temp = ANfile.scanvar()) != cflo){
-            print "cflo not the same in ", tmpANstr
-            return 0
-	}
-	if ((temp = ANfile.scanvar()) != cfhi){
-            print "cfhi not the same in ", tmpANstr
-            return 0
-	}
-	if ((temp = ANfile.scanvar()) != species){
-            print "species not the same in ", tmpANstr
-            return 0
-	}
-	
-	for icf = 0, nchannels-1 {
-        LSRout[icf] = new Vector(nsize)
-        HSRout[icf] = new Vector(nsize)
-        if (ANfile.scanvar() == icf){
-			cf.x[icf] = ANfile.scanvar()
-			LSRout[icf].scanf(ANfile,nsize)
-			HSRout[icf].scanf(ANfile,nsize)
-			// if (MSRsperchannel>0) MSRout[icf].scanf(ANfile,nsize)
-        }
-	}
-	sg_tdres = 1/sg_rate
-	ANfile.close()
-	return 1
-    } \
-    else {
-        print "Unable to load file ", tmpANstr
-        return 0
-    }
 }
 
 objref audiogram,cohc,cihc
 proc GetAudiogramData(){
-    objref audiogram,file
-    file = new File()
-    audiogram = new Matrix()
-    cohc = new Vector()
-    cihc = new Vector()
-    file.ropen(audiogram_file)
-    if (file.isopen()){
-	if (name_declared("pnm") == 0 && say_once!=1)   print "Loading Audiogram Data ", audiogram_file
-	audiogram.scanf(file,13,4)
-	file.close()
-    } \
-    else {  audiogram.resize(13,4) }
-    
-    //Interpolate compression data to cf positions
-    cohc.interpolate(cf, audiogram.getcol(0).c, audiogram.getcol(2).c)
-    cihc.interpolate(cf, audiogram.getcol(0).c, audiogram.getcol(3).c)
+	objref audiogram,file
+	file = new File()
+	audiogram = new Matrix()
+	cohc = new Vector()
+	cihc = new Vector()
+	file.ropen(audiogram_file)
+	if (file.isopen()){
+		if (name_declared("pnm") == 0 && say_once!=1)   print "Loading Audiogram Data ", audiogram_file
+		audiogram.scanf(file,13,4)
+		file.close()
+	} \
+	else {  
+		audiogram.resize(13,4) 
+	}
+	
+	//Interpolate compression data to cf positions
+	cohc.interpolate(cf, audiogram.getcol(0).c, audiogram.getcol(2).c)
+	cihc.interpolate(cf, audiogram.getcol(0).c, audiogram.getcol(3).c)
 }
 GetAudiogramData()
 
@@ -1704,110 +1713,110 @@ func CheckANvector(){local vsize,iserror
 
 objref IHC[nchannels]
 proc GenerateFilterbank(){ local ii,out,icf, mycf, myohc,myihc,ZilanyImplmnt_orig localobj ihc
-    objref IHC[nchannels]
-    //    ZilanyImplmnt_orig = ZilanyImplmnt
-    if (name_declared("pnm") == 0 && say_once!=1) print "Generating AN model instantaneous rate functions"
-    for icf = 0, nchannels-1 {
-        LSRout[icf] = new Vector(stim.size,0)
-        HSRout[icf] = new Vector(stim.size,0)
+	objref IHC[nchannels]
+	//    ZilanyImplmnt_orig = ZilanyImplmnt
+	if (name_declared("pnm") == 0 && say_once!=1) print "Generating AN model instantaneous rate functions"
+	for icf = 0, nchannels-1 {
+		LSRout[icf] = new Vector(stim.size,0)
+		HSRout[icf] = new Vector(stim.size,0)
     	IHC[icf] = new Vector(stim.size,0)
 		ihc = new Vector(stim.size)
-	
-	mycf = cf.x[icf]
-	myohc = cohc.x[icf]
-	myihc = cihc.x[icf]
-	//	print "Generating AN filter: CF ", mycf, " CIHC ",myihc, " COHC ",myohc
-	
-	if(ANmodel == 4) {
-	  LSRout[icf].an4(stim, stimtdres, cf.x[icf], Lowspont, Heinz_model, species, ifspike)
-	  HSRout[icf].an4(stim, stimtdres, cf.x[icf], Highspont, Heinz_model, species, ifspike)
-	  if (MSRsperchannel>0){
-		  MSRout[icf] = new Vector(stim.size)
-		  MSRout[icf].an4(stim, stimtdres, cf.x[icf], Medspont, Heinz_model, species, ifspike)
-	  }
-    }	
-	if(ANmodel==6){
-	    LSRout[icf].an_zbcatmodel07(stim, stimtdres, mycf, Lowspont, myihc,myohc,species, nrep)
-	    HSRout[icf].an_zbcatmodel07(stim, stimtdres, mycf, Highspont, myihc,myohc,species, nrep)
-	    if (MSRsperchannel>0){
-			MSRout[icf] = new Vector(stim.size)
-			MSRout[icf].an_zbcatmodel07(stim, stimtdres, mycf, Medspont, myihc,myohc,species, nrep)
-	    }
-	}
-	
-	if(ANmodel==7){
-/* Execute Zilany et al. 2009,2010 model	, note the IHC is created by the first call then re-used by the second call to an_zilany_v4_1 */	
-	    out = LSRout[icf].an_zilany_v4_1(stim, stimtdres, mycf,Lowspont,ZilanyImplmnt,myihc,myohc,species,nrep,IHC[icf])
-/*		if (CheckANvector(LSRout[icf]) == 1) {
-			print "GenerateFilterbank:an_zilany_v4_1: found error in LSR, trying again."
-			flushf()  doNotify()		
-			system("sleep 0.1")
+		
+		mycf = cf.x[icf]
+		myohc = cohc.x[icf]
+		myihc = cihc.x[icf]
+		//	print "Generating AN filter: CF ", mycf, " CIHC ",myihc, " COHC ",myohc
+		
+		if(ANmodel == 4) {
+			LSRout[icf].an4(stim, stimtdres, cf.x[icf], Lowspont, Heinz_model, species, ifspike)
+			HSRout[icf].an4(stim, stimtdres, cf.x[icf], Highspont, Heinz_model, species, ifspike)
+			if (MSRsperchannel>0){
+				MSRout[icf] = new Vector(stim.size)
+				MSRout[icf].an4(stim, stimtdres, cf.x[icf], Medspont, Heinz_model, species, ifspike)
+			}
+		}	
+		if(ANmodel==6){
+			LSRout[icf].an_zbcatmodel07(stim, stimtdres, mycf, Lowspont, myihc,myohc,species, nrep)
+			HSRout[icf].an_zbcatmodel07(stim, stimtdres, mycf, Highspont, myihc,myohc,species, nrep)
+			if (MSRsperchannel>0){
+				MSRout[icf] = new Vector(stim.size)
+				MSRout[icf].an_zbcatmodel07(stim, stimtdres, mycf, Medspont, myihc,myohc,species, nrep)
+			}
+		}
+		
+		if(ANmodel==7){
+			/* Execute Zilany et al. 2009,2010 model	, note the IHC is created by the first call then re-used by the second call to an_zilany_v4_1 */	
 			out = LSRout[icf].an_zilany_v4_1(stim, stimtdres, mycf,Lowspont,ZilanyImplmnt,myihc,myohc,species,nrep,IHC[icf])
-			print "GenerateFilterbank:an_zilany_v4_1: found second error in IHC, moving on"
-		} 
-		*/						
-		system("sleep 0.1")
-		out = HSRout[icf].an_zilany_v4_1(stim, stimtdres, mycf, Highspont,ZilanyImplmnt,myihc,myohc,species, nrep, IHC[icf])
-/*		if (CheckANvector(HSRout[icf]) == 1) {
-			print "GenerateFilterbank:an_zilany_v4_1: found error in HSR, trying again."
-			flushf()  doNotify()		
+			/*		if (CheckANvector(LSRout[icf]) == 1) {
+				print "GenerateFilterbank:an_zilany_v4_1: found error in LSR, trying again."
+				flushf()  doNotify()		
+				system("sleep 0.1")
+				out = LSRout[icf].an_zilany_v4_1(stim, stimtdres, mycf,Lowspont,ZilanyImplmnt,myihc,myohc,species,nrep,IHC[icf])
+				print "GenerateFilterbank:an_zilany_v4_1: found second error in IHC, moving on"
+			} 
+			*/						
 			system("sleep 0.1")
-			out = HSRout[icf].an_zilany_v4_1(stim, stimtdres, mycf,Highspont,ZilanyImplmnt,myihc,myohc,species,nrep,IHC[icf])
-			print "GenerateFilterbank:an_zilany_v4_1: found second error in HSR, moving on"
+			out = HSRout[icf].an_zilany_v4_1(stim, stimtdres, mycf, Highspont,ZilanyImplmnt,myihc,myohc,species, nrep, IHC[icf])
+			/*		if (CheckANvector(HSRout[icf]) == 1) {
+				print "GenerateFilterbank:an_zilany_v4_1: found error in HSR, trying again."
+				flushf()  doNotify()		
+				system("sleep 0.1")
+				out = HSRout[icf].an_zilany_v4_1(stim, stimtdres, mycf,Highspont,ZilanyImplmnt,myihc,myohc,species,nrep,IHC[icf])
+				print "GenerateFilterbank:an_zilany_v4_1: found second error in HSR, moving on"
+			}
+			*/		
+			if (MSRsperchannel>0){
+				MSRout[icf] = new Vector(stim.size)
+				MSRout[icf].an_zilany_v4_1(stim, stimtdres, mycf, Medspont,ZilanyActual, myihc,myohc,species, nrep,IHC[icf])
+			}
 		}
-*/		
-		if (MSRsperchannel>0){
-			MSRout[icf] = new Vector(stim.size)
-			MSRout[icf].an_zilany_v4_1(stim, stimtdres, mycf, Medspont,ZilanyActual, myihc,myohc,species, nrep,IHC[icf])
+		
+		/*
+		sprint(end_sout,"%f",HSRout[icf].x[stim.size-2])
+		if (strcmp(end_sout,"nan")==0){print "detected nan HSR ", icf
+			HSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], Highspont, cohc.x[icf],cihc.x[icf],species, nrep)
+			sprint(end_sout,"%f",HSRout[icf].x[stim.size-2])
+			if (strcmp(end_sout,"nan")==0)print "Error creating HSR AN output, channel:", icf
 		}
+		*/
+		// print icf, cf.x[icf]
+		
 	}
 	
-	/*
-	sprint(end_sout,"%f",HSRout[icf].x[stim.size-2])
-        if (strcmp(end_sout,"nan")==0){print "detected nan HSR ", icf
-            HSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], Highspont, cohc.x[icf],cihc.x[icf],species, nrep)
-            sprint(end_sout,"%f",HSRout[icf].x[stim.size-2])
-            if (strcmp(end_sout,"nan")==0)print "Error creating HSR AN output, channel:", icf
-        }
-	*/
-	// print icf, cf.x[icf]
+	//    ZilanyImplmnt = ZilanyImplmnt_orig
 	
-    }
-    
-    //    ZilanyImplmnt = ZilanyImplmnt_orig
-    
-    // Resampling rate should be set prior to calling GenerateFilterbank eg. sg_rate = 50000
-    ResampleANFilterBank(sg_rate/srate)
-    
+	// Resampling rate should be set prior to calling GenerateFilterbank eg. sg_rate = 50000
+	ResampleANFilterBank(sg_rate/srate)
+	
 }
 
 
 proc CheckANFilterbanks(){local icf
 	for icf = 0, nchannels-1 {
-	redo=0
-redo = CheckANvector(HSRout[icf])
-	if (redo == 1) 	print "CheckFilterbank: detected nan HSR ", icf
-	redo=0
-	redo = CheckANvector(LSRout[icf])
-	if (redo == 1) 	print "CheckFilterbank: detected nan HSR ", icf
-}
+		redo=0
+		redo = CheckANvector(HSRout[icf])
+		if (redo == 1) 	print "CheckFilterbank: detected nan HSR ", icf
+		redo=0
+		redo = CheckANvector(LSRout[icf])
+		if (redo == 1) 	print "CheckFilterbank: detected nan HSR ", icf
+	}
 }
 
 /* 
- * Check for errors in version 4_1 (Zilany et al, 2009) of AN model
- */
+* Check for errors in version 4_1 (Zilany et al, 2009) of AN model
+*/
 proc FixAN4Filterbanks(){local icf,redo,vsize,srate_old,stimtdres_old
-    redo=0
+	redo=0
 	vsize=HSRout[0].size
-//Uprate the stimulus 	
-    srate_old = srate
+	//Uprate the stimulus 	
+	srate_old = srate
 	stimtdres_old = stimtdres
 	srate = 500000      //  go back to Zilany&Bruce 2007 model sampling rate
 	stimtdres = 1/srate	
 	RefreshParameters()
 	
-
-    for icf = 0, nchannels-1 {
+	
+	for icf = 0, nchannels-1 {
 		mycf = cf.x[icf]
 		myohc = cohc.x[icf]
 		myihc = cihc.x[icf]		
@@ -1834,7 +1843,7 @@ proc FixAN4Filterbanks(){local icf,redo,vsize,srate_old,stimtdres_old
 		}
 	}
 	
-//Reset the stimulus    
+	//Reset the stimulus    
 	srate = srate_old
 	stimtdres = 1/srate
 	RefreshParameters()
@@ -1844,32 +1853,32 @@ proc FixAN4Filterbanks(){local icf,redo,vsize,srate_old,stimtdres_old
 
 
 proc ANFilterBankRun() {local x
-    objref  LSRout[nchannels], HSRout[nchannels] , MSRout[nchannels]
-    
-    RefreshCF()
-    GetAudiogramData()
-    
-    /********Generate Filterbank of ANF Instantaneous rate profiles*******/
-    
-    if (usesavedfilterbanks) {
-        if (!RetrieveANFilterBank()) {
-	     GenerateFilterbank()     
-	     SaveANFilterBank2File()
-        }
-    } \
-    else {
-        GenerateFilterbank()
-    }
-    
+	objref  LSRout[nchannels], HSRout[nchannels] , MSRout[nchannels]
+	
+	RefreshCF()
+	GetAudiogramData()
+	
+	/********Generate Filterbank of ANF Instantaneous rate profiles*******/
+	
+	if (usesavedfilterbanks) {
+		if (!RetrieveANFilterBank()) {
+			GenerateFilterbank()     
+			SaveANFilterBank2File()
+		}
+	} \
+	else {
+		GenerateFilterbank()
+	}
+	
 }
 
 
 proc GenerateMSRs(){ local icf
-    for icf = 0, nchannels-1 {
-        MSRout[icf] = new Vector(stim.size)
-        MSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], Medspont, cohc.x[icf],cihc.x[icf],species, nrep)
-        MSRout[icf].resample(MSRout[icf],sg_rate/srate)
-    }
+	for icf = 0, nchannels-1 {
+		MSRout[icf] = new Vector(stim.size)
+		MSRout[icf].an_zbcatmodel07(stim, stimtdres, cf.x[icf], Medspont, cohc.x[icf],cihc.x[icf],species, nrep)
+		MSRout[icf].resample(MSRout[icf],sg_rate/srate)
+	}
 }
 
 // see GUIs in cngui.hoc
