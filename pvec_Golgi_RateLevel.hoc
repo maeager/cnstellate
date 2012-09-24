@@ -1,0 +1,5 @@
+param.golgi_spatial_filter_variance_LSR = 2.4837
+param.golgi_syn_filter_scale_factor = 1.00
+param.w.x[lsr][glg] = 0.5166
+param.w.x[hsr][glg] = 0.0487
+param.golgi_spon = 3.7271

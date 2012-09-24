@@ -1,0 +1,11 @@
+#!/bin/sh
+
+
+NRNHOME="/home/meager/nrn-6.1/nrnmpi"
+NRNBIN="/home/meager/nrn-6.1/nrnmpi/ia64/bin/"
+NRNIV="${NRNBIN}nrniv"
+LNRNMECH="/home/meager/dmf/work/netmod/cnstellate/ia64/.libs/libnrnmech.so"
+MPIBIN="/opt/mpich/ch-p4/bin/"
+MPIRUN="${MPIBIN}mpirun"
+
+"${MPIRUN}" -np "$1" "${NRNIV}" -dll "${LNRNMECH}" "$@" 

@@ -1,0 +1,294 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+
+
+
+begintemplate AuditoryNerve
+public HSR,LSR, reorder,HSRspiketimes,LSRspiketimes,LSRspikes,HSRspikes
+public flag,channel,tdres,spont,nspks,ncells,reorder
+public SetRates,GenSpikes,PrintSpikes,ClearSpikes//,SetSpikes,Printspks,ReorderSpikes,
+external HSRout,LSRout,sg_tdres,nchannels,HSRsperchannel,LSRsperchannel,cf
+external hsrgid, lsrgid,Lowspont,Highspont,pnm
+
+objref HSR[1][1],LSR[1][1],HSRspiketimes[1][1],LSRspiketimes[1][1],\
+HSRspikes[1][1],LSRspikes[1][1]
+
+
+proc init(){
+objref HSR[nchannels][HSRsperchannel], \
+LSR[nchannels][LSRsperchannel], \
+HSRspiketimes[nchannels][HSRsperchannel],\
+LSRspiketimes[nchannels][LSRsperchannel],\
+HSRspikes[nchannels][HSRsperchannel],\
+LSRspikes[nchannels][LSRsperchannel]
+
+   for i=0,nchannels-1  {
+      for j=0,HSRsperchannel-1 {
+         HSRspiketimes[i][j] = new Vector()
+         HSRspikes[i][j] = new Vector()
+      }
+      for j=0,LSRsperchannel-1 {
+         LSRspiketimes[i][j] = new Vector()
+         LSRspikes[i][j] = new Vector()  //vector for storing spiketimes over repeated presentations
+      }
+   }
+}
+
+proc SetRates() {local i,j
+
+for i=0,nchannels-1  {
+for j=0,HSRsperchannel-1 {
+if (pnm.gid_exists(hsrgid.x[i][j])) {
+	HSR[i][j].channel = i	
+	HSR[i][j].cf = cf.x[i]
+	HSR[i][j].spont = Highspont
+	HSR[i][j].SetFibreRate(HSRout[i],HSRspiketimes[i][j],sg_tdres)
+   //      print "HSR[",i,"][",j,"]: Process ",pnm.myid," mean ", HSRout[i].mean()
+}
+}
+for j=0,LSRsperchannel-1 {
+if (pnm.gid_exists(lsrgid.x[i][j])) {
+	LSR[i][j].channel = i
+	LSR[i][j].cf = cf.x[i]
+	LSR[i][j].spont = Lowspont
+	LSR[i][j].SetFibreRate(LSRout[i],LSRspiketimes[i][j],sg_tdres)
+}
+}
+}
+
+}
+
+
+proc GenSpikes() {local i,j
+pnm.pc.barrier()
+for i=0,nchannels-1  {
+for j=0,HSRsperchannel-1 {
+    if (pnm.gid_exists(hsrgid.x[i][j])) {
+        HSR[i][j].SGfast(1)
+    }
+pnm.pc.barrier()
+
+       }
+for j=0,LSRsperchannel-1 {
+    if (pnm.gid_exists(lsrgid.x[i][j])) {
+        LSR[i][j].SGfast(1)
+    }
+pnm.pc.barrier()
+    }
+    }
+
+}
+
+proc PrintSpikes() {local i,j
+pnm.pc.barrier()
+for i=0,nchannels-1  {
+for j=0,HSRsperchannel-1 {
+    if (pnm.gid_exists(hsrgid.x[i][j])) {
+    if (HSRspiketimes[i][j].size !=0) HSRspiketimes[i][j].printf
+    }
+pnm.pc.barrier()
+
+       }
+for j=0,LSRsperchannel-1 {
+    if (pnm.gid_exists(lsrgid.x[i][j])) {
+      if (LSRspiketimes[i][j].size !=0){
+   print "Process: ", pnm.myid
+    LSRspiketimes[i][j].printf
+}
+    }
+pnm.pc.barrier()
+    }
+    }
+
+}
+
+objref tobj,spikes
+proc GenSpikes2(){local i,j,k
+   if (pnm.myid == 0)  print "Generating ANF Spikes"
+
+  for i=0,nchannels-1  {
+   spikes = new Vector()
+   HSRout[i].ANFSpikeGenerator(spikes,HSRsperchannel,sg_tdres)
+   tobj = new Vector()
+   //tobj.append(spikes.get(k))
+   j=0
+   for(k=1;k < spikes.size();k+=1){
+      if (spikes.get(k) != 0 ){
+         tobj.append(spikes.get(k))
+      } else {
+      //tobj.printf
+      HSRspiketimes[i][j] = tobj.c
+      j+=1
+      tobj = new Vector()
+      }
+   }
+   HSRspiketimes[i][j] = tobj.c
+   //print "HSR ", i, j
+   for j=0,HSRsperchannel-1 {
+       if (pnm.gid_exists(hsrgid.x[i][j])) HSR[i][j].SetSpikes(HSRspiketimes[i][j])
+       }
+   spikes = new Vector()
+   LSRout[i].ANFSpikeGenerator(spikes,LSRsperchannel,sg_tdres)
+   tobj = new Vector()
+   j=0
+   for(k=1;k < spikes.size();k+=1){
+       if (spikes.get(k) != 0 ){
+         tobj.append(spikes.get(k))
+      } else {
+      LSRspiketimes[i][j] = tobj.c
+      j+=1
+      tobj = new Vector()
+      }
+   }
+   LSRspiketimes[i][j] = tobj.c
+   //print "LSR ", i, j
+      for j=0,LSRsperchannel-1 {
+         if (pnm.gid_exists(lsrgid.x[i][j]))  LSR[i][j].SetSpikes(LSRspiketimes[i][j])
+   }
+
+
+  }
+}
+endtemplate AuditoryNerve
+// Post and take ANF spiketimes vectors
+
+strdef tempstr
+
+/*
+
+proc post_ANF_spikes() {local i,j
+   for i=0,nchannels-1  {
+      for j=0,HSRsperchannel-1 {
+         if (pnm.gid_exists(hsrgid.x[i][j])) {
+            sprint(tempstr,"an.HSRspiketimes[%d][%d]",i,j)
+            pnm.pc.post(tempstr, an.HSRspiketimes[i][j])
+         }
+      }
+      for j=0,LSRsperchannel-1 {
+         if (pnm.gid_exists(lsrgid.x[i][j])) {
+            sprint("an.LSRspiketimes[%d][%d]",i,j)
+            pnm.pc.post(tempstr, an.LSRspiketimes[i][j])
+         }
+      }
+   }
+}
+proc get_ANF_spikes() {local i,j
+   pnm.pc.context("post_ANF_spikes()")
+   for i=0,nchannels-1  {
+      for j=0,HSRsperchannel-1 {
+         if (!pnm.gid_exists(hsrgid.x[i][j])) {
+            sprint(tempstr,"an.HSRspiketimes[%d][%d]",i,j)
+            pnm.pc.take(tempstr, an.HSRspiketimes[i][j])
+         }
+      }
+      for j=0,LSRsperchannel-1 {
+         if (!pnm.gid_exists(lsrgid.x[i][j])) {
+            sprint("an.LSRspiketimes[%d][%d]",i,j)
+            pnm.pc.take(tempstr, an.LSRspiketimes[i][j])
+         }
+      }
+   }
+}
+      */
+
+
+
+
+proc post_ANF_sout() {local i,j
+   for i=0,nchannels-1  {
+      if (i%pnm.pc.nhost == pnm.myid ){
+         sprint(tempstr,"HSRout[%d]",i)
+         pnm.pc.post(tempstr, HSRout[i])
+         sprint(tempstr,"LSRout[%d]",i)
+         pnm.pc.post(tempstr, LSRout[i])
+      }
+   }
+}
+
+proc get_ANF_sout() {local i,j
+   pnm.pc.context("post_ANF_sout()")
+   for i=0,nchannels-1  {
+      if (i%pnm.pc.nhost == pnm.myid ){
+         sprint(tempstr,"HSRout[%d]",i)
+         pnm.pc.take(tempstr, HSRout[i])
+         sprint(tempstr,"LSRout[%d]",i)
+         pnm.pc.take(tempstr, LSRout[i])
+      }
+   }
+}
+
+
+proc par_ANFilterBankRun() {local x
+    objref  LSRout[nchannels], HSRout[nchannels] //, MSRout[nchannels]
+    /*Recalculate xlo from cflo, routine from Frank Zhang's Auditory model */
+    xlo = cochlea_f2x(species,cflo)
+    xhi = cochlea_f2x(species,cfhi)
+    xcenter = (xhi - xlo)/2. + xlo
+    delx = (xhi-xlo)/(nchannels-1)
+    cf.x[int(nchannels/2)] = cochlea_x2f(species,xcenter)
+    icentre = int(nchannels/2)-1
+
+   for icf = 0, nchannels-1 {
+   x = xlo + (icf)*delx
+   cf.x[icf] = int(cochlea_x2f(species,x))
+   }
+   GetRatAudiogramData()
+
+    /********Generate Filterbank of ANF Instantaneous rate profiles*******/
+
+    if (usesavedfilterbanks) {
+        if (!RetrieveANFilterBank()) {
+            if (pnm.myid==0){
+      print "Use 'load_vowel.hoc' to save AN Filterbanks before running parallel simulation"
+      pnm.pc.done()
+      quit()
+      }
+        }
+    } else {
+        print "Parallel Version must have 'usesavedfilterbanks' set to 1"
+   print "Use 'load_vowel.hoc' to save AN Filterbanks before running parallel simulation"
+      pnm.pc.done()
+      quit()
+    }
+}
+
+/*
+func GenerateANFilter(){
+    LSRout[$1] = new Vector(stim.size)
+   HSRout[$1] = new Vector(stim.size)
+        LSRout[$1].an_zbcatmodel07(stim, stimtdres, cf.x[$1], Lowspont, cohc.x[$1],cihc.x[$1],species, nrep)
+        HSRout[$1].an_zbcatmodel07(stim, stimtdres, cf.x[$1], Highspont, cihc.x[$1],cohc.x[$1],species, nrep)
+   print "Process: ",pnm.myid, " Channel: ",$1,", CF ", cf.x[$1]
+   LSRout[$1].resample(LSRout[$1],sg_rate/srate)
+   HSRout[$1].resample(HSRout[$1],sg_rate/srate)
+  return 1
+}
+
+proc par_GenerateFilterbank(){ local icf
+
+if (pnm.myid ==0) print "Generating AN model instantaneous rate functions"
+
+    //sg_rate = 50000
+    //ResampleANFilterBank(sg_rate/srate)
+
+
+pnm.pc.runworker          // master returns immediately, workers in
+                        // infinite loop
+s = 0
+if (pnm.pc.nhost == 0) {    // use the serial form
+   for i=1, 20 {
+      s += GenerateANFilter(icf)
+   }
+}else{                  // use the bulletin board form
+   for icf = 0, nchannels-1 {        // scatter processes
+      pnm.pc.submit("GenerateANFilter", icf) // any context needed by func had better be
+   }                    // the same on all hosts
+   while (pnm.pc.working) { // gather results
+      s += pnm.pc.retval    // the return value for the executed function
+   }
+}
+print s
+                // wait for workers to finish printing
+
+}
+*/

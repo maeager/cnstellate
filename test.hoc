@@ -1,0 +1,37 @@
+install_an_zbcatmodel07()
+objref sout,spikes,dspks,tobj
+
+sout = new Vector(5000,250)
+
+spikes = new Vector()
+sout.ANFSpikeGenerator(spikes,10,1/50000)
+spikes.printf
+
+dspks = new Vector()
+dspks.deriv(spikes,1,1)
+dspks.printf
+
+tobj = new Vector()
+tobj.indvwhere(dspks,"<",0)
+tobj.printf
+
+objref spikelist
+k=0
+spikelist = new List()
+tobj = new Vector()
+tobj.append(spikes.get(k))
+
+for(k=1;k < spikes.size();k+=1){
+   if (spikes.get(k-1) < spikes.get(k)){
+      tobj.append(spikes.get(k))
+   } else {
+      spikelist.append(tobj.c)
+      tobj = new Vector()
+
+      tobj.append(spikes.get(k))
+   }
+}
+
+for i=0,spikelist.count-1 {
+   spikelist.object(i).printf
+}

@@ -1,0 +1,764 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+/*
+*   DS_ClickRecovery.hoc
+*
+*/
+load_file("nrngui.hoc")
+//load_file("par_netpar.hoc")
+//load_file("par_init.hoc")
+thresh=-20
+
+xopen("mathslib.hoc")         // mathematical procedures
+xopen("Params.hoc")
+xopen("Utilities.hoc")
+xopen("NetworkParameters.hoc")
+xopen("AuditoryNerve.hoc")
+xopen("par_CNcell.tem")      // CN cell template
+xopen("parameters_DS_ClickRecovery2.hoc")           // model parameters
+xopen("CochlearNucleus.hoc")         // model set-up
+xopen("cngui.hoc")
+
+//previous optimisation parameters
+xopen("pvec_Golgi_RateLevel.hoc")
+
+
+
+// Replacement of connect_cells in Cochlear Nucleus.hoc
+
+proc connect_cells(){local i,p,target,source,low,high,range,channel,sourcechannel	
+    print "Connecting cells"
+    sprint(filename,"%s.connect",$s1)
+    outfile.wopen(filename)
+	
+	hsr2dsAMPAlist.remove_all()
+	lsr2dsAMPAlist.remove_all()
+	glg2dsGABAlist.remove_all()
+
+	print "HSR->DS"
+	if( ( param.n.getval(hsr,ds) > 0 ) && ( nDSperchannel != 0 ) ){
+		outfile.printf("\n%d %d\n",hsr,ds)
+		channel = 50
+		target = 0
+		for i=0, param.n.getval(hsr,ds)-1{
+			//Choose source channel
+			sourcechannel = random.normal(channel,param.bw.getval(hsr,ds)/2)
+			if ((sourcechannel - int(sourcechannel)) > 0.5 ){
+				sourcechannel = 1+int(sourcechannel)
+			} else {
+				sourcechannel = int(sourcechannel) 
+			}
+			if (sourcechannel <=0 ) sourcechannel=0
+			if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
+			//Choose random source from available cells
+			source = random.discunif(0,HSRsperchannel-1)
+			//print "HSR[",sourcechannel,"][",source,"] connected to DS[",channel,"][",target,"]"
+			sprint(cmd, "dstellate[%d][%d].soma hsr2dsAMPAlist.append( new NetCon( an.HSR[%d][%d],  dstellate[%d][%d].AMPA,thresh,param.delay.getval(hsr,ds), param.w.getval(hsr,ds)))",channel,target,sourcechannel,source,channel,target)
+			execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
+			outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
+			
+		}
+		p = 100*(channel)/(nchannels)
+		printf("\r=== %3d%% ===",p)
+		flushf()
+		doNotify() // Although this slows down cell creation, the
+        // process is so long that we have to allow the
+        // user to quit during the creation.
+		
+	}
+	print "LSR->DS"
+	if( ( param.n.getval(lsr,ds) > 0 ) && ( nDSperchannel != 0 ) ){
+		outfile.printf("\n%d %d\n",lsr,ds)
+		channel = 50
+		target = 0
+		for i=0, param.n.getval(lsr,ts)-1{
+			//Choose source channel
+			sourcechannel = random.normal(channel,param.bw.getval(lsr,ds)/2)
+			if ((sourcechannel - int(sourcechannel)) > 0.5 ){
+				sourcechannel = 1+int(sourcechannel)
+			} else {
+				sourcechannel = int(sourcechannel) 
+			}
+			if (sourcechannel <=0 ) sourcechannel=0
+			if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
+			//Choose random source from available cells
+			source = random.discunif(0,LSRsperchannel-1)
+			//print "LSR[",sourcechannel,"][",source,"] connected to DS[",channel,"][",target,"]"
+			sprint(cmd, "dstellate[%d][%d].soma lsr2dsAMPAlist.append( new NetCon( an.LSR[%d][%d],  dstellate[%d][%d].AMPA, thresh,param.delay.getval(lsr,ds), param.w.getval(lsr,ds)))",channel,target,sourcechannel,source,channel,target)
+			execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
+			outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
+		}
+		p = 100*(channel)/(nchannels)
+		printf("\r=== %3d%% ===",p)
+		flushf()
+		doNotify() // Although this slows down cell creation, the
+		// process is so long that we have to allow the
+		// user to quit during the creation.
+	}
+	print "GLG->DS"
+	if( ( param.n.getval(glg,ds) > 0 ) && ( nDSperchannel != 0 ) && ( nGperchannel != 0 ) ){
+		outfile.printf("\n%d %d\n",glg,ds)
+		channel = 50
+		target = 0
+		for i=0, param.n.getval(glg,ds)-1 {
+			//Choose source channel
+			sourcechannel = random.normal(channel,param.bw.getval(glg,ds)/2)
+			if ((sourcechannel - int(sourcechannel)) > 0.5 ){
+				sourcechannel = 1+int(sourcechannel)
+			} else {
+				sourcechannel = int(sourcechannel) 
+			}
+			if (sourcechannel <=0 ) sourcechannel=0
+			if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
+			//Choose random source from available cells
+			source = random.discunif(0,nGperchannel-1)
+			// print "GLG[",sourcechannel,"][",source,"] connected to "DS[",channel,"][",target,"]"
+			if (LSR2GLG ==1 ) {
+				sprint(cmd, "golgi[%d][%d].soma glg2dsGABAlist.append( new NetCon(&v(0.5),dstellate[%d][%d].GABAA,thresh,param.delay.getval(glg,ds), param.w.getval(glg,ds)))",sourcechannel, source, channel, target )
+				execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
+			} else {
+				sprint(cmd, "glg2dsGABAlist.append( new NetCon( golgi[%d][%d].sg,dstellate[%d][%d].GABAA, thresh,param.delay.getval(glg,ds), param.w.getval(glg,ds)))",sourcechannel, source ,channel ,target )
+				execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
+			}
+			outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
+		}  	
+	}
+	outfile.close
+}
+
+
+
+//--- Setup Auditory model
+create_cells()
+objref dstellate[nchannels][1]
+dstellate[50][0] = new CNcell(2,cf.x[50],50)
+connect_cells(fileroot)
+tstop=300
+
+
+
+
+
+//--- Setup Auditory model
+RefreshParameters()
+ANFilterBankRun()   //Build the filterbank
+//CheckFilterbank()
+SetInputRates()      //Allocate filterbanks to ANFs and Golgi units
+//ShowInputGraphs()
+//ShowGolgiGraphs()
+
+
+
+
+
+
+
+
+//ShowGolgiGraphs()
+
+//D-stellate Click train PSTH   (Backoff et al. 1997)
+objref gr,targetclickrecovery, dslist, fvec,dvec,ivec,wclick
+objref Gvec,Ghist,DSvec,DShist
+objref gpstlist, grate[nchannels],anrate[nchannels],rate_level_graph
+gr = new Graph()
+
+//Target response from
+//Fraction of repetitions that ellicit a response
+targetclickrecovery = new Vector()
+targetclickrecovery.append(1,1,1,0.2,1,0.63,1,0.45,1,0.3,0,0,0,0)
+wclick = new Vector(14,1)
+wclick.x[3]=5
+wclick.x[5]=10
+wclick.x[7]=1
+wclick.x[9]=5
+wclick.x[10]=0.01
+wclick.x[11]=0.01
+wclick.x[12]=0.01
+wclick.x[13]=0.01
+targetclickrecovery.plot(gr,2,2) gr.exec_menu("View = plot")
+
+
+
+objref g, dvec, fvec,ivec,gg
+gg = new Graph()
+g = new Graph()
+g.size(0,3,0,3)
+
+proc reset_weights() { local i // 1 arg - weight
+	for i = 0,hsr2dsAMPAlist.count()-1 {
+		hsr2dsAMPAlist.object(i).weight = param.w.x[hsr][ds]
+	}
+	for i = 0,lsr2dsAMPAlist.count()-1 {
+		lsr2dsAMPAlist.object(i).weight = param.w.x[lsr][ds]
+	}
+	for i = 0,glg2dsGABAlist.count()-1 {
+		glg2dsGABAlist.object(i).weight = param.w.x[glg][ds]
+	}
+}
+
+
+// Simplex Method Optimisation function
+//D-stellate Click train PSTH   (Backoff et al. 1997)
+
+a1 =   param.w.x[glg][ds]
+a2  =     param.w.x[hsr][ds]
+// a3 =     param.n.x[hsr][ds]
+
+objref errorvec, DSvec
+func fun() {local f
+	objref errorvec, DSvec
+	DSvec  = new Vector()
+	{
+		g.line($2, $3)
+		g.flush()
+		doNotify()
+		print $1, $2 , $3
+	}
+	//Modify Variables
+	param.w.x[glg][ds] = $2
+	param.w.x[hsr][ds] = $3
+	param.w.x[lsr][ds] = $3
+	//param.n.x[hsr][ds] = $4
+	{reset_weights()}
+	for j=0, reps-1{
+		print j
+		GenSpikes0b()
+		run()
+		DSvec.append(dstellate[50][0].spiketimes)
+		//print startsw()-x, "secs"
+	}
+	DSvec = DSvec.histogram(0,tstop,0.1)
+	
+	objref errorvec
+	errorvec = new Vector()
+	//Find the mean number of spikes in the first click
+	maxrate = (DSvec.sum(240,260) + DSvec.sum(740,760)+ DSvec.sum(1340,1360))/3
+	//Calc ratio of number of spikes in second clcik relative to mean first click
+	errorvec.append( DSvec.sum(260,280) / maxrate )
+	errorvec.append(DSvec.sum(780,800) / maxrate )
+	errorvec.append( DSvec.sum(1420,1440)/ maxrate )
+	errorvec.plot(gr,3,3)
+	print maxrate
+	errorvec.printf
+	return errorvec.meansqerr(targetclickrecovery)
+}
+
+
+ivec = new Vector(1,0)
+fvec = new Vector(1,0)
+dvec = new Vector(1,0)
+error=0
+objref file, DShist
+file = new File()
+DShist = new Vector()
+
+
+proc RunFit(){
+	g.beginline()
+	error = dvec.fit(fvec, "fun", ivec,&a1, &a2)
+	print a1, a2, error
+	g.flush()
+	g.exec_menu("View = plot")
+	//fvec.plot(Graph[0],ivec,1,1)
+	//Output
+	file.wopen("DS_ClickRecovery.out.dat")
+	file.printf("# DS_ClickRecovery data\n")
+	file.printf("# weight GLG->DS =%.2f\n",a1)
+	file.printf("# weight ANF->DS =%.2f\n",a2)
+	file.printf("# final error=%.2f\n",error)
+	file.printf("# Index\tTarget Rate (normalised)\t Output\n")
+	for i=0,2 { file.printf("%d\t%.3f\t%.3f\n",i,targetclickrecovery.x[i],errorvec.x[i]) }
+	file.close()
+}
+
+//
+// RunFit()
+//
+
+
+// Praxis method
+a=0
+b=0
+/*
+print "Setup parameters"
+NPARAMS=6
+pvec = new Vector(NPARAMS)
+//pvec contains the parameters to be fitted
+//Initial values
+pvec.x[0] = 0.00081
+pvec.x[1] = 0.00201
+pvec.x[2] = 0.00206
+pvec.x[3] = 0.0008
+pvec.x[4] = 0.002
+pvec.x[5] = 0.0007
+//pvec_ranges  (min,max) pairs for each param
+pvec_ranges= new Matrix(NPARAMS,2)
+//min
+for i=0,NPARAMS-1 pvec_ranges.x[i][0]= 0.00001
+//max
+for i=0,NPARAMS-1 pvec_ranges.x[i][1]= 0.005
+*/
+
+proc reset_DS(){local i
+	//Extra updating feature for DS_ClickRecovery
+	dstellate[50][0].soma.gleak_rm =dstellate_gleak_rm
+	dstellate[50][0].soma.gkltbar_klt =dstellate_gkltbar
+	dstellate[50][0].GABAA.tau2 = gaba_decay
+	dstellate[50][0].GABAA.tau1 = gaba_rise
+	
+}
+
+objref ivec,pval[NPARAMS]
+ivec= new Vector()
+ivec.append(3,9,7,5,1,2,8,6,4,0,10,11,12,13)
+binwidth = 0.1
+
+func err() {local ii,jj,pp
+	DSvec = new Vector()
+	Gvec = new Vector()
+	//Show parameters
+	for pp=0,NPARAMS-1 printf("%g\t", $&2[pp])
+	printf("\n")
+	
+	//Check for bad values
+	for pp=0,NPARAMS-1 {
+		if ($&2[pp] <= pvec_ranges.x[pp][0] || $&2[pp] > pvec_ranges.x[pp][1]){
+			return 1e9
+		}
+	}
+	if ($&2[4]*pvec_factor.x[4] < $&2[5]*pvec_factor.x[5]) return 1e8
+	//Update parameters
+	for pp=0,NPARAMS-1 {
+		sprint(cmd,"%s = %g\n",pvec_name.object(pp).s,$&2[pp]*pvec_factor.x[pp])
+		execute1(cmd)
+	}
+	
+	//Update model
+	reset_weights()
+	reset_DS()
+	
+	//Run the model
+	for jj=0, reps-1{
+		//print jj
+		GenSpikes0b()
+		run()
+		DSvec.append(dstellate[50][0].spiketimes)
+		Gvec.append(golgi[50][0].spiketimes)
+		//print startsw()-x, "secs"
+	}
+	
+	//View the output
+	DShist = DSvec.histogram(0,tstop,binwidth)
+	Ghist = Gvec.histogram(0,tstop,binwidth)
+	DShist.plot(g,binwidth)
+	g.exec_menu("View = plot")
+	Ghist.plot(gg,binwidth)
+	gg.exec_menu("View = plot")
+	doNotify()
+	objref errorvec
+	errorvec = new Vector()
+	//Find the mean number of spikes in the first click
+	//maxrate = (DShist.sum(240,260) + DShist.sum(740,760)+ DShist.sum(1340,1360))/3
+	//if (maxrate < 1) return 1e10
+	//Calc ratio of number of spikes in second click relative to mean first click
+	//
+	for (i=0;i<clicktimes.size;i=i+1){
+		errorvec.append(DShist.sum(clicktimes.x[i]*10000/srate + 4/binwidth , \
+		clicktimes.x[i]*10000/srate + 6/binwidth))
+	}
+	
+	//Measure idle times between spikes
+	
+	errorvec.append(DShist.sum(clicktimes.x[1]*10000/srate + 6/binwidth, \
+ 	  clicktimes.x[2]*10000/srate + 4/binwidth))
+	errorvec.append(DShist.sum(clicktimes.x[3]*10000/srate + 6/binwidth, \
+	  clicktimes.x[4]*10000/srate+4/binwidth))
+	errorvec.append(DShist.sum(clicktimes.x[5]*10000/srate + 8/binwidth, \
+	  clicktimes.x[6]*10000/srate+4/binwidth))
+	errorvec.append(DShist.sum(clicktimes.x[7]*10000/srate + 8/binwidth, \
+	  clicktimes.x[8]*10000/srate+40))
+	
+	errorvec.mul(1/reps)
+	printf("Unweighted error: %f\n",b=errorvec.meansqerr(targetclickrecovery))
+	print "Weighted error:", a=errorvec.meansqerr(targetclickrecovery,wclick)
+	gr.erase_all()
+	sprint(grlbl,"W Error = %g", a)
+	gr.label(0.65,0.95,grlbl)
+	sprint(grlbl,"UnW Error = %g", b)
+	gr.label(0.05,0.95,grlbl)
+	for pp=0,NPARAMS-1 {
+		sprint(grlbl,"%s = %g",pvec_name.object(pp).s, $&2[pp]*pvec_factor.x[pp])
+    	gr.label(0.65,(0.75-pp*0.05),grlbl)
+	}
+	targetclickrecovery.plot(gr,2,1)
+	errorvec.plot(gr,3,2)
+	doNotify()
+	if(file.isopen())  file.close()
+	file.aopen("DS_ClickRecovery/praxis.dat")
+	for pp=0,NPARAMS-1 file.printf("%g\t",$&2[pp])
+	file.printf("%g\n",a)
+	file.close()
+	
+	errorvec.printf
+	
+	return a
+	
+}
+
+
+pvec.printf
+
+proc QuickRun(){
+	print err(0,&pvec.x[0])
+}
+
+proc runprax(){
+	attr_praxis(0.0001, 0.001, 3)
+	fit_praxis(NPARAMS,"err",&pvec.x[0])
+}
+
+error=0
+strdef datestr,grlbl
+
+
+
+proc runprax2(){local pp,pp2
+		//attr_praxis(0.01, 0.0001, 3)
+	//fit_praxis(NPARAMS,"err",&pvec.x[0])
+	//Output
+	print error=err(0,&pvec.x[0])
+	system("date",datestr)
+	sprint(fname,"%s/%s.Fit.dat",fileroot,fileroot)
+	file.wopen(fname)
+	if (file.isopen()){
+		file.printf("# %s Optimisation\n",fileroot)
+		file.printf("# %s \n",datestr)
+		for pp=0,NPARAMS-1 {
+			file.printf("#%s = %g\t[%g,%g]\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp],pvec_ranges.x[pp][0],pvec_ranges.x[pp][1])
+		}
+		file.printf("# final error=%f\n",error)
+		file.printf("# unweighted error=%f\n",errorvec.meansqerr(targetclickrecovery))
+		file.printf("# Click Delay (ms)\tTarget Rate (normalised)\t Output\n")
+		for ii=0, 4 { file.printf("%d\t%.3f\t%.3f\t%.3f\t%.3f\n",(clicktimes.x[ivec.x[ii]]-clicktimes.x[ivec.x[ii+5]]) / srate *1000 ,targetclickrecovery.x[ivec.x[ii+5]],targetclickrecovery.x[ivec.x[ii]],errorvec.x[ivec.x[ii+5]],errorvec.x[ivec.x[ii]])}
+		file.printf("# Error in quiet regions\n")
+		for ii=10, 13 { file.printf("#  %.3f\n",errorvec.x[ii]) }
+	}
+	file.printf("# Principle axis matrix\n")
+	for pp=0,NPARAMS-1 {
+		pval[pp] = new Vector(NPARAMS)
+		pval_praxis(pp,&pval[pp].x[0])
+		file.printf("#\t")
+		for pp2=0,NPARAMS-1 file.printf("%g\t",pval[pp].x[pp2])
+		file.printf("\n")
+	}
+	file.close()
+	system("(cd DS_ClickRecovery; gnuplot DS_ClickRecovery_ExpData.gnu)")
+	
+	sprint(fname,"pvec_%s.hoc",fileroot)
+	file.aopen(fname)
+	file.printf("/**** %s *******/\n",datestr)
+	for pp=0,NPARAMS-1 {
+		file.printf("%s = %g\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp])
+	}
+	file.close()
+	
+}
+
+/*
+bstar=0
+bb=1e9
+for iprax=0,10 {
+	runprax()
+	if (b < bb){
+		bb=b
+		mypvec = pvec.c
+		bstar = iprax
+	}
+	// Default Output Plot
+	sprint(grlbl, "DS_ClickRecovery/DS_ClickRecovery_Example%d.eps",iprax)
+	gr.printfile(grlbl)
+	g.printfile("DS_ClickRecovery/DS_ClickRecovery_DSpsth.eps")
+	gg.printfile("DS_ClickRecovery/DS_ClickRecovery_Gpsth.eps")
+	g.erase_all()
+	gg.erase_all()
+}
+print bstar, "was the best"
+*/
+//runprax()
+//runprax()
+//runprax2()
+
+
+
+/*  Notes: 17/9/09
+* when more emphasis is on the 8ms and 2ms (weight 10 and 8 vs 1 or 2) the optimisation tend to favour higher LSR weight and lower HSR/lower GABA inputs.
+* emphasis still present when init favoured LSR and weight normalised
+* better improvement when initialised at default - still having trouble with 8ms
+*/
+
+
+/* Notes 27/11
+Trying various parameters
+gkltbar
+erev_rm
+gleak_rm
+* 29/11 GleakDiv10 was the best
+
+objref initpvec,mypvec
+initpvec = pvec.c
+runprax()
+bstar = 0
+bb=b
+mypvec = pvec.c
+dstellate[50][0].soma.gleak_rm/=10
+pvec = initpvec.c
+runprax()
+sprint(grlbl, "DS_ClickRecovery/DS_ClickRecovery_GleakDiv10.eps")
+gr.printfile(grlbl)
+if (b < bb){
+	bb=b
+	mypvec = pvec.c
+	bstar = 1
+}
+dstellate[50][0].soma.gleak_rm*=10
+dstellate[50][0].soma.gleak_rm*=10
+pvec = initpvec.c
+runprax()
+sprint(grlbl, "DS_ClickRecovery/DS_ClickRecovery_GleakMul10.eps")
+gr.printfile(grlbl)
+if (b < bb){
+	bb=b
+	mypvec = pvec.c
+	bstar=2
+}
+dstellate[50][0].soma.gleak_rm/=10
+dstellate[50][0].soma.erev_rm=-70
+pvec = initpvec.c
+runprax()
+sprint(grlbl, "DS_ClickRecovery/DS_ClickRecovery_Erev-70.eps")
+gr.printfile(grlbl)
+if (b < bb){
+	bb=b
+	mypvec = pvec.c
+	bstar=3
+}
+dstellate[50][0].soma.erev_rm=-65
+pvec = initpvec.c
+runprax()
+
+dstellate[50][0].soma.erev_rm=-70
+dstellate[50][0].soma.gleak_rm=0.0008
+pvec = initpvec.c
+runprax()
+sprint(grlbl, "DS_ClickRecovery/DS_ClickRecovery_Erev-70_Gleakx2.eps")
+gr.printfile(grlbl)
+if (b < bb){
+	bb=b
+	mypvec = pvec.c
+	bstar=4
+}
+print bstar, "was the best ", bb
+mypvec.printf
+
+bstar=0
+bb=1e9
+dstellate[50][0].soma.gleak_rm=dstellate_gleak_rm
+pvec = initpvec.c
+for iprax=0,10 {
+	runprax()
+	if (b < bb){
+		bb=b
+		mypvec = pvec.c
+		bstar = iprax
+	}
+	// Default Output Plot
+	sprint(grlbl, "DS_ClickRecovery/DS_ClickRecovery_Example%d.eps",iprax)
+	gr.printfile(grlbl)
+	g.printfile("DS_ClickRecovery/DS_ClickRecovery_DSpsth.eps")
+	gg.printfile("DS_ClickRecovery/DS_ClickRecovery_Gpsth.eps")
+	g.erase_all()
+	gg.erase_all()
+}
+print bstar, "was the best"
+*/
+
+/* 30/11/09
+running with 7 parameters
+1/12/09
+Running opt with reps=50
+Cleaned up pvec_factor.x[3]
+
+reps=50
+bstar=0
+objref aapvec,mypvec
+astar=0
+bb=1e9
+aa=1e9
+for iprax=0,20 {
+	Rand.uniform(pvec_ranges.x[0][0]*2,pvec_ranges.x[0][1]/10)
+	pvec.setrand(Rand)
+	runprax()
+	runprax2()
+	sprint(cmd, "cp %s/%s.Fit.dat %s/%s.Fit%d.dat",fileroot,fileroot,fileroot,fileroot,iprax)
+	system(cmd)
+	
+	
+	if (b < bb){
+		bb=b
+		mypvec = pvec.c
+		bstar = iprax
+	}
+	if (a < aa){
+		aa=a
+		aapvec = pvec.c
+		astar = iprax
+	}
+	// Default Output Plot
+	//sprint(grlbl, "DS_ClickRecovery/DS_ClickRecovery_ExampleB%d.eps",iprax)
+	//gr.printfile(grlbl)
+	//g.printfile("DS_ClickRecovery/DS_ClickRecovery_DSpsth.eps")
+	//gg.printfile("DS_ClickRecovery/DS_ClickRecovery_Gpsth.eps")
+	g.erase_all()
+	gg.erase_all()
+}
+reps=100
+print bstar, "was the best unweighted optimisation"
+sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery.Fit%d.dat ~/work/thesis/SimpleResponsesChapter/gfx/DS_ClickRecovery_best_unweighted.Fit%d.dat",bstar,bstar)
+system(cmd)
+pvec = mypvec.c
+runprax2()
+sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery_result.eps ~/work/thesis/SimpleResponsesChapter/gfx/DS_ClickRecovery_result_unweighted_%d.eps",bstar)
+system(cmd)
+print astar, "was the best weighted optimisation"
+sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery.Fit%d.dat ~/work/thesis/SimpleResponsesChapter/gfx/DS_ClickRecovery_best_weighted.Fit%d.dat",astar,astar)
+system(cmd)
+pvec = aapvec.c
+runprax2()
+sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery_result.eps ~/work/thesis/SimpleResponsesChapter/gfx/DS_ClickRecovery_result_weighted_%d.eps",astar)
+system(cmd)
+*/
+
+
+/* 4/12/09
+
+*/
+
+objref wclick,initpvec
+initpvec = pvec.c
+wclick = new Vector(14,1)
+//wclick.x[3]=5
+//  wclick.x[5]=10
+//  wclick.x[7]=1
+//  wclick.x[9]=10
+//  wclick.x[10]=0.1
+//  wclick.x[11]=0.1
+//  wclick.x[12]=0.1
+//  wclick.x[13]=0.1
+reps=50
+//bstar=0
+objref aapvec,mypvec
+//astar=0
+//bb=1e9
+//aa=1e9
+proc April9Run(){
+	for iprax=21,40 {
+		Rand.uniform(pvec_ranges.x[0][0]*2,pvec_ranges.x[0][1]/10)
+		pvec.setrand(Rand)
+		//pvec = initpvec.c
+		runprax()
+		runprax2()
+		sprint(cmd, "cp %s/%s.Fit.dat %s/%s.Fit.%d.dat",fileroot,fileroot,fileroot,fileroot,iprax)
+		system(cmd)
+		sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery_result.eps DS_ClickRecovery/DS_ClickRecovery_result.%d.eps",iprax)
+		system(cmd)
+		
+		if (b < bb){
+			bb=b
+			mypvec = pvec.c
+			bstar = iprax
+		}
+		if (a < aa){
+			aa=a
+			aapvec = pvec.c
+			astar = iprax
+		}
+		// Default Output Plot
+		sprint(grlbl, "DS_ClickRecovery2/DS_ClickRecovery_Example.%d.eps",iprax)
+		gr.printfile(grlbl)
+		//g.printfile("DS_ClickRecovery/DS_ClickRecovery_DSpsth.eps")
+		//gg.printfile("DS_ClickRecovery/DS_ClickRecovery_Gpsth.eps")
+		g.erase_all()
+		gg.erase_all()
+	}
+	reps=100
+	print bstar, "was the best unweighted optimisation"
+	sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery.Fit.%d.dat /home/maeager/work/thesis/SimpleResponsesChapter/gfx/DS_ClickRecovery_best_unweighted.Fit.%d.dat",bstar,bstar)
+	system(cmd)
+	pvec = mypvec.c
+	runprax2()
+	sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery_result.eps /home/maeager/work/thesis/SimpleResponsesChapter/gfx/DS_ClickRecovery_result_unweighted.%d.eps",bstar)
+	system(cmd)
+	print astar, "was the best weighted optimisation"
+	sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery.Fit.%d.dat /home/maeager/work/thesis/SimpleResponsesChapter/gfx/DS_ClickRecovery_best_weighted.Fit.%d.dat",astar,astar)
+	system(cmd)
+	pvec = aapvec.c
+	runprax2()
+	sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery_result.eps /home/maeager/work/thesis/SimpleResponsesChapter/gfx/DS_ClickRecovery_result_weighted.%d.eps",astar)
+	system(cmd)
+	
+	
+	lineno=344
+	for iprax=0,20 {
+		sprint(cmd, "head -%d pvec_DS_ClickRecovery.hoc | tail -7 > /tmp/params.hoc",lineno)
+		system(cmd)
+		xopen("/tmp/params.hoc")
+		set_pvec()
+		pvec.printf
+		runprax2()
+		sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery_result.eps DS_ClickRecovery/DS_ClickRecovery_result.%d.eps",iprax)
+		system(cmd)
+		lineno+=9
+	}
+	
+}
+
+
+proc RateLevelDS(){
+	reps=50
+	sprint(cmd,"mkdir %s/rate_level",fileroot)
+	system(cmd)
+	dur 		= 0.049 	//duration of tone segment (seconds)	
+	dutycycle 	= 0.2		//quiet duration = dutycycle*dur
+	ramplngth 	= 0.001
+	srate 		= 100000.0
+	stimtdres 	= 1/srate
+	sg_rate     = 50000		
+	sg_tdres    = 1/sg_rate
+	stimdelay 	= 0.02		//sec
+	stimtype    = 6 	//noise
+	
+	for (spl=15;spl<=100;spl+=5){
+		RefreshParameters()
+		ANFilterBankRun()   //Build the filterbank
+		CheckFilterbank()
+		SetInputRates()
+		multi_run()
+		ANSpikes()
+		CNSpikes2()
+		sprint(fname,"%s/rate_level/%d.dat",fileroot,spl)
+		file.wopen(fname)
+		for icf=0,99 {
+			file.printf("%d\t%d\t%g\t%g\t%g\t%g\t%g\n",icf, cf.x[icf],CNrate[ds].x[icf],CNrate[glg].x[icf],ANFrate[0].x[icf],ANFrate[1].x[icf])
+			
+		}
+		file.close()  
+	}
+}
+
+
+/******* 31 Aug 2010  *****/
+// Big changes to Zilany model and AN spiking model
+//runprax()
+//runprax2()
+
+
+

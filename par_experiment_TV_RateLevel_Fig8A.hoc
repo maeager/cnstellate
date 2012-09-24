@@ -1,0 +1,130 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+objref file
+file = new File()
+
+//Spirou et al 1999
+
+//Figure 8: Effects of strychnine and bicuculline iontophoresis on rate-level
+// curves. Legend in B identifies the conditions for each rate-level plot. A: type
+// II unit studied before and during strychnine and bicuculline. Leftmost 3
+// rate-level curves: BF tones, rightmost 3: for noise. Note the control noise
+// response is essentially 0. B: type I/III unit studied before and during
+// strychnine. Sponta- neous activity did not develop in either unit during
+// iontophoresis. C: plot of relative noise response before (abscissa) versus
+// during (ordinate) application of inhibitory antagonist. Antagonist is identified
+// by the symbols, defined in the legend. Diagonal line shows equality of relative
+// noise responses and the vertical dashed line separates type II from type I/III
+// units at a relative noise response of 0.35.
+
+objref SpirouFig8B_wStr_Tone, SpirouFig8B_Control_Tone, SpirouFig8B_Control_Noise,SpirouFig8B_wStr_Tone, SpirouFig8B_wStr_Noise
+SpirouFig8B_Control_Tone = new Matrix()
+SpirouFig8B_Control_Noise = new Matrix()
+SpirouFig8B_wStr_Tone = new Matrix()
+SpirouFig8B_wStr_Noise  = new Matrix()
+
+file.ropen("TV_RateLevel/Spirou-Fig8B-RL-withStry-Control-Tone-Noise.png.dat")
+SpirouFig8B_wStr_Tone.scanf(file,32,2)
+SpirouFig8B_Control_Tone.scanf(file,22,2)
+SpirouFig8B_wStr_Noise.scanf(file,24,2)
+SpirouFig8B_Control_Noise.scanf(file,18,2) 
+file.close()
+
+objref SpirouFig8A_wStr_Tone, SpirouFig8A_Control_Tone, SpirouFig8A_Control_Noise,SpirouFig8A_wStr_Tone, SpirouFig8A_wStr_Noise, SpirouFig8A_wBic_Tone, SpirouFig8A_wBic_Noise
+SpirouFig8A_Control_Tone = new Matrix()
+SpirouFig8A_Control_Noise = new Matrix()
+SpirouFig8A_wStr_Tone = new Matrix()
+SpirouFig8A_wStr_Noise  = new Matrix()
+SpirouFig8A_wBic_Tone = new Matrix()
+SpirouFig8A_wBic_Noise  = new Matrix()
+
+
+   //$ wc -l TV_RateLevel/Spirou-Fig8A*.dat
+   // 30 TV_RateLevel/Spirou-Fig8A-RL-Control-BFTone.png.dat
+   // 19 TV_RateLevel/Spirou-Fig8A-RL-Control-Noise.png.dat
+   // 48 TV_RateLevel/Spirou-Fig8A-RL-withBic-BFTone.png.dat
+   // 20 TV_RateLevel/Spirou-Fig8A-RL-withBic-Noise.png.dat
+   // 39 TV_RateLevel/Spirou-Fig8A-RL-withStrych-BFTone.png.dat
+   // 18 TV_RateLevel/Spirou-Fig8A-RL-withStrych-Noise.png.dat
+
+
+file.ropen("TV_RateLevel/Spirou-Fig8A-RL-withStrych-BFTone.png.dat")
+if (file.isopen()) SpirouFig8A_wStr_Tone.scanf(file,39,2)
+file.close()
+file.ropen("TV_RateLevel/Spirou-Fig8A-RL-Control-BFTone.png.dat")
+if (file.isopen()) SpirouFig8A_Control_Tone.scanf(file,30,2)
+file.close()
+file.ropen("TV_RateLevel/Spirou-Fig8A-RL-withStrych-Noise.png.dat")
+if (file.isopen()) SpirouFig8A_wStr_Noise.scanf(file,18,2)
+file.close()
+file.ropen("TV_RateLevel/Spirou-Fig8A-RL-Control-Noise.png.dat")
+if (file.isopen()) SpirouFig8A_Control_Noise.scanf(file,19,2) 
+file.close()
+file.ropen("TV_RateLevel/Spirou-Fig8A-RL-withBic-BFTone.png.dat")
+if (file.isopen()) SpirouFig8A_wBic_Tone.scanf(file,48,2)
+file.close()
+file.ropen("TV_RateLevel/Spirou-Fig8A-RL-withBic-Noise.png.dat")
+if (file.isopen()) SpirouFig8A_wBic_Noise.scanf(file,20,2)
+file.close()
+
+/*  D stellate cell (OnC) rate-level */
+// wc -l  ../../cnstellate/TV_RateLevel/Arnott2004_Fig*.dat
+//  20 ../../cnstellate/TV_RateLevel/Arnott2004_Fig3_CF6.3kHz.Noise.dat
+//  20 ../../cnstellate/TV_RateLevel/Arnott2004_Fig3_CF6.3kHz.Tone.dat
+objref Arnott2004_Fig3_Noise, Arnott2004_Fig3_Tone
+Arnott2004_Fig3_Tone = new Matrix()
+Arnott2004_Fig3_Noise = new Matrix()
+file.ropen("TV_RateLevel/Arnott2004_Fig3_CF6.3kHz.Noise.dat")
+if (file.isopen()) Arnott2004_Fig3_Tone.scanf(file,20,2)
+file.close()
+file.ropen("TV_RateLevel/Arnott2004_Fig3_CF6.3kHz.Tone.dat")
+if (file.isopen()) Arnott2004_Fig3_Noise.scanf(file,20,2)
+file.close()
+
+
+
+// Target RL data
+objref tmp_rate_level, level, tvrate[nchannels], tvrate[nchannels], \
+dsrate[nchannels],grate[nchannels], hsrrate[nchannels],lsrrate[nchannels]
+
+/// Save rate-level values to file
+proc save_rate_level(){
+	sprint(fname,"%s/rate_level.dat",fileroot)
+	file.aopen(fname)
+	for i=0,level.size-1{
+		file.printf("%d\t%g\t%g\t%g\t%g\t%g\t%g\n",level.x[i],\
+		tvrate[0].x[i],tvrate[1].x[i],\
+		dsrate[50].x[i],grate[50].x[i], \
+		hsrrate[50].x[i],lsrrate[50].x[i])
+			
+	}
+	file.close()
+}	
+
+//Note the level vector must be set prior to calling this function 
+obfunc set_target_rate_level(){localobj xdata,ydata
+	if (level.size == 0) {
+print "Error setting data"
+return tmp_rate_level
+	}
+	if ( object_id($o1) && $o1.nrow >= 2 && $o1.ncol >= 2){
+	xdata = $o1.getcol(0).add(100)  //0dBA in data ~ 100dB SPL
+	ydata = $o1.getcol(1)
+	tmp_rate_level = new Vector()
+	tmp_rate_level.interpolate(level,xdata,ydata)
+	} else {
+	print "Error interpolating data"
+	}
+return tmp_rate_level
+	
+}
+
+
+proc reset_TV_RateLevel(){local i
+  
+  for i=0,nchannels -1 {
+  	tuberculoventral[i][0].soma.erev_rm = param.tv_erev
+  }
+}
+
+
