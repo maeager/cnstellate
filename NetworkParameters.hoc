@@ -14,8 +14,8 @@ public ncol,nrow
 public golgi_spatial_filter_variance_LSR,golgi_syn_filter_scale_factor,golgi_spon
 //DS_ClickRecovery
 public dstellate_gkltbar, gaba_decay, gaba_rise, dstellate_gleak_rm, dstellate_gnabar_rm, DS_params
-//TV_Notch
-public offset, tv_erev
+//TV_Notch and RateLevel
+public offset, tv_erev, tv_gleak
 //functions
 public getnetparameters, saveparameters,printparams
 objref bw, n, w,delay
@@ -39,7 +39,8 @@ proc init(){
 	gaba_rise								= 0.7
 	dstellate_gleak_rm				        = 0.00274146 // default gleak	 
 	dstellate_gnabar_rm				        = 0.408307  //2 times default TypeI-II RM model	   
-	
+	tv_gleak     = 0.0004987
+        tv_erev      = -70
 	
 	
 	
