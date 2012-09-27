@@ -33,25 +33,21 @@ proc init(){
 }
 
 proc SetRates() {local i,j
-	
+	print "Setting AN rates"
 	for i=0,nchannels-1  {
 		for j=0,HSRsperchannel-1 {
 			HSR[i][j].channel = i
 			HSR[i][j].cf = cf.x[i]
 			HSR[i][j].spont = Highspont
-			HSR[i][j].SetFibreRate(HSRout[i],HSRspiketimes[i][j],sg_tdres)
-			
-			
+			HSR[i][j].SetFibreRate(HSRout[i],HSRspiketimes[i][j],sg_tdres)			
 		}
 		for j=0,LSRsperchannel-1 {
 			LSR[i][j].channel = i
 			LSR[i][j].cf = cf.x[i]
 			LSR[i][j].spont = Lowspont
 			LSR[i][j].SetFibreRate(LSRout[i],LSRspiketimes[i][j],sg_tdres)
-			
 		}
     }
-	
 }
 
 //! Very basic spike generation
@@ -85,7 +81,6 @@ proc PrintSpikes() {local i,j
 
 objref tobj,spikes
 proc GenSpikes2(){local i,j,k
-	
 	
 	for i=0,nchannels-1  {
 		spikes = new Vector()
@@ -133,8 +128,7 @@ proc GenSpikes2(){local i,j,k
 	}
 }
 proc GenSpikes4(){local i,j,k
-	
-	
+		
 	for i=0,nchannels-1  {
 		spikes = new Vector()
 		HSRout[i].ANFSpikeGenerator(spikes,HSRsperchannel,sg_tdres)
@@ -184,26 +178,21 @@ proc GenSpikes4(){local i,j,k
 
 
 proc ClearSpikes() {local i,j
-	
+	print "Clearing AN Spikes"	
 	for i=0,nchannels-1  {
 		for j=0,HSRsperchannel-1 {
-			
 			if (HSRspiketimes[i][j].size !=0) HSRspiketimes[i][j].resize(0)
 			if (HSRspikes[i][j].size !=0) HSRspikes[i][j].resize(0)
-			
 		}
 		for j=0,LSRsperchannel-1 {
-			
 			if (LSRspiketimes[i][j].size !=0)   LSRspiketimes[i][j].resize(0)
 			if (LSRspikes[i][j].size !=0)   LSRspikes[i][j].resize(0)
-			
 		}
     }
-	
 }
 
 proc SaveSpikes() {local i,j
-	
+    print "Saving AN Spikes"
 	for i=0,nchannels-1  {
 		for j=0,HSRsperchannel-1 {
 			if (HSRspiketimes[i][j].size !=0) HSRspikes[i][j].append(HSRspiketimes[i][j].c)
