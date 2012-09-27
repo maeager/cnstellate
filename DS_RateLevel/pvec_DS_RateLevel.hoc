@@ -88,3 +88,27 @@ param.w.x[glg][ds] = 0.00483773
 param.n.x[lsr][ds] = 56.5702
 param.n.x[hsr][ds] = 157.798
 param.n.x[glg][ds] = 8.90035
+ // Thursday 6 September  00:15:05 EST 2012
+  
+param.w.x[lsr][ds] = 0.00634225
+param.w.x[hsr][ds] = 0.000167221
+param.w.x[glg][ds] = 0.00383773
+param.n.x[lsr][ds] = 56.5702
+param.n.x[hsr][ds] = 157.732
+param.n.x[glg][ds] = 9.90035
+ // Thursday 6 September  02:22:48 EST 2012
+  
+param.w.x[lsr][ds] = 0.00540029
+param.w.x[hsr][ds] = 0.000167221
+param.w.x[glg][ds] = 0.00399402
+param.n.x[lsr][ds] = 56.4566
+param.n.x[hsr][ds] = 157.802
+param.n.x[glg][ds] = 9.90035
+ // Thursday 6 September  05:03:41 EST 2012
+  
+param.w.x[lsr][ds] = 0.00540029
+param.w.x[hsr][ds] = 0.000167221
+param.w.x[glg][ds] = 0.00899402
+param.n.x[lsr][ds] = 66.2279
+param.n.x[hsr][ds] = 157.802
+param.n.x[glg][ds] = 19.9003
