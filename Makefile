@@ -24,15 +24,15 @@ clean-all: clean
 
 gui:  # libresample-0.1.3/libresample.a
 	$(GUIMODL) $(MODLFLAGS)
-	[ -d gui ] && rm -rf gui
+	#[ -d gui ] && rm -rf gui
 	mv $(ARCH) gui
-	(cd gui; sed -i 's_cnstellate/$(ARCH)_cnstellate/gui_g' special)
+	(cd gui; sed -i 's#cnstellate/$(ARCH)#cnstellate/gui#g' special)
 
-mpi: libresample-0.1.3/libresample.a
+mpi: # libresample-0.1.3/libresample.a
 	$(MPIMODL) $(MODLFLAGS)
-	[ -d mpi ] && rm -rf mpi
+	#[ -d mpi ] && rm -rf mpi
 	mv $(ARCH) mpi
-	(cd mpi; find -type f -exec sed -i 's_cnstellate/$(ARCH)_cnstellate/mpi_g' {} \; )
+	(cd mpi; sed -i 's#cnstellate/$(ARCH)#cnstellate/mpi#g' special )
 
 libresample-0.1.3/libresample.a: libresample_0.1.3.tar.gz
 	(cd libresample-0.1.3; make CFLAGS="-fPIC $CFLAGS -fPIC" CXXFLAGS="-fPIC $CXXFLAGS -fPIC")
