@@ -4,7 +4,6 @@ objref file
 file = new File()
 
 //Spirou et al 1999
-
 //Figure 8: Effects of strychnine and bicuculline iontophoresis on rate-level
 // curves. Legend in B identifies the conditions for each rate-level plot. A: type
 // II unit studied before and during strychnine and bicuculline. Leftmost 3
@@ -17,18 +16,18 @@ file = new File()
 // noise responses and the vertical dashed line separates type II from type I/III
 // units at a relative noise response of 0.35.
 
-objref SpirouFig8B_wStr_Tone, SpirouFig8B_Control_Tone, SpirouFig8B_Control_Noise,SpirouFig8B_wStr_Tone, SpirouFig8B_wStr_Noise
-SpirouFig8B_Control_Tone = new Matrix()
-SpirouFig8B_Control_Noise = new Matrix()
-SpirouFig8B_wStr_Tone = new Matrix()
-SpirouFig8B_wStr_Noise  = new Matrix()
+// objref SpirouFig8B_wStr_Tone, SpirouFig8B_Control_Tone, SpirouFig8B_Control_Noise,SpirouFig8B_wStr_Tone, SpirouFig8B_wStr_Noise
+// SpirouFig8B_Control_Tone = new Matrix()
+// SpirouFig8B_Control_Noise = new Matrix()
+// SpirouFig8B_wStr_Tone = new Matrix()
+// SpirouFig8B_wStr_Noise  = new Matrix()
 
-file.ropen("TV_RateLevel/Spirou-Fig8B-RL-withStry-Control-Tone-Noise.png.dat")
-SpirouFig8B_wStr_Tone.scanf(file,32,2)
-SpirouFig8B_Control_Tone.scanf(file,22,2)
-SpirouFig8B_wStr_Noise.scanf(file,24,2)
-SpirouFig8B_Control_Noise.scanf(file,18,2) 
-file.close()
+// file.ropen("TV_RateLevel/Spirou-Fig8B-RL-withStry-Control-Tone-Noise.png.dat")
+// SpirouFig8B_wStr_Tone.scanf(file,32,2)
+// SpirouFig8B_Control_Tone.scanf(file,22,2)
+// SpirouFig8B_wStr_Noise.scanf(file,24,2)
+// SpirouFig8B_Control_Noise.scanf(file,18,2) 
+// file.close()
 
 objref SpirouFig8A_wStr_Tone, SpirouFig8A_Control_Tone, SpirouFig8A_Control_Noise,SpirouFig8A_wStr_Tone, SpirouFig8A_wStr_Noise, SpirouFig8A_wBic_Tone, SpirouFig8A_wBic_Noise
 SpirouFig8A_Control_Tone = new Matrix()
@@ -67,19 +66,12 @@ file.ropen("TV_RateLevel/Spirou-Fig8A-RL-withBic-Noise.png.dat")
 if (file.isopen()) SpirouFig8A_wBic_Noise.scanf(file,20,2)
 file.close()
 
-/*  D stellate cell (OnC) rate-level */
-// wc -l  ../../cnstellate/TV_RateLevel/Arnott2004_Fig*.dat
-//  20 ../../cnstellate/TV_RateLevel/Arnott2004_Fig3_CF6.3kHz.Noise.dat
-//  20 ../../cnstellate/TV_RateLevel/Arnott2004_Fig3_CF6.3kHz.Tone.dat
-objref Arnott2004_Fig3_Noise, Arnott2004_Fig3_Tone
-Arnott2004_Fig3_Tone = new Matrix()
-Arnott2004_Fig3_Noise = new Matrix()
-file.ropen("TV_RateLevel/Arnott2004_Fig3_CF6.3kHz.Noise.dat")
-if (file.isopen()) Arnott2004_Fig3_Tone.scanf(file,20,2)
-file.close()
-file.ropen("TV_RateLevel/Arnott2004_Fig3_CF6.3kHz.Tone.dat")
-if (file.isopen()) Arnott2004_Fig3_Noise.scanf(file,20,2)
-file.close()
+
+proc TV_Noise_Setup(){
+	
+	stimtype = 6    //Broad-band Noise 
+	
+}
 
 
 
