@@ -611,6 +611,106 @@ func DS_RateLevel_err(){local jj,pp,xtime
     return error1+error2+error3+error4
 }
 
+func DS_RateLevel_err2(){local jj,pp,xtime
+    xtime=startsw()
+    //check for bad values
+    for pp=0,NPARAMS-1 {
+		if (($&2[pp] <= pvec_ranges.x[pp][0]) || ($&2[pp] > pvec_ranges.x[pp][1])) {
+			return 1e9
+		}
+    }
+	//print variables
+	print "DS_RateLevel_err ", $1 
+    for pp=0,NPARAMS-1 { printf("%s = %g * %g",pvec_name.object(pp).s,$&2[pp],pvec_factor.x[pp]) }
+	//Set the parameters (see parameters_TV_Notch.hoc)
+	for pp=0,NPARAMS-1 {
+		sprint(cmd,"%s = %g * %g \n",pvec_name.object(pp).s,$&2[pp],pvec_factor.x[pp])
+		execute1(cmd)
+    }
+	//Rearrange synapses is using weight parameters
+	//connect_cells(fileroot)  connect_CNcells(fileroot)
+	connect_cells_DS(fileroot)
+	//reset_weights()
+
+	DS_BFtone()
+	level=new Vector(15)
+	level.indgen().mul(5).add(30) //20:10:100
+	Ratelevel()
+	if (whichcell == ArnottFig3_CFpos){
+		target_rate_level[0] =set_target_rate_level(Arnott2004_Fig3_Tone)
+	} else {
+		target_rate_level[0] =set_target_rate_level(Arnott2004_Fig12_Tone)
+		
+	}
+	error1 = dsrate[whichcell].c.sub(target_rate_level[0]).div(target_rate_level[0].c.add(0.1)).abs().mean()
+
+	toneRL[0] =  level.c
+	toneRL[1] =  dsrate[whichcell].c
+	toneRL[2] =  grate[whichcell].c
+	toneRL[3] =  hsrrate[whichcell].c
+	toneRL[4] =  lsrrate[whichcell].c
+	
+	save_rate_level()	
+	DS_Noise()
+	level=new Vector(12)
+	level.indgen().mul(5).add(40) //50:10:100
+	Ratelevel()
+	if (whichcell == ArnottFig3_CFpos){
+		target_rate_level[2] =set_target_rate_level(Arnott2004_Fig3_Noise)
+	} else {
+       target_rate_level[2] =set_target_rate_level(Arnott2004_Fig12_Noise)
+   }
+   error3 = dsrate[whichcell].c.sub(target_rate_level[2]).div(target_rate_level[2].c.add(0.1)).abs().mean()
+   
+   noiseRL[0] =	level.c
+	noiseRL[1] =  dsrate[whichcell].c
+	noiseRL[2] =  grate[whichcell].c
+	noiseRL[3] =  hsrrate[whichcell].c
+	noiseRL[4] =  lsrrate[whichcell].c
+	
+	save_rate_level()	
+	//Plot the results
+	 if(object_id(fitgr)==0) fitgr = new Graph()
+	 fitgr.erase_all()
+     toneRL[1].plot(fitgr,toneRL[0],1,2)
+     toneRL[2].plot(fitgr,toneRL[0],2,2)
+     dsrate[whichcell].plot(fitgr,level,1,2)
+     
+     target_rate_level[0].plot(fitgr,toneRL[0],1,1)
+     //target_rate_level[1].plot(fitgr,toneRL[0],2,1)
+     target_rate_level[2].plot(fitgr,level,1,1)
+     //target_rate_level[3].plot(fitgr,level,2,1)
+
+     sprint(grlbl,"RL Error = %g", error1)
+     fitgr.label(0.05,0.85,grlbl)
+	// sprint(grlbl,"Error2 = %g", error2)
+	// fitgr.label(0.05,0.75,grlbl)
+	 sprint(grlbl,"NRL Error = %g", error3)
+	 fitgr.label(0.05,0.65,grlbl)
+	// sprint(grlbl,"Error4 = %g", error4)
+    // fitgr.label(0.05,0.55,grlbl)
+	 
+	 for jj=0,NPARAMS-1{
+		sprint(grlbl,"%s = %g", pvec_name.object(jj).s,pvec.x[jj])
+		fitgr.label(0.65,0.45-0.05*jj,grlbl)
+    }
+	fitgr.exec_menu("View = plot")	
+	doNotify()
+	
+	sprint(fname,"%s/error_out.dat",fileroot)
+	file.aopen(fname)
+	for pp=0,NPARAMS-1 {
+		file.printf("%g\t",$&2[pp]*pvec_factor.x[pp])
+    }
+	file.printf("%g\n",error1+error2+error3+error4)
+	file.close()
+	
+	print "DS_RateLevel_err complete. Error ", error1+error2+error3+error4, " time (sec)", startsw() - xtime
+	
+    return error1+error2+error3+error4
+}
+
+
 
 proc QuickRun(){
     set_pvec()
@@ -623,13 +723,13 @@ proc runprax2(){
     system(cmd)
     sprint(cmd,"touch %s/error_out.dat",fileroot)
     system(cmd)
-    attr_praxis(0.01, 0.1, 3)
-    fit_praxis(NPARAMS,"DS_RateLevel_err",&pvec.x[0])
+    attr_praxis(0.01, 0.01, 3)
+    fit_praxis(NPARAMS,"DS_RateLevel_err2",&pvec.x[0])
 }
 
 proc runprax(){
 	attr_praxis(0.001, 0.001, 3)
-	fit_praxis(NPARAMS,"DS_RateLevel_err",&pvec.x[0])
+	fit_praxis(NPARAMS,"DS_RateLevel_err2",&pvec.x[0])
 }
 
 strdef origfileroot
@@ -644,7 +744,7 @@ proc printprax2(){local pp,ii,pp2,error
 //Output model data with best parameters
   sprint(cmd,"mkdir -p %s",fileroot)
   system(cmd)
-error=DS_RateLevel_err(0,&pvec.x[0])
+error=DS_RateLevel_err2(0,&pvec.x[0])
 print error
 system("date",datestr)
 print datestr
@@ -705,7 +805,7 @@ file.close()
 }
 
 
-//xopen("DS_RateLevel/pvec_DS_RateLevel.hoc")
+
 proc run_multipleprax(){
 set_pvec()
 reps=10
@@ -809,4 +909,5 @@ whichcell=ArnottFig12_CFpos
 	dstellate[whichcell][0].soma.erev_rm=-70 
 reps=10	
 	QuickRun()
-//run_multipleprax()
+	xopen("DS_RateLevel/pvec_DS_RateLevel.hoc")	
+	run_multipleprax()
