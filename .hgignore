@@ -14,7 +14,7 @@ syntax: glob
 *.log
 *.toc
 *.eps
-# *.dat
+#*.dat
 *.png
 *.pdf
 *.hist
@@ -27,7 +27,7 @@ $pfebk/*
 *.ps
 *.pdf
 #Responses*/*
-#Responses*/*/*.dat
+#Responses*/*.dat
 #Responses*/*/*/*.dat
 #Responses*/*/*/*/*.dat
 libresample-0.1.3/*
