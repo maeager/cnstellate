@@ -1,14 +1,13 @@
 # 
 # gnuplot is available from http://www.gnuplot.info
 load '/media/data/Work/cnstellate/Responses/default.gnu'
+ set terminal postscript eps enhanced size 7,5 defaultplex \
+   leveldefault mono solid\
+   dashlength 1.0 linewidth 2.0 butt noclip \
+   palfuncparam 2000,0.003 \
+   "Helvetica" 18 
 
-# set terminal postscript eps enhanced defaultplex \
-#   leveldefault mono solid\
-#   dashlength 1.0 linewidth 2.0 butt noclip \
-#   palfuncparam 2000,0.003 \
-#   "Helvetica" 18 
-
-# set output "baseline_inh.eps"
+ set output "baseline_inh.eps"
 set multiplot layout 1,2 scale 1,0.3
 unset key
 unset xtics
@@ -33,3 +32,6 @@ plot [10:110][-75:-60] "/media/data/Work/cnstellate/TStellate/golgi_single.dat" 
  "/media/data/Work/cnstellate/TStellate/golgi_average.dat" u ($1+20):2 w l lw 2
 
 
+unset multiplot
+
+!fixbb baseline_inh.eps

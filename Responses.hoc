@@ -64,9 +64,11 @@ proc ResponseArea(){local i,j,count,sum, channel, hi, lo,runtime, incr, startf, 
 	stimdelay			= 0.02		//sec
 	
 	//Input variables
-	if ($1==0) { tonefreq 	= cf.x[icentre]	//Hz
-	} else tonefreq = $1
-	
+	if ($1==0) { 
+		tonefreq 	= cf.x[icentre]	//Hz
+	} else {
+		tonefreq = $1
+	}	
 	
 	//Setup		
 	RefreshParameters()	

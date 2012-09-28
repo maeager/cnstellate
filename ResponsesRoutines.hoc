@@ -159,7 +159,7 @@ proc MaskedResponseCurve(){local ifreq,freq_increment, myCF
 		sprint(fileroot_,"%s/MaskedResponseCurve/%d",fileroot,int(tonefreq))
 		print_results()
 	}
-
+	
 	//  for (tonefreq=myCF-freq_increment, tonefreq>= cf.x[0]; tonefreq= tonefreq-freq_increment) {
 	//  MULTIRUN()
 	//  }
@@ -206,22 +206,22 @@ proc ModulationTransferFunction(){
 	ramplngth	= 0.002
 	stimdelay	= 0.01
 	tonefreq	= $1
-        reps		= 50
+    reps		= 50
 	tstop		= 170
 	for (spl=80; spl >= 20; spl=spl-20){
-
-//	  for (AM_modfreq=400;AM_modfreq<=700;AM_modfreq=AM_modfreq+50) {
-for (AM_modfreq=50;AM_modfreq<=1200;AM_modfreq=AM_modfreq+50) {
-	    MULTIRUN()
-	    //	SAVEDATA
-	    sprint(fileroot_,"%s/ModulationTransferFunction/%d/%d",fileroot,spl,AM_modfreq)
-	    print_results()
-	    binwidth=0.1
-	    print_periodpsth(ts,fileroot_,"T stellate")
-	    print_periodpsth(tv,fileroot_,"Tuberculoventral")
-	    print_periodpsth(ds,fileroot_,"D stellate")
-	    print_periodpsth(glg,fileroot_,"Golgi")
-	    print_periodpsth(hsr,fileroot_,"HSR ANFs")
+		
+		//	  for (AM_modfreq=400;AM_modfreq<=700;AM_modfreq=AM_modfreq+50) {
+		for (AM_modfreq=50;AM_modfreq<=1200;AM_modfreq=AM_modfreq+50) {
+			MULTIRUN()
+			//	SAVEDATA
+			sprint(fileroot_,"%s/ModulationTransferFunction/%d/%d",fileroot,spl,AM_modfreq)
+			print_results()
+			binwidth=0.1
+			print_periodpsth(ts,fileroot_,"T stellate")
+			print_periodpsth(tv,fileroot_,"Tuberculoventral")
+			print_periodpsth(ds,fileroot_,"D stellate")
+			print_periodpsth(glg,fileroot_,"Golgi")
+			print_periodpsth(hsr,fileroot_,"HSR ANFs")
 	    print_periodpsth(lsr,fileroot_,"LSR ANFs")	  }
 		//plot rMTF
 		//plot tMTF
@@ -239,9 +239,9 @@ proc F0_Response(){
 	stimdelay=0.01
 	tonefreq=$1
 	AM_modfreq=150
-        reps=50
+    reps=50
 	for (spl=0; spl <= 90; spl=spl+5){
-    	    MULTIRUN()
+    	MULTIRUN()
 	    //	SAVEDATA
 	    sprint(fileroot_,"%s/F0Response/%d",fileroot,spl)
 	    print_results()
@@ -252,12 +252,12 @@ proc F0_Response(){
 	    print_periodpsth(glg,fileroot_,"Golgi")
 	    print_periodpsth(hsr,fileroot_,"HSR ANFs")
 	    print_periodpsth(lsr,fileroot_,"LSR ANFs")	    
-	  } 
-	  	//plot rMTF
-		//plot tMTF
-		
-}
+	} 
+	//plot rMTF
+	//plot tMTF
 	
+}
+
 
 
 

@@ -148,15 +148,17 @@ proc connect_cells() {local i,target,source,low,high,range,channel,sourcechannel
 					sourcechannel = random.normal(channel,param.bw.getval(hsr,ts)/2)
 					if ((sourcechannel - int(sourcechannel)) > 0.5 ){
 						sourcechannel = 1+int(sourcechannel)
-					} else { sourcechannel = int(sourcechannel) }
+					} else { 
+						sourcechannel = int(sourcechannel) 
+					}
 					if (sourcechannel <=0 ) sourcechannel=0
 					if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
 					//Choose random source from available cells
 					source = random.discunif(0,HSRsperchannel-1)
 					//if (pnm.myid == 0)  print "HSR[",sourcechannel,"][",source,"] connected to TS[",channel,"][",target,"]"
 					hsr2tsAMPAvec.append( \
-					 netpar_connect(hsrgid,sourcechannel,source,tsgid,channel,target,\
-					 0,param.delay.getval(hsr,ts), param.w.getval(hsr,ts))) //syn id=0 AMPA, =1 GLY =2 GABAa
+					netpar_connect(hsrgid,sourcechannel,source,tsgid,channel,target,\
+					0,param.delay.getval(hsr,ts), param.w.getval(hsr,ts))) //syn id=0 AMPA, =1 GLY =2 GABAa
 					if (pnm.myid == 0)  outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
 					
 				}
@@ -173,7 +175,9 @@ proc connect_cells() {local i,target,source,low,high,range,channel,sourcechannel
 					sourcechannel = random.normal(channel,param.bw.getval(lsr,ts)/2)
 					if ((sourcechannel - int(sourcechannel)) > 0.5 ){
 						sourcechannel = 1+int(sourcechannel)
-					} else { sourcechannel = int(sourcechannel) }
+					} else { 
+						sourcechannel = int(sourcechannel) 
+					}
 					if (sourcechannel <=0 ) sourcechannel=0
 					if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
 					//Choose random source from available cells
@@ -198,7 +202,9 @@ proc connect_cells() {local i,target,source,low,high,range,channel,sourcechannel
 					sourcechannel = random.normal(channel,param.bw.getval(hsr,tv)/2)
 					if ((sourcechannel - int(sourcechannel)) > 0.5 ){
 						sourcechannel = 1+int(sourcechannel)
-					} else { sourcechannel = int(sourcechannel) }
+					} else { 
+						sourcechannel = int(sourcechannel) 
+					}
 					if (sourcechannel <=0 ) sourcechannel=0
 					if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
 					//Choose random source from available cells
@@ -223,7 +229,9 @@ proc connect_cells() {local i,target,source,low,high,range,channel,sourcechannel
 					sourcechannel = random.normal(channel,param.bw.getval(lsr,tv)/2)
 					if ((sourcechannel - int(sourcechannel)) > 0.5 ){
 						sourcechannel = 1+int(sourcechannel)
-					} else { sourcechannel = int(sourcechannel) }
+					} else { 
+						sourcechannel = int(sourcechannel) 
+					}
 					if (sourcechannel <=0 ) sourcechannel=0
 					if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
 					//Choose random source from available cells
@@ -249,7 +257,9 @@ proc connect_cells() {local i,target,source,low,high,range,channel,sourcechannel
 					if ((sourcechannel - int(sourcechannel)) > 0.5 ){
 						sourcechannel = 1+int(sourcechannel)
 					} 
-					else { sourcechannel = int(sourcechannel) }
+					else { 
+						sourcechannel = int(sourcechannel) 
+					}
 					if (sourcechannel <=0 ) sourcechannel=0
 					if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
 					//Choose random source from available cells
@@ -274,48 +284,52 @@ proc connect_cells() {local i,target,source,low,high,range,channel,sourcechannel
 					sourcechannel = random.normal(channel,param.bw.getval(lsr,ds)/2)
 					if ((sourcechannel - int(sourcechannel)) > 0.5 ){
 						sourcechannel = 1+int(sourcechannel)
-						} else { sourcechannel = int(sourcechannel) }
+					} else { 
+						sourcechannel = int(sourcechannel) 
+					}
+					if (sourcechannel <=0 ) sourcechannel=0
+					if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
+					//Choose random source from available cells
+					source = random.discunif(0,LSRsperchannel-1)
+					// print "LSR[",sourcechannel,"][",source,"] connected to "DS[",channel,"][",target,"]"
+					lsr2dsAMPAvec.append( \
+					netpar_connect(lsrgid,sourcechannel,source,dsgid,channel,target,\
+					0,param.delay.getval(lsr,ds), param.w.getval(lsr,ds))) //syn id=0 AMPA, =1 GLY =2 GABAa
+					if (pnm.myid == 0)  outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
+					
+				}
+			}
+		}
+	}
+	if (LSR2GLG == 1){
+		if (pnm.myid == 0) print "LSR->GLG"
+		if( ( param.n.getval(lsr,glg) > 0 ) && ( nGperchannel != 0 ) ){
+			if (pnm.myid == 0) outfile.printf("\n%d %d\n",lsr,glg)
+			for channel = 0, nchannels-1{
+				for target = 0, nGperchannel-1 {
+					for i=0, param.n.getval(lsr,glg)-1{
+						//Choose source channel
+						sourcechannel = random.normal(channel,param.bw.getval(lsr,glg)/2)
+						if ((sourcechannel - int(sourcechannel)) > 0.5 ){
+							sourcechannel = 1+int(sourcechannel)
+						} else { 
+							sourcechannel = int(sourcechannel) 
+						}
 						if (sourcechannel <=0 ) sourcechannel=0
 						if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
 						//Choose random source from available cells
 						source = random.discunif(0,LSRsperchannel-1)
-						// print "LSR[",sourcechannel,"][",source,"] connected to "DS[",channel,"][",target,"]"
-						lsr2dsAMPAvec.append( \
-						netpar_connect(lsrgid,sourcechannel,source,dsgid,channel,target,\
-						0,param.delay.getval(lsr,ds), param.w.getval(lsr,ds))) //syn id=0 AMPA, =1 GLY =2 GABAa
+						// print "LSR[",sourcechannel,"][",source,"] connected to "GLG[",channel,"][",target,"]"
+						lsr2glgAMPAvec.append( \
+						netpar_connect(lsrgid,sourcechannel,source,glggid,channel,target,\
+						0,param.delay.getval(lsr,glg), param.w.getval(lsr,glg))) //syn id=0 AMPA, =1 GLY =2 GABAa
 						if (pnm.myid == 0)  outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
 						
 					}
 				}
 			}
 		}
-		if (LSR2GLG == 1){
-			if (pnm.myid == 0) print "LSR->GLG"
-			if( ( param.n.getval(lsr,glg) > 0 ) && ( nGperchannel != 0 ) ){
-				if (pnm.myid == 0) outfile.printf("\n%d %d\n",lsr,glg)
-				for channel = 0, nchannels-1{
-					for target = 0, nGperchannel-1 {
-						for i=0, param.n.getval(lsr,glg)-1{
-							//Choose source channel
-							sourcechannel = random.normal(channel,param.bw.getval(lsr,glg)/2)
-							if ((sourcechannel - int(sourcechannel)) > 0.5 ){
-								sourcechannel = 1+int(sourcechannel)
-								} else { sourcechannel = int(sourcechannel) }
-								if (sourcechannel <=0 ) sourcechannel=0
-								if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
-								//Choose random source from available cells
-								source = random.discunif(0,LSRsperchannel-1)
-								// print "LSR[",sourcechannel,"][",source,"] connected to "GLG[",channel,"][",target,"]"
-								lsr2glgAMPAvec.append( \
-								netpar_connect(lsrgid,sourcechannel,source,glggid,channel,target,\
-								0,param.delay.getval(lsr,glg), param.w.getval(lsr,glg))) //syn id=0 AMPA, =1 GLY =2 GABAa
-								if (pnm.myid == 0)  outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
-								
-							}
-						}
-					}
-				}
-			}//LSR2GLG
+	}//LSR2GLG
 }//connect_cells
 
 proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechannel
@@ -350,7 +364,9 @@ proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechanne
 					if ((sourcechannel - int(sourcechannel)) > 0.5 ){
 						sourcechannel = 1+int(sourcechannel)
 					} \
-					else { sourcechannel = int(sourcechannel) }
+					else { 
+						sourcechannel = int(sourcechannel) 
+					}
 					if (sourcechannel <=0 ) sourcechannel=0
 					if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
 					//Choose random source from available cells
@@ -376,7 +392,9 @@ proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechanne
 					if ((sourcechannel - int(sourcechannel)) > 0.5 ){
 						sourcechannel = 1+int(sourcechannel)
 					} \
-					else { sourcechannel = int(sourcechannel) }
+					else { 
+						sourcechannel = int(sourcechannel) 
+					}
 					if (sourcechannel <=0 ) sourcechannel=0
 					if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
 					//Choose random source from available cells
@@ -401,7 +419,9 @@ proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechanne
 					if ((sourcechannel - int(sourcechannel)) > 0.5 ){
 						sourcechannel = 1+int(sourcechannel)
 					} \
-					else { sourcechannel = int(sourcechannel) }
+					else { 
+						sourcechannel = int(sourcechannel) 
+					}
 					if (sourcechannel <=0 ) sourcechannel=0
 					if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
 					//Choose random source from available cells
@@ -426,7 +446,9 @@ proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechanne
 					if ((sourcechannel - int(sourcechannel)) > 0.5 ){
 						sourcechannel = 1+int(sourcechannel)
 					} \
-					else { sourcechannel = int(sourcechannel) }
+					else { 
+						sourcechannel = int(sourcechannel) 
+					}
 					if (sourcechannel <=0 ) sourcechannel=0
 					if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
 					//Choose random source from available cells
@@ -452,7 +474,9 @@ proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechanne
 					if ((sourcechannel - int(sourcechannel)) > 0.5 ){
 						sourcechannel = 1+int(sourcechannel)
 					} \
-					else { sourcechannel = int(sourcechannel) }
+					else { 
+						sourcechannel = int(sourcechannel) 
+					}
 					if (sourcechannel <=0 ) sourcechannel=0
 					if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
 					
@@ -530,7 +554,7 @@ proc set_GABAA_time_constant() { local i,j, tau, gid
 	}
 }
 */
-												
+
 // Add input currents -------------------------------------------
 
 proc insert_iclamps() { local i,j, ran // 2 args - del dur
