@@ -28,9 +28,10 @@ REPS=20
  unset ylabel
  set multiplot layout 2,1
  set label 1 "50 dB" at graph 0.85,0.9 font "Helvetica,28"
+ set ylabel "Spike count" font "Helvetica,22" offset +2,0
  plot [0:*][0:10] "<grep '^49' ./RateLevel/50/psth.3.dat" using 2:3 w boxes fs solid 1
- set xlabel "time (ms)" font "Helvetica,22" 
- set ylabel "spike count" font "Helvetica,22" offset +2,0
+ set xlabel "Time (ms)" font "Helvetica,22" 
+ set ylabel "Spike count" font "Helvetica,22" offset +2,0
  set label 1 "90 dB" at graph 0.85,0.9 font "Helvetica,28"
  plot [0:*][0:10] "<grep '^49' ./RateLevel/90/psth.3.dat" using 2:3 w boxes fs solid 1
 
