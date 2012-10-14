@@ -600,7 +600,7 @@ VERBATIM
 #ifdef DEBUG
 printf("Total spikes = %d\n", Nout);
 #endif
-st
+
 vector_resize(spks, Nout);
 spikecount=Nout;
 return Nout;
