@@ -1,9 +1,9 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
 /*
-*   Responses.hoc
-*  Generate RL,NRL,RA, MTF
-*/
+ *   Responses.hoc
+ *  Generate RL,NRL,RA, MTF
+ */
 
 load_file("nrngui.hoc")
 //load_file("par_netpar.hoc")
