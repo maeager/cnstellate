@@ -1,5 +1,9 @@
- //  Sun Sep  3 15:39:32 AUSEDT 2011
+
+// Wed Sep 28 16:22:50 UTC 2011
   
-param.w.x[lsr][tv] = 0.0021707*1
-param.w.x[hsr][tv] = 0.0006168*1
-param.w.x[hsr][ds] = 0.0018*1
+param.w.x[lsr][tv] = 0.00476495
+param.w.x[hsr][tv] = 0.000982828
+param.w.x[ds][tv] = 0.00115233
+param.n.x[ds][tv] = 29.4917
+param.tv_erev = -68.2485
+
