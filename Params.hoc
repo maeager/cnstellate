@@ -54,12 +54,16 @@ gly_rise										= 0.4      //half width of glyc mIPSCs in MNTB is 2.3msec, ris
 //MNTB rat P30 gly decay constant 2.0,
 gly_erev										= -72      //see Paolini 1999
 
-gaba_decay										= 9      //probably a combination of two time constants see Awatramani gabaA fast 5-10 slow 20-60
-gaba_rise										= 0.7
+_gaba_decay										= 9      //probably a combination of two time constants see Awatramani gabaA fast 5-10 slow 20-60
+_gaba_rise										= 0.7
 gaba_erev										=-72      // in T stellates this is more likely to be closer to RMP as
 //Ferragamo et al. 1998 found no GABAergic IPSPs but the cells were still
 //sensitive to bicuculine
 // param.dstellate_gleak_rm								= 0.0008
+
+
+
+// AN filterbank and fibres
 
 cfhi											= 20000     //FilterBank upper and lower frequency (Hz)
 cflo											= 200
@@ -148,7 +152,7 @@ ANmodel											= 6 //default
 
 species											= 9        // 0  human (as in ARLO paper)
 // 9  cat, all CFs (as in JASA 2001 Zhang et al., paper)
-// 1  cat, only low CFs (as in Carney '93 JASA paper - not recommended)
+// 1  cat, remapped to 9, [removed: only low CFs (as in Carney '93 JASA paper - not recommended)]
 // 2  rat, implemented in Zilany and Bruce 2007 (6) by Michael Eager 
 
 ifspike											= 1

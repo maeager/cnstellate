@@ -1,8 +1,8 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
 /*
-    TStellate.hoc
-    Optimise parameters controlling TS cells
+ *   TStellate.hoc
+ *   Optimise parameters controlling TS cells
  */
 
 load_file("nrngui.hoc")
