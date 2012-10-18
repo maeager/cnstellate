@@ -300,10 +300,10 @@ for i=0,NPARAMS-1 pvec_ranges.x[i][1]= 0.005
 
 proc reset_DS(){local i
 	//Extra updating feature for DS_ClickRecovery
-	dstellate[50][0].soma.gleak_rm =dstellate_gleak_rm
-	dstellate[50][0].soma.gkltbar_klt =dstellate_gkltbar
-	dstellate[50][0].GABAA.tau2 = gaba_decay
-	dstellate[50][0].GABAA.tau1 = gaba_rise
+	dstellate[50][0].soma.gleak_rm =param.dstellate_gleak_rm
+	dstellate[50][0].soma.gkltbar_klt =param.dstellate_gkltbar
+	dstellate[50][0].GABAA.tau2 = param.gaba_decay
+	dstellate[50][0].GABAA.tau1 = param.gaba_rise
 	
 }
 

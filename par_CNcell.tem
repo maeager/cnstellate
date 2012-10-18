@@ -38,8 +38,9 @@ public cf,model,channel          //identifying parameters ...
 public set_tstellate, set_dstellate,set_tuberc,set_golgi, nstomho,qt //member functions
 public SaveSpikes
 
-external thresh,Erest
-external ampa_decay,ampa_erev,gly_decay,gly_erev,gly_rise, gaba_decay, gaba_erev,gaba_rise
+external thresh,Erest,param
+external ampa_decay,ampa_erev,gly_decay,gly_erev,gly_rise
+external _gaba_decay, _gaba_erev,gaba_rise
 
 create soma
 objref AMPA, GlyR, GABAA, spikecount, spiketimes, synlist,spikes
@@ -75,19 +76,19 @@ proc init() { local length,RM, p, q, r, Atotal
         AMPA = new ExpSyn(0.5)
         synlist.append(AMPA)
         AMPA.tau    = ampa_decay
-        AMPA.e                  = ampa_erev
+        AMPA.e      = ampa_erev
 		
         //   if (model==1 || model ==2){
         GlyR = new Exp2Syn(0.5)
         synlist.append(GlyR)
         GlyR.tau2   = gly_decay
         GlyR.tau1	= gly_rise
-        GlyR.e              = gly_erev
+        GlyR.e      = gly_erev
 		
         GABAA = new Exp2Syn(0.5)
         synlist.append(GABAA)
-        GABAA.tau2          = gaba_decay
-        GABAA.tau1          = gaba_rise
+        GABAA.tau2  = param.gaba_decay
+        GABAA.tau1  = param.gaba_rise
         GABAA.e     = gaba_erev
         //     }
     }

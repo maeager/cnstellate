@@ -13,6 +13,7 @@ public ncol,nrow
 //GolgiRateLevel
 public golgi_spatial_filter_variance_LSR,golgi_syn_filter_scale_factor,golgi_spon
 //DS_ClickRecovery
+external _gaba_rise, _gaba_decay
 public dstellate_gkltbar, gaba_decay, gaba_rise, dstellate_gleak_rm, dstellate_gnabar_rm, DS_params
 //TV_Notch
 public offset, tv_erev
@@ -35,8 +36,8 @@ proc init(){
 	golgi_spon								= 3	
 	
 	dstellate_gkltbar					    = 0.0163897	 //default gleak for Type I-II RM model	 
-	gaba_decay								= 9
-	gaba_rise								= 0.7
+	gaba_decay								= _gaba_rise
+	gaba_rise								= _gaba_decay
 	dstellate_gleak_rm				        = 0.00274146 // default gleak	 
 	dstellate_gnabar_rm				        = 0.408307  //2 times default TypeI-II RM model	   
 	
@@ -159,8 +160,8 @@ endtemplate NetworkParameters
 // 	xopen("pvec_DS_ClickRecovery.hoc")
 // 	xopen("pvec_DS_RateLevel.hoc")
 // param.dstellate_gkltbar					= dstellate_gkltbar
-// param.gaba_decay						= gaba_decay
-// param.gaba_rise							= gaba_rise
+// param.gaba_decay						= _gaba_decay
+// param.gaba_rise							= _gaba_rise
 // param.dstellate_gleak_rm				= dstellate_gleak_rm
 // }
 
