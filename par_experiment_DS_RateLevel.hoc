@@ -80,8 +80,8 @@ proc save_rate_level(){
 	file.aopen(fname)
 	for i=0,level.size-1{
 		file.printf("%d\t%g\t%g\t%g\t%g\n",level.x[i],\
-		dsrate[50].x[i],grate[50].x[i], \
-		hsrrate[50].x[i],lsrrate[50].x[i])
+		dsrate[whichcell].x[i],grate[whichcell].x[i], \
+		hsrrate[whichcell].x[i],lsrrate[whichcell].x[i])
 			
 	}
 	file.close()
@@ -91,43 +91,41 @@ proc save_rate_level(){
 obfunc set_target_rate_level(){localobj xdata,ydata
 	
 	if (level.size == 0) {
-print "Error setting data"
-return tmp_rate_level
+		print "set_target_rate_level: 'level' vector not big enough"
+		return tmp_rate_level
 	}
 	if ( object_id($o1) && $o1.nrow >= 2 && $o1.ncol >= 2){
-	xdata = $o1.getcol(0).add(100)  //0 dBA in data approx. 40dB SPL
-	ydata = $o1.getcol(1).div(0.05) //convert spikes per stimulus to spikes per ms for a 50 ms stimulus
-	tmp_rate_level = new Vector()
-	tmp_rate_level.interpolate(level,xdata,ydata)
+		xdata = $o1.getcol(0).add(100)  //0 dBA in data approx. 40dB SPL
+		ydata = $o1.getcol(1).div(0.05) //convert spikes per stimulus to spikes per ms for a 50 ms stimulus
+		tmp_rate_level = new Vector()
+		tmp_rate_level.interpolate(level,xdata,ydata)
 	} else {
-	print "Error interpolating data"
+		print "set_target_rate_level: Error interpolating data. "
 	}
-return tmp_rate_level
-
+	return tmp_rate_level
 }
 
 //Note the level vector must be set prior to calling this function 
 obfunc set_target_rate_level_noise(){localobj xdata,ydata
 	
 	if (level.size == 0) {
-print "Error setting data"
-return tmp_rate_level
+		print "Error setting data"
+		return tmp_rate_level
 	}
 	if ( object_id($o1) && $o1.nrow >= 2 && $o1.ncol >= 2){
-	xdata = $o1.getcol(0).add(100)  //0 dBA in data approx. 40dB SPL
-	ydata = $o1.getcol(1).div(0.05) //convert spikes per stimulus to spikes per ms for a 50 ms stimulus
-	tmp_rate_level = new Vector()
-	tmp_rate_level.interpolate(level,xdata,ydata)
+		xdata = $o1.getcol(0).add(100)  //0 dBA in data approx. 40dB SPL
+		ydata = $o1.getcol(1).div(0.05) //convert spikes per stimulus to spikes per ms for a 50 ms stimulus
+		tmp_rate_level = new Vector()
+		tmp_rate_level.interpolate(level,xdata,ydata)
 	} else {
-	print "Error interpolating data"
+		print "Error interpolating data"
 	}
-return tmp_rate_level
+	return tmp_rate_level
 	
 }
 
 strdef cmd
-proc reset_DS_RateLevel(){local i
-  
+proc reset_DS_RateLevel(){local i  
   for i=0,nchannels -1 {
   	  if (object_id(dstellate[i][0])) {
 		  sprint(cmd,"dstellate[%d][0].soma.gleak_rm = param.dstellate_gleak_rm",i)
