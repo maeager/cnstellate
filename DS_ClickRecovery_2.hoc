@@ -561,7 +561,7 @@ mypvec.printf
 
 bstar=0
 bb=1e9
-dstellate[50][0].soma.gleak_rm=dstellate_gleak_rm
+dstellate[50][0].soma.gleak_rm= param.dstellate_gleak_rm
 pvec = initpvec.c
 for iprax=0,10 {
 	runprax()
