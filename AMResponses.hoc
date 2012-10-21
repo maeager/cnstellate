@@ -34,6 +34,7 @@ xopen("par_experiment_TStellate.hoc")
 fileroot="AMResponses"
 
 
+
 create_cells()
 RefreshCellParams()
 connect_cells(fileroot)
@@ -59,6 +60,24 @@ xopen("ResponsesRoutines.hoc")
 
 
 
+/*********Default Parameters *************/
+ANmodel					= 7 //Zilany Bruce model (Zilany et al, 2009)
+species					= 1 //Cat
+audiogram_file			= "cat_audiogram.txt"
+
+ANsoundspath = "/media/data/sounds"  //local sounds path
+nrep         = 1      //nrep is number of reps of stimulus
+cfhi         = 40000
+cflo         = 200
+srate        = 100000.0
+stimtdres    = 1/srate
+sg_rate      = 50000
+sg_tdres     = 1/sg_rate
+usesavedfilterbanks=1
+RefreshCF()
+/****************************************/
+
+
 
 
 proc AMresponse_CS(){
@@ -67,7 +86,7 @@ RefreshParameters()
 ANFilterBankRun()  //Generate new AN instant. rates
 SetInputRates()
 xopen("TStellate_CS/pvec_TStellate.hoc")
-reset_TStellate()
+RefreshCellParams()
 connect_cells(fileroot)
 connect_CNcells(fileroot)
 ModulationTransferFunction(tonefreq)
@@ -82,7 +101,7 @@ RefreshParameters()
 ANFilterBankRun()  //Generate new AN instant. rates
 SetInputRates()
 xopen("TStellate_CT1/pvec_TStellate.hoc")
-reset_TStellate()
+RefreshCellParams()
 connect_cells(fileroot)
 connect_CNcells(fileroot)
 F0_Response(tonefreq)
@@ -96,7 +115,7 @@ RefreshParameters()
 ANFilterBankRun()  //Generate new AN instant. rates
 SetInputRates()
 xopen("TStellate_CT2/pvec_TStellate.hoc")
-reset_TStellate()
+RefreshCellParams()
 connect_cells(fileroot)
 connect_CNcells(fileroot)
 ModulationTransferFunction(tonefreq)
