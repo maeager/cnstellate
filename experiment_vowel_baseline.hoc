@@ -1,0 +1,107 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+///
+//  Vowel Simulation Experiment
+//
+//
+//
+//
+xopen("pvec_Golgi_RateLevel.hoc")
+xopen("pvec_DS_ClickRecovery.hoc")
+
+
+proc set_DS_ClickRecovery(){local ii
+//Extra updating feature for DS_ClickRecovery
+   for ii = 0,nchannels-1 {
+    dstellate[ii][0].soma.gleak_rm =param.dstellate_gleak_rm
+    dstellate[ii][0].soma.gkltbar_klt =param.dstellate_gkltbar
+    dstellate[ii][0].GABAA.tau2 = param.gaba_decay
+    dstellate[ii][0].GABAA.tau1 = param.gaba_rise
+  }
+}
+
+
+//Setup Auditory model
+//an = new AuditoryNerve
+
+proc SetRates(){
+    an.SetRates()
+    for ii = 0,nchannels-1 golgi[ii][0].SetRate()
+}
+proc GenSpikes(){
+    an.GenSpikes()
+    for ii = 0,nchannels-1 golgi[ii][0].GenSpikes()
+}
+
+
+//  Create the model
+create_cells()
+connect_cells(fileroot)
+system("sleep 1")
+//connect_CNcells(fileroot)
+
+
+//Setup Auditory model
+   cfhi					=64000
+   cflo					=200
+
+   dur					= 0.08  //duration of stim (seconds)
+   srate				= 500000.0   //
+   stimtdres			= 1/srate
+   sg_rate				= 50000
+   sg_tdres				= 1/sg_rate
+   stimdelay			= 0.01      //sec
+   stimtype				= 2      //Silence
+   reps					= 25
+   ANmodel				= 6      //Zilany Bruce model
+   species				= 2      //Rat
+   nrep					= 1        //nrep is number of reps of stimulus
+
+stimtype				= 0  //read stim from file
+path					= "../PVSyllables/"
+wavdatafile				= "../PVSyllables/bu.dat"
+
+usesavedfilterbanks		=1
+sg_rate					= 10000
+sg_tdres				= 1/sg_rate
+
+
+proc LoadVowel(){
+RefreshParameters()   //Generate or get stim from file
+stim.resample(stim,3)
+srate					= 44100*3
+stimtdres				= 1/srate
+spl						=$1
+RescaleStim(spl,stim.size/5,stim.size*4/5)      //Scale the vowel
+ANFilterBankRun()   //Build the filterbank
+//an.SetRates()      //Allocate filterbanks to ANFs
+//DummyGraphs()
+}
+
+
+LoadVowel(75)
+
+//GenSpikes() //calls SGfast(1) on each fibre
+                //it might be quicker to use another method
+                //eg. calling the original zbcatmodel and
+                //outputing several spike trains
+                //since ANFs are just VecStims
+
+
+// *** Process data and print out results
+xopen("calcisilag.hoc") // everybody needs this for the post_results
+xopen("cngui.hoc")
+
+proc print_results() {
+  print_ts_raster(fileroot)
+  print_an_raster(fileroot)
+  print_ds_raster(fileroot)
+  print_tv_raster(fileroot)
+  print_golgi_raster(fileroot)
+  print_an_hist(dt*2,fileroot)
+  print_smooth_hist(dt*2, fileroot)
+   print_isi_stats(fileroot)
+   print_isis(fileroot)
+   print_si(fileroot)
+
+  print "Results printed to files"
+}

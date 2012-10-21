@@ -1,0 +1,85 @@
+#+TITLE: Plotting figures in cnstellate
+#+AUTHOR: Michael Eager
+#+EMAIL: maeager at unimelb dot edu dot au
+
+
+* Auditory Model
+
+
+#+begin_src gnuplot :results file
+reset
+set pm3d
+splot [20:80][0.02:*] '<  sed -ne "9~6p" /media/data/sounds/bruce/Cat/T4980_L70_dur81_del20.dat' matrix u 2:($1/50000):3 w pm3d
+
+splot [0.02:*][30:70] '<  sed -ne "15~6p" /media/data/sounds/bruce/Cat/T4980_L70_dur81_del20.dat' matrix u ($1/50000):2:3 w pm3d
+#+end_src
+
+
+#+begin_src sh :results silent
+cd ANF_MTF
+gnuplot -p ANF_MTF.gnu
+cd ../ANF
+gnuplot -p ANplot.gnu
+#+end_src
+
+
+* CN models
+
+** Golgi Model
+
+#+BEGIN_SRC sh
+cd golgi
+gnuplot -p GolgiRateLevel.gnu
+gnuplot -p Golgi_RateLevelNoise.gnu
+
+gnuplot -p GolgiRateLevel_result.gpi
+#+END_SRC
+
+** D stellate model
+
+#+BEGIN_SRC sh
+cd DS_ClickRecovery
+gnuplot -p ClickRecoveryDiagram.gnu
+gnuplot -p ANinput.gnu
+gnuplot -p leakvsklt-contour.gpi
+gnuplot -p DS_ClickRecovery_result.gpi
+#+END_SRC
+
+#+BEGIN_SRC sh
+cd ../thesis/SimpleResponsesChapter/
+gnuplot gfx/DS_RateLevel_result.gpi
+epstopdf DS_RateLevel_result.eps
+
+#+END_SRC
+
+
+** TV model
+
+#+BEGIN_SRC sh
+cd TV_Notch/Run2/spl70
+gnuplot -p TV_Notch_result.gpi
+epstopdf TV_Notch_result.eps
+#+END_SRC
+
+#+BEGIN_SRC sh
+cd TV_RateLevel
+gnuplot -p ratelevel1.gnu
+
+gnuplot -p Spirou-Fig8.gpi
+gnuplot -p TV_RateLevel_Fig8.gpi
+gnuplot -p TV_RateLevel_Optresult.gpi
+gnuplot -p TV_RateLevel_resultFig8A.gpi
+gnuplot -p TV_RateLevel_result.gpi
+#+END_SRC
+
+
+
+** other
+
+#+BEGIN_SRC sh
+gnuplot -p vowel_b6t.gnu
+gnuplot -p vowel_baseline.ds.gnu
+
+
+
+#+END_SRC

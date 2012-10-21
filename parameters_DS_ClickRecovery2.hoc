@@ -1,0 +1,121 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+
+// Params.hoc
+// Cochlear Nucleus network model: parameters file
+// based on parameters_odour_baseline.hoc by Andrew Davison
+// Michael Eager, University of Melbourne
+
+nchannels       = 100      // Total number of frequency channels
+nTSperchannel   = 0        // number of TS cells in each freq channel
+numTS           = 0   // total number of TS cells
+nTVperchannel   = 0   // number of TV cells in each freq channel
+numTV           = 0   // total number of TV cells
+nDSperchannel   = 1   // number of DS cells in each freq channel
+numDS   = nchannels*nDSperchannel   // total number of DS cells
+nGperchannel   = 1   // number of Golgi cells in each freq channel
+numG   = nchannels*nGperchannel   // total number of Golgi cells
+HSRsperchannel  =   40
+MSRsperchannel  =   0
+LSRsperchannel  =   20
+seed        = 0         // seed for random number generator
+thresh      = -20       // mV   // threshold for detecting spikes
+
+
+strdef fileroot
+sprint(fileroot,"DS_ClickRecovery2") // root for output filenames
+system("mkdir DS_ClickRecovery2")
+inputnumber  = 1         // fixed input file
+ttrans       = 10   // ms   // when calculating statistics, ignore
+            // spikes occuring before this time
+cvode.active(0)
+dt           = 0.05   //ms
+steps_per_ms = 10
+setdt()
+celsius      = 37
+secondorder  = 2      // Crank-Nickolson integration method
+
+//Input stimulus
+   cfhi     = 48000
+   cflo     = 200
+   dur      = 0.3      //duration of stim (seconds)
+   spl      = 100
+   srate    = 100000
+   stimtdres= 1/srate
+   sg_rate  = 50000
+   sg_tdres = 1/sg_rate
+   stimdelay= 0.01     //sec
+   stimtype = 11       //Click Recovery
+   reps     = 25       //simulation repetions
+   ANmodel  = 7        //Zilany Bruce model version 4
+   species  = 1        //Cat
+   nrep     = 1        //nrep is number of repetitions within stimulus
+   usesavedfilterbanks = 1
+   tstop    = 300
+//Default click times
+   objref clicktimes
+   clicktimes = new Vector()
+//   clicktimes.append(20,36,70,74,130,138).mul(srate/1000)
+   clicktimes.append(10,26,80,82,150,158,210,214,280,283).mul(srate/1000)
+
+
+//Optimisation parameters
+print "Optimisation parameters"
+NPARAMS=7
+objref pvec,fvec,pvec_ranges,pvec_name,pvec_factor
+pvec = new Vector(NPARAMS) //contains the parameters to be fitted
+pvec_ranges= new Matrix(NPARAMS,2) // (min,max) pairs for each param
+pvec_name = new List() //names of parameters in String list
+pvec_factor = new Vector(NPARAMS,1)
+//Initial values
+pvec.x[0] = 0.001
+pvec.x[1] = 0.002
+pvec.x[2] = 0.003
+pvec.x[3] = 0.001592   //nstomho(2)*qt()
+pvec.x[4] = 0.00095
+pvec.x[5] = 0.0007
+pvec.x[6] = 0.0008
+pvec_factor.x[3] = 10
+pvec_factor.x[4] = 10000
+pvec_factor.x[5] = 1000
+
+pvec_name.append(new String("param.w.x[glg][ds]"))
+pvec_name.append(new String("param.w.x[hsr][ds]"))
+pvec_name.append(new String("param.w.x[lsr][ds]"))
+pvec_name.append(new String("param.dstellate_gkltbar"))
+pvec_name.append(new String("param.gaba_decay"))
+pvec_name.append(new String("param.gaba_rise"))
+pvec_name.append(new String("param.dstellate_gleak_rm"))
+
+//min
+ for i=0,NPARAMS-1 pvec_ranges.x[i][0]= 0.000001
+//max
+ for i=0,NPARAMS-1 pvec_ranges.x[i][1]= 0.03
+
+// cmd is a strdef variable that should be used in local routines and not passed across proc's
+proc set_pvec(){local pp
+    for pp=0,NPARAMS-1 {
+        sprint(cmd,"pvec.x[%d] = %s / pvec_factor.x[%d]\n",pp,pvec_name.object(pp).s,pp)
+        execute1(cmd)
+    }
+}
+
+
+// for i=0,NPARAMS-1 pvec_name.append(new String())
+
+// proc add_param(){
+// 	pvec.x[$1] = $2
+// 	pvec_name.object($1),s = $s3
+// 	pvec_factor.x[$1] = $4
+// 	pvec_ranges.x[$1][0]= $5
+// 	pvec_ranges.x[$1][1]= $6
+// }
+
+// add_param( 0, 0.001, "param.w.x[glg][ds]", 1,    0.000001, 0.03)
+// add_param( 1, 0.002, "param.w.x[hsr][ds]", 1,    0.000001, 0.03)
+// add_param( 2, 0.003, "param.w.x[lsr][ds]", 1,    0.000001, 0.03)
+// add_param( 3, 0.001592,"param.dstellate_gkltbar",10,   0.000001, 0.03)
+// add_param( 4, 0.00095,"gaba_decay",        10000,0.000001, 0.03)
+// add_param( 5, 0.0007, "gaba_rise",         1000, 0.000001, 0.03)
+// add_param( 6, 0.0008, "param.dstellate_gleak_rm",1,    0.000001, 0.03)
+
