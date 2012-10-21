@@ -18,7 +18,9 @@ xopen("CNcell.tem")      // CN cell template
 
 //Previous optimisation parameters
 xopen("pvec_Golgi_RateLevel.hoc")
-xopen("pvec_DS_ClickRecovery.hoc")
+xopen("pvec_DS_ClickRecovery.hoc"
+xopen("pvec_DS_RateLevel.hoc")
+
 xopen("pvec_TV_Notch.hoc")
 xopen("pvec_TV_RateLevel.hoc")
 xopen("parameters_Responses.hoc")
@@ -121,4 +123,6 @@ connect_CNcells(fileroot)
 ModulationTransferFunction(tonefreq)
 F0_Response(tonefreq)
 }
+
+
 
