@@ -397,26 +397,28 @@ if ((LSR2GLG == 1) && ( param.n.getval(lsr,glg) > 0 ) && ( nGperchannel != 0 ) )
 outfile.close()
 }//connect_cells
 
-proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechannel
+proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechannel,conn_count
   sprint(filename,"%s.connect",$s1)
   outfile.aopen(filename)
 
  print "Connecting CN network cells"
  
  if( ( param.n.getval(ts,ts) > 0 ) && ( nTSperchannel > 1 ) ){
+	 print "TS->TS"
+	 conn_count=0
 	 outfile.printf("%d %d\n",ts,ts)
 	 for channel = 0, nchannels-1{
 		 for target = 0, nTSperchannel-1 {
 			 for i=0, param.n.getval(ts,ts)-1{
 				 //Choose random source from available cells
 				 source = random.discunif(0,nTSperchannel-1)
-				 while( source == target)  source = random.repick()  //Don't connect to self
+				 while( source == target)  source = random.repick()  //Don't connect to self, recurrent connections only with multiple TS units in one channel
 				 // print "TS[",channel,"][",source,"] connected to "TS[",channel,"][",target,"]"
 				 // tscells[channel*numTSperchannel+target].connect_pre(tscells[source], 1, param.delay.getval(ts,ts), param.w.getval(ts,ts))
 				 sprint(cmd, "tstellate[%d][%d].soma ts2tsAMPAlist.append( new NetCon(&v(0.5), tstellate[%d][%d].AMPA, thresh,param.delay.getval(ts,ts), param.w.getval(ts,ts)))",sourcechannel,source,channel,target)
 				 execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
 				 outfile.printf("%d %d %d %d\n",channel,source,channel,target)
-				 
+				 conn_count+=1
 			 }
 		 }
 		 p = 100*(channel)/(nchannels)
@@ -426,11 +428,13 @@ proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechanne
 		 // process is so long that we have to allow the
 		 // user to quit during the creation.
 	 }
-	 printf("\rTS->TS=== done ===\n")
+	 printf("\rTS->TS=== %d connections === \n",conn_count)
  }
  
- 
+
  if( ( param.n.getval(ts,tv) > 0 ) && ( nTVperchannel != 0 ) && ( nTSperchannel != 0 ) ){
+	 print "TS->TV"
+	 conn_count=0
 	 outfile.printf("\n%d %d\n",ts,tv)
 	 for channel = 0, nchannels-1{
 		 for target = 0, nTVperchannel-1 {
@@ -449,6 +453,7 @@ proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechanne
 				 sprint(cmd, "tstellate[%d][%d].soma ts2tvAMPAlist.append( new NetCon(&v(0.5), tuberculoventral[%d][%d].GlyR, thresh,param.delay.getval(ts,tv), param.w.getval(ts,tv)))",sourcechannel,source,channel,target)
 				 execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
 				 outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
+				 conn_count+=1	 
 			 }
 		 }
          p = 100*(channel)/(nchannels)
@@ -458,11 +463,13 @@ proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechanne
          // process is so long that we have to allow the
          // user to quit during the creation.
 	 }
-	 printf("\rTS->TV=== done ===\n")
+	 printf("\rTS->TV=== %d connections ===\n",conn_count)
  }
  
- 
+
  if( ( param.n.getval(tv,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nTVperchannel != 0 ) ){
+	 print "TV->TS"
+	 conn_count=0
 	 outfile.printf("\n%d %d\n",tv,ts)
 	 for channel = 0, nchannels-1{
 		 for target = 0, nTSperchannel-1 {
@@ -480,8 +487,8 @@ proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechanne
 				 // print "TV[",sourcechannel,"][",source,"] connected to "TS[",channel,"][",target,"]"
 				 sprint(cmd, "tuberculoventral[%d][%d].soma tv2tsGLYlist.append( new NetCon(&v(0.5), tstellate[%d][%d].GlyR,  thresh,param.delay.getval(tv,ts), param.w.getval(tv,ts)))",sourcechannel,source,channel,target)
 				 execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
-				 outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
-				 
+				 outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)				 
+				 conn_count+=1
 			 }
 		 }
          p = 100*(channel)/(nchannels)
@@ -491,10 +498,13 @@ proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechanne
          // process is so long that we have to allow the
          // user to quit during the creation.
 	 }
-	 printf("\rTV->TS=== done ===\n")
+	 printf("\rTV->TS=== %d connections ===\n",conn_count)
  }
  
+
  if( ( param.n.getval(ds,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nDSperchannel != 0 ) ){
+	 print "DS->TS"
+	 conn_count=1
 	 outfile.printf("\n%d %d\n",ds,ts)
 	 for channel = 0, nchannels-1{
 		 for target = 0, nTSperchannel-1 {
@@ -513,6 +523,7 @@ proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechanne
 				 sprint(cmd, "dstellate[%d][%d].soma ds2tsGLYlist.append( new NetCon(&v(0.5), tstellate[%d][%d].GlyR, thresh,param.delay.getval(ds,ts), param.w.getval(ds,ts)))",sourcechannel,source,channel,target)
 				 execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
 				 outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
+				 conn_count+=1
 			 }
 		 }
          p = 100*(channel)/(nchannels)
@@ -522,10 +533,13 @@ proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechanne
          // process is so long that we have to allow the
          // user to quit during the creation.
 	 }
-	 printf("\rDS->TS=== done ===\n")
+	 printf("\rDS->TS=== %d connections ===\n")
  }
  
+
  if( ( param.n.getval(ds,tv) > 0 ) && ( nTVperchannel != 0 ) && ( nDSperchannel != 0 ) ){
+	 print "DS->TV"
+	 conn_count=0
 	 outfile.printf("\n%d %d\n",ds,tv)
 	 for channel = 0, nchannels-1{
 		 for target = 0, nTVperchannel-1 {
@@ -544,6 +558,7 @@ proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechanne
 				 sprint(cmd, "dstellate[%d][%d].soma ds2tvGLYlist.append( new NetCon(&v(0.5), tuberculoventral[%d][%d].GlyR, thresh,param.delay.getval(ds,tv), param.w.getval(ds,tv)))",sourcechannel,source,channel,target)
 				 execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
 				 outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
+				 conn_count+=1
 			 }
 		 }
          p = 100*(channel)/(nchannels)
@@ -553,10 +568,14 @@ proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechanne
          // process is so long that we have to allow the
          // user to quit during the creation.
 	 }
-	 printf("\rDS->TV=== done ===\n")
+	 printf("\rDS->TV=== %d connections ===\n",conn_count)
  }
  
+ 
+
  if( ( param.n.getval(glg,ds) > 0 ) && ( nDSperchannel != 0 ) && ( nGperchannel != 0 ) ){
+	 print "GLG->DS"
+	 conn_count=0
 	 outfile.printf("\n%d %d\n",glg,ds)
 	 for channel = 0, nchannels-1{
 		 for target = 0, nDSperchannel-1 {
@@ -581,6 +600,7 @@ proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechanne
 					 execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
 				 }
 				 outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
+				 conn_count+=1	 
 			 }
 		 }
          p = 100*(channel)/(nchannels)
@@ -590,11 +610,13 @@ proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechanne
          // process is so long that we have to allow the
          // user to quit during the creation.
 	 }
-	 printf("\rGLG->DS=== done ===\n")
+	 printf("\rGLG->DS=== %d connections ===\n",conn_count)
  }
  
- 
+
  if( ( param.n.getval(glg,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nGperchannel != 0 ) ){
+	 print "GLG->TS"
+	 conn_count=0
 	 outfile.printf("\n%d %d\n",glg,ts)
 	 for channel = 0, nchannels-1{
 		 for target = 0, nTSperchannel-1 {
@@ -620,6 +642,7 @@ proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechanne
 					 execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
 				 }
 				 outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
+				 conn_count+=1
 			 }
 		 }
          p = 100*(channel)/(nchannels)
@@ -629,10 +652,13 @@ proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechanne
          // process is so long that we have to allow the
          // user to quit during the creation.
 	 }
-	 printf("\rGLG->TS=== done ===\n")
+	 printf("\rGLG->TS=== %d connections ===\n",conn_count)
  }
  
+
  if( ( param.n.getval(glg,tv) > 0 ) && ( nTVperchannel != 0 ) && ( nGperchannel != 0 ) ){
+	 print "GLG->TV"
+	 conn_count=0
 	 outfile.printf("\n%d %d\n",glg,tv)
 	 for channel = 0, nchannels-1{
 		 for target = 0, nTVperchannel-1 {
@@ -658,6 +684,7 @@ proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechanne
 					 execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
 				 }
 				 outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
+				 conn_count+=1
 			 }
 		 }
          p = 100*(channel)/(nchannels)
@@ -667,7 +694,7 @@ proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechanne
          // process is so long that we have to allow the
          // user to quit during the creation.
 	 }
-	 printf("\rGLG->TV=== done ===\n")
+	 printf("\rGLG->TV=== %d connections ===\n",conn_count)
  }
 
 outfile.close()

@@ -1,18 +1,29 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
-// Cochlear Nucleus network model: network specification file
-// Michael Eager, 2006-2010
-// University of Melbourne
-// This file is dependant on NetworkParameters,Utilities and Params hoc files
-// individual simulation changes can be made to 'param'  
+/** Cochlear Nucleus network model: network specification file
+ * This file is dependant on NetworkParameters,Utilities and Params hoc files
+ * individual simulation changes can be made to 'param'  
+ *
+ * Michael Eager, 2006-2012
+ * University of Melbourne
+ */
 
 //
 objref cvode, random
-cvode = new CVode(0)    // start with CVode inactive
-random = new Random(seed)
+cvode    = new CVode(0)       // start with CVode inactive
+random   = new Random(seed)   // seed is generated in Utilities
+                              // dependant on use_seed flag
 random.MCellRan4(seed+1)
-objref tstellate[nchannels][nTSperchannel], tuberculoventral[nchannels][nTVperchannel], \
-dstellate[nchannels][nDSperchannel], golgi[nchannels][nGperchannel]
+
+//define the cell objects
+if (nTSperchannel > 0) { objref tstellate[nchannels][nTSperchannel]
+}else objref tstellate[1][1]
+if (nTVperchannel > 0) {objref tuberculoventral[nchannels][nTVperchannel]
+} else objref tuberculoventral[1][1]
+if (nDSperchannel > 0){ objref dstellate[nchannels][nDSperchannel]
+} else  objref dstellate[1][1]
+if (nGperchannel > 0) { objref golgi[nchannels][nGperchannel]
+} else objref golgi[1][1]
 
 
 objref hsr2tsAMPAvec, lsr2tsAMPAvec,hsr2tvAMPAvec, lsr2tvAMPAvec, \
@@ -35,15 +46,17 @@ ds2tvGLYvec = new Vector()
 tv2tsGLYvec = new Vector()
 ts2tsAMPAvec = new Vector()
 
-
-objref input[nchannels][nTSperchannel]
-objref outfile,param,an
+if (nTSperchannel > 0) objref input[nchannels][nTSperchannel]
+objref outfile
 outfile = new File()
 strdef filename, celltype
 
-param = new NetworkParameters(6,4)
-param.getnetparameters("defaultrecurrentparams.dat")
-//
+//objref param
+//param = new NetworkParameters(6,4)
+//param.getnetparameters("defaultrecurrentparams.dat")
+
+// Create Auditory Nerve object
+objref an
 an = new AuditoryNerve()
 
 //xopen("cngui.hoc")
@@ -333,15 +346,18 @@ proc connect_cells() {local i,target,source,low,high,range,channel,sourcechannel
 }//connect_cells
 
 proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechannel
-	if (pnm.myid == 0) print "TS->TS"
+	if (pnm.myid == 0)   print "Connecting CN network cells"
+
+	
 	if( ( param.n.getval(ts,ts) > 0 ) && ( nTSperchannel > 1 ) ){
+		if (pnm.myid == 0) print "TS->TS"		
 		if (pnm.myid == 0) outfile.printf("%d %d\n",ts,ts)
 		for channel = 0, nchannels-1{
 			for target = 0, nTSperchannel-1 {
 				for i=0, param.n.getval(ts,ts)-1{
 					//Choose random source from available cells
 					source = random.discunif(0,nTSperchannel-1)
-					while( source == target)  source = random.repick()  //Don't connect to self
+					while( source == target)  source = random.repick()  //Don't connect to self, recurrent connections only with multiple TS units in one channel
 					// print "TS[",channel,"][",source,"] connected to "TS[",channel,"][",target,"]"
 					// tscells[channel*numTSperchannel+target].connect_pre(tscells[source], 1, param.delay.getval(ts,ts), param.w.getval(ts,ts))
 					ts2tsAMPAvec.append( \
@@ -353,6 +369,37 @@ proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechanne
 			}
 		}
 	}
+	
+		if (pnm.myid == 0) print "TS->TV"
+	if( ( param.n.getval(ts,tv) > 0 ) && ( nTSperchannel != 0 ) && ( nTVperchannel != 0 ) ){
+		if (pnm.myid == 0) outfile.printf("\n%d %d\n",ts,tv)
+		for channel = 0, nchannels-1{
+			for target = 0, nTSperchannel-1 {
+				for i=0, param.n.getval(tv,ts)-1{
+					//Choose source channel
+					sourcechannel = random.normal(channel,param.bw.getval(ts,tv)/2)
+					if ((sourcechannel - int(sourcechannel)) > 0.5 ){
+						sourcechannel = 1+int(sourcechannel)
+					} \
+					else { 
+						sourcechannel = int(sourcechannel) 
+					}
+					if (sourcechannel <=0 ) sourcechannel=0
+					if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
+					//Choose random source from available cells
+					source = random.discunif(0,nTSperchannel-1)
+					// print "TV[",sourcechannel,"][",source,"] connected to "TS[",channel,"][",target,"]"
+					ts2tvAMPAvec.append( \
+					netpar_connect(tsgid,sourcechannel,source,tvgid,channel,target,\
+					0,param.delay.getval(ts,tv), param.w.getval(ts,tv))) //syn id=0 AMPA, =1 GLY =2 GABAa
+					if (pnm.myid == 0)  outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
+					
+				}
+			}
+		}
+	}
+
+	
 	if (pnm.myid == 0) print "TV->TS"
 	if( ( param.n.getval(tv,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nTVperchannel != 0 ) ){
 		if (pnm.myid == 0) outfile.printf("\n%d %d\n",tv,ts)
@@ -682,6 +729,58 @@ proc ClearSpikes(){local i,j
 		}
 	}
 }
+
+
+proc RefreshCellParams(){local i,j
+	for i=0,nchannels-1{
+		for j=0,nTSperchannel-1{
+			if (pnm.gid_exists(tsgid,i,j)){
+				tstellate[i][j].soma {
+					// gnabar_rm = param.ts_gnabar
+					//gkhtbar_rm = param.ts_gkhtbar
+					gkabar_ka =  param.ts_gkabar
+					ghbar_rm = param.ts_ghbar
+					gleak_rm = param.ts_gleak
+					erev_rm = param.ts_erev
+				}
+			}
+		}
+		for j=0,nTVperchannel-1{
+			if (pnm.gid_exists(tvgid.x[i][j])){
+				tuberculoventral[i][j].soma {
+					gleak_rm = param.tv_gleak
+					erev_rm = param.tv_erev
+					}
+			}
+		}
+		for j=0,nDSperchannel-1{
+			if (pnm.gid_exists(dsgid.x[i][j])){
+				dstellate[i][j].soma {
+					gnabar_rm = param.dstellate_gnabar_rm
+					gleak_rm  = param.dstellate_gleak_rm
+					// erev_rm = param.ds_erev
+					}
+			}
+		}
+		for j=0,nGperchannel-1{
+			if (pnm.gid_exists(glggid.x[i][j])){
+				golgi[i][j].spikes.resize(0)
+			}
+		}
+		for j=0,HSRsperchannel-1{
+			if (pnm.gid_exists(hsrgid.x[i][j])){
+				an.HSRspikes[i][j].resize(0)
+			}
+		}
+		for j=0,LSRsperchannel-1{
+			if (pnm.gid_exists(lsrgid.x[i][j])){
+				an.LSRspikes[i][j].resize(0)
+			}
+		}
+	}
+}
+
+
 
 //  Create the model
 
