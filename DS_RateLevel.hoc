@@ -444,7 +444,7 @@ for i = 0, nchannels-1 {
 	dstellate[i][0].soma.gnabar_rm=0.408307 
 	dstellate[i][0].soma.gkhtbar_rm=0.030623 
 	dstellate[i][0].soma.gleak_rm=0.000274146 
-	dstellate[i][0].soma.erev_rm=-65 
+	dstellate[i][0].soma.erev_rm= -65 
 	dstellate[i][0].soma.ghbar_rm=0.000427944
 	dstellate[i][0].soma.gkltbar_klt=0.0163897
 }

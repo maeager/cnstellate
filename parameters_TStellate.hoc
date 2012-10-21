@@ -39,12 +39,14 @@ secondorder								= 2								//second order integration
 
 //Some default parameters
 v_init									= -65
-tstellate_gnabar_rm						= 0.23677
-tstellate_gkhtbar_rm					= 0.0189416
-tstellate_gleak_rm						= 0.000473539
-tstellate_erev_rm						= -55
-tstellate_ghbar_rm						= 6.20392e-05
-tstellate_gkabar_ka						= 0.01539
+
+
+param.ts_gnabar						= 0.23677
+param.ts_gkhtbar					= 0.0189416
+param.ts_gleak						= 0.000473539
+param.ts_erev						= -55
+param.ts_ghbar						= 6.20392e-05
+param.ts_gkabar						= 0.01539
 
 
 //Optimisation parameters
@@ -108,7 +110,7 @@ proc append_num_connections(){
 }
   
 
-// pvec_name.append(new String("tstellate_gkhtbar_rm"))	pvec.append(0.000189416 )	 pvec_factor.append(100) 
+// pvec_name.append(new String("param.ts_gkhtbar"))	pvec.append(0.000189416 )	 pvec_factor.append(100) 
 // pvec_ranges.x[pvec.size()-1][0]		=0.0001  
 // pvec_ranges.x[pvec.size()-1][1]		=0.0005
 
@@ -120,16 +122,16 @@ proc append_weights(){
   pvec_name.append(new String("param.w.x[tv][ts]"))	    pvec.append(0.00010)	    pvec_factor.append(1)
   pvec_name.append(new String("param.w.x[glg][ts]"))	pvec.append(0.000130)	pvec_factor.append(1)
 }
-  // pvec_name.append(new String("tstellate_gnabar_rm"))	pvec.append(0.23677)	 pvec_factor.append(1)
-  //pvec_name.append(new String("tstellate_gkhtbar_rm"))	pvec.append(0.0189416 )	 pvec_factor.append(1)
+  // pvec_name.append(new String("param.ts_gnabar"))	pvec.append(0.23677)	 pvec_factor.append(1)
+  //pvec_name.append(new String("param.ts_gkhtbar"))	pvec.append(0.0189416 )	 pvec_factor.append(1)
   /* // Reversal potential
-   pvec_name.append(new String("tstellate_erev_rm"))	    pvec.append(0.0055 )     pvec_factor.append(-10000)
+   pvec_name.append(new String("param.ts_erev"))	    pvec.append(0.0055 )     pvec_factor.append(-10000)
    pvec_ranges.x[4][0]					=0.0045
    pvec_ranges.x[4][1]					=0.00700
   */
-  //  pvec_name.append(new String("tstellate_ghbar_rm"))	pvec.append(6.20392e-04) pvec_factor.append(10)
+  //  pvec_name.append(new String("param.ts_ghbar"))	pvec.append(6.20392e-04) pvec_factor.append(10)
 
-  //  pvec_name.append(new String("tstellate_gkabar_ka"))	pvec.append(0.000473539) pvec_factor.append(1)
+  //  pvec_name.append(new String("param.ts_gkabar"))	pvec.append(0.000473539) pvec_factor.append(1)
 
 
 
@@ -138,27 +140,27 @@ proc append_weights(){
 
   proc append_rev_potentials(){ // Reversal potential
       NPARAMS += 1 
-   pvec_name.append(new String("tstellate_erev_rm"))	    pvec.append(0.055 )     pvec_factor.append(-1000)
+   pvec_name.append(new String("param.ts_erev"))	    pvec.append(0.055 )     pvec_factor.append(-1000)
    pvec_ranges.x[pvec.size()-1][0]	=0.045
    pvec_ranges.x[pvec.size()-1][1]	=0.0700
   } 
   
  proc append_ghbar(){ 
    NPARAMS += 1 
-   pvec_name.append(new String("tstellate_ghbar_rm"))	pvec.append(6.20392e-05)  pvec_factor.append(1)
+   pvec_name.append(new String("param.ts_ghbar"))	pvec.append(6.20392e-05)  pvec_factor.append(1)
  pvec_ranges.x[pvec.size()-1][0]		=5e-06  
  pvec_ranges.x[pvec.size()-1][1]		=0.0005
  }
  proc append_gkabar(){
    NPARAMS += 1 
-   pvec_name.append(new String("tstellate_gkabar_ka"))	pvec.append(0.01539) pvec_factor.append(1)
+   pvec_name.append(new String("param.ts_gkabar"))	pvec.append(0.01539) pvec_factor.append(1)
   pvec_ranges.x[pvec.size()-1][0]		=5e-03  
   pvec_ranges.x[pvec.size()-1][1]		=0.05
  }
  proc append_gleak(){
  NPARAMS += 1 
    //Leak conductance effects Input resistance and Membrane time constant
- pvec_name.append(new String("tstellate_gleak_rm"))	pvec.append(0.000473539) pvec_factor.append(1)  
+ pvec_name.append(new String("param.ts_gleak"))	pvec.append(0.000473539) pvec_factor.append(1)  
  pvec_ranges.x[pvec.size()-1][0]		=5e-05  
  pvec_ranges.x[pvec.size()-1][1]		=0.005
   }
