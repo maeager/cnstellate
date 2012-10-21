@@ -1,0 +1,96 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+/*
+*   Responses.hoc
+*  Generate RL,NRL,RA, MTF
+*/
+
+load_file("nrngui.hoc")
+//load_file("par_netpar.hoc")
+//load_file("par_init.hoc")
+
+xopen("mathslib.hoc")         // mathematical procedures
+xopen("Params.hoc")
+xopen("Utilities.hoc")
+xopen("NetworkParameters.hoc")
+xopen("par_AuditoryNerve.hoc")
+xopen("par_CNcell.tem")      // CN cell template
+
+//Previous optimisation parameters
+xopen("pvec_Golgi_RateLevel.hoc")
+xopen("pvec_DS_ClickRecovery.hoc")
+xopen("pvec_TV_Notch.hoc")
+xopen("pvec_TV_RateLevel.hoc")
+xopen("parameters_Responses.hoc")
+
+//--- Setup CN Stellate Network model
+xopen("par_CochlearNucleus.hoc")         // model set-up
+xopen("par_calcisilag.hoc")
+
+
+xopen("psth.hoc")
+
+
+RefreshCellParams() // in CochlearNucleus.hoc
+
+//xopen("par_experiment_TV_RateLevel.hoc")
+xopen("par_experiment_TStellate.hoc")
+
+create_cells()
+
+
+usesavedfilterbanks=1
+strdef targetcell
+targetcell="cn.tstellate[whichcell]"
+
+
+// channel position -> tonefreq
+
+xopen("cngui.hoc")
+xopen("ResponsesRoutines.hoc")
+
+
+
+
+
+proc AMresponse_CS(){
+CS_data()
+RefreshParameters()
+ANFilterBankRun()  //Generate new AN instant. rates
+SetInputRates()
+xopen("TStellate_CS/pvec_TStellate.hoc")
+reset_TStellate()
+connect_cells(fileroot)
+connect_CNcells(fileroot)
+ModulationTransferFunction(tonefreq)
+F0_Response(tonefreq)
+}
+
+
+proc AMresponse_CT1(){
+CT1_data()
+RefreshParameters()
+ANFilterBankRun()  //Generate new AN instant. rates
+SetInputRates()
+xopen("TStellate_CT1/pvec_TStellate.hoc")
+reset_TStellate()
+connect_cells(fileroot)
+connect_CNcells(fileroot)
+F0_Response(tonefreq)
+ModulationTransferFunction(tonefreq)
+
+}
+
+proc AMresponse_CT2(){
+CT2_data()
+RefreshParameters()
+ANFilterBankRun()  //Generate new AN instant. rates
+SetInputRates()
+xopen("TStellate_CT2/pvec_TStellate.hoc")
+reset_TStellate()
+connect_cells(fileroot)
+connect_CNcells(fileroot)
+ModulationTransferFunction(tonefreq)
+F0_Response(tonefreq)
+}
+
