@@ -1,38 +1,7 @@
-
-param.w.x[ds][tv] = 0.029
-param.w.x[hsr][tv] = 0.00017
-param.n.x[hsr][tv] = 8
-param.n.x[lsr][tv] = 14
-param.bw.x[ds][tv] = 2.1
-param.offset=0.24
-
- //  Wed Sep 29 14:27:26 AUSEST 2010
+ // Mon Oct 11 22:22:46 AUSEDT 2010
   
-param.w.x[lsr][tv] = 0.00162955
-param.w.x[hsr][tv] = 0.00040688
-param.w.x[hsr][ds] = 0.00215645
- //  Thu Sep 30 13:13:25 AUSEST 2010
-  
-param.w.x[lsr][tv] = 0.00326477
-param.w.x[hsr][tv] = -0.000334474
-param.w.x[hsr][ds] = 0.00227144
- //  Thu Sep 30 13:57:24 AUSEST 2010
-  
-param.w.x[lsr][tv] = 0.00326477*1
-param.w.x[hsr][tv] = -0.000334474*1
-param.w.x[hsr][ds] = 0.00227144*1
- //  Thu Sep 30 17:22:29 AUSEST 2010
-  
-param.w.x[lsr][tv] = 0.00326477*1
-param.w.x[hsr][tv] = -0.000334474*1
-param.w.x[hsr][ds] = 0.00227144*1
- //  Thu Sep 30 17:46:51 AUSEST 2010
-  
-param.w.x[lsr][tv] = 0.00326477*1
-param.w.x[hsr][tv] = -0.000334474*1
-param.w.x[hsr][ds] = 0.00227144*1
- //  Sun Oct  3 15:31:52 AUSEDT 2010
-  
-param.w.x[lsr][tv] = 0.00128707*1
-param.w.x[hsr][tv] = 0.00026168*1
-param.w.x[hsr][ds] = 0.00218798*1
+param.bw.x[ds][tv] = 0.0139873*1000
+param.tv_erev = -0.065894*1000
+param.offset = 0.0021*1000
+param.n.x[ds][tv] = 0.0171187*1000
+param.w.x[ds][tv] = 0.0017*1
