@@ -51,6 +51,17 @@ display DS_ratelevel.eps &
 display TV_ratelevel.eps &
 display G_ratelevel.eps &
 
+# rm -f raster.0.dat
+# {
+# for i in `ls */ts_raster.dat|sort -n`
+# do 
+#         spl=`echo $i| sed 's/\(.*\)\/ts_raster.dat/\1/'`
+# #	echo $spl
+# 	grep '^50' $i | awk '{print $4,'$spl'}'
+# 	echo ""
+# done
+# }>> raster.0.dat
+# gnuplot ratelevel_raster.gnu
 
 
 rm -f psth.0.dat
@@ -103,4 +114,6 @@ display psthVlevel.1.eps &
 display psthVlevel.2.eps &
 display psthVlevel.3.eps &
 
+#gnuplot rasters.gnu
+#display rasters.eps &
 
