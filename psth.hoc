@@ -131,9 +131,9 @@ proc PSTHcell() {local i, j, sp1, sp2, index, intv,first, cvmean, count,sizebins
 		    ISI.append(intv)
 		}
 	    }
-	    //	}
 	}
     }
+
     print "Checked trials: ", checkedtrials	
     cv1 = 0
     cvmean = 0

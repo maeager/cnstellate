@@ -16,7 +16,7 @@ numDS			= nchannels*nDSperchannel// total number of DS cells
 nGperchannel 	= 1          		// number of Golgi cells in each freq channel
 numG	     	= nchannels*nGperchannel// total number of Golgi cells
 
-seed			= 0         		// seed for random number generator see InitRandom()
+seed			= 0         		// seed for random number generator see InitRandom() in Utilities.hoc
 thresh			= -10       		// mV, threshold for detecting spikes
 
 
