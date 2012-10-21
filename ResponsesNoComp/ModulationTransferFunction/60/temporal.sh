@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 # temporal.sh: Reorganise temporal information and plot using gnuplot
 #
 # Michael Eager
@@ -7,7 +7,7 @@ set -eu
 
 ls [0-9]*| grep :|sed 's/://'| sort -n> freq.dat
 
-> TS_vs.dat
+> TS_vs.dat    # Clear data from TS_vs.dat
 {
 for i in `ls  */vs.0.dat|sort -n`
 do 
