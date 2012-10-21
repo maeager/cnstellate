@@ -28,24 +28,28 @@ xopen("CochlearNucleus.hoc")         // model set-up
 xopen("calcisilag.hoc")
 
 
-xopen("psth.hoc")
-proc reset_TV_RateLevel(){local i
-  
-  for i=0,nchannels -1 {
-  	tuberculoventral[i][0].soma.erev_rm = param.tv_erev
-  }
-}
+//xopen("spkplot.hoc")
+
+// proc reset_TV_RateLevel(){local i  
+//   for i=0,nchannels -1 {
+//   	tuberculoventral[i][0].soma.erev_rm = param.tv_erev
+//   }
+// }
 
 //xopen("par_experiment_TV_RateLevel.hoc")
 xopen("par_experiment_TStellate.hoc")
+
 create_cells()
 
-reset_TV_RateLevel()
-reset_DS_ClickRecovery()
-param.w.x[hsr][ds]*=10
-param.w.x[ds][tv]/=10
-reset_weights()
+// reset_TV_RateLevel()
+// reset_DS_ClickRecovery()
+// param.w.x[hsr][ds]*=10
+// param.w.x[ds][tv]/=10
+// reset_weights()
+
 usesavedfilterbanks=1
+
+
 strdef targetcell
 targetcell="cn.tstellate[whichcell]"
 

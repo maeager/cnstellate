@@ -1,12 +1,17 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
-
-
+/** Cochlear Nucleus network model: Auditory Nerve template
+ * Auditory filterbank is setup within the AuditoryNerve
+ * generally for hist and low SR units (medium SR units could be added if needed) 
+ *
+ * Michael Eager, 2006-2012
+ * University of Melbourne
+ */
 
 begintemplate AuditoryNerve
 public HSR,LSR, reorder,HSRspiketimes,LSRspiketimes,LSRspikes,HSRspikes
 public flag,channel,tdres,spont,nspks,ncells,reorder
-public SetRates,GenSpikes,PrintSpikes,ClearSpikes//,SetSpikes,Printspks,ReorderSpikes,
+public SetRates,GenSpikes,GenSpikes2, PrintSpikes,ClearSpikes //,SetSpikes,Printspks,ReorderSpikes,
 external HSRout,LSRout,sg_tdres,nchannels,HSRsperchannel,LSRsperchannel,cf
 external hsrgid, lsrgid,Lowspont,Highspont,pnm
 
