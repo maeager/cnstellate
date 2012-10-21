@@ -13,8 +13,8 @@ xopen("mathslib.hoc")         // mathematical procedures
 xopen("Params.hoc")
 xopen("Utilities.hoc")
 xopen("NetworkParameters.hoc")
-xopen("AuditoryNerve.hoc")
-xopen("CNcell.tem")      // CN cell template
+xopen("par_AuditoryNerve.hoc")
+xopen("par_CNcell.tem")      // CN cell template
 
 //Previous optimisation parameters
 xopen("pvec_Golgi_RateLevel.hoc")
@@ -24,31 +24,22 @@ xopen("pvec_TV_RateLevel.hoc")
 xopen("parameters_Responses.hoc")
 
 //--- Setup CN Stellate Network model
-xopen("CochlearNucleus.hoc")         // model set-up
-xopen("calcisilag.hoc")
+xopen("par_CochlearNucleus.hoc")         // model set-up
+xopen("par_calcisilag.hoc")
+
+
 xopen("psth.hoc")
+
+
+RefreshCellParams() // in CochlearNucleus.hoc
 
 //xopen("par_experiment_TV_RateLevel.hoc")
 xopen("par_experiment_TStellate.hoc")
 
-fileroot="AMResponses"
-
-
-
 create_cells()
-RefreshCellParams()
-connect_cells(fileroot)
-connect_CNcells(fileroot)
 
-// reset_TV_RateLevel()
-// reset_DS_ClickRecovery()
-// param.w.x[hsr][ds]*=10
-// param.w.x[ds][tv]/=10
-// reset_weights()
 
 usesavedfilterbanks=1
-
-
 strdef targetcell
 targetcell="cn.tstellate[whichcell]"
 
@@ -60,24 +51,6 @@ xopen("ResponsesRoutines.hoc")
 
 
 
-/*********Default Parameters *************/
-ANmodel					= 7 //Zilany Bruce model (Zilany et al, 2009)
-species					= 1 //Cat
-audiogram_file			= "cat_audiogram.txt"
-
-ANsoundspath = "/media/data/sounds"  //local sounds path
-nrep         = 1      //nrep is number of reps of stimulus
-cfhi         = 40000
-cflo         = 200
-srate        = 100000.0
-stimtdres    = 1/srate
-sg_rate      = 50000
-sg_tdres     = 1/sg_rate
-usesavedfilterbanks=1
-RefreshCF()
-/****************************************/
-
-
 
 
 proc AMresponse_CS(){
@@ -86,12 +59,11 @@ RefreshParameters()
 ANFilterBankRun()  //Generate new AN instant. rates
 SetInputRates()
 xopen("TStellate_CS/pvec_TStellate.hoc")
-RefreshCellParams()
+reset_TStellate()
 connect_cells(fileroot)
 connect_CNcells(fileroot)
 ModulationTransferFunction(tonefreq)
 F0_Response(tonefreq)
-
 }
 
 
@@ -101,7 +73,7 @@ RefreshParameters()
 ANFilterBankRun()  //Generate new AN instant. rates
 SetInputRates()
 xopen("TStellate_CT1/pvec_TStellate.hoc")
-RefreshCellParams()
+reset_TStellate()
 connect_cells(fileroot)
 connect_CNcells(fileroot)
 F0_Response(tonefreq)
@@ -115,7 +87,7 @@ RefreshParameters()
 ANFilterBankRun()  //Generate new AN instant. rates
 SetInputRates()
 xopen("TStellate_CT2/pvec_TStellate.hoc")
-RefreshCellParams()
+reset_TStellate()
 connect_cells(fileroot)
 connect_CNcells(fileroot)
 ModulationTransferFunction(tonefreq)

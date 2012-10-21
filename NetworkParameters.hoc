@@ -15,10 +15,13 @@ public golgi_spatial_filter_variance_LSR,golgi_syn_filter_scale_factor,golgi_spo
 //DS_ClickRecovery
 external _gaba_rise, _gaba_decay
 public dstellate_gkltbar, gaba_decay, gaba_rise, dstellate_gleak_rm, dstellate_gnabar_rm, DS_params
-//TV_Notch
-public offset, tv_erev
+//TV_Notch and RateLevel
+public offset, tv_erev, tv_gleak
+//TS cell parameters
+public ts_gleak,ts_erev,ts_ghbar,ts_gkabar,ts_gnabar,ts_gkhtbar	   
+
 //functions
-public getnetparameters, saveparameters,printparams
+public getnetparameters, saveparameters,printparams,showparams
 objref bw, n, w,delay
 offset=3
 tv_erev=-65
@@ -30,19 +33,27 @@ proc init(){
     delay = new Matrix(nrow,ncol)
     offset=0
 	
+	
+	gaba_decay								= _gaba_rise
+	gaba_rise								= _gaba_decay
+
 	//Default values
 	golgi_spatial_filter_variance_LSR		= 2  //channel units when N=100, cfhi=64k, cflo=200	
 	golgi_syn_filter_scale_factor			= 1														
 	golgi_spon								= 3	
 	
 	dstellate_gkltbar					    = 0.0163897	 //default gleak for Type I-II RM model	 
-	gaba_decay								= _gaba_rise
-	gaba_rise								= _gaba_decay
 	dstellate_gleak_rm				        = 0.00274146 // default gleak	 
 	dstellate_gnabar_rm				        = 0.408307  //2 times default TypeI-II RM model	   
+	tv_gleak     = 0.0004987
+    tv_erev      = -70
 	
-	
-	
+	ts_gnabar	= 0.23677
+	ts_gkhtbar	= 0.0189416	
+	ts_gleak = 0.000473539
+	ts_erev = -55
+	ts_ghbar = 6.20392e-05
+	ts_gkabar =	0.01539   
 	
 }
 
@@ -113,16 +124,63 @@ proc printparams(){local irow,jcol
 			for jcol=0,ncol-1 file.printf("\t%.4f",delay.getval(irow,jcol))
 			file.printf("\n")
 		}
+		file.printf("%s offset  %g\n",$s2, offset)
 		file.printf("%s golgi_spatial_filter_variance_LSR	 %g\n",$s2,golgi_spatial_filter_variance_LSR	)
 		file.printf("%s golgi_syn_filter_scale_factor %g\n",$s2,golgi_syn_filter_scale_factor	)
 		file.printf("%s golgi_spon %g\n",$s2,golgi_spon)
-		file.printf("%s dstellate_gkltbar	 %g\n",$s2,dstellate_gkltbar)
 		file.printf("%s gaba_decay			 %g\n",$s2,gaba_decay)
 		file.printf("%s gaba_rise			 %g\n",$s2,gaba_rise)
+		file.printf("%s dstellate_gkltbar	 %g\n",$s2,dstellate_gkltbar)
 		file.printf("%s dstellate_gleak_rm  %g\n",$s2,dstellate_gleak_rm)
 		file.printf("%s dstellate_gnabar_rm  %g\n",$s2, dstellate_gnabar_rm)
+		file.printf("%s tv_gleak  %g\n",$s2, tv_gleak)
+		file.printf("%s tv_erev  %g\n",$s2, tv_erev)
+		file.printf("%s ts_gkabar  %g\n",$s2,ts_gkabar)
+		file.printf("%s ts_ghbar  %g\n",$s2, ts_ghbar)
+		file.printf("%s ts_gleak  %g\n",$s2, ts_gleak)
+		file.printf("%s ts_erev  %g\n",$s2, ts_erev)
 	}
+	
 }
+
+proc showparams(){local irow,jcol
+	printf("// bandwidth\n")
+	for irow=0, nrow-1 {
+		for jcol=0,ncol-1 printf("\t%.4f",bw.getval(irow,jcol))		
+	printf("\n")	
+	}
+	printf("\n// num. connections\n")
+	for irow=0, nrow-1 {
+		for jcol=0,ncol-1 printf("\t%d",n.getval(irow,jcol))
+	printf("\n")	
+	}
+	printf("\n// weights\n")
+	for irow=0, nrow-1 {
+		for jcol=0,ncol-1 printf("\t%.8g",w.getval(irow,jcol))			
+	printf("\n")	
+	}
+	printf("\n// delay\n")
+	for irow=0, nrow-1 {
+		for jcol=0,ncol-1 printf("\t%.4f",delay.getval(irow,jcol))
+	printf("\n")	
+	}
+	printf("\n// offset	 %g\n",offset)
+	printf("// golgi_spatial_filter_variance_LSR	 %g\n",golgi_spatial_filter_variance_LSR	)
+	printf("// golgi_syn_filter_scale_factor %g\n",golgi_syn_filter_scale_factor	)
+	printf("// golgi_spon %g\n",golgi_spon)
+	printf("// gaba_decay			 %g\n",gaba_decay)
+	printf("// gaba_rise			 %g\n",gaba_rise)
+	printf("// dstellate_gkltbar	 %g\n",dstellate_gkltbar)
+	printf("// dstellate_gleak_rm  %g\n",dstellate_gleak_rm)
+	printf("// dstellate_gnabar_rm  %g\n", dstellate_gnabar_rm)
+	printf("// tv_gleak  %g\n", tv_gleak)
+	printf("// tv_erev  %g\n", tv_erev)
+	printf("// ts_gkabar  %g\n",ts_gkabar)
+	printf("// ts_ghbar  %g\n", ts_ghbar)
+	printf("// ts_gleak  %g\n", ts_gleak)
+	printf("// ts_erev  %g\n", ts_erev)
+}
+
 
 endtemplate NetworkParameters
 

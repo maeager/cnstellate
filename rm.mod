@@ -53,7 +53,7 @@ PARAMETER {
     erev = -65   (mV)
     ghbar = 0.00318 (mho/cm2) <0,1e9>
     eh = -43 (mV)
-    q10=3
+    q10 = 3
     qt  (/ms)
     q = 0.19245 (ms)
 }
@@ -67,11 +67,13 @@ ASSIGNED {
     ina (mA/cm2)
     gna (mho/cm2)
     minf hinf
-    mtau (ms) htau (ms)
+    mtau (ms) 
+    htau (ms)
     ik (mA/cm2)
     gkht (mho/cm2)
     pinf ninf
-    ptau (ms) ntau (ms)
+    ptau (ms) 
+    ntau (ms)
     gh (mho/cm2)
     ih (mA/cm2)
     rinf

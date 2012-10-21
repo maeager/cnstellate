@@ -49,13 +49,13 @@ param.w.x[ds][ts]		= 0.0001
 param.w.x[tv][ts]		= 0.0002
 param.w.x[glg][ts]		= 0.0005
 
-param.delay.x[hsr][ts]  = 0
-param.delay.x[lsr][ts]  = 0
-param.delay.x[hsr][ds]  = 0
-param.delay.x[lsr][ds]  = 0
-param.delay.x[hsr][tv]  = 0.5
-param.delay.x[hsr][tv]  = 0.5
-param.delay.x[lsr][glg] = 1
+// param.delay.x[hsr][ts]  = 0
+// param.delay.x[lsr][ts]  = 0
+// param.delay.x[hsr][ds]  = 0
+// param.delay.x[lsr][ds]  = 0
+// param.delay.x[hsr][tv]  = 0.5
+// param.delay.x[hsr][tv]  = 0.5
+// param.delay.x[lsr][glg] = 1
 
 param.n.x[hsr][ts]		= 10
 param.n.x[lsr][ts]		= 10
@@ -260,12 +260,12 @@ xopen("cngui.hoc")
 
 proc TSPanel(){
   xpanel("TStellate")
-  xvalue("tstellate_gnabar_rm")
-  xvalue("tstellate_gkhtbar_rm")
-  xvalue("tstellate_gleak_rm")
-  xvalue("tstellate_erev_rm")
-  xvalue("tstellate_ghbar_rm")
-  xvalue("tstellate_gkabar_ka")
+  xvalue("param.ts_gnabar")
+  xvalue("param.ts_gkhtbar")
+  xvalue("param.ts_gleak")
+  xvalue("param.ts_erev")
+  xvalue("param.ts_ghbar")
+  xvalue("param.ts_gkabar")
 
   xvalue("param.w.x[hsr][ts]")
   xvalue("param.w.x[lsr][ts]")
@@ -304,8 +304,8 @@ xopen("jitter.hoc")
 // param.w.x[ds][ts]	= 0.0000138011
 // param.w.x[tv][ts]	= 0.0000146063
 // param.w.x[glg][ts]	= 9.3936e-05
-// tstellate_gleak_rm	= 0.000494097
-// tstellate_erev_rm	=-65
+// param.ts_gleak	= 0.000494097
+// param.ts_erev	=-65
 // set_pvec()
 
 
@@ -314,7 +314,7 @@ xopen("jitter.hoc")
 // ANFilterBankRun()  //Generate new AN instant. rates
 // SetInputRates()
 
-// tstellate_erev_rm	=-58
+// param.ts_erev	=-58
 // param.w.x[ds][tv]/	=10
 // param.w.x[hsr][tv]	=0.0006
 // runprax()
@@ -331,7 +331,7 @@ xopen("jitter.hoc")
 // //param.w.x[ds][ts]	= 0.00146354
 // //param.w.x[tv][ts]	= 0.00132918
 // //param.w.x[glg][ts] = 3.94981e-05
-// //tstellate_gleak_rm = 0.00297771
+// //param.ts_gleak = 0.00297771
 
 
 // //param.w.x[lsr][ts] = 0.000774459
@@ -339,8 +339,8 @@ xopen("jitter.hoc")
 // //param.w.x[ds][ts]	= 0.0000138011
 // //param.w.x[tv][ts]	= 0.0000146063
 // //param.w.x[glg][ts] = 9.3936e-05
-// //tstellate_gleak_rm = 0.000294097
-// //tstellate_erev_rm	=-65
+// //param.ts_gleak = 0.000294097
+// //param.ts_erev	=-65
 // //reps				=50
 
 // param.w.x[lsr][ts]	= 0.000774459
@@ -348,8 +348,8 @@ xopen("jitter.hoc")
 // param.w.x[ds][ts]	= 0.0000138011
 // param.w.x[tv][ts]	= 0.0000146063
 // param.w.x[glg][ts]	= 9.3936e-05
-// tstellate_gleak_rm	= 0.000494097
-// tstellate_erev_rm	=-65
+// param.ts_gleak	= 0.000494097
+// param.ts_erev	=-65
 // set_pvec()
 
 
@@ -432,8 +432,8 @@ PSTHcell(tstellate_spikes,0.25,2)
 // param.w.x[ds][ts] = 0.0000138011
 // param.w.x[tv][ts] = 0.0000146063
 // param.w.x[glg][ts] = 9.3936e-05
-// tstellate_gleak_rm = 0.000294097
-// tstellate_erev_rm=-65
+// param.ts_gleak = 0.000294097
+// param.ts_erev=-65
 // set_pvec()
 
 // CT2_data()
@@ -446,4 +446,4 @@ PSTHcell(tstellate_spikes,0.25,2)
 // print "CT2 Done"
 
 // //RunTStellate()
-tstellate_erev_rm = -55
+param.ts_erev = -55

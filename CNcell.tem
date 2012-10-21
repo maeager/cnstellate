@@ -23,11 +23,11 @@ public spikes,spiketimes       //storage vectors
 public connect2target, synlist //synapse connection function and list
 public cf,model,channel          //identifying parameters ...
 public set_tstellate, set_dstellate,set_tuberc,set_golgi, nstomho,qt //member functions
-public SaveSpikes
+public SaveSpikes,ClearSpikes
 
 external thresh,Erest,param
 external ampa_decay,ampa_erev,gly_decay,gly_erev,gly_rise
-external _gaba_decay, _gaba_erev,gaba_rise
+external _gaba_decay, gaba_erev,_gaba_rise
 
 create soma
 objref AMPA, GlyR, GABAA, spikecount, spiketimes, synlist,spikes
@@ -116,7 +116,7 @@ proc set_tstellate() {
         eh_rm    = -43
         Ra       = 150            //axial resistance per cm
         cm       = 0.9            //micro farad per cm^2, membrance capacitance
-        eleak_rm = Erest          //mV, Leak reversal potential mV
+        erev_rm = Erest          //mV, Leak reversal potential mV
         RM       = 96             //MOhms, expected membrane resistance
         L            = 19.5           //length of cell body
         diam     = L              //diameter of cell body
@@ -201,6 +201,13 @@ proc set_golgi() {
 proc SaveSpikes(){
     if (object_id(spikes)==0) spikes = new Vector()
     spikes.append(spiketimes)
+}
+
+proc ClearSpikes(){
+if (object_id(spikes)==0) spikes = new Vector()
+    spikes.resize(0)
+    spiketimes.resize(0)
+	
 }
 
 endtemplate CNcell
@@ -362,6 +369,7 @@ proc SetRate2() {local i,j,spon_factor
     sg.SetFibreRate(sout,spiketimes,sg_tdres)
     //print "golgi[",i,"][",j,"]: Process ",pnm.myid," mean ", sout.mean()
     objref tempsout
+    printf(" done\r")
 }
 
 proc GenSpikes(){local i,j
@@ -499,7 +507,7 @@ func RetrieveGolgiFilterBank(){local nsize,nchan,temp
 }
 
 
-/* Testing
+/*
 objref x
 x = new Vector()
 x.resize(100).indgen()

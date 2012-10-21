@@ -91,7 +91,8 @@ pvec_name.append(new String("param.dstellate_gleak_rm"))
  for i=0,NPARAMS-1 pvec_ranges.x[i][0]= 0.000001
 //max
  for i=0,NPARAMS-1 pvec_ranges.x[i][1]= 0.03
-
+ 
+strdef cmd
 // cmd is a strdef variable that should be used in local routines and not passed across proc's
 proc set_pvec(){local pp
     for pp=0,NPARAMS-1 {

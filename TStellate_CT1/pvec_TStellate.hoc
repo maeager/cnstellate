@@ -10,18 +10,18 @@ param.w.x[hsr][ts] = 0.003*1
 param.w.x[ds][ts] = 0.0001*1
 param.w.x[tv][ts] = 0.0002*1
 param.w.x[glg][ts] = 0.0005*1
-tstellate_gleak_rm = 0.000473539*1
+param.ts_gleak = 0.000473539*1
  // Mon Nov 28 14:51:25 EST 2011
   
-tstellate_erev_rm = 0.0527193*-1000
-tstellate_ghbar_rm = 0.000347005*1
-tstellate_gleak_rm = 0.000263401*1
+param.ts_erev = 0.0527193*-1000
+param.ts_ghbar = 0.000347005*1
+param.ts_gleak = 0.000263401*1
 param.n.x[lsr][ts] = 0.0105138*1000
 param.n.x[hsr][ts] = 0.010676*1000
 param.n.x[ds][ts] = 0.0195531*1000
 param.n.x[tv][ts] = 0.0202273*1000
 param.n.x[glg][ts] = 0.0145615*1000
-tstellate_gkabar_ka = 0.0148656*1
+param.ts_gkabar = 0.0148656*1
  // Wed Nov 30 17:37:20 EST 2011
   
 param.n.x[lsr][ts] = 0.012*1000

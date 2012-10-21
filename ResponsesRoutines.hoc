@@ -12,8 +12,11 @@ total_time=0
 proc CREATEFILTERBANKS(){
     RefreshParameters()
     ANFilterBankRun()
+    SetInputRates()
     print "num_stim ",num_stim=num_stim+1," total_time ",total_time=total_time+(stim.size/srate)
 }
+
+
 
 proc MULTIRUN(){local nreps
     RefreshParameters()
@@ -205,29 +208,31 @@ proc ModulationTransferFunction(){
 	dur		= 0.149
 	ramplngth	= 0.002
 	stimdelay	= 0.01
+	dutycycle = 0.0
 	tonefreq	= $1
     reps		= 50
-	tstop		= 170
-	for (spl=80; spl >= 20; spl=spl-20){
-		
-		//	  for (AM_modfreq=400;AM_modfreq<=700;AM_modfreq=AM_modfreq+50) {
-		for (AM_modfreq=50;AM_modfreq<=1200;AM_modfreq=AM_modfreq+50) {
-			MULTIRUN()
-			//	SAVEDATA
-			sprint(fileroot_,"%s/ModulationTransferFunction/%d/%d",fileroot,spl,AM_modfreq)
-			print_results()
-			binwidth=0.1
-			print_periodpsth(ts,fileroot_,"T stellate")
-			print_periodpsth(tv,fileroot_,"Tuberculoventral")
-			print_periodpsth(ds,fileroot_,"D stellate")
-			print_periodpsth(glg,fileroot_,"Golgi")
-			print_periodpsth(hsr,fileroot_,"HSR ANFs")
-	    print_periodpsth(lsr,fileroot_,"LSR ANFs")	  }
-		//plot rMTF
-		//plot tMTF
-		
-	}
-	
+	tstop		= 160
+	//	  for (AM_modfreq=400;AM_modfreq<=700;AM_modfreq=AM_modfreq+50) {
+for (spl=80; spl >= 20; spl=spl-20){
+for (AM_modfreq=50;AM_modfreq<=1200;AM_modfreq=AM_modfreq+50) {
+	//CREATEFILTERBANKS()  //uncomment this to generate new AN and GLG inputs 	
+	MULTIRUN()
+	//	SAVEDATA
+	sprint(fileroot_,"%s/ModulationTransferFunction/%d/%d",fileroot,spl,AM_modfreq)
+	print_results()
+	binwidth=0.1
+	print_periodpsth(ts,fileroot_,"T stellate")
+	print_periodpsth(tv,fileroot_,"Tuberculoventral")
+	print_periodpsth(ds,fileroot_,"D stellate")
+	print_periodpsth(glg,fileroot_,"Golgi")
+	print_periodpsth(hsr,fileroot_,"HSR ANFs")
+	print_periodpsth(lsr,fileroot_,"LSR ANFs")	  
+}
+//plot rMTF
+//plot tMTF
+
+}
+//}
 }
 
 
