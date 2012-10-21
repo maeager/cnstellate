@@ -251,23 +251,23 @@ proc RunTStellate(){
   PSTHcell(tstellate_spikes,10,1)
 }
 
-tstellate_gnabar_rm						= 0.23677
-tstellate_gkhtbar_rm					= 0.0189416
-tstellate_gleak_rm						= 0.000473539
-tstellate_erev_rm						= -55
-tstellate_ghbar_rm						= 6.20392e-05
-tstellate_gkabar_ka						= 0.01539
+param.ts_gnabar						= 0.23677
+param.ts_gkhtbar					= 0.0189416
+param.ts_gleak						= 0.000473539
+param.ts_erev						= -55
+param.ts_ghbar						= 6.20392e-05
+param.ts_gkabar						= 0.01539
 
 proc reset_TStellate(){local ii
     print "updating features for T stellate optimisation routines"
     for ii = 0,nchannels-1 {
 //        if(ii == 20 || ii == 38 || ii == 51){
-sprint(cmd,"tstellate[%d][0].soma.gnabar_rm  = tstellate_gnabar_rm",ii) execute1(cmd)
-sprint(cmd,"tstellate[%d][0].soma.gkhtbar_rm = tstellate_gkhtbar_rm",ii) execute1(cmd)
-sprint(cmd,"tstellate[%d][0].soma.gleak_rm   = tstellate_gleak_rm",ii) execute1(cmd)
-sprint(cmd,"tstellate[%d][0].soma.erev_rm    = tstellate_erev_rm",ii) execute1(cmd)
-sprint(cmd,"tstellate[%d][0].soma.ghbar_rm   = tstellate_ghbar_rm",ii) execute1(cmd)
-sprint(cmd,"tstellate[%d][0].soma.gkabar_ka  = tstellate_gkabar_ka",ii) execute1(cmd)
+sprint(cmd,"tstellate[%d][0].soma.gnabar_rm  = param.ts_gnabar",ii) execute1(cmd)
+sprint(cmd,"tstellate[%d][0].soma.gkhtbar_rm = param.ts_gkhtbar",ii) execute1(cmd)
+sprint(cmd,"tstellate[%d][0].soma.gleak_rm   = param.ts_gleak",ii) execute1(cmd)
+sprint(cmd,"tstellate[%d][0].soma.erev_rm    = param.ts_erev",ii) execute1(cmd)
+sprint(cmd,"tstellate[%d][0].soma.ghbar_rm   = param.ts_ghbar",ii) execute1(cmd)
+sprint(cmd,"tstellate[%d][0].soma.gkabar_ka  = param.ts_gkabar",ii) execute1(cmd)
 //        }
 }
 }

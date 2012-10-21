@@ -18,7 +18,7 @@ public dstellate_gkltbar, gaba_decay, gaba_rise, dstellate_gleak_rm, dstellate_g
 //TV_Notch and RateLevel
 public offset, tv_erev, tv_gleak
 //TS cell parameters
-public ts_gleak,ts_erev,ts_ghbar,ts_gkabar	   
+public ts_gleak,ts_erev,ts_ghbar,ts_gkabar,ts_gnabar,ts_gkhtbar	   
 
 //functions
 public getnetparameters, saveparameters,printparams,showparams
@@ -48,6 +48,8 @@ proc init(){
 	tv_gleak     = 0.0004987
     tv_erev      = -70
 	
+	ts_gnabar	= 0.23677
+	ts_gkhtbar	= 0.0189416	
 	ts_gleak = 0.000473539
 	ts_erev = -55
 	ts_ghbar = 6.20392e-05
@@ -145,18 +147,22 @@ proc showparams(){local irow,jcol
 	printf("// bandwidth\n")
 	for irow=0, nrow-1 {
 		for jcol=0,ncol-1 printf("\t%.4f",bw.getval(irow,jcol))		
+	printf("\n")	
 	}
 	printf("\n// num. connections\n")
 	for irow=0, nrow-1 {
 		for jcol=0,ncol-1 printf("\t%d",n.getval(irow,jcol))
+	printf("\n")	
 	}
 	printf("\n// weights\n")
 	for irow=0, nrow-1 {
 		for jcol=0,ncol-1 printf("\t%.8g",w.getval(irow,jcol))			
+	printf("\n")	
 	}
 	printf("\n// delay\n")
 	for irow=0, nrow-1 {
 		for jcol=0,ncol-1 printf("\t%.4f",delay.getval(irow,jcol))
+	printf("\n")	
 	}
 	printf("\n// offset	 %g\n",offset)
 	printf("// golgi_spatial_filter_variance_LSR	 %g\n",golgi_spatial_filter_variance_LSR	)

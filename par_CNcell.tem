@@ -403,8 +403,8 @@ endtemplate Golgicell
 objref golgi[nchannels][1]
 
 /*
-* Save Golgi Filters to File
-*/
+ * Save Golgi Filters to File
+ */
 proc SaveGolgiFilterBank2File(){local nchan
     objref ANfile
 	

@@ -10,7 +10,7 @@ param.w.x[hsr][ts] = 0.001*1
 param.w.x[ds][ts] = 0.0001*1
 param.w.x[tv][ts] = 0.0002*1
 param.w.x[glg][ts] = 0.0005*1
-param.tstellate_gleak_rm = 0.000473539*1
+param.ts_gleak = 0.000473539*1
  // Mon Nov 28 14:36:05 EST 2011
   
 param.ts_erev = 0.0545939*-1000
