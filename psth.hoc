@@ -31,7 +31,7 @@ proc PlotLine(){local i,j, lineon, markon//vector,graph, label,  color, binsize
             }
 	}
     }
-}c
+}
 
 psth_stimdur_mode=0
 checkedtrials=0   
