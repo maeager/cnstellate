@@ -38,10 +38,10 @@
 //  which was positioned at the end of a hollow ear bar and controlled
 //  using a Tucker-Davis signal generator (Tucker-Davis Technologies,
 
-delay					= 0.02
-dur						= 0.045
-ramplngth				= 0.005
-dutycycle				= 0.8        // get an extra 40msec post-tone
+stimdelay					= 0.05
+dur						= 0.049
+ramplngth				= 0.002
+dutycycle				= 1        // get an extra 25msec post-tone
 cfhi					= 40000
 cflo					= 200
 srate					= 100000      // 500k is no longer needed
@@ -258,18 +258,20 @@ param.ts_erev						= -55
 param.ts_ghbar						= 6.20392e-05
 param.ts_gkabar						= 0.01539
 
-proc reset_TStellate(){local ii
+proc refresh_TStellate(){local ii,jj
     print "updating features for T stellate optimisation routines"
     for ii = 0,nchannels-1 {
-//        if(ii == 20 || ii == 38 || ii == 51){
-sprint(cmd,"tstellate[%d][0].soma.gnabar_rm  = param.ts_gnabar",ii) execute1(cmd)
-sprint(cmd,"tstellate[%d][0].soma.gkhtbar_rm = param.ts_gkhtbar",ii) execute1(cmd)
-sprint(cmd,"tstellate[%d][0].soma.gleak_rm   = param.ts_gleak",ii) execute1(cmd)
-sprint(cmd,"tstellate[%d][0].soma.erev_rm    = param.ts_erev",ii) execute1(cmd)
-sprint(cmd,"tstellate[%d][0].soma.ghbar_rm   = param.ts_ghbar",ii) execute1(cmd)
-sprint(cmd,"tstellate[%d][0].soma.gkabar_ka  = param.ts_gkabar",ii) execute1(cmd)
-//        }
-}
+		for jj=0,nTSperchannel-1{
+			//        if(ii == 20 || ii == 38 || ii == 51){
+			sprint(cmd,"tstellate[%d][%d].soma.gnabar_rm  = param.ts_gnabar",ii,jj) execute1(cmd)
+			sprint(cmd,"tstellate[%d][%d].soma.gkhtbar_rm = param.ts_gkhtbar",ii,jj) execute1(cmd)
+			sprint(cmd,"tstellate[%d][%d].soma.gleak_rm   = param.ts_gleak",ii,jj) execute1(cmd)
+			sprint(cmd,"tstellate[%d][%d].soma.erev_rm    = param.ts_erev",ii,jj) execute1(cmd)
+			sprint(cmd,"tstellate[%d][%d].soma.ghbar_rm   = param.ts_ghbar",ii,jj) execute1(cmd)
+			sprint(cmd,"tstellate[%d][%d].soma.gkabar_ka  = param.ts_gkabar",ii,jj) execute1(cmd)
+			flushf()
+		}
+	}
 }
 
 
@@ -311,11 +313,12 @@ proc connect_TS() {local i,p,target,source,low,high,range,channel,sourcechannel
 	
   for i_chan = 0, nchannels-1 {
     if (nTSperchannel > 0) for j_cell = 0, nTSperchannel-1 {
-        sprint(cmd, "tstellate[%d][%d] = new CNcell(0,cf.x[%d],%d)",i_chan,j_cell,i_chan,i_chan)
+        sprint(cmd, "tstellate[%d][%d] = new CNcell(0,cf.x[%d],%d,1)",i_chan,j_cell,i_chan,i_chan)
         execute1(cmd)
     }
-  }	
-	
+}	
+flushf()
+
 	
 	
 	
@@ -396,6 +399,7 @@ if( ( param.n.getval(lsr,ts) > 0 ) && ( nTSperchannel != 0 ) ){
  }
  printf("\rLSR->TS=== done ===\n")
 }
+flushf()	
 	
 	
 	print "Connecting CN network cells to TS cells"
@@ -426,6 +430,7 @@ if( ( param.n.getval(ts,ts) > 0 ) && ( nTSperchannel > 1 ) ){
  }
   printf("\rTS->TS=== done ===\n")
 }
+flushf()	
 
 
 if( ( param.n.getval(tv,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nTVperchannel != 0 ) ){
@@ -458,6 +463,7 @@ if( ( param.n.getval(tv,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nTVperchannel !
  }
   printf("\rTV->TS=== done ===\n")
 }
+flushf()	
 
 if( ( param.n.getval(ds,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nDSperchannel != 0 ) ){
  outfile.printf("\n%d %d\n",ds,ts)
@@ -488,6 +494,7 @@ if( ( param.n.getval(ds,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nDSperchannel !
  }
   printf("\rDS->TS=== done ===\n")
 }
+flushf()	
 
 
 if( ( param.n.getval(glg,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nGperchannel != 0 ) ){
@@ -528,6 +535,6 @@ if( ( param.n.getval(glg,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nGperchannel !
 
 
 	outfile.close()
-	
+flushf()	
 }
 

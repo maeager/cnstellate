@@ -59,8 +59,9 @@ strdef filename, celltype
 objref an
 an = new AuditoryNerve()
 
-//xopen("cngui.hoc")
 // Create cells --------------------------------------------------------
+strdef cmd
+//Having trouble with local variables when using execute1
 
 proc create_cells() { local i,j,p
 	netpar_mkpnm()
@@ -68,8 +69,13 @@ proc create_cells() { local i,j,p
 	if (pnm.myid == 0)  { print "Creating cells. This may take some time." }
 	for i = 0, nchannels-1 {
 		for j = 0, nTSperchannel-1 {
+			if (use_ball_stick==1){
+			sprint(celltype,"new CNcell(%d,%d,%d,1)",0,cf.x[i],i)
+			tstellate[i][j] = netpar_create(celltype, tsgid, i, j)
+		  } else {
 			sprint(celltype,"new CNcell(%d,%d,%d)",0,cf.x[i],i)
 			tstellate[i][j] = netpar_create(celltype, tsgid, i, j)
+		  }			
 		}
 		for j = 0, nTVperchannel-1 {
 			sprint(celltype,"new CNcell(%d,%d,%d)",1,cf.x[i],i)
@@ -108,7 +114,6 @@ proc create_cells() { local i,j,p
 		
 	}
 	if (pnm.myid == 0)  printf("\n")
-	//  access mit[0][0].soma // because not on every machine
 }
 
 // Connect cells, set synaptic parameters ------------------------------
@@ -631,8 +636,10 @@ proc insert_iclamps() { local i,j, ran // 2 args - del dur
 // Randomise initial conditions ----------------------------------------
 
 proc random_init() { local i,j, ran
-	random.normal(-65,50)
-	for i = 0,nchannels-1 {
+	if(numarg() == 2){
+       random.normal($1,$2)
+	}else{random.normal(-60,5)
+	}for i = 0,nchannels-1 {
 		for j = 0, nTSperchannel-1 {
 			ran = random.repick()
 			if (pnm.gid_exists(tsgid.x[i][j])) {

@@ -95,11 +95,11 @@ proc PSTHcell() {local i, j, sp1, sp2, index, intv,first, cvmean, count,sizebins
     for i=0, $o1.count()-1 {
 	first = 0
 	// Go through spike train only if first three spikes occur in 10 ms
-        //	checkspikes.indvwhere($o1.object(i),"[]",23.2,40)
-        //	if(checkspikes.size() >= 5) {
+        //checkspikes.indvwhere($o1.object(i),"[]",stimdelay*1000 +  2.5, stimdelay*1000 + 25.5)
+        //if(checkspikes.size() >= 3) {
 	// Go through spike train only if no spikes occur immediately before stimulus evoked spike
-	//checkspikes.indvwhere($o1.object(i),"[]",18,23.2)
-	if(1) { //if(checkspikes.size() == 0)
+	//checkspikes.indvwhere($o1.object(i),"[]",15,25)
+	//if(checkspikes.size() == 0) {
 	    checkedtrials+=1
 	    for j = 0, $o1.object(i).size() - 2 {
 		sp1 = $o1.object(i).x[j]-stimdelay*1000
@@ -130,7 +130,7 @@ proc PSTHcell() {local i, j, sp1, sp2, index, intv,first, cvmean, count,sizebins
 		    bins[index].append(intv)
 		    ISI.append(intv)
 		}
-	    }
+	  //  } //checked trials
 	}
     }
 
