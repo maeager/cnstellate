@@ -74,7 +74,14 @@ proc CalcVectorStrengthSpikes() {local i,sumxi,sumyi,n,period,thetai,t_start, t_
 // Also Chang et al. 10.1073/pnas.0508239102
 //The Rayleigh statistic is 2n(vector strength) (6), with critical values of 5.991 for a= 0.05 and 13.816 for a = 0.001.
 //6. Shannon, R. V., Zeng, F. G., Kamath, V., Wygonski, J. & Ekelid, M. (1995) Science 270, 303304.
-    if($1==ts) spikes = tstellate[$2][0].spikes
+
+    if($1==ts){
+	  spikes = new Vector()
+	  for i=0,nTSperchannel-1 {
+	      spikes.append(tstellate[$2][i].spikes)
+	  }
+      }
+    //Assume one cell per channel for TV,DS and GLG  
     if($1==tv) spikes = tuberculoventral[$2][0].spikes
     if($1==ds) spikes = dstellate[$2][0].spikes
     if($1==glg) spikes = golgi[$2][0].spikes

@@ -41,7 +41,7 @@ system("sleep 1")
 
 
 //Setup Auditory model
-   cfhi					=64000
+   cfhi					=40000
    cflo					=200
 
    dur					= 0.08  //duration of stim (seconds)

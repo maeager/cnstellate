@@ -255,7 +255,7 @@ proc PSTHcell() {local i, j, sp1, sp2, index, intv,first, cvmean, count
 	pstv[1] = new Vector(int((dur+ramplngth)/$2*1000 +1),0)
 	psth = new Vector(int((dur+ramplngth)/$2*1000 +1),0)   
     }else {   
-	print "PSTH created, binwidth " $2, " normalised by ", reps*$2/1000 
+	print "PSTH created, binwidth " ,$2, " normalised by ", reps*$2/1000 
 	pstv[1] = pstv[0].histogram(0, (dur + ramplngth)*1000, $2)
 	psth = pstv[1].c.div(reps*$2/1000)    
     }
