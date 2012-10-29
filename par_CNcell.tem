@@ -42,7 +42,7 @@ external thresh,Erest,param
 external ampa_decay,ampa_erev,gly_decay,gly_erev,gly_rise
 external _gaba_decay, gaba_erev,_gaba_rise
 
-create soma
+create soma,dend
 objref AMPA, GlyR, GABAA, spikecount, spiketimes, synlist,spikes
 somaarea=1E-4
 cf=1E3
@@ -56,14 +56,26 @@ proc init() { local length,RM, p, q, r, Atotal
     spiketimes = new Vector()
     spikes = new Vector()
     lastspikecount = 0
+	num_dend_seg = 1
+	ball_stick = 0
 	create soma	
 	//Initialisation arguments
     model = $1   //subtype ts=0,tv=1,ds=2,glg=3
     cf = $2
     channel=$3
-	if (numarg()==4) { //Ball-and-stick model
+	
+	if (numarg() == 4) { //Ball-and-stick model
 		print "Using Ball-Stick model ", $4
-		ball_stick=1
+		ball_stick =1
+		create dend
+		dend.nseg=1
+
+	 	dend.diam=1.5
+        dend.L=200
+	 	dend.Ra = 150
+		dend.cm = 0.9
+		
+		connect dend(0),soma(1)
 	}
 
 	access soma
@@ -90,6 +102,16 @@ proc init() { local length,RM, p, q, r, Atotal
 	
 	if(	ball_stick == 1){
 		dend {
+	 		insert pas
+	 		nseg=num_dend_seg
+	 		diam=1.5
+	 		L=200
+			e_pas =-65
+	 		g_pas=0.0001
+	 		Ra = 150
+	 		cm = 0.9
+
+
 			// Order of synapses important for pnm.nc_append in netpar_connect()
 			// in par_netpar.hoc.  The synapse type is used by connect_cells()
 			// argument 7 in par_CochlearNucleus.hoc.
@@ -114,10 +136,10 @@ proc init() { local length,RM, p, q, r, Atotal
 						
 		    GABAA = new Exp2Syn(0.5)
 			synlist.append(GABAA)
-			GABAA.tau2  = param.gaba_decay
-			GABAA.tau1  = param.gaba_rise
+			GABAA.tau2  = _gaba_decay
+			GABAA.tau1  = _gaba_rise
 			GABAA.e     = gaba_erev
-
+psection()			
 		}
 	} else {
 		soma {
@@ -194,19 +216,10 @@ proc set_tstellate() {
         ghbar_rm = nstomho(0.5)*qt(1)
         gleak_rm = nstomho(2)*qt()
     }
-	// if (ball_stick==1) { //Ball-and-stick model
+	 if (ball_stick==1) { //Ball-and-stick model
 	// 	create dend 
 	// 	soma connect dend(0), soma(1)
-	// 	dend { 
-	// 		insert leak
-	// 		nseg=num_dend_seg
-	// 		diam=1.5
-	// 		L=200
-	// 		g_leak=0.0001
-	// 		Ra =150
-	// 		cm=0.9
-	// 	}
-	// } 
+	 } 
 
 	
 }
@@ -401,8 +414,7 @@ proc SetRate2() {local i,j,spon_factor
         wMSR.apply("gaussian").mul(weight_sum_MSR)
     }
     gaussian_variance = golgi_spatial_filter_variance_HSR
-    wHSR.apply("gaussian").mul(param.w.x[hsr][glg])
-	
+    wHSR.apply("gaussian").mul(param.w.x[hsr][glg])	
 	
     for i=0,nchannels-1  {
         //     if (wLSR.x[i]>0.01) tempsout.add(LSRout[i].c.add(-Lowspont).mul(wLSR.x[i]))
@@ -436,7 +448,7 @@ proc SetRate2() {local i,j,spon_factor
     sg.SetFibreRate(sout,spiketimes,sg_tdres)
     //print "golgi[",i,"][",j,"]: Process ",pnm.myid," mean ", sout.mean()
     objref tempsout
-    //printf(" done\r")
+    printf(" done\r")
 }
 
 proc GenSpikes(){local i,j
