@@ -107,7 +107,7 @@ proc init() { local length,RM, p, q, r, Atotal
 	 		diam=1.5
 	 		L=200
 			e_pas =-65
-	 		g_pas=0.0001
+	 		g_pas=0.0002
 	 		Ra = 150
 	 		cm = 0.9
 
@@ -139,7 +139,6 @@ proc init() { local length,RM, p, q, r, Atotal
 			GABAA.tau2  = _gaba_decay
 			GABAA.tau1  = _gaba_rise
 			GABAA.e     = gaba_erev
-psection()			
 		}
 	} else {
 		soma {

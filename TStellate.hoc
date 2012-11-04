@@ -27,7 +27,7 @@ xopen("pvec_TV_Notch.hoc")
 xopen("parameters_TStellate.hoc")
 
 //--- Setup CN Stellate Network model
- xopen("CochlearNucleus.hoc")         // model set-up
+xopen("CochlearNucleus.hoc")         // model set-up
 // xopen("par_CochlearNucleus.hoc")   // parallel model set-up
  xopen("calcisilag.hoc")
 
@@ -61,7 +61,7 @@ param.n.x[lsr][ts]		= 10
 param.n.x[ds][ts]		= 20
 param.n.x[tv][ts]		= 20
 param.n.x[glg][ts]		= 15
-
+param.ts_jitter_sd = 0.2 //ms
 create_cells()
 objref nil
 // Comment out next line to kill all TS cells not covered by experimental data
@@ -77,8 +77,10 @@ xopen("psth.hoc")
 xopen("par_experiment_TStellate.hoc")
 
 
- cfhi=40000
- cflo=200
+ cfhi =40000
+ cflo = 200
+ ANmodel = 6
+ species = 2
  
  RefreshCF()
 RefreshCNcellsCF()
@@ -124,7 +126,7 @@ flushf()
   
   connect_TS(fileroot)
   RefreshCellParams() //refresh_TStellate()
-  jitterdelay(param.delay.x[hsr][ts],0.2)
+  jitterdelay(param.delay.x[hsr][ts],param.ts_jitter_sd)
   RunTStellate()
     //Analyse spikes
     doNotify()
@@ -164,10 +166,10 @@ flushf()
   //weightvec.x[0]/=10 //initial depolarisation approx -50 to -30  mV
   weightvec.x[1]*=10 //adaptation approx 0.2-0.5
   //weightvec.x[2]/=10 //post-tone hyperpolarisation approx 0 to -5 mV
-  weightvec.x[3]*=20 //CV
-  weightvec.x[4]*=20
-  weightvec.x[5]*=20
-  weightvec.x[6]*=20
+  weightvec.x[3]*=200 //CV
+  weightvec.x[4]*=200
+  weightvec.x[5]*=200
+  weightvec.x[6]*=200
   
   print error=sqrt(ref.meansqerr(test,weightvec)) + penalty
   
@@ -280,39 +282,6 @@ PSTHcell(tstellate_spikes,0.25,2)
 xopen("cngui.hoc")
 
 
-proc TSPanel(){
-  xpanel("TStellate")
-  xvalue("param.ts_gnabar")
-  xvalue("param.ts_gkhtbar")
-  xvalue("param.ts_gleak")
-  xvalue("param.ts_erev")
-  xvalue("param.ts_ghbar")
-  xvalue("param.ts_gkabar")
-
-  xvalue("param.w.x[hsr][ts]")
-  xvalue("param.w.x[lsr][ts]")
-  xvalue("param.w.x[ds][ts]")
-  xvalue("param.w.x[tv][ts]")
-  xvalue("param.w.x[glg][ts]")
-  xbutton("reset_weights()")
-  xbutton("refresh_TStellate()")
-
-  xbutton("CS_data","CS_data()")
-  xbutton("CT1_data","CT1_data()")
-  xbutton("CT2_data","CT2_data()")
-//  xbutton("Plot Fit graph","plot_fitgr()")
-
-  xbutton("Run TS model","RunTStellate()")
-  xbutton("Run Fitting Procedure","runprax()")
-  xbutton("QuickRun","QuickRun()")
-  xvalue("PSTH resolution", "binwidth")
-  xbutton("PSTH","PSTHcell(tstellate_spikes,binwidth,1)")
-  xbutton("Print PSTH","PSTHcell(tstellate_spikes,binwidth,2)")
-  xpanel()
-}
-
-TSPanel()
-nrncontrolmenu()
 
 objref nil
 access tstellate[whichcell][0].soma
