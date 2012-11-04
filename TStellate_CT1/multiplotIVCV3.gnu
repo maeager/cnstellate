@@ -18,7 +18,7 @@ set style fill solid 1.0
 set ylabel "Rate (sp/s)" font "Helvetica,18"
 set xlabel "Time (ms)" font "Helvetica,18"
 set label 1 "A" at screen 0.075, screen 1 font "Helvetica,24"
-plot [-10:90] 'psth_0.25.dat' i 0 u 1:2 w boxes lc "black"
+plot [-10:90] 'psth_0.25.dat' i 0 u 1:2 not w boxes lc "black"
 #plot [-10:90] 'psth_1.dat' i 0 u 1:2 w boxes lc "black"
 
 
@@ -36,7 +36,7 @@ set ytics nomirror out 0.1,0.1,0.4
 unset obj
 set label 1 "B" at screen 0.55, screen 1 font "Helvetica,24"
 plot '< tail -4 TStellate.Fit.dat |  awk ''{print $3}'' ' u ($0):1 t "Test" w lp ls 1 lc 'black', \
-     '/media/data/Work/cnstellate/TStellate/PaoliniBalancedInh-Fig2.png.dat' i 1 u 1:2:3 notitle w yerr lc rgb '#0060ad', \
+     '../TStellate/PaoliniBalancedInh-Fig2.png.dat' i 1 u 1:2:3 notitle w yerr lc rgb '#0060ad', \
      '' i 1 u 1:2 t "Ref" w lp lc rgb '#0060ad' lt 1 lw 2 pt 5 ps 1.5
 
 unset key
@@ -64,7 +64,7 @@ set tics nomirror out
 #set key center top title " " nobox
 set label 1 "C" at screen 0.075,screen 0.5 font "Helvetica,24"
 
-plot 'TStellate.Fit.dat' u 1:3 t "Test" w l lc "black", \
+plot 'TStellate.Fit.dat' u ($1-30):3 t "Test" w l lc "black", \
      '' u 1:2 t "Reference" w l lc rgb "#0060ad"
 unset key
 
@@ -85,7 +85,7 @@ set tics out
 #set autoscale  y
 #set autoscale y2
 set yrange [0:2]
-set y2range [-2:7]
+set y2range [*:*]
 set xrange [-0.5:2.5]
 set x2range [-0.5:2.5]
 set label 1 "D" at screen 0.55,screen 0.5 font "Helvetica,24"
