@@ -269,6 +269,7 @@ proc refresh_TStellate(){local ii,jj
 			sprint(cmd,"tstellate[%d][%d].soma.erev_rm    = param.ts_erev",ii,jj) execute1(cmd)
 			sprint(cmd,"tstellate[%d][%d].soma.ghbar_rm   = param.ts_ghbar",ii,jj) execute1(cmd)
 			sprint(cmd,"tstellate[%d][%d].soma.gkabar_ka  = param.ts_gkabar",ii,jj) execute1(cmd)
+			
 			flushf()
 		}
 	}
@@ -398,7 +399,7 @@ if( ( param.n.getval(lsr,ts) > 0 ) && ( nTSperchannel != 0 ) ){
                // user to quit during the creation.
  }
  printf("\rLSR->TS=== done ===\n")
-}
+} 
 flushf()	
 	
 	
@@ -538,3 +539,63 @@ if( ( param.n.getval(glg,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nGperchannel !
 flushf()	
 }
 
+
+proc TSPanel(){
+  xpanel("TStellate")
+  xvalue("param.ts_gnabar")
+  xvalue("param.ts_gkhtbar")
+  xvalue("param.ts_gleak")
+  xvalue("param.ts_erev")
+  xvalue("param.ts_ghbar")
+  xvalue("param.ts_gkabar")
+
+  xvalue("param.w.x[hsr][ts]")
+  xvalue("param.w.x[lsr][ts]")
+  xvalue("param.w.x[ds][ts]")
+  xvalue("param.w.x[tv][ts]")
+  xvalue("param.w.x[glg][ts]")
+  xbutton("reset_weights()")
+  xbutton("refresh_TStellate()")
+
+  xbutton("CS_data","CS_data()")
+  xbutton("CT1_data","CT1_data()")
+  xbutton("CT2_data","CT2_data()")
+//  xbutton("Plot Fit graph","plot_fitgr()")
+
+  xbutton("Run TS model","RunTStellate()")
+  xbutton("Run Fitting Procedure","runprax()")
+  xbutton("QuickRun","QuickRun()")
+  xvalue("PSTH resolution", "binwidth")
+  xbutton("PSTH","PSTHcell(tstellate_spikes,binwidth,1)")
+  xbutton("Print PSTH","PSTHcell(tstellate_spikes,binwidth,2)")
+  xpanel()
+}
+
+
+proc TS_optim_param_Panel(){
+  xpanel("TStellate Optimisation Param")
+  xvalue("NPARAMS")
+  xbutton("Reset pvec","init_params(NPARAMS)")
+  xbutton("Include ts_gleak","append_gleak()")
+  xbutton("Include ts_erev","append_rev_potentials()")
+  xbutton("Include ts_ghbar","append_ghbar()")
+  xbutton("Include ts_gkabar","append_gkabar()")
+  
+  xbutton("Include w.x[hsr][ts]","append_hsrts_weights()")
+  xbutton("Include w.x[lsr][ts]","append_lsrts_weights()")
+  xbutton("Include w.x[ds][ts]","append_dsts_weights()")
+  xbutton("Include w.x[tv][ts]","append_tvts_weights()")
+  xbutton("Include w.x[glg][ts]","append_glgts_weights()")
+  
+  xbutton("Include n.x[hsr][ts]","append_num_hsrts_connections()")
+  xbutton("Include n.x[lsr][ts]","append_num_lsrts_connections()")
+  xbutton("Include n.x[ds][ts]","append_num_dsts_connections()")
+  xbutton("Include n.x[tv][ts]","append_num_tvts_connections()")
+  xbutton("Include n.x[glg][ts]","append_num_glgts_connections()")
+  
+  xpanel() 
+}
+
+TS_optim_param_Panel()
+TSPanel()
+nrncontrolmenu()
