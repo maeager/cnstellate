@@ -18,13 +18,15 @@ public dstellate_gkltbar, gaba_decay, gaba_rise, dstellate_gleak_rm, dstellate_g
 //TV_Notch and RateLevel
 public offset, tv_erev, tv_gleak
 //TS cell parameters
-public ts_gleak,ts_erev,ts_ghbar,ts_gkabar,ts_gnabar,ts_gkhtbar	   
+public ts_gleak,ts_erev,ts_ghbar,ts_gkabar,ts_gnabar,ts_gkhtbar,ts_jitter_sd
+
 
 //functions
 public getnetparameters, saveparameters,printparams,showparams
 objref bw, n, w,delay
 offset=3
 tv_erev=-65
+ts_jitter_sd=0.2
 proc init(){
     nrow = $1  ncol = $2
     bw = new Matrix(nrow, ncol)
