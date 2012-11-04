@@ -38,7 +38,7 @@ set label 1 "B" at screen 0.55, screen 1 font "Helvetica,24"
 
 # Grab the CT2 CV data from index 0
 plot '< tail -4 TStellate.Fit.dat |  awk ''{print $3}'' ' u ($0):1 t "Test" w lp ls 1 lc 'black', \
-'/media/data/Work/cnstellate/TStellate/PaoliniBalancedInh-Fig2.png.dat' i 0 u 1:2:3 notitle w yerr lc rgb '#0060ad', \
+'../../TStellate/PaoliniBalancedInh-Fig2.png.dat' i 0 u 1:2:3 notitle w yerr lc rgb '#0060ad', \
 '' i 0 u 1:2 t "Ref" w lp lc rgb '#0060ad' lt 1 lw 2 pt 5 ps 1.5
 
 unset key
@@ -99,7 +99,7 @@ plot '< tail -7 TStellate.Fit.dat | head -1 | awk ''{print $3}'' ' axes x1y1 t "
      '< tail -6 TStellate.Fit.dat | head -2 | awk ''{print $2}'' ' u ($0+1):1 axes x2y2 notitle w p ls 1 pt 5 ps 1.5
 
 unset multiplot
-!fixbb multiplotIVCV3.eps
+# !fixbb multiplotIVCV3.eps
 
 # set output "psthcv.eps"
 
