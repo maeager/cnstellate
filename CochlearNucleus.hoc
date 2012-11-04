@@ -920,8 +920,7 @@ proc SetGolgiRates(){local ii,jj
 			return
 		}else{
 			for ii=0,nchannels-1 {
-				for jj=0,nGperchannel-1
-				    golgi[ii][jj].SetRate2()
+				for jj=0,nGperchannel-1  golgi[ii][jj].SetRate2()
 			}
 		  printf(" done\n")
 
@@ -929,8 +928,7 @@ proc SetGolgiRates(){local ii,jj
 		}
 	} else {
 		for ii=0,nchannels-1 {
-				for jj=0,nGperchannel-1
-				    golgi[ii][jj].SetRate2()
+				for jj=0,nGperchannel-1 golgi[ii][jj].SetRate2()
 			}
 		printf(" done\n")
 	}
