@@ -1,4 +1,3 @@
-
 #!/usr/bin/gnuplot -persist
 
 set terminal postscript eps enhanced defaultplex \
@@ -16,11 +15,11 @@ set style line 2 lc rgb '#dd181f' lt 1 lw 2 pt 5 ps 1.5 # --beautiful red line a
 set style line 3 lc rgb '#00ad06' lt 1 lw 2 pt 9 ps 1.5 # --green line and triangle
 
 set style fill solid 1.0
-set ylabel "Rate (sp/s)" font "Helvetica,18"
+set ylabel "Rate (sp/s)" font "Helvetica,18"  #offset character 0, 0, 0
 set xlabel "Time (ms)" font "Helvetica,18"
 set label 1 "A" at screen 0.075, screen 1 font "Helvetica,24"
-#plot [-10:90] 'psth_0.25.dat' i 0 u 1:2 w boxes lc "black"
-plot [-10:90] 'psth_1.dat' i 0 u 1:2 w boxes lc "black"
+plot [-10:90] 'psth_0.25.dat' i 0 u 1:2 notitle w boxes lc "black"
+#plot [-10:90] 'psth_1.dat' i 0 u 1:2 not w boxes lc "black"
 
 
 set key outside horiz center top  nobox
@@ -31,19 +30,19 @@ set xrange [-0.5:4.5]
 set border 3
 #set ytics nomirror out 0.1,0.1,0.5
 set xlabel "Time Window" font "Helvetica,18"
-set ylabel "CV " font "Helvetica,18"
+set ylabel "\n\n CV " font "Helvetica,18" offset character +2, 0, 0
 set yrange [0.1:0.4]
 set ytics nomirror out 0.1,0.1,0.4
 unset obj
 set label 1 "B" at screen 0.55, screen 1 font "Helvetica,24"
 plot '< tail -4 TStellate.Fit.dat |  awk ''{print $3}'' ' u ($0):1 t "Test" w lp ls 1 lc 'black', \
-     '../../TStellate/PaoliniBalancedInh-Fig2.png.dat' i 2 u 1:2:3 notitle w yerr lc rgb '#0060ad', \
+     '../TStellate/PaoliniBalancedInh-Fig2.png.dat' i 2 u 1:2:3 notitle w yerr lc rgb '#0060ad', \
      '' i 2 u 1:2 t "Ref" w lp lc rgb '#0060ad' lt 1 lw 2 pt 5 ps 1.5
 
 unset key
 #load '../Responses/default.gnu'
-set xlabel "time (msec)"  font "Helvetica,18"
-set ylabel "Membrane Voltage (mV)"  font "Helvetica,18"
+set xlabel "Time (msec)"  font "Helvetica,18" 
+set ylabel "Membrane Voltage (mV)"  font "Helvetica,18" offset character -1, 0, 0
 set border 3
 #set ytics unset tics
 unset x2tics
@@ -77,7 +76,7 @@ unset xlabel #"Time Window" font "Helvetica,18"
 set arrow 1 from 0.5, graph 0 to 0.5, graph 1 nohead lt 8 lw 1.5 
 unset ytics
 unset obj
-set ylabel "Ratio" font "Helvetica,18"
+set ylabel "\n Ratio " font "Helvetica,18" offset character +2, 0, 0
 set y2label "Relative MP (mV)" font "Helvetica,18"
 set xtics nomirror out ("Onset" 0,"Adaptation" 1,"Offset " 2)
 set ytics nomirror 0,1,2
@@ -86,7 +85,7 @@ set tics out
 #set autoscale  y
 #set autoscale y2
 set yrange [0:2]
-set y2range [-2:*]
+set y2range [*:*]
 set xrange [-0.5:2.5]
 set x2range [-0.5:2.5]
 set label 1 "D" at screen 0.55,screen 0.5 font "Helvetica,24"

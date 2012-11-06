@@ -72,6 +72,7 @@ objref nil
 
 connect_cells(fileroot)
 connect_CNcells(fileroot)
+xopen("cngui.hoc")
 
 xopen("psth.hoc")
 xopen("par_experiment_TStellate.hoc")
@@ -83,9 +84,10 @@ xopen("par_experiment_TStellate.hoc")
  species = 2
  
  RefreshCF()
-RefreshCNcellsCF()
+ RefreshCNcellsCF()
+ RefreshCellParams()
 
-CS_data()
+ CS_data()
  RefreshParameters()
  ANFilterBankRun()
  SetInputRates()
@@ -277,9 +279,6 @@ PSTHcell(tstellate_spikes,10,2)
 PSTHcell(tstellate_spikes,1,2)
 PSTHcell(tstellate_spikes,0.25,2)
 }
-
-
-xopen("cngui.hoc")
 
 
 
