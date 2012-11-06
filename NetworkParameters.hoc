@@ -49,6 +49,7 @@ proc init(){
 	dstellate_gnabar_rm				        = 0.408307  //2 times default TypeI-II RM model	   
 	tv_gleak     = 0.0004987
     tv_erev      = -70
+	ts_jitter_sd=0.2
 	
 	ts_gnabar	= 0.23677
 	ts_gkhtbar	= 0.0189416	
@@ -141,6 +142,8 @@ proc printparams(){local irow,jcol
 		file.printf("%s ts_ghbar  %g\n",$s2, ts_ghbar)
 		file.printf("%s ts_gleak  %g\n",$s2, ts_gleak)
 		file.printf("%s ts_erev  %g\n",$s2, ts_erev)
+		file.printf("%s ts_jitter_sd  %g\n",$s2, ts_jitter_sd)
+		
 	}
 	
 }

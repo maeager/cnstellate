@@ -18,8 +18,8 @@ set style fill solid 1.0
 set ylabel "Rate (sp/s)" font "Helvetica,18"
 set xlabel "Time (ms)" font "Helvetica,18"
 set label 1 "A" at screen 0.075, screen 1 font "Helvetica,24"
-#plot [-10:90] 'psth_0.25.dat' i 0 u 1:2 w boxes lc "black"
-plot [-10:90] 'psth_1.dat' i 0 u 1:2 w boxes lc "black"
+plot [-10:90] 'psth_0.25.dat' i 0 u 1:2 not w boxes lc "black"
+#plot [-10:90] 'psth_1.dat' i 0 u 1:2 w boxes lc "black"
 
 
 set key outside horiz center top  nobox
@@ -38,7 +38,7 @@ set label 1 "B" at screen 0.55, screen 1 font "Helvetica,24"
 
 # Grab the CT2 CV data from index 0
 plot '< tail -4 TStellate.Fit.dat |  awk ''{print $3}'' ' u ($0):1 t "Test" w lp ls 1 lc 'black', \
-'../../TStellate/PaoliniBalancedInh-Fig2.png.dat' i 0 u 1:2:3 notitle w yerr lc rgb '#0060ad', \
+'../TStellate/PaoliniBalancedInh-Fig2.png.dat' i 0 u 1:2:3 notitle w yerr lc rgb '#0060ad', \
 '' i 0 u 1:2 t "Ref" w lp lc rgb '#0060ad' lt 1 lw 2 pt 5 ps 1.5
 
 unset key
