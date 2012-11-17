@@ -85,7 +85,7 @@ pvec_name.append(new String("param.w.x[lsr][ds]"))
 pvec_name.append(new String("param.dstellate_gkltbar"))
 pvec_name.append(new String("param.gaba_decay"))
 pvec_name.append(new String("param.gaba_rise"))
-pvec_name.append(new String("param.dstellate_gleak_rm"))
+pvec_name.append(new String("param.dstellate_gleak"))
 
 //min
  for i	=0,NPARAMS-1 pvec_ranges.x[i][0]= 0.000001

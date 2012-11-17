@@ -1055,8 +1055,11 @@ proc reset_DS_ClickRecovery(){local ii,jj
 	print "updating features for DS_ClickRecovery optimisation routines"
 	for ii = 0,nchannels-1 {
 		for jj=0,nDSperchannel-1{
-			dstellate[ii][jj].soma.gleak_rm = param.dstellate_gleak_rm
+			dstellate[ii][jj].soma.gleak_rm = param.dstellate_gleak
 			dstellate[ii][jj].soma.gkltbar_klt = param.dstellate_gkltbar
+			dstellate[ii][jj].soma.gkhtbar_rm = param.dstellate_gkhtbar
+			dstellate[ii][jj].soma.gnabar_rm = param.dstellate_gnabar
+			
 			dstellate[ii][jj].GABAA.tau2 = param.gaba_decay
 			dstellate[ii][jj].GABAA.tau1 = param.gaba_rise
 		}
@@ -1102,8 +1105,11 @@ proc RefreshCellParams(){local ii,jj
 			tuberculoventral[ii][jj].soma.erev_rm	= param.tv_erev
 		}
         for jj=0,nDSperchannel-1{
-			dstellate[ii][jj].soma.gleak_rm = param.dstellate_gleak_rm
+			dstellate[ii][jj].soma.gleak_rm = param.dstellate_gleak
 			dstellate[ii][0].soma.gkltbar_klt = param.dstellate_gkltbar
+			dstellate[ii][jj].soma.gkhtbar_rm = param.dstellate_gkhtbar
+			dstellate[ii][jj].soma.gnabar_rm = param.dstellate_gnabar
+			
 			dstellate[ii][0].GABAA.tau2 = param.gaba_decay
 			dstellate[ii][0].GABAA.tau1 = param.gaba_rise			
 		}

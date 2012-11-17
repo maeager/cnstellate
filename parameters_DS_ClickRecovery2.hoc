@@ -85,7 +85,7 @@ pvec_name.append(new String("param.w.x[lsr][ds]"))
 pvec_name.append(new String("param.dstellate_gkltbar"))
 pvec_name.append(new String("param.gaba_decay"))
 pvec_name.append(new String("param.gaba_rise"))
-pvec_name.append(new String("param.dstellate_gleak_rm"))
+pvec_name.append(new String("param.dstellate_gleak"))
 
 //min
  for i=0,NPARAMS-1 pvec_ranges.x[i][0]= 0.000001
@@ -118,5 +118,5 @@ proc set_pvec(){local pp
 // add_param( 3, 0.001592,"param.dstellate_gkltbar",10,   0.000001, 0.03)
 // add_param( 4, 0.00095,"gaba_decay",        10000,0.000001, 0.03)
 // add_param( 5, 0.0007, "gaba_rise",         1000, 0.000001, 0.03)
-// add_param( 6, 0.0008, "param.dstellate_gleak_rm",1,    0.000001, 0.03)
+// add_param( 6, 0.0008, "param.dstellate_gleak",1,    0.000001, 0.03)
 

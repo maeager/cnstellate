@@ -763,8 +763,8 @@ proc RefreshCellParams(){local i,j
 		for j=0,nDSperchannel-1{
 			if (pnm.gid_exists(dsgid.x[i][j])){
 				dstellate[i][j].soma {
-					gnabar_rm = param.dstellate_gnabar_rm
-					gleak_rm  = param.dstellate_gleak_rm
+					gnabar_rm = param.dstellate_gnabar
+					gleak_rm  = param.dstellate_gleak
 					// erev_rm = param.ds_erev
 					}
 			}
