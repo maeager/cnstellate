@@ -1000,8 +1000,8 @@ proc multi_run(){local ireps,xtime,starttime
         SaveSpikes()
 		
     }
-  starttime=startsw()-xtime
-  print "Total multi_run time: ",starttime, " Per rep: ", starttime/reps 
+  xtime=startsw()-starttime
+  print "Total multi_run time: ",xtime, " Per rep: ", xtime/reps 
 	
 }
 proc multi_run2(){local ireps,xtime
@@ -1013,9 +1013,8 @@ proc multi_run2(){local ireps,xtime
         run()
         SaveSpikes()
     }
-  xtime=	 startsw()-xtime
+  xtime=startsw()-xtime
   print "multi_run2 time: ",xtime, " Per rep: ", xtime/reps 
-	
 }
 
 proc ClearInputSpikes(){local ii
@@ -1106,7 +1105,7 @@ proc RefreshCellParams(){local ii,jj
 		}
         for jj=0,nDSperchannel-1{
 			dstellate[ii][jj].soma.gleak_rm = param.dstellate_gleak
-			dstellate[ii][0].soma.gkltbar_klt = param.dstellate_gkltbar
+			dstellate[ii][jj].soma.gkltbar_klt = param.dstellate_gkltbar
 			dstellate[ii][jj].soma.gkhtbar_rm = param.dstellate_gkhtbar
 			dstellate[ii][jj].soma.gnabar_rm = param.dstellate_gnabar
 			
