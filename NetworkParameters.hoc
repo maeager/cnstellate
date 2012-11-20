@@ -14,7 +14,7 @@ public ncol,nrow
 public golgi_spatial_filter_variance_LSR,golgi_syn_filter_scale_factor,golgi_spon
 //DS_ClickRecovery
 external _gaba_rise, _gaba_decay
-public dstellate_gkltbar, gaba_decay, gaba_rise, dstellate_gleak, dstellate_gnabar,dstellate_gkhtbar, DS_params
+public dstellate_gkltbar,gaba_decay,gaba_rise,dstellate_gleak,dstellate_gnabar,dstellate_gkhtbar,DS_params
 //TV_Notch and RateLevel
 public offset, tv_erev, tv_gleak
 //TS cell parameters
@@ -44,7 +44,8 @@ proc init(){
 	golgi_syn_filter_scale_factor			= 1														
 	golgi_spon								= 3	
 	
-	dstellate_gnabar                        = 0.408307
+
+	dstellate_gkhtbar                       = 0.030623   //default I-II RM model
 	dstellate_gkltbar					    = 0.0163897	 //default gleak for Type I-II RM model	 
 	dstellate_gleak				            = 0.000274146 // default gleak	 
 	dstellate_gnabar				        = 0.408307  //2 times default TypeI-II RM model	   
