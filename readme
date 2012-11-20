@@ -1,12 +1,14 @@
+# -*- mode: org -*-
 
-* NEURON compiled for gui or mpi 
+* Compile NEURON for gui or mpi 
 
-
-I generally setup two versions of NEURON one for testing with a GUI and the
-other with MPI. PVM may also be used to generate parallel
+I generally setup two versions of NEURON one for testing with a GUI
+and the other with MPI. PVM may also be used to generate parallel
 simulations, but mpich2 or open-mpi is preferred.
 
-Firstly, unpack iv then jump into the iv folder and compile. (Up to date package can be pulled from mercurial repo  http://www.neuron.yale.edu/hg/neuron/iv )
+Firstly, unpack iv then jump into the iv folder and compile. (Up to
+date package can be pulled from mercurial repo
+http://www.neuron.yale.edu/hg/neuron/iv )
 
 : cd ~
 : mkdir -p src/neuron
@@ -18,7 +20,8 @@ Firstly, unpack iv then jump into the iv folder and compile. (Up to date package
 
 Installation in /usr/local is the default and requires root privileges.
 
-Next unpack nrn and auto configure but do not compile. (Development code is available from  http://www.neuron.yale.edu/hg/neuron/nrn)
+Next unpack nrn and auto configure but do not compile. (Development
+code is available from http://www.neuron.yale.edu/hg/neuron/nrn)
 
 : cd ..
 : tar zxvf nrn-X.X.tar.gz
@@ -30,15 +33,15 @@ Now make your separate builds for the gui
 : cd ~/src/neuron
 : mkdir nrngui
 : cd nrngui
-: ../configure --prefix=`pwd` --with-iv=$HOME/Neuron/iv --without-paranrn
-: make && make install
+: ../configure --prefix=`pwd` --with-iv=$HOME/src/neuron/iv --without-paranrn
+: nice make -j3 && make install
 
 and for MPI
 
 : cd ..
 : mkdir mpi
 : ../configure --prefix=`pwd` --without-iv --with-paranrn
-: make && make install
+: nice make -j3 && make install
 
 
 * CNSTELLATE configuration
@@ -54,6 +57,9 @@ or
 
 : make mpi
 
+
+* Running CNSTELLATE
+
 To run a script in gui mode:
 
 :  ./gui/special par_golgi_test.hoc -
@@ -64,6 +70,8 @@ The MPI version should be run in the background from the mpispecial script or in
 
 : ./mpispecial np par_batch.hoc > /tmp/batch.log 2>&1 &
 
+
+
 To run a test on different numbers of processors, see the example script test1.sh or run it using
 
 : ./test1.sh
@@ -71,7 +79,7 @@ To run a test on different numbers of processors, see the example script test1.s
 
 Submit the script to a PBS engine using
 
-qsub -q medium.q -b y -V -cwd -e /dev/null -o /dev/null ./mpispecial np par_batch.hoc 
+: qsub -q medium.q -b y -V -cwd -e /dev/null -o /dev/null ./mpispecial np par_batch.hoc 
 
 
 
