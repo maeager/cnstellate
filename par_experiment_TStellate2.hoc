@@ -259,7 +259,7 @@ proc CalcIVMeasures(){
     v20_depol = $o1.mean( ivdata[0].indwhere(">=",20) - 1, ivdata[0].indwhere(">=",21))
     v50_depol = $o1.mean( ivdata[0].indwhere(">=",50) -1, ivdata[0].indwhere(">=",51))
     adaptation_ratio = v20_depol - v50_depol
-	
+  	
     resting_value  = $o1.mean(0 , ivdata[0].indwhere(">",0))
     v60_depol = $o1.mean(ivdata[0].indwhere(">=",60) - 1, ivdata[0].indwhere(">=",61))
     offset_hyperpol = resting_value - v60_depol
@@ -286,8 +286,13 @@ proc CS_data() {local points
 	//CV (10ms segs) always below 0.2 for 45, 65, and 75 dB
 	// rate saturation at 75 dB
 	// threshold 10dB
-	spl      = 40   //30 dB above depolarisation threshold
-	tonefreq = 11700 //Hz, characteristic frequency
+	//spl      = 40   //30 dB above depolarisation threshold
+	//tonefreq = 11700 //Hz, characteristic frequency
+
+ spl = TSexemplar_SPL_thresh
+ tonefreq = TSexemplar_CF
+
+	
 	whichcell = FindInd(tonefreq)  //get CF index close to 3.9kHz
 	print "CS data CF ", tonefreq, "(Hz), location ", whichcell
 	
@@ -306,7 +311,9 @@ proc CS_data() {local points
 	chopperIVgr =  new Graph()
 	ivdata[1].plot(chopperIVgr,ivdata[0])
 	chopperIVgr.exec_menu("View = plot")
-	sprint(fileroot,"TStellate_CS")    // root for output filenames
+	sprint(fileroot,"TStellate2_CS")    // root for output filenames
+	sprint(cmd,"mkdir -p %s",fileroot)
+	system(cmd)
 	
 
 	
@@ -378,16 +385,15 @@ proc CS_data() {local points
 	sustained_transient_chopper=0
 	
 }
-proc Test_CS_data(){local ii
-for ii=0,2 {
-print "ii  ", ii	
-	CV_reference.object(ii).printf
-  CV_weight.object(ii).printf
-print ""  
-  IV_reference.object(ii).printf
-  IV_weight.object(ii).printf
- 
-}
+proc Test_IVCV_reference_data(){local ii
+	for ii=0,2 {
+		print "ii  ", ii	
+		CV_reference.object(ii).printf
+		CV_weight.object(ii).printf
+		print ""  
+		IV_reference.object(ii).printf
+		IV_weight.object(ii).printf
+	}
 }
 
 proc CT1_data() {local points
@@ -399,10 +405,18 @@ proc CT1_data() {local points
 	// average CT threshold for depolarization
 	// and AP generation of 47.2 ± 2.5 and 57.4 ± 2.2 dB SPL
 	
-	spl      = 85   //30 dB above depolarisation threshold
-	tonefreq = 8200 //Hz, characteristic frequency
+	//spl      = 85   //30 dB above depolarisation threshold
+	//tonefreq = 8200 //Hz, characteristic frequency
+	 spl = TSexemplar_SPL_thresh
+	 tonefreq = TSexemplar_CF
+
+	
 	whichcell = FindInd(tonefreq)  //get CF index close to 8.2kHz
 	print "CT1 data CF ", tonefreq, "(Hz), location ", whichcell
+	sprint(fileroot,"TStellate2_CT1")    // root for output filenames 	
+	sprint(cmd,"mkdir -p %s",fileroot)
+	system(cmd)
+	
 	file.ropen("TStellate/CT1-01-857-007.png.dat")
 	objref tempmat, ivdata[2]
 	ivdata[0] = new Vector()
@@ -415,13 +429,83 @@ proc CT1_data() {local points
 	chopperIVgr =  new Graph()
 	ivdata[1].plot(chopperIVgr,ivdata[0])
 	chopperIVgr.exec_menu("View = plot")
-	sprint(fileroot,"TStellate_CT1")    // root for output filenames
+
+	
+	
+	IV_reference = new List()
+	IV_weight = new List()
+	//10 dB re thresh
+	//IV_temp = new Vector(4,0)	
+	//IV_reference.append(IV_temp) //No data
+	//IV_weight.append(IV_temp)
+	
+	//20 dB re thresh
+	IV_temp = new Vector(4,0)
+	IV_temp.x[1] = MPadaptation_CT1.x[1][1]
+	IV_temp.x[2] = MPhyper_CT1.x[1][1] //Hyperpolarisation
+	IV_temp.x[3] = MPhyper_CT1.x[1][2] //s.e.
+	IV_reference.append(IV_temp)
+	IV_temp = new Vector(4,0)
+	IV_temp.x[1]=1  //  
+	IV_temp.x[2]=1  //  
+	IV_weight.append(IV_temp)
+			
+	//30 dB re thresh  (use actual trace in Figure 1)
+	IV_temp = new Vector()
 	CalcIVMeasures(ivdata[1])
+	IV_temp.append(onset_ratio,adaptation_ratio ,offset_hyperpol,resting_value)	 
+	IV_reference.append(IV_temp)
+	IV_temp = new Vector(4,1)
+	IV_temp.x[3]=0  // ignore RMP
+	IV_weight.append(IV_temp) //all data available
+	
+	
+	
+	//40 dB re thresh
+	IV_temp = new Vector(4)	
+	IV_reference.append(IV_temp)
+	IV_temp.x[1] = MPadaptation_CT1.x[1][1]
+	IV_temp.x[2] = MPhyper_CT1.x[2][1] //Hyperpolarisation
+	IV_temp.x[3] = MPhyper_CT1.x[2][2] //s.e. of hyperpolarisation
+	IV_reference.append(IV_temp)
+	IV_temp = new Vector(4,0)
+	IV_temp.x[1]=1  //  
+	IV_temp.x[2]=1  // only offset hyperpol data used in error comparison	
+	IV_weight.append(IV_temp)
+	
+
 	
 	//CV
 	SetupChopperCV()
-	CV_data = CV_transient1.getcol(1).c
+	CV_reference = new List()
+	CV_weight = new List()
 	
+	CV_temp = CV_transient1.getcol(1).c	
+	CV_temp.remove(4)
+
+	//10 dB re thresh
+	//CV_temp = new Vector()	
+	//CV_reference.append(CV_temp) //No data
+		
+	//20 dB re thresh  (remove the last elementin CVdata_CS)
+	CV_reference.append(CV_temp)
+	CV_temp = new Vector(4,default_CV_weight)
+	CV_weight.append(CV_temp)
+
+	
+	//30 dB - Average data in Figure 2 
+	CV_reference.append(CV_temp)	
+	CV_temp = new Vector(4,default_CV_weight*4)
+	CV_weight.append(CV_temp)
+
+	
+	//40 dB re thresh
+	CV_reference.append(CV_temp)
+	CV_temp = new Vector(4,default_CV_weight)
+	CV_weight.append(CV_temp)
+	
+	sustained_transient_chopper=1
+		
 }
 
 proc CT2_data() {local points
@@ -430,12 +514,15 @@ proc CT2_data() {local points
 	// unit 01-305-014 \citep{PaoliniClareyEtAl:2005}
 	//CV (10ms segs) first 10m below 0.2, then rises above 0.3
 	// rate saturation at 5 dB
-	spl      = 35   //30 dB above depolarisation threshold
-	tonefreq = 12400 //Hz
+	//spl      = 35   //30 dB above depolarisation threshold
+	//tonefreq = 12400 //Hz
+ spl = TSexemplar_SPL_thresh
+ tonefreq = TSexemplar_CF
 	
 	whichcell = FindInd(tonefreq)  //get CF index close to 12.4kHz
 	file.ropen("TStellate/CT2-01-305-014.png.dat")
 	print "CT2 data CF ", tonefreq, "(Hz), location ", whichcell
+
 	
 	objref tempmat, ivdata[2]
 	ivdata[0] = new Vector()
@@ -448,11 +535,90 @@ proc CT2_data() {local points
 	chopperIVgr =  new Graph()
 	ivdata[1].plot(chopperIVgr,ivdata[0])
 	chopperIVgr.exec_menu("View = plot")
-	sprint(fileroot,"TStellate_CT2")    // root for output filenames
+	sprint(fileroot,"TStellate2_CT2")    // root for output filenames
+ 	sprint(cmd,"mkdir -p %s",fileroot)
+	system(cmd)
+	
+	
 	CalcIVMeasures(ivdata[1])
 	
+	
+	
+	IV_reference = new List()
+	IV_weight = new List()
+	//10 dB re thresh
+	//IV_temp = new Vector(4,0)	
+	//IV_reference.append(IV_temp) //No data
+	//IV_weight.append(IV_temp)
+	
+	//20 dB re thresh
+	IV_temp = new Vector(4,0)
+	IV_temp.x[1] = MPadaptation_CT2.x[1][1]
+	IV_temp.x[2] = MPhyper_CT2.x[1][1] //Hyperpolarisation
+	IV_temp.x[3] = MPhyper_CT2.x[1][2] //s.e.
+	IV_reference.append(IV_temp)
+	IV_temp = new Vector(4,0)
+	IV_temp.x[1]=1  //  
+	IV_temp.x[2]=1  //  
+	IV_weight.append(IV_temp)
+			
+	//30 dB re thresh  (use actual trace in Figure 1)
+	IV_temp = new Vector()
+	CalcIVMeasures(ivdata[1])
+	IV_temp.append(onset_ratio,adaptation_ratio ,offset_hyperpol,resting_value)	 
+	IV_reference.append(IV_temp)
+	IV_temp = new Vector(4,1)
+	IV_temp.x[3]=0  // ignore RMP
+	IV_weight.append(IV_temp) //all data available
+	
+	
+	
+	//40 dB re thresh
+	IV_temp = new Vector(4)	
+	IV_reference.append(IV_temp)
+	IV_temp.x[1] = MPadaptation_CT2.x[1][1]
+	IV_temp.x[2] = MPhyper_CT2.x[2][1] //Hyperpolarisation
+	IV_temp.x[3] = MPhyper_CT2.x[2][2] //s.e. of hyperpolarisation
+	IV_reference.append(IV_temp)
+	IV_temp = new Vector(4,0)
+	IV_temp.x[1]=1  //  
+	IV_temp.x[2]=1  // only offset hyperpol data used in error comparison	
+	IV_weight.append(IV_temp)
+	
+
+	
+	//CV
 	SetupChopperCV()
-	CV_data = CV_transient2.getcol(1).c
+	CV_reference = new List()
+	CV_weight = new List()
+	
+	CV_temp = CV_transient2.getcol(1).c	
+	CV_temp.remove(4)
+
+	//10 dB re thresh
+	//CV_temp = new Vector()	
+	//CV_reference.append(CV_temp) //No data
+		
+	//20 dB re thresh  (remove the last elementin CVdata_CS)
+	CV_reference.append(CV_temp)
+	CV_temp = new Vector(4,default_CV_weight)
+	CV_weight.append(CV_temp)
+
+	
+	//30 dB - Average data in Figure 2 
+	CV_reference.append(CV_temp)	
+	CV_temp = new Vector(4,default_CV_weight*4)
+	CV_weight.append(CV_temp)
+
+	
+	//40 dB re thresh
+	CV_reference.append(CV_temp)
+	CV_temp = new Vector(4,default_CV_weight)
+	CV_weight.append(CV_temp)
+	
+	sustained_transient_chopper=1
+		
+
 	
 }
 
@@ -523,21 +689,37 @@ proc reset_TStellate(){local ii
 proc IVMeasures(){local offset
     /// args: 1 time vec, 2 voltage vec, 3 output vec (size=6), 4 offset
 	if (numarg() != 4) {
-		offset = 0
+		offset = stimdelay*1000
 	} else {
 		offset = $4
 	}
-    onset_depol = $o2.mean($o1.indwhere(">=",5.0+offset), $o1.indwhere(">=",10.0+offset))
-    middle_depol = $o2.mean( $o1.indwhere(">=",20+offset), $o1.indwhere(">=",30+offset))
+	offset-=stimdelay*1000
+	
+	
+    onset_depol = $o2.mean($o1.indwhere(">=",5.0), $o1.indwhere(">=",10.0))
+    middle_depol = $o2.mean( $o1.indwhere(">=",20), $o1.indwhere(">=",30))
     onset_ratio = onset_depol / middle_depol
 	
-    v20_depol = $o2.mean( $o1.indwhere(">=",20+offset) - 1, $o1.indwhere(">=",22+offset))
-    v50_depol = $o2.mean( $o1.indwhere(">=",50+offset) - 1, $o1.indwhere(">=",52+offset))
+    v20_depol = $o2.mean( $o1.indwhere(">=",20) - 1, $o1.indwhere(">=",22))
+    v50_depol = $o2.mean( $o1.indwhere(">=",50) - 1, $o1.indwhere(">=",52))
     adaptation_ratio = v20_depol - v50_depol
 	
     resting_value  = $o2.mean($o1.indwhere(">",-10) , $o1.indwhere(">",0))
-    v60_depol  = $o2.mean($o1.indwhere(">=",60+offset) - 1, $o1.indwhere(">=",65+offset))
+    v60_depol  = $o2.mean($o1.indwhere(">=",60) - 1, $o1.indwhere(">=",62))
     offset_hyperpol = resting_value - v60_depol
+	
+	//     onset_depol = $o2.mean($o1.indwhere(">=",5.0+offset), $o1.indwhere(">=",10.0+offset))
+    // middle_depol = $o2.mean( $o1.indwhere(">=",20+offset), $o1.indwhere(">=",30+offset))
+    // onset_ratio = onset_depol / middle_depol
+	
+    // v20_depol = $o2.mean( $o1.indwhere(">=",20+offset) - 1, $o1.indwhere(">=",22+offset))
+    // v50_depol = $o2.mean( $o1.indwhere(">=",50+offset) - 1, $o1.indwhere(">=",52+offset))
+    // adaptation_ratio = v20_depol - v50_depol
+	
+    // resting_value  = $o2.mean($o1.indwhere(">",-10) , $o1.indwhere(">",0))
+    // v60_depol  = $o2.mean($o1.indwhere(">=",60+offset) - 1, $o1.indwhere(">=",65+offset))
+    // offset_hyperpol = resting_value - v60_depol
+
 	
     $o3.x[0] = onset_ratio
     $o3.x[1] = adaptation_ratio
@@ -788,7 +970,7 @@ proc connect_TS() {local i,p,target,source,low,high,range,channel,sourcechannel
 	
 }
 
-
+threshold_rate=0
 objref penalties
 
 func TStellate2_err( ) {local jj,pp,xtime,error,penalty,sustainedrate,inputresistance,lcount localobj ivtemp,spikelist_temp
@@ -831,8 +1013,8 @@ func TStellate2_err( ) {local jj,pp,xtime,error,penalty,sustainedrate,inputresis
 	spl =  TSexemplar_SPL_thresh
 	reps=5
 	RunTStellate()
-	sustainedrate = psth.sum()/5
-	if(sustainedrate > 10) penalties.append( (sustainedrate-10) )
+	threshold_rate = psth.sum()/5
+	if(threshold_rate > 5) penalties.append( (threshold_rate-5) )
 	//penalty for spikes during tone at threshold
 	
 	
@@ -860,9 +1042,9 @@ func TStellate2_err( ) {local jj,pp,xtime,error,penalty,sustainedrate,inputresis
 
 	
 	for ii=0,2 {
-		test_shift = (TSIVList.object(ii).max_ind(0,600)/10) - 2.5	
-		test = new Vector(4)
-		IVMeasures(tvec,TSIVList.object(ii),test,test_shift)
+test_shift = (TSIVList.object(ii).max_ind(stimdelay*1000/dt,(stimdelay*1000 + 20)/dt)/10) - 2.5	
+test = new Vector(4)
+IVMeasures(tvec,TSIVList.object(ii),test,test_shift)
 		
 		//IV comparison 
 		print error+=sqrt(IV_reference.object(ii).meansqerr(test,IV_weight.object(ii))) 	
@@ -930,3 +1112,138 @@ func TStellate2_err( ) {local jj,pp,xtime,error,penalty,sustainedrate,inputresis
 }
 
 
+proc printprax(){local pp,ii,pp2,cur_reps
+	//Output model data with best parameters
+	cur_reps = reps
+	reps=50
+	sprint(cmd,"mkdir -p %s",fileroot)
+	system(cmd)
+	reps=50
+	print error=TStellate2_err(0,&pvec.x[0])
+	system("date",datestr)
+	sprint(fname,"%s/%s.Fit.dat",fileroot,origfileroot)
+	file.wopen(fname)
+	if (file.isopen()){
+file.printf("# %s Optimisation\n",fileroot)
+file.printf("# %s \n",datestr)
+for pp=0,NPARAMS-1 {
+	file.printf("#%s = %g\t[%g,%g]\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp],pvec_ranges.x[pp][0],pvec_ranges.x[pp][1])
+}
+file.printf("# final error=%f\n",error)
+//file.printf("# Principle axis matrix\n")
+//for pp=0,NPARAMS-1 {
+//pval[pp] = new Vector(NPARAMS)
+//pval_praxis(pp,&pval[pp].x[0])
+//file.printf("#\t")
+//for pp2=0,NPARAMS-1 file.printf("%g\t",pval[pp].x[pp2])
+//file.printf("\n")
+//}
+file.printf("# Threshold level %d \n", TSexemplar_SPL_thresh)
+file.printf("# TS exemplar RMP %g\n", TSexemplar_RMP )
+file.printf("# TS exemplar CF %g\n",TSexemplar_CF)
+
+file.printf("# Time\t IV @spl=20 (mV)\t IV @spl=30 (mV)\t IV @spl=40 (mV)\n")
+for ii=0,tvec.size()-1 {
+	file.printf("%.2f\t%.6f\t%.6f\t%.6f\n",tvec.x[ii],TSIVList.object(0).x[ii],TSIVList.object(1).x[ii],TSIVList.object(2).x[ii])
+}
+
+
+for ii=0,2 {
+	test_shift = (TSIVList.object(ii).max_ind(stimdelay*1000/dt,(stimdelay*1000 +20)/dt)/10) - 2.5
+	test = new Vector(4)
+	IVMeasures(tvec,TSIVList.object(ii),test,test_shift)
+	
+	file.printf("# IV Measures at spl %d\n",TSexemplar_SPL_thresh+ 20+ ii*10 )
+	file.printf("# RMP \t%g\t%g \n", IV_reference.object(ii).x[3], test.x[3])
+	file.printf("# IVshift\t%g\n", test_shift)
+	file.printf("# IVOnset\t%g\t%g\n", IV_reference.object(ii).x[0], test.x[0])
+	file.printf("# IVAdaptation\t%g\t%g\n", IV_reference.object(ii).x[1], test.x[1])
+	file.printf("# IVOffset\t%g\t%g\n", IV_reference.object(ii).x[2],test.x[2])
+	penalty = sqrt(IV_reference.object(ii).meansqerr(test,IV_weight.object(ii)))	
+	file.printf("# IV Measures RMS error \t%g\n", penalty)
+	
+	//IV comparison 
+	error+=penalty
+		
+	PSTHcell(TSspikeList.object(ii),10,1)
+	file.printf("#PSTH: Time\t Rate (sp/s)\n")
+	for jj=0,psth.size()-1 {
+		file.printf("# %d\t%.6f\n",jj,psth.x[jj])
+	}
+	file.printf("#CV: Time\t CV ()\t\t ISI mean (ms)\t\t ISI sd (ms) \n")
+	for jj=0,4 {
+		file.printf("# %d\t%.6f\t%.6f\t%.6f\n",jj,cvISI.x[jj], uISI.x[jj],sISI.x[jj])
+	}
+	test = new Vector(4)
+	test.copy(cvISI, 0, 0, 3, 1, 1)
+	file.printf("#CV: Time\t CV reference\t\t CV test ()\t Weighting \n")
+	for jj=0,test.size()-1 {
+		file.printf("# %d\t%.6f\t%.6f\t%.6f\n",jj,test.x[jj], CV_reference.object(ii).x[jj], CV_weight.object(ii).x[jj])
+	}
+	//IV comparison 
+	print error+=sqrt(CV_reference.object(ii).meansqerr(test,CV_weight.object(ii)))		
+	file.printf("# CV Measures RMS error \t%g\n", penalty)
+	file.printf("#	FSL Mean %g, Std Dev %g \n",  fslmean,fslstd)
+	
+	
+	
+	//Calculate additional penalties
+	
+	//Penalty: Number of trials counted in CV 
+	if(checkedtrials < 0.9*reps) penalty =10
+	file.printf("# Checked trials \t%g\n", checkedtrials)
+	file.printf("# Checked trials penalty\t%g\n", penalty)
+	
+	//Penalty 1: Sustained rate 
+	sustainedrate = psth.sum(2,6)/25
+	file.printf("# Sustained rate \t%g\n", sustainedrate)
+	
+	if (ii > 1)	{
+		if(sustainedrate < 10) penalty = 10 - sustainedrate //penalty for lack of spikes during tone
+		file.printf("# Sustained rate penalty \t%g\n", penalty)
+	}
+	
+	//Penalty 3: CV follows criteria for chopper
+	//First 10 ms must be strongly regular
+	penalty=0
+	if(cvISI.x[0] > 0.2) penalty+= 10
+	if(cvISI.x[0] > 0.3) penalty+= 100
+	if (sustained_transient_chopper==0){
+		//Sustained model	
+		if(cvISI.x[1] > 0.3 || cvISI.x[1] == 0) penalty+= 100
+		if(cvISI.x[2] > 0.3 || cvISI.x[2] == 0) penalty+= 100
+		if(cvISI.x[3] > 0.3 || cvISI.x[3] == 0) penalty+= 100
+	} else {
+		//Transient models
+		if(cvISI.x[1] > 0.5 || cvISI.x[1] == 0) penalty+= 100
+		if(cvISI.x[2] > 0.5 || cvISI.x[2] == 0) penalty+= 100
+		if(cvISI.x[3] > 0.5 || cvISI.x[3] == 0) penalty+= 100 
+	}
+	
+	file.printf("#	CV Penalty = %g\n",penalty)
+	file.printf("\t\t")
+}//ii  for loop
+
+		//Penalty 4: Input resistance must be within physiological range
+		access tstellate[whichcell][0].soma 
+		inputresistance = rn() //Calculate input resistance, see Utilities.hoc   
+		if(inputresistance < 30 || inputresistance > 400) penalty = 100
+		file.printf("#  Input Resistance = %g\n",inputresistance)
+		file.printf("#  Input Resistance Penalty = %g\n",penalty)
+		file.printf("#  tonefreq = %g\n",tonefreq)
+		param.printparams(file,"#") //let Network Parameters print the struct
+	}
+	file.close()
+	//Write parameters to general optimisation file
+	sprint(fname,"%s/pvec_%s.hoc",fileroot,origfileroot)
+	file.aopen(fname)
+	file.printf(" // %s  \n",datestr)
+	for pp=0,NPARAMS-1 {
+		file.printf("%s = %g*%g\n",pvec_name.object(pp).s,pvec.x[pp],pvec_factor.x[pp])
+	}
+	file.close()
+	reps = cur_reps
+	PSTHcell(TSspikeList.object(1),10,2)
+	PSTHcell(TSspikeList.object(1),1,2)
+	PSTHcell(TSspikeList.object(1),0.25,2)
+}

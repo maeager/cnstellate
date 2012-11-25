@@ -222,66 +222,7 @@ proc runprax(){
 
 
 objref pval[NPARAMS]
-proc printprax(){local pp,ii,pp2,cur_reps
-//Output model data with best parameters
-cur_reps = reps
-reps=50
-sprint(cmd,"mkdir -p %s",fileroot)
-system(cmd)
-reps=50
-print error=TStellate_err2(0,&pvec.x[0])
-system("date",datestr)
-sprint(fname,"%s/%s.Fit.dat",fileroot,origfileroot)
-file.wopen(fname)
-if (file.isopen()){
-file.printf("# %s Optimisation\n",fileroot)
-file.printf("# %s \n",datestr)
-for pp=0,NPARAMS-1 {
-file.printf("#%s = %g\t[%g,%g]\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp],pvec_ranges.x[pp][0],pvec_ranges.x[pp][1])
-}
-file.printf("# final error=%f\n",error)
-//file.printf("# Principle axis matrix\n")
-//for pp=0,NPARAMS-1 {
-//pval[pp] = new Vector(NPARAMS)
-//pval_praxis(pp,&pval[pp].x[0])
-//file.printf("#\t")
-//for pp2=0,NPARAMS-1 file.printf("%g\t",pval[pp].x[pp2])
-//file.printf("\n")
-//}
-file.printf("# Time\tError Vec\t Reference Vec (mV)\n")
-for ii=0,tvec.size()-1 {
-file.printf("%.2f\t%.6f\t%.6f\n",tvec.x[ii],errorvec.x[ii],meaniv.x[ii])
-}
 
-file.printf("#Other values \n")
-file.printf("#  spl = %g\n",spl)
-file.printf("#  tonefreq = %g\n",tonefreq)
-param.printparams(file,"#") //let Network Parameters print the struct
-file.printf("#\n#IV Measures  Reference Test\n")
-file.printf("#RMP\t%g\t%g\n", ivdata[1].mean(0,ivdata[0].indwhere(">",0)),meaniv.mean(ivdata[0].indwhere(">",-10),ivdata[0].indwhere(">",0)))
-file.printf("#IVshift\t%g\t%g\n", ref_shift, test_shift)
-file.printf("#IVOnset\t%g\t%g\n", ref.x[0], test.x[0])
-file.printf("#IVAdaptation\t%g\t%g\n", ref.x[1], test.x[1])
-file.printf("#IVOffset\t%g\t%g\n",ref.x[2], test.x[2])
-file.printf("#CV0-10\t%g\t%g\n", ref.x[3], test.x[3])
-file.printf("#CV10-20\t%g\t%g\n", ref.x[4], test.x[4])
-file.printf("#CV20-30\t%g\t%g\n",ref.x[5], test.x[5])
-file.printf("#CV30-40\t%g\t%g\n",ref.x[6], test.x[6])
-}
-file.close()
-//Write parameters to general optimisation file
-sprint(fname,"%s/pvec_%s.hoc",fileroot,origfileroot)
-file.aopen(fname)
-file.printf(" // %s  \n",datestr)
-for pp=0,NPARAMS-1 {
-file.printf("%s = %g*%g\n",pvec_name.object(pp).s,pvec.x[pp],pvec_factor.x[pp])
-}
-file.close()
-reps = cur_reps
-PSTHcell(tstellate_spikes,10,2)
-PSTHcell(tstellate_spikes,1,2)
-PSTHcell(tstellate_spikes,0.25,2)
-}
 
 
 
@@ -389,8 +330,8 @@ printprax()
 //runprax()
 //printprax()
 print "CT1 Done"
-PSTHcell(tstellate_spikes,10,2)
-PSTHcell(tstellate_spikes,0.25,2)
+//PSTHcell(tstellate_spikes,10,2)
+//PSTHcell(tstellate_spikes,0.25,2)
 }
 
 proc optimise_CT2(){ 
@@ -400,8 +341,8 @@ ANFilterBankRun()
 SetInputRates()
 //xopen("TStellate_CT2/Dec1/pvec_TStellate.hoc")
 //QuickRun()
-runprax()
-printprax()
+//runprax()
+//printprax()
 //runprax()
 //printprax()
 //runprax()
@@ -409,8 +350,8 @@ printprax()
 runprax()
 printprax()
 print "CT2 Done"
-PSTHcell(tstellate_spikes,10,2)
-PSTHcell(tstellate_spikes,0.25,2)
+//PSTHcell(tstellate_spikes,10,2)
+//PSTHcell(tstellate_spikes,0.25,2)
 }
 
 
