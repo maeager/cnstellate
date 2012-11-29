@@ -632,6 +632,15 @@ objref iv,meaniv,psthgr,tstellate_spikes
 psthgr = new Graph()
 
 proc RunTStellate(){
+
+	RefreshCF()
+	GetAudiogramData()
+	RefreshParameters()
+	ANFilterBankRun()
+	//CheckFilterbank()
+	SetInputRates()
+
+	
     objref iv,meaniv,tvec
 	//ClearSpikes()
     iv = new Vector()
@@ -667,7 +676,7 @@ proc RunTStellate(){
 param.ts_gnabar						= 0.23677
 param.ts_gkhtbar					= 0.0189416
 param.ts_gleak						= 0.000473539
-param.ts_erev						= -55
+param.ts_erev						= -60.9
 param.ts_ghbar						= 6.20392e-05
 param.ts_gkabar						= 0.01539
 
@@ -1011,10 +1020,11 @@ func TStellate2_err( ) {local jj,pp,xtime,error,penalty,sustainedrate,inputresis
 	
 //Stimulus at threshold	
 	spl =  TSexemplar_SPL_thresh
-	reps=5
+	reps=2
 	RunTStellate()
-	threshold_rate = psth.sum()/5
-	if(threshold_rate > 5) penalties.append( (threshold_rate-5) )
+	threshold_rate = psth.sum()/2
+	if(threshold_rate > 10) penalties.append( (threshold_rate-10) )
+	print "threshold rate", threshold_rate
 	//penalty for spikes during tone at threshold
 	
 	
@@ -1042,13 +1052,15 @@ func TStellate2_err( ) {local jj,pp,xtime,error,penalty,sustainedrate,inputresis
 
 	
 	for ii=0,2 {
-test_shift = (TSIVList.object(ii).max_ind(stimdelay*1000/dt,(stimdelay*1000 + 20)/dt)/10) - 2.5	
-test = new Vector(4)
-IVMeasures(tvec,TSIVList.object(ii),test,test_shift)
-		
+		test_shift = (TSIVList.object(ii).max_ind(stimdelay*1000/dt,(stimdelay*1000 + 20)/dt)/10) - 2.5	
+		test = new Vector(4)
+		IVMeasures(tvec,TSIVList.object(ii),test,test_shift)
+		print "IV test measures "		
+		test.printf
+		IV_reference.object(ii).printf
 		//IV comparison 
-		print error+=sqrt(IV_reference.object(ii).meansqerr(test,IV_weight.object(ii))) 	
-
+		error+=sqrt(IV_reference.object(ii).meansqerr(test,IV_weight.object(ii))) 	
+        print "IV comparison ", sqrt(IV_reference.object(ii).meansqerr(test,IV_weight.object(ii))) 	
 		
 		PSTHcell(TSspikeList.object(ii),10,1)
 		
@@ -1056,35 +1068,47 @@ IVMeasures(tvec,TSIVList.object(ii),test,test_shift)
 		test = new Vector(4)
 		test.copy(cvISI, 0, 0, 3, 1, 1)
 		
-		//IV comparison 
-		print error+=sqrt(CV_reference.object(ii).meansqerr(test,CV_weight.object(ii))) 	
-
+		//CV comparison 
+		error+=sqrt(CV_reference.object(ii).meansqerr(test,CV_weight.object(ii))) 	
+		print "CV comparison ", sqrt(CV_reference.object(ii).meansqerr(test,CV_weight.object(ii))) 	
+		
 		
 		//Calculate additional penalties
 		
 		//Penalty: Number of trials counted in CV 
-		if(checkedtrials < 0.9*reps) penalties.append( 10)
-		
-		//Penalty 1: Sustained rate 
-		sustainedrate = psth.sum(2,6)/25
-		if (ii > 1)	{
-			if(sustainedrate < 10) penalties.append( 10 - sustainedrate) //penalty for lack of spikes during tone
+		if(checkedtrials < 0.9*reps) {
+			penalties.append( 10)
+			print "Checked trials penalty +10 ", checkedtrials 
 		}
+	//Penalty 1: Sustained rate 
+		sustainedrate = psth.sum(2,6)/25
+//		if (ii > 1)	{
+//			if(sustainedrate < 50) penalties.append( sustainedrate - 50) //penalty for lack of spikes during tone
+//		}
+
+        if(psth.sum(8,12)/25 > 10) {
+			penalties.append(psth.sum(8,12)/25 - 10) //penalty for too many spikes after tone
+			print "After tone spikes ", psth.sum(8,12)/25
+		}
+
 		
 		//Penalty 3: CV follows criteria for chopper
 		//First 10 ms must be strongly regular
-		if(cvISI.x[0] > 0.2) penalties.append( 10)
-		if(cvISI.x[0] > 0.3) penalties.append( 100)
+		print "CV of test cell"
+		cvISI.printf		
+		if(cvISI.x[0] > 0.2) 	penalties.append( (cvISI.x[0] - 0.2))
+		
+		if(cvISI.x[0] > 0.3) penalties.append( 10)
 		if (sustained_transient_chopper==0){
 			//Sustained model	
-			if(cvISI.x[1] > 0.3 || cvISI.x[1] == 0) penalties.append( 100)
-			if(cvISI.x[2] > 0.3 || cvISI.x[2] == 0) penalties.append( 100)
-			if(cvISI.x[3] > 0.3 || cvISI.x[3] == 0) penalties.append( 100 )
+			if(cvISI.x[1] > 0.3 || cvISI.x[1] == 0) penalties.append( 10)
+			if(cvISI.x[2] > 0.3 || cvISI.x[2] == 0) penalties.append( 10)
+			if(cvISI.x[3] > 0.3 || cvISI.x[3] == 0) penalties.append( 10)
 		} else {
 			//Transient models
-			if(cvISI.x[1] > 0.5 || cvISI.x[1] == 0) penalties.append( 100)
-			if(cvISI.x[2] > 0.5 || cvISI.x[2] == 0) penalties.append( 100)
-			if(cvISI.x[3] > 0.5 || cvISI.x[3] == 0) penalties.append( 100)  
+			if(cvISI.x[1] > 0.5 || cvISI.x[1] == 0) penalties.append( 10)
+			if(cvISI.x[2] > 0.5 || cvISI.x[2] == 0) penalties.append( 10)
+			if(cvISI.x[3] > 0.5 || cvISI.x[3] == 0) penalties.append( 10)  
 		}
 		
 				
@@ -1095,7 +1119,7 @@ IVMeasures(tvec,TSIVList.object(ii),test,test_shift)
 	inputresistance = rn() //Calculate input resistance, see Utilities.hoc   
 	if(inputresistance < 30 || inputresistance > 400) penalties.append(100)
 	
-	print "Penalties ", penalties.size()
+	print "Penalties size ", penalties.size()
 	penalties.printf
 	print error+=penalties.sum()
 	
@@ -1190,7 +1214,7 @@ for ii=0,2 {
 	//Calculate additional penalties
 	
 	//Penalty: Number of trials counted in CV 
-	if(checkedtrials < 0.9*reps) penalty =10
+	if(checkedtrials < 0.8*reps) penalty =10
 	file.printf("# Checked trials \t%g\n", checkedtrials)
 	file.printf("# Checked trials penalty\t%g\n", penalty)
 	
@@ -1203,6 +1227,11 @@ for ii=0,2 {
 		file.printf("# Sustained rate penalty \t%g\n", penalty)
 	}
 	
+	if(psth.sum(8,12)/25 > 10) penalty = psth.sum(8,12)/25 - 10 //penalty for too many spikes after tone
+		file.printf("# Post stimulus rate penalty \t%g\n", penalty)
+	
+	
+	
 	//Penalty 3: CV follows criteria for chopper
 	//First 10 ms must be strongly regular
 	penalty=0
@@ -1210,14 +1239,14 @@ for ii=0,2 {
 	if(cvISI.x[0] > 0.3) penalty+= 100
 	if (sustained_transient_chopper==0){
 		//Sustained model	
-		if(cvISI.x[1] > 0.3 || cvISI.x[1] == 0) penalty+= 100
-		if(cvISI.x[2] > 0.3 || cvISI.x[2] == 0) penalty+= 100
-		if(cvISI.x[3] > 0.3 || cvISI.x[3] == 0) penalty+= 100
+		if(cvISI.x[1] > 0.3 || cvISI.x[1] == 0) penalty+= 10
+		if(cvISI.x[2] > 0.3 || cvISI.x[2] == 0) penalty+= 10
+		if(cvISI.x[3] > 0.3 || cvISI.x[3] == 0) penalty+= 10
 	} else {
 		//Transient models
-		if(cvISI.x[1] > 0.5 || cvISI.x[1] == 0) penalty+= 100
-		if(cvISI.x[2] > 0.5 || cvISI.x[2] == 0) penalty+= 100
-		if(cvISI.x[3] > 0.5 || cvISI.x[3] == 0) penalty+= 100 
+		if(cvISI.x[1] > 0.5 || cvISI.x[1] == 0) penalty+= 10
+		if(cvISI.x[2] > 0.5 || cvISI.x[2] == 0) penalty+= 10
+		if(cvISI.x[3] > 0.5 || cvISI.x[3] == 0) penalty+= 10 
 	}
 	
 	file.printf("#	CV Penalty = %g\n",penalty)
