@@ -1010,7 +1010,13 @@ proc multi_run2(){local ireps,xtime
     for ireps = 0, reps-1 {
         GenSpikes2()
 		print " Rep ", ireps, " of ", reps
-        run()
+		if (using_random_init == 0){		
+			run()
+		} else {
+			stdinit()
+			random_init()
+			continuerun(tstop)
+		}
         SaveSpikes()
     }
   xtime=startsw()-xtime

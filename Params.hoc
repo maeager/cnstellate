@@ -243,6 +243,8 @@ setdt()
 dt												= 0.1		  //repeat is necessary to change integration time step after setdt
 secondorder										= 2				 //Crank-Nickolson integration, correct to second order
 
+using_random_init  = 0
+
 
 // Use Banks + Sachs model of Tstellate cell, set use_ball_stick to one
 use_ball_stick=0
