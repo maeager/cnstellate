@@ -58,10 +58,10 @@ param.w.x[glg][ts]		= 0.0005
 
 param.n.x[hsr][ts]		= 10
 param.n.x[lsr][ts]		= 10
-param.n.x[ds][ts]		= 20
-param.n.x[tv][ts]		= 20
-param.n.x[glg][ts]		= 15
-param.ts_jitter_sd = 0.2 //ms
+param.n.x[ds][ts]		= 5
+param.n.x[tv][ts]		= 5
+param.n.x[glg][ts]		= 5
+param.ts_jitter_sd = 0.5 //ms
 create_cells()
 objref nil
 // Comment out next line to kill all TS cells not covered by experimental data
@@ -277,20 +277,20 @@ xopen("jitter.hoc")
 // //param.ts_erev	=-65
 // //reps				=50
 
-param.n.x[hsr][ts]=15
+param.n.x[hsr][ts]=8
 param.n.x[lsr][ts]=15
-param.n.x[ds][ts]=9
+param.n.x[ds][ts]=4
 param.n.x[tv][ts]=7
 param.n.x[glg][ts]=5
 
-param.w.x[lsr][ts]	= 0.003
-param.w.x[hsr][ts]	= 0.003
+param.w.x[lsr][ts]	= 0.0038
+param.w.x[hsr][ts]	= 0.0009
 param.w.x[ds][ts]	= 0.0000138011
 param.w.x[tv][ts]	= 0.0000146063
-param.w.x[glg][ts]	= 9.3936e-05
+param.w.x[glg][ts]	= 5.3936e-05
 // param.ts_gleak	= 0.000494097
-// param.ts_erev	=-65
-// set_pvec()
+param.ts_erev	=-60.9
+set_pvec()
 
 
 proc optimise_CS(){
@@ -307,7 +307,7 @@ printprax()
 //runprax()
 //printprax()
 //runprax()
-printprax()
+//printprax()
 print "CS Done"
 PSTHcell(tstellate_spikes,10,2)
 PSTHcell(tstellate_spikes,0.25,2)
@@ -355,3 +355,6 @@ print "CT2 Done"
 }
 
 
+param.dstellate_gleak/=10
+param.dstellate_gnabar/=2
+TSexemplar_SPL_thresh=10
