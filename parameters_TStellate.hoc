@@ -249,7 +249,7 @@ proc append_weights(){
  pvec_ranges.x[pvec.size()-1][1]		=0.005
   }
   
-  NPARAMS=7
+  NPARAMS=5
  init_params(NPARAMS)
    
  //
@@ -258,8 +258,8 @@ proc append_weights(){
 // append_num_connections()
  // append_gkabar()
  append_weights()
- append_gleak()
- append_rev_potentials()
+// append_gleak()
+// append_rev_potentials()
  
  
 // cmd is a strdef variable that should be used in local routines and not passed across procedures
