@@ -74,7 +74,8 @@ proc init() { local length,RM, p, q, r, Atotal
         dend.L=200
 	 	dend.Ra = 150
 		dend.cm = 0.9
-		
+		dend insert pas
+		dend.g_pas=0.002
 		connect dend(0),soma(1)
 	}
 
@@ -136,7 +137,7 @@ proc init() { local length,RM, p, q, r, Atotal
 						
 		    GABAA = new Exp2Syn(0.5)
 			synlist.append(GABAA)
-			GABAA.tau2  = _gaba_decay
+			GABAA.tau2  = _gaba_decay  // use default values 
 			GABAA.tau1  = _gaba_rise
 			GABAA.e     = gaba_erev
 		}

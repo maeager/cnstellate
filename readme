@@ -7,7 +7,7 @@ and the other with MPI. PVM may also be used to generate parallel
 simulations, but mpich2 or open-mpi is preferred.
 
 Firstly, unpack iv then jump into the iv folder and compile. (Up to
-date package can be pulled from mercurial repo
+date package can be pulled from mercurial repository
 http://www.neuron.yale.edu/hg/neuron/iv )
 
 : cd ~
