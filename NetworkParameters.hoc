@@ -8,21 +8,26 @@
 objref param
 
 begintemplate NetworkParameters
-public bw,n,w,delay   //bandwidth(spread), number, weight, delay
+public bw              //bandwidth or spread; distribution variance in unit channels 
+public n               //number of connections between pre-cells to one post-cell
+public w               //synaptic weight  (maximum conductance in PSP)
+public delay           //additional delay in ms: Pre-cell AP time to post-cell response time
 public ncol,nrow
-//GolgiRateLevel
+//Golgi model parameters
 public golgi_spatial_filter_variance_LSR,golgi_syn_filter_scale_factor,golgi_spon
-//DS_ClickRecovery
+//DS_ClickRecovery and RateLevel 
 external _gaba_rise, _gaba_decay
 public dstellate_gkltbar,gaba_decay,gaba_rise,dstellate_gleak,dstellate_gnabar,dstellate_gkhtbar,DS_params
 //TV_Notch and RateLevel
-public offset, tv_erev, tv_gleak
+public offset           // offset in channel units of mean distribution of connections between DS and TV cells
+public tv_erev, tv_gleak
 //TS cell parameters
-public ts_gleak,ts_erev,ts_ghbar,ts_gkabar,ts_gnabar,ts_gkhtbar,ts_jitter_sd
+public ts_gleak,ts_erev,ts_ghbar,ts_gkabar,ts_gnabar,ts_gkhtbar
+public ts_jitter_sd     // standard deviation in delay of ANF inputs from similar fibres
 
 
 //functions
-public getnetparameters, saveparameters,printparams,showparams
+public getnetparameters, saveparameters,printparams,show
 objref bw, n, w,delay
 offset=3
 tv_erev=-65
@@ -152,7 +157,7 @@ proc printparams(){local irow,jcol
 	
 }
 
-proc showparams(){local irow,jcol
+proc show(){local irow,jcol
 	printf("// bandwidth\n")
 	for irow=0, nrow-1 {
 		for jcol=0,ncol-1 printf("\t%.4f",bw.getval(irow,jcol))		
