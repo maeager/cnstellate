@@ -209,7 +209,7 @@ proc SetupChopperMP(){local nrow,ncol
 	
 	// CT 1 & 2 adaptation 
 	file = new File()
-	file.ropen("TStellate/Fig6A.dat")
+ 	file.ropen("TStellate/Fig6A.dat")
 	if(file.isopen()){
 		MPadaptation_CT2.scanf(file,nrow, ncol)
 		MPadaptation_CT1.scanf(file,nrow, ncol)
@@ -396,7 +396,7 @@ proc Test_IVCV_reference_data(){local ii
 	}
 }
 
-proc CT1_data() {local points
+proc CT1_data() {local points localobj temp
 	
 	// chopper transient 1
 	// unit 01-857-007 \citep{PaoliniClareyEtAl:2005}
@@ -489,26 +489,26 @@ proc CT1_data() {local points
 		
 	//20 dB re thresh  (remove the last elementin CVdata_CS)
 	CV_reference.append(CV_temp)
-	CV_temp = new Vector(4,default_CV_weight)
-	CV_weight.append(CV_temp)
+	temp = new Vector(4,default_CV_weight)
+	CV_weight.append(temp)
 
 	
 	//30 dB - Average data in Figure 2 
 	CV_reference.append(CV_temp)	
-	CV_temp = new Vector(4,default_CV_weight*4)
-	CV_weight.append(CV_temp)
+	temp = new Vector(4,default_CV_weight*2)
+	CV_weight.append(temp)
 
 	
 	//40 dB re thresh
 	CV_reference.append(CV_temp)
-	CV_temp = new Vector(4,default_CV_weight)
-	CV_weight.append(CV_temp)
+	temp = new Vector(4,default_CV_weight)
+	CV_weight.append(temp)
 	
 	sustained_transient_chopper=1
 		
 }
 
-proc CT2_data() {local points
+proc CT2_data() {local points localobj temp
 	
 	//chopper transient type 2
 	// unit 01-305-014 \citep{PaoliniClareyEtAl:2005}
@@ -601,20 +601,20 @@ proc CT2_data() {local points
 		
 	//20 dB re thresh  (remove the last elementin CVdata_CS)
 	CV_reference.append(CV_temp)
-	CV_temp = new Vector(4,default_CV_weight)
-	CV_weight.append(CV_temp)
+	temp = new Vector(4,default_CV_weight)
+	CV_weight.append(temp)
 
 	
 	//30 dB - Average data in Figure 2 
 	CV_reference.append(CV_temp)	
-	CV_temp = new Vector(4,default_CV_weight*4)
-	CV_weight.append(CV_temp)
+	temp = new Vector(4,default_CV_weight*4)
+	CV_weight.append(temp)
 
 	
 	//40 dB re thresh
 	CV_reference.append(CV_temp)
-	CV_temp = new Vector(4,default_CV_weight)
-	CV_weight.append(CV_temp)
+	temp = new Vector(4,default_CV_weight)
+	CV_weight.append(temp)
 	
 	sustained_transient_chopper=1
 		
@@ -985,7 +985,9 @@ objref penalties
 func TStellate2_err( ) {local jj,pp,xtime,error,penalty,sustainedrate,inputresistance,lcount localobj ivtemp,spikelist_temp
 	
 	penalty=0
+	objref penalties
 	penalties = new Vector()
+	error=0
 	//check for bad values
 	for pp=0,NPARAMS-1 {
 		if (($&2[pp] <= pvec_ranges.x[pp][0]) || ($&2[pp] > pvec_ranges.x[pp][1])) {
@@ -1022,8 +1024,8 @@ func TStellate2_err( ) {local jj,pp,xtime,error,penalty,sustainedrate,inputresis
 	spl =  TSexemplar_SPL_thresh
 	reps=2
 	RunTStellate()
-	threshold_rate = psth.sum()/2
-	if(threshold_rate > 10) penalties.append( (threshold_rate-10) )
+	threshold_rate = psth.sum()/reps
+	if(threshold_rate > 10) penalties.append( (threshold_rate-10)/100 )
 	print "threshold rate", threshold_rate
 	//penalty for spikes during tone at threshold
 	
@@ -1041,16 +1043,13 @@ func TStellate2_err( ) {local jj,pp,xtime,error,penalty,sustainedrate,inputresis
 	
 
 	reps=25		
-	for (spl = TSexemplar_SPL_thresh+20; spl<= TSexemplar_SPL_thresh+40; spl+=10){ 
+	for (spl = TSexemplar_SPL_thresh+20; spl<= TSexemplar_SPL_thresh + 40; spl += 10){ 
 		RunTStellate()			
 		TSIVList.append(meaniv.c)
 		TSspikeList.append(tstellate_spikes)
 	}
 	
-	
-	
-
-	
+		
 	for ii=0,2 {
 		test_shift = (TSIVList.object(ii).max_ind(stimdelay*1000/dt,(stimdelay*1000 + 20)/dt)/10) - 2.5	
 		test = new Vector(4)
@@ -1121,7 +1120,7 @@ func TStellate2_err( ) {local jj,pp,xtime,error,penalty,sustainedrate,inputresis
 	
 	print "Penalties size ", penalties.size()
 	penalties.printf
-	print error+=penalties.sum()
+	error += penalties.sum()
 	
 	sprint(fname,"%s/error_out.dat",fileroot)
 	file.aopen(fname)
@@ -1162,7 +1161,8 @@ file.printf("# final error=%f\n",error)
 //for pp2=0,NPARAMS-1 file.printf("%g\t",pval[pp].x[pp2])
 //file.printf("\n")
 //}
-file.printf("# Threshold level %d \n", TSexemplar_SPL_thresh)
+file.printf("# Threshold level %g \n", TSexemplar_SPL_thresh )
+file.printf("# Threshold rate %g \n", threshold_rate)
 file.printf("# TS exemplar RMP %g\n", TSexemplar_RMP )
 file.printf("# TS exemplar CF %g\n",TSexemplar_CF)
 

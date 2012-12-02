@@ -209,7 +209,7 @@ proc QuickRun(){
 }
 
 tolerance = 0.0001
-maxstepsize = 0.001
+maxstepsize = 0.0001
 printmode = 3
 strdef error_fn
 error_fn = "TStellate2_err"
