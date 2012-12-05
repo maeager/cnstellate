@@ -1,12 +1,14 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
-/** Cochlear Nucleus network model: Neural model templates
-* Templates for Rothman and Manis (2003) neural cell model
-* (CNcell) and Golgi cell model
-*
-*
-* Michael Eager, 2006-2012
-* University of Melbourne
+/** 
+ * Cochlear Nucleus Stellate Microcircuit
+ * Neural model templates based on the
+ * Rothman and Manis (2003) neural cell model
+ * (CNcell).  Golgi cell model template is a filter-based
+ * spiking Poisson neural model.
+ * 
+ * Michael Eager, 2006-2012
+ * University of Melbourne
 */
 
 
@@ -35,7 +37,9 @@ public AMPA, GlyR, GABAA       //synapse objects
 public spikes,spiketimes       //storage vectors
 public connect2target, synlist //synapse connection function and list
 public cf,model,channel,ball_stick  //identifying parameters ...
-public set_tstellate, set_dstellate,set_tuberc,set_golgi, nstomho,qt //member functions
+public set_tstellate, set_dstellate,set_tuberc,set_golgi //Cell member functions
+public nstomho                //Nano-siemens to Mho per cm^3 (conductance converter)
+public qt                     //Temperature quotient (Q10) factor
 public SaveSpikes,ClearSpikes
 
 external thresh,Erest,param
@@ -103,16 +107,6 @@ proc init() { local length,RM, p, q, r, Atotal
 	
 	if(	ball_stick == 1){
 		dend {
-	 		insert pas
-	 		nseg=num_dend_seg
-	 		diam=1.5
-	 		L=200
-			e_pas =-65
-	 		g_pas=0.0002
-	 		Ra = 150
-	 		cm = 0.9
-
-
 			// Order of synapses important for pnm.nc_append in netpar_connect()
 			// in par_netpar.hoc.  The synapse type is used by connect_cells()
 			// argument 7 in par_CochlearNucleus.hoc.
@@ -374,8 +368,7 @@ proc init() {localobj r, data, hist, x, g
     channel=$3
     golgi_spatial_filter_variance=$4
     sg = new SGC_fast(0.5)
-    sg.cf = cf
-	
+    sg.cf = cf	
 }
 objref tempsout
 /* Obsolete - replaced with SetRate2*/

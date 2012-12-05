@@ -749,9 +749,15 @@ proc connect_TS() {local i,p,target,source,low,high,range,channel,sourcechannel
 	
 	for i_chan = 0, nchannels-1 {
 		if (nTSperchannel > 0) for j_cell = 0, nTSperchannel-1 {
-			sprint(cmd, "tstellate[%d][%d] = new CNcell(0,cf.x[%d],%d)",i_chan,j_cell,i_chan,i_chan)
+			if(use_ball_stick==0){
+				sprint(cmd, "tstellate[%d][%d] = new CNcell(0,cf.x[%d],%d)",i_chan,j_cell,i_chan,i_chan)
+			} else {
+				sprint(cmd, "tstellate[%d][%d] = new CNcell(0,cf.x[%d],%d,1)",i_chan,j_cell,i_chan,i_chan)
+			}
 			execute1(cmd)
+			tstellate[i_chan][j_cell].dend.g_pas=0.001 
 		}
+		
 	}	
 	
 	

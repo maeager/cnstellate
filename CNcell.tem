@@ -21,8 +21,10 @@ public soma, dend              //NEURON sections
 public AMPA, GlyR, GABAA       //synapse objects
 public spikes,spiketimes       //storage vectors
 public connect2target, synlist //synapse connection function and list
-public cf,model,channel          //identifying parameters ...
-public set_tstellate, set_dstellate,set_tuberc,set_golgi, nstomho,qt //member functions
+public cf,model,channel        //identifying parameters ...
+public set_tstellate, set_dstellate,set_tuberc,set_golgi //Cell member functions
+public nstomho                //Nano-siemens to Mho per cm^3 (conductance converter)
+public qt                     //Temperature quotient (Q10) factor
 public SaveSpikes,ClearSpikes
 
 external thresh,Erest,param
@@ -38,7 +40,7 @@ model=0
 
 proc init() { local length,RM, p, q, r, Atotal
     //Initialise sections and objects
-    create soma
+    create soma 
     synlist = new List()
     spiketimes = new Vector()
     spikes = new Vector()
