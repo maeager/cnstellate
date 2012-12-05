@@ -39,7 +39,10 @@ set label 1 "B" at screen 0.55, screen 1 font "Helvetica,24"
 #     '../TStellate/PaoliniBalancedInh-Fig2.png.dat' i 2 u 1:2:3 notitle w yerr lc rgb '#0060ad', \
 #     '' i 2 u 1:2 t "Ref" w lp lc rgb '#0060ad' lt 1 lw 2 pt 5 ps 1.5
 
-plot [-0.5:3.5][0.1:0.5] '< grep -A4 -e ''CV reference'' TStellate.Fit.dat | tr ''#'' '' '' | tr ''-'' ''\n''| grep -v -e ''CV'' ' u 1:2 t "Model" w lp ls 1 lc 'black', \
+plot [-0.5:3.5][0.1:0.5] '< grep -A4 -e ''CV reference'' TStellate.Fit.dat | tr ''#'' '' '' | tr ''-'' ''\n''| grep -v -e ''CV'' ' \
+     i 0 u 1:2 not  w lp ls 1 lc rgb '#AAAAAA', \
+     '' i 2 u 1:2 not w lp ls 1 lc rgb '#AAAAAA', \
+     '' i 1 u 1:2 t "Model" w lp ls 1 lc 'black', \
      '' u 1:3 t "Ref" w lp lc rgb '#0060ad' lt 1 lw 2 pt 5 ps 1.5
      
 unset key
@@ -94,11 +97,11 @@ set x2range [-0.5:6.5]
 set label 1 "D" at screen 0.55,screen 0.5 font "Helvetica,24"
 
 plot '< awk ''/IVOnset/ {if ($3!=0) print $3,$4; end}'' TStellate.Fit.dat'  u 1 axes x1y1 t "Test" w lp lc "black" lt 1 lw 2 pt 7 ps 1.5, \
-'' u 2 axes x1y1 t "Ref" w lp ls 1 pt 5 ps 1.5, \
-'< awk ''/IVAdapt/ {if ($3!=0) print $3,$4; end}'' TStellate.Fit.dat' u ($0+1):1 axes x2y2 not  w lp lc "black" lt 1 lw 2 pt 7 ps 1.5, \
-'' u ($0+1):2 axes x2y2 not w lp ls 1 pt 5 ps 1.5, \
-'< awk ''/IVOffset/ {print $3,$4}'' TStellate.Fit.dat' u ($0+4):1 axes x2y2 not w lp lc "black" lt 1 lw 2 pt 7 ps 1.5, \
-     '' u ($0+4):2 axes x2y2 not w lp ls 1 pt 5 ps 1.5 
+     '' u 2 axes x1y1 t "Ref" w lp ls 1 pt 5 ps 1.5, \
+     '< awk ''/IVAdapt/ {if ($3!=0) print $3,$4; end}'' TStellate.Fit.dat' u ($0+1):2 axes x2y2 not  w lp lc "black" lt 1 lw 2 pt 7 ps 1.5, \
+     '' u ($0+1):1 axes x2y2 not w lp ls 1 pt 5 ps 1.5, \
+     '< awk ''/IVOffset/ {print $3,$4}'' TStellate.Fit.dat' u ($0+4):2 axes x2y2 not w lp lc "black" lt 1 lw 2 pt 7 ps 1.5, \
+     '' u ($0+4):1 axes x2y2 not w lp ls 1 pt 5 ps 1.5 
 
 
 # plot '< tail -7 TStellate.Fit.dat | head -1 | awk ''{print $3}'' ' axes x1y1 t "Test" w lp lc "black" lt 1 lw 2 pt 7 ps 1.5,\
