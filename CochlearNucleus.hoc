@@ -82,11 +82,10 @@ proc create_cells() { local p,i_chan,j_cell
       if (nTSperchannel > 0) for j_cell = 0, nTSperchannel-1 {
 		  if (use_ball_stick==1){
 			  sprint(cmd, "tstellate[%d][%d] = new CNcell(0,cf.x[%d],%d,1)",i_chan,j_cell,i_chan,i_chan)
-			  execute1(cmd)
 		  } else {
 		      sprint(cmd, "tstellate[%d][%d] = new CNcell(0,cf.x[%d],%d)",i_chan,j_cell,i_chan,i_chan)
-			  execute1(cmd)
 		  }
+		  execute1(cmd)
     }
     if (nTVperchannel > 0) for j_cell = 0, nTVperchannel-1 {
         sprint(cmd, "tuberculoventral[%d][%d] = new CNcell(1,cf.x[%d],%d)",i_chan,j_cell,i_chan,i_chan)
