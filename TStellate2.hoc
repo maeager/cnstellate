@@ -294,18 +294,18 @@ set_pvec()
 
 
 proc optimise_CS(){
-	
+	CS_data()	
 param.n.x[hsr][ts]=8
 param.n.x[lsr][ts]=15
 param.n.x[ds][ts]=4
 param.n.x[tv][ts]=7
 param.n.x[glg][ts]=5
 	param.ts_erev=-60.9
-	CS_data()
+
 RefreshParameters()
 ANFilterBankRun()  //Generate new AN instant. rates
 SetInputRates()
-xopen("TStellate_CS/pvec_TStellate.hoc")
+xopen("TStellate2_CS/pvec_TStellate.hoc")
 QuickRun()
 runprax()
 printprax()
@@ -322,6 +322,8 @@ PSTHcell(tstellate_spikes,0.25,2)
 
 
 proc optimise_CT1(){
+	CT1_data()	
+xopen("TStellate2_CT1/pvec_TStellate.hoc")	
 	param.ts_erev=-62.9
 param.n.x[hsr][ts]=12
 param.n.x[lsr][ts]=15
@@ -329,11 +331,11 @@ param.n.x[ds][ts]=5
 param.n.x[tv][ts]=10
 param.n.x[glg][ts]=5
 	
-	CT1_data()
+
 RefreshParameters()
 ANFilterBankRun()  //Generate new AN instant. rates
 SetInputRates()
-xopen("TStellate_CT1/pvec_TStellate.hoc")
+
 //QuickRun()
 runprax()
 printprax()
@@ -349,30 +351,31 @@ PSTHcell(tstellate_spikes,0.25,2)
 }
 
 proc optimise_CT2(){ 
-	param.ts_erev=-62.9
-param.n.x[hsr][ts]=12
-param.n.x[lsr][ts]=15
-param.n.x[ds][ts]=5
-param.n.x[tv][ts]=10
-param.n.x[glg][ts]=5
-	
+	xopen("TStellate2_CT2/pvec_TStellate.hoc")
 	CT2_data()
-RefreshParameters()
-ANFilterBankRun()  
-SetInputRates()
-xopen("TStellate_CT2/pvec_TStellate.hoc")
-//QuickRun()
-//runprax()
-//printprax()
-//runprax()
-//printprax()
-//runprax()
-//printprax()
-runprax()
-printprax()
-print "CT2 Done"
-PSTHcell(tstellate_spikes,10,2)
-PSTHcell(tstellate_spikes,0.25,2)
+	param.ts_erev=-62.9
+	param.n.x[hsr][ts]=12
+	param.n.x[lsr][ts]=15
+	param.n.x[ds][ts]=5
+	param.n.x[tv][ts]=10
+	param.n.x[glg][ts]=5	
+	
+	RefreshParameters()
+	ANFilterBankRun()  
+	SetInputRates()
+	
+	//QuickRun()
+	//runprax()
+	//printprax()
+	//runprax()
+	//printprax()
+	//runprax()
+	//printprax()
+	runprax()
+	printprax()
+	print "CT2 Done"
+	PSTHcell(tstellate_spikes,10,2)
+	PSTHcell(tstellate_spikes,0.25,2)
 }
 
 
