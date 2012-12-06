@@ -171,19 +171,22 @@ iterator ltr() {local i, cnt
 objref anfcons,xo
 
 objref dstslist, dstsg
-proc tsconnections(){local count,ii
-for ii = 0, numTS-1 {
-if(ii == 20 || ii == 38 || ii == 51){
+proc tsconnections(){local count,ii,jj
+	for ii = 0, nchannels-1 {
+		for jj=0,nTSperchannel-1 {
+//if(ii == 20 || ii == 38 || ii == 51){
 count=0
-for ltr(xo, cvode.netconlist("CNcell", tstellate[ii][0], "")) {
+for ltr(xo, cvode.netconlist("CNcell", tstellate[ii][jj], "")) {
 print xo, xo.weight
 print xo.precell
 print xo.precell.model
 count+=1
 }
 }
+} 
 }
-}
+
+
 proc tsconnections(){local count,ii
 for ii = 0, numTS-1 {
 if(ii == 20 || ii == 38 || ii == 51){

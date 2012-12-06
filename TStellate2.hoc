@@ -58,10 +58,10 @@ param.w.x[glg][ts]		= 0.0005
 
 param.n.x[hsr][ts]		= 10
 param.n.x[lsr][ts]		= 10
-param.n.x[ds][ts]		= 20
-param.n.x[tv][ts]		= 20
-param.n.x[glg][ts]		= 15
-param.ts_jitter_sd = 0.2 //ms
+param.n.x[ds][ts]		= 5
+param.n.x[tv][ts]		= 5
+param.n.x[glg][ts]		= 5
+param.ts_jitter_sd = 0.5 //ms
 create_cells()
 objref nil
 // Comment out next line to kill all TS cells not covered by experimental data
@@ -75,23 +75,23 @@ connect_CNcells(fileroot)
 xopen("cngui.hoc")
 
 xopen("psth.hoc")
-xopen("par_experiment_TStellate.hoc")
+xopen("par_experiment_TStellate2.hoc")
 
 
- cfhi =40000
- cflo = 200
- ANmodel = 6
- species = 2
- 
  RefreshCF()
  RefreshCNcellsCF()
  RefreshCellParams()
-
+ 
  CS_data()
+ SetupChopperCV()
+ SetupChopperMP()
+ 
  RefreshParameters()
  ANFilterBankRun()
  SetInputRates()
 
+ 
+/* 
 strdef datestr,grlbl
 objref errorvec,tempcf,indcf,refvec,gr,ref,test,weightvec
 gr = new Graph()
@@ -100,7 +100,7 @@ ref_shift=0
 test_shift=0
 plot_variables=0
 
-func TStellate_err( ) {local jj,pp,xtime,error,penalty,sustainedrate,inputresistance
+func TStellate_err2( ) {local jj,pp,xtime,error,penalty,sustainedrate,inputresistance
 
     //check for bad values
     for pp=0,NPARAMS-1 {
@@ -109,7 +109,7 @@ func TStellate_err( ) {local jj,pp,xtime,error,penalty,sustainedrate,inputresist
     }
     }
   //print variables
-  print "TStellate_err ", $1
+  print "TStellate_err2 ", $1
     for pp=0,NPARAMS-1 { printf("%s = %g * %g",pvec_name.object(pp).s,$&2[pp],pvec_factor.x[pp])}
   //Set the parameters (see parameters_TStellate.hoc)
   for pp=0,NPARAMS-1 {
@@ -144,8 +144,8 @@ flushf()
   errorvec.interpolate(tvec,ivdata[0],ivdata[1])
   
   //Calculate the IV shift in depolarisation 
-  ref_shift = (errorvec.max_ind(220,250)/10) - 2.5
-  test_shift = (meaniv.max_ind(220,250)/10) - 2.5
+  ref_shift = (errorvec.max_ind(200,300)/10) - 2.5
+  test_shift = (meaniv.max_ind(500,600)/10) - 2.5
   IVMeasures(tvec,errorvec,ref,ref_shift)
   IVMeasures(tvec,meaniv,test,test_shift)
   PSTHcell(tstellate_spikes,10,1)
@@ -161,10 +161,12 @@ flushf()
    if(cvISI.x[0] > 0.3) penalty += 5
   if(cvISI.x[1] > 0.5 || cvISI.x[1] == 0) penalty += 10
   if(cvISI.x[2] > 0.55 || cvISI.x[2] == 0) penalty += 10
-  if(cvISI.x[3] > 0.55 || cvISI.x[3] == 0) penalty += 10
+  if(cvISI.x[3] > 0.55 || cvISI.x[3] == 0) penalty += 10  
   access tstellate[whichcell][0].soma 
   inputresistance = rn() //Calculate input resistance, see Utilities.hoc   
   if(inputresistance < 30 || inputresistance > 400) penalty += 10
+  
+  // Weighting of IV and CV measures
   //weightvec.x[0]/=10 //initial depolarisation approx -50 to -30  mV
   weightvec.x[1]*=10 //adaptation approx 0.2-0.5
   //weightvec.x[2]/=10 //post-tone hyperpolarisation approx 0 to -5 mV
@@ -197,19 +199,20 @@ flushf()
   doNotify()
     return error
 }
+*/
 
 //tstop=300
 proc QuickRun(){
   set_pvec()
   pvec.printf
-  print TStellate_err(0,&pvec.x[0])
+  print TStellate2_err(0,&pvec.x[0])
 }
 
 tolerance = 0.0001
-maxstepsize = 0.001
+maxstepsize = 0.0001
 printmode = 3
 strdef error_fn
-error_fn = "TStellate_err"
+error_fn = "TStellate2_err"
 
 proc runprax(){
    attr_praxis(tolerance, maxstepsize, printmode)
@@ -219,66 +222,7 @@ proc runprax(){
 
 
 objref pval[NPARAMS]
-proc printprax(){local pp,ii,pp2,cur_reps
-//Output model data with best parameters
-cur_reps = reps
-reps=50
-sprint(cmd,"mkdir -p %s",fileroot)
-system(cmd)
-reps=50
-print error=TStellate_err(0,&pvec.x[0])
-system("date",datestr)
-sprint(fname,"%s/%s.Fit.dat",fileroot,origfileroot)
-file.wopen(fname)
-if (file.isopen()){
-file.printf("# %s Optimisation\n",fileroot)
-file.printf("# %s \n",datestr)
-for pp=0,NPARAMS-1 {
-file.printf("#%s = %g\t[%g,%g]\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp],pvec_ranges.x[pp][0],pvec_ranges.x[pp][1])
-}
-file.printf("# final error=%f\n",error)
-//file.printf("# Principle axis matrix\n")
-//for pp=0,NPARAMS-1 {
-//pval[pp] = new Vector(NPARAMS)
-//pval_praxis(pp,&pval[pp].x[0])
-//file.printf("#\t")
-//for pp2=0,NPARAMS-1 file.printf("%g\t",pval[pp].x[pp2])
-//file.printf("\n")
-//}
-file.printf("# Time\tError Vec\t Reference Vec (mV)\n")
-for ii=0,tvec.size()-1 {
-file.printf("%.2f\t%.6f\t%.6f\n",tvec.x[ii],errorvec.x[ii],meaniv.x[ii])
-}
 
-file.printf("#Other values \n")
-file.printf("#  spl = %g\n",spl)
-file.printf("#  tonefreq = %g\n",tonefreq)
-param.printparams(file,"#") //let Network Parameters print the struct
-file.printf("#\n#IV Measures  Reference Test\n")
-file.printf("#RMP\t%g\t%g\n", ivdata[1].mean(0,ivdata[0].indwhere(">",0)),meaniv.mean(ivdata[0].indwhere(">",-10),ivdata[0].indwhere(">",0)))
-file.printf("#IVshift\t%g\t%g\n", ref_shift, test_shift)
-file.printf("#IVOnset\t%g\t%g\n", ref.x[0], test.x[0])
-file.printf("#IVAdaptation\t%g\t%g\n", ref.x[1], test.x[1])
-file.printf("#IVOffset\t%g\t%g\n",ref.x[2], test.x[2])
-file.printf("#CV0-10\t%g\t%g\n", ref.x[3], test.x[3])
-file.printf("#CV10-20\t%g\t%g\n", ref.x[4], test.x[4])
-file.printf("#CV20-30\t%g\t%g\n",ref.x[5], test.x[5])
-file.printf("#CV30-40\t%g\t%g\n",ref.x[6], test.x[6])
-}
-file.close()
-//Write parameters to general optimisation file
-sprint(fname,"%s/pvec_%s.hoc",fileroot,origfileroot)
-file.aopen(fname)
-file.printf(" // %s  \n",datestr)
-for pp=0,NPARAMS-1 {
-file.printf("%s = %g*%g\n",pvec_name.object(pp).s,pvec.x[pp],pvec_factor.x[pp])
-}
-file.close()
-reps = cur_reps
-PSTHcell(tstellate_spikes,10,2)
-PSTHcell(tstellate_spikes,1,2)
-PSTHcell(tstellate_spikes,0.25,2)
-}
 
 
 
@@ -333,28 +277,35 @@ xopen("jitter.hoc")
 // //param.ts_erev	=-65
 // //reps				=50
 
-param.n.x[hsr][ts]=15
+param.n.x[hsr][ts]=8
 param.n.x[lsr][ts]=15
-param.n.x[ds][ts]=9
+param.n.x[ds][ts]=4
 param.n.x[tv][ts]=7
 param.n.x[glg][ts]=5
 
-param.w.x[lsr][ts]	= 0.003
-param.w.x[hsr][ts]	= 0.003
+param.w.x[lsr][ts]	= 0.0038
+param.w.x[hsr][ts]	= 0.0009
 param.w.x[ds][ts]	= 0.0000138011
 param.w.x[tv][ts]	= 0.0000146063
-param.w.x[glg][ts]	= 9.3936e-05
+param.w.x[glg][ts]	= 5.3936e-05
 // param.ts_gleak	= 0.000494097
-// param.ts_erev	=-65
-// set_pvec()
+param.ts_erev	=-60.9
+set_pvec()
 
 
 proc optimise_CS(){
-CS_data()
+	CS_data()	
+param.n.x[hsr][ts]=8
+param.n.x[lsr][ts]=15
+param.n.x[ds][ts]=4
+param.n.x[tv][ts]=7
+param.n.x[glg][ts]=5
+	param.ts_erev=-60.9
+
 RefreshParameters()
 ANFilterBankRun()  //Generate new AN instant. rates
 SetInputRates()
-//xopen("TStellate_CS/pvec_TStellate.hoc")
+xopen("TStellate2_CS/pvec_TStellate.hoc")
 QuickRun()
 runprax()
 printprax()
@@ -363,7 +314,7 @@ printprax()
 //runprax()
 //printprax()
 //runprax()
-printprax()
+//printprax()
 print "CS Done"
 PSTHcell(tstellate_spikes,10,2)
 PSTHcell(tstellate_spikes,0.25,2)
@@ -371,11 +322,20 @@ PSTHcell(tstellate_spikes,0.25,2)
 
 
 proc optimise_CT1(){
-CT1_data()
+	CT1_data()	
+xopen("TStellate2_CT1/pvec_TStellate.hoc")	
+	param.ts_erev=-62.9
+param.n.x[hsr][ts]=12
+param.n.x[lsr][ts]=15
+param.n.x[ds][ts]=5
+param.n.x[tv][ts]=10
+param.n.x[glg][ts]=5
+	
+
 RefreshParameters()
 ANFilterBankRun()  //Generate new AN instant. rates
 SetInputRates()
-//xopen("TStellate_CT1/Dec1/pvec_TStellate.hoc")
+
 //QuickRun()
 runprax()
 printprax()
@@ -391,55 +351,34 @@ PSTHcell(tstellate_spikes,0.25,2)
 }
 
 proc optimise_CT2(){ 
-CT2_data()
-RefreshParameters()
-ANFilterBankRun()  //Generate new AN instant. rates
-SetInputRates()
-//xopen("TStellate_CT2/Dec1/pvec_TStellate.hoc")
-//QuickRun()
-runprax()
-printprax()
-//runprax()
-//printprax()
-//runprax()
-//printprax()
-runprax()
-printprax()
-print "CT2 Done"
-PSTHcell(tstellate_spikes,10,2)
-PSTHcell(tstellate_spikes,0.25,2)
+	xopen("TStellate2_CT2/pvec_TStellate.hoc")
+	CT2_data()
+	param.ts_erev=-62.9
+	param.n.x[hsr][ts]=12
+	param.n.x[lsr][ts]=15
+	param.n.x[ds][ts]=5
+	param.n.x[tv][ts]=10
+	param.n.x[glg][ts]=5	
+	
+	RefreshParameters()
+	ANFilterBankRun()  
+	SetInputRates()
+	
+	//QuickRun()
+	//runprax()
+	//printprax()
+	//runprax()
+	//printprax()
+	//runprax()
+	//printprax()
+	runprax()
+	printprax()
+	print "CT2 Done"
+	PSTHcell(tstellate_spikes,10,2)
+	PSTHcell(tstellate_spikes,0.25,2)
 }
 
-// //runprax()
-// //printprax()
-// //print "CT1 Done"
 
-// CT2_data()
-// RefreshParameters()
-// ANFilterBankRun()  //Generate new AN instant. rates
-// SetInputRates()
-// runprax()
-// printprax()
-// print "CT2 Done"
-
-
-// param.w.x[lsr][ts] = 0.000774459
-// param.w.x[hsr][ts] = 0.000817015
-// param.w.x[ds][ts] = 0.0000138011
-// param.w.x[tv][ts] = 0.0000146063
-// param.w.x[glg][ts] = 9.3936e-05
-// param.ts_gleak = 0.000294097
-// param.ts_erev=-65
-// set_pvec()
-
-// CT2_data()
-// RefreshParameters()
-// ANFilterBankRun()  //Generate new AN instant. rates
-// SetInputRates()
-// QuickRun()
-// runprax()
-// printprax()
-// print "CT2 Done"
-
-// //RunTStellate()
-//param.ts_erev = -55
+param.dstellate_gleak/=10
+param.dstellate_gnabar/=2
+TSexemplar_SPL_thresh=10

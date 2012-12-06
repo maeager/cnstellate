@@ -38,11 +38,11 @@
 //  which was positioned at the end of a hollow ear bar and controlled
 //  using a Tucker-Davis signal generator (Tucker-Davis Technologies,
 
-delay					= 0.02
-dur						= 0.045
-ramplngth				= 0.005
-dutycycle				= 0.8        // get an extra 40msec post-tone
-cfhi					= 48000
+stimdelay					= 0.05
+dur						= 0.049
+ramplngth				= 0.002
+dutycycle				= 1        // get an extra 25msec post-tone
+cfhi					= 40000
 cflo					= 200
 srate					= 100000      // 500k is no longer needed
 stimtdres				= 1/srate
@@ -258,18 +258,21 @@ param.ts_erev						= -55
 param.ts_ghbar						= 6.20392e-05
 param.ts_gkabar						= 0.01539
 
-proc reset_TStellate(){local ii
+proc refresh_TStellate(){local ii,jj
     print "updating features for T stellate optimisation routines"
     for ii = 0,nchannels-1 {
-//        if(ii == 20 || ii == 38 || ii == 51){
-sprint(cmd,"tstellate[%d][0].soma.gnabar_rm  = param.ts_gnabar",ii) execute1(cmd)
-sprint(cmd,"tstellate[%d][0].soma.gkhtbar_rm = param.ts_gkhtbar",ii) execute1(cmd)
-sprint(cmd,"tstellate[%d][0].soma.gleak_rm   = param.ts_gleak",ii) execute1(cmd)
-sprint(cmd,"tstellate[%d][0].soma.erev_rm    = param.ts_erev",ii) execute1(cmd)
-sprint(cmd,"tstellate[%d][0].soma.ghbar_rm   = param.ts_ghbar",ii) execute1(cmd)
-sprint(cmd,"tstellate[%d][0].soma.gkabar_ka  = param.ts_gkabar",ii) execute1(cmd)
-//        }
-}
+		for jj=0,nTSperchannel-1{
+			//        if(ii == 20 || ii == 38 || ii == 51){
+			sprint(cmd,"tstellate[%d][%d].soma.gnabar_rm  = param.ts_gnabar",ii,jj) execute1(cmd)
+			sprint(cmd,"tstellate[%d][%d].soma.gkhtbar_rm = param.ts_gkhtbar",ii,jj) execute1(cmd)
+			sprint(cmd,"tstellate[%d][%d].soma.gleak_rm   = param.ts_gleak",ii,jj) execute1(cmd)
+			sprint(cmd,"tstellate[%d][%d].soma.erev_rm    = param.ts_erev",ii,jj) execute1(cmd)
+			sprint(cmd,"tstellate[%d][%d].soma.ghbar_rm   = param.ts_ghbar",ii,jj) execute1(cmd)
+			sprint(cmd,"tstellate[%d][%d].soma.gkabar_ka  = param.ts_gkabar",ii,jj) execute1(cmd)
+			
+			flushf()
+		}
+	}
 }
 
 
@@ -311,11 +314,12 @@ proc connect_TS() {local i,p,target,source,low,high,range,channel,sourcechannel
 	
   for i_chan = 0, nchannels-1 {
     if (nTSperchannel > 0) for j_cell = 0, nTSperchannel-1 {
-        sprint(cmd, "tstellate[%d][%d] = new CNcell(0,cf.x[%d],%d)",i_chan,j_cell,i_chan,i_chan)
+        sprint(cmd, "tstellate[%d][%d] = new CNcell(0,cf.x[%d],%d,1)",i_chan,j_cell,i_chan,i_chan)
         execute1(cmd)
     }
-  }	
-	
+}	
+flushf()
+
 	
 	
 	
@@ -395,7 +399,8 @@ if( ( param.n.getval(lsr,ts) > 0 ) && ( nTSperchannel != 0 ) ){
                // user to quit during the creation.
  }
  printf("\rLSR->TS=== done ===\n")
-}
+} 
+flushf()	
 	
 	
 	print "Connecting CN network cells to TS cells"
@@ -426,6 +431,7 @@ if( ( param.n.getval(ts,ts) > 0 ) && ( nTSperchannel > 1 ) ){
  }
   printf("\rTS->TS=== done ===\n")
 }
+flushf()	
 
 
 if( ( param.n.getval(tv,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nTVperchannel != 0 ) ){
@@ -458,6 +464,7 @@ if( ( param.n.getval(tv,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nTVperchannel !
  }
   printf("\rTV->TS=== done ===\n")
 }
+flushf()	
 
 if( ( param.n.getval(ds,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nDSperchannel != 0 ) ){
  outfile.printf("\n%d %d\n",ds,ts)
@@ -488,6 +495,7 @@ if( ( param.n.getval(ds,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nDSperchannel !
  }
   printf("\rDS->TS=== done ===\n")
 }
+flushf()	
 
 
 if( ( param.n.getval(glg,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nGperchannel != 0 ) ){
@@ -528,6 +536,66 @@ if( ( param.n.getval(glg,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nGperchannel !
 
 
 	outfile.close()
-	
+flushf()	
 }
 
+
+proc TSPanel(){
+  xpanel("TStellate")
+  xvalue("param.ts_gnabar")
+  xvalue("param.ts_gkhtbar")
+  xvalue("param.ts_gleak")
+  xvalue("param.ts_erev")
+  xvalue("param.ts_ghbar")
+  xvalue("param.ts_gkabar")
+
+  xvalue("param.w.x[hsr][ts]")
+  xvalue("param.w.x[lsr][ts]")
+  xvalue("param.w.x[ds][ts]")
+  xvalue("param.w.x[tv][ts]")
+  xvalue("param.w.x[glg][ts]")
+  xbutton("reset_weights()")
+  xbutton("refresh_TStellate()")
+
+  xbutton("CS_data","CS_data()")
+  xbutton("CT1_data","CT1_data()")
+  xbutton("CT2_data","CT2_data()")
+//  xbutton("Plot Fit graph","plot_fitgr()")
+
+  xbutton("Run TS model","RunTStellate()")
+  xbutton("Run Fitting Procedure","runprax()")
+  xbutton("QuickRun","QuickRun()")
+  xvalue("PSTH resolution", "binwidth")
+  xbutton("PSTH","PSTHcell(tstellate_spikes,binwidth,1)")
+  xbutton("Print PSTH","PSTHcell(tstellate_spikes,binwidth,2)")
+  xpanel()
+}
+
+
+proc TS_optim_param_Panel(){
+  xpanel("TStellate Optimisation Param")
+  xvalue("NPARAMS")
+  xbutton("Reset pvec","init_params(NPARAMS)")
+  xbutton("Include ts_gleak","append_gleak()")
+  xbutton("Include ts_erev","append_rev_potentials()")
+  xbutton("Include ts_ghbar","append_ghbar()")
+  xbutton("Include ts_gkabar","append_gkabar()")
+  
+  xbutton("Include w.x[hsr][ts]","append_hsrts_weights()")
+  xbutton("Include w.x[lsr][ts]","append_lsrts_weights()")
+  xbutton("Include w.x[ds][ts]","append_dsts_weights()")
+  xbutton("Include w.x[tv][ts]","append_tvts_weights()")
+  xbutton("Include w.x[glg][ts]","append_glgts_weights()")
+  
+  xbutton("Include n.x[hsr][ts]","append_num_hsrts_connections()")
+  xbutton("Include n.x[lsr][ts]","append_num_lsrts_connections()")
+  xbutton("Include n.x[ds][ts]","append_num_dsts_connections()")
+  xbutton("Include n.x[tv][ts]","append_num_tvts_connections()")
+  xbutton("Include n.x[glg][ts]","append_num_glgts_connections()")
+  
+  xpanel() 
+}
+
+TS_optim_param_Panel()
+TSPanel()
+nrncontrolmenu()

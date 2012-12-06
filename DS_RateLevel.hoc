@@ -903,11 +903,13 @@ proc Rerun_ANmodel_noise(){
 
 
 whichcell=ArnottFig12_CFpos
-	dstellate[whichcell][0].soma.gnabar_rm=0.408307 
+
+    dstellate[whichcell][0].soma.gnabar_rm=0.408307 
 	dstellate[whichcell][0].soma.gkhtbar_rm=0.030623 
-	dstellate[whichcell][0].soma.gleak_rm=0.000274146 / 2 
+	dstellate[whichcell][0].soma.gleak_rm=0.000274146/2 
 	dstellate[whichcell][0].soma.erev_rm=-70 
-reps=10	
+	
+	reps=10	
 	QuickRun()
 	xopen("DS_RateLevel/pvec_DS_RateLevel.hoc")	
 	run_multipleprax()

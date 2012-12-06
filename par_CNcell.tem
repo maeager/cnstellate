@@ -1,12 +1,14 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
-/** Cochlear Nucleus network model: Neural model templates
-* Templates for Rothman and Manis (2003) neural cell model
-* (CNcell) and Golgi cell model
-*
-*
-* Michael Eager, 2006-2012
-* University of Melbourne
+/** 
+ * Cochlear Nucleus Stellate Microcircuit
+ * Neural model templates based on the
+ * Rothman and Manis (2003) neural cell model
+ * (CNcell).  Golgi cell model template is a filter-based
+ * spiking Poisson neural model.
+ * 
+ * Michael Eager, 2006-2012
+ * University of Melbourne
 */
 
 
@@ -34,33 +36,55 @@ public soma, dend              //NEURON sections
 public AMPA, GlyR, GABAA       //synapse objects
 public spikes,spiketimes       //storage vectors
 public connect2target, synlist //synapse connection function and list
-public cf,model,channel          //identifying parameters ...
-public set_tstellate, set_dstellate,set_tuberc,set_golgi, nstomho,qt //member functions
+public cf,model,channel,ball_stick  //identifying parameters ...
+public set_tstellate, set_dstellate,set_tuberc,set_golgi //Cell member functions
+public nstomho                //Nano-siemens to Mho per cm^3 (conductance converter)
+public qt                     //Temperature quotient (Q10) factor
 public SaveSpikes,ClearSpikes
 
 external thresh,Erest,param
 external ampa_decay,ampa_erev,gly_decay,gly_erev,gly_rise
 external _gaba_decay, gaba_erev,_gaba_rise
 
-create soma
+create soma,dend
 objref AMPA, GlyR, GABAA, spikecount, spiketimes, synlist,spikes
 somaarea=1E-4
 cf=1E3
 channel=0
 model=0
+num_dend_seg=1
+ball_stick=0
 
 proc init() { local length,RM, p, q, r, Atotal
-    //Initialise sections and objects
-    create soma
     synlist = new List()
     spiketimes = new Vector()
     spikes = new Vector()
     lastspikecount = 0
-	
-    model = $1
+	num_dend_seg = 1
+	ball_stick = 0
+	create soma	
+	//Initialisation arguments
+    model = $1   //subtype ts=0,tv=1,ds=2,glg=3
     cf = $2
     channel=$3
-    //Set cell type currents and variables
+	
+	if (numarg() == 4) { //Ball-and-stick model
+		print "Using Ball-Stick model ", $4
+		ball_stick =1
+		create dend
+		dend.nseg=1
+
+	 	dend.diam=1.5
+        dend.L=200
+	 	dend.Ra = 150
+		dend.cm = 0.9
+		dend insert pas
+		dend.g_pas=0.002
+		connect dend(0),soma(1)
+	}
+
+	access soma
+    //Arg - 1 Set cell type currents and variables
     if(model == 0) set_tstellate()  //T stellate cell
     if(model == 1) set_tuberc()     //Tubervuloventral cell
     if(model == 2) set_dstellate()  //D stellate cell
@@ -72,26 +96,69 @@ proc init() { local length,RM, p, q, r, Atotal
         spikecount.thresh = thresh
         spikecount.record(spiketimes)
 		
-        //Insert synapses
-        AMPA = new ExpSyn(0.5)
-        synlist.append(AMPA)
-        AMPA.tau    = ampa_decay
-        AMPA.e      = ampa_erev
+        // //Insert synapses
+        // AMPA = new ExpSyn(0.5)
+        // synlist.append(AMPA)
+        // AMPA.tau    = ampa_decay
+        // AMPA.e      = ampa_erev
 		
-        //   if (model==1 || model ==2){
-        GlyR = new Exp2Syn(0.5)
-        synlist.append(GlyR)
-        GlyR.tau2   = gly_decay
-        GlyR.tau1	= gly_rise
-        GlyR.e      = gly_erev
-		
-        GABAA = new Exp2Syn(0.5)
-        synlist.append(GABAA)
-        GABAA.tau2  = param.gaba_decay
-        GABAA.tau1  = param.gaba_rise
-        GABAA.e     = gaba_erev
-        //     }
+		        //     }
     }
+	
+	if(	ball_stick == 1){
+		dend {
+			// Order of synapses important for pnm.nc_append in netpar_connect()
+			// in par_netpar.hoc.  The synapse type is used by connect_cells()
+			// argument 7 in par_CochlearNucleus.hoc.
+			
+//			Pnm.nc_append If the source and target exist on this machine a
+//			NetCon is created and added to the pnm.nclist.  If the target exists
+//			and is a real cell the synapse object is
+//			pnm.gid2obj(target_gid).synlist(synapse_id).  The synapse_ids are
+//			based on the order of synlist: AMPA=0, GlyR=1 GABAa=2
+			AMPA = new ExpSyn(0.5)
+			synlist.append(AMPA)
+			AMPA.tau    = ampa_decay
+			AMPA.e      = ampa_erev
+			
+			//   if (model==1 || model ==2){
+			GlyR = new Exp2Syn(0.5)
+			synlist.append(GlyR)
+			GlyR.tau2   = gly_decay
+			GlyR.tau1	= gly_rise
+			GlyR.e      = gly_erev
+			
+						
+		    GABAA = new Exp2Syn(0.5)
+			synlist.append(GABAA)
+			GABAA.tau2  = _gaba_decay  // use default values 
+			GABAA.tau1  = _gaba_rise
+			GABAA.e     = gaba_erev
+		}
+	} else {
+		soma {
+			//Order of synapses important for pnm.nc_append
+			AMPA = new ExpSyn(0.5)
+			synlist.append(AMPA)
+			AMPA.tau    = ampa_decay
+			AMPA.e      = ampa_erev
+			
+			//   if (model==1 || model ==2){
+			GlyR = new Exp2Syn(0.5)
+			synlist.append(GlyR)
+			GlyR.tau2   = gly_decay
+			GlyR.tau1	= gly_rise
+			GlyR.e      = gly_erev
+			
+						
+		    GABAA = new Exp2Syn(0.5)
+			synlist.append(GABAA)
+			GABAA.tau2  = param.gaba_decay
+			GABAA.tau1  = param.gaba_rise
+			GABAA.e     = gaba_erev
+
+		}
+	}
 	
 	
     forall if (ismembrane("na_ion")) {
@@ -143,6 +210,12 @@ proc set_tstellate() {
         ghbar_rm = nstomho(0.5)*qt(1)
         gleak_rm = nstomho(2)*qt()
     }
+	 if (ball_stick==1) { //Ball-and-stick model
+	// 	create dend 
+	// 	soma connect dend(0), soma(1)
+	 } 
+
+	
 }
 
 proc set_tuberc() {
@@ -295,8 +368,7 @@ proc init() {localobj r, data, hist, x, g
     channel=$3
     golgi_spatial_filter_variance=$4
     sg = new SGC_fast(0.5)
-    sg.cf = cf
-	
+    sg.cf = cf	
 }
 objref tempsout
 /* Obsolete - replaced with SetRate2*/
@@ -335,8 +407,7 @@ proc SetRate2() {local i,j,spon_factor
         wMSR.apply("gaussian").mul(weight_sum_MSR)
     }
     gaussian_variance = golgi_spatial_filter_variance_HSR
-    wHSR.apply("gaussian").mul(param.w.x[hsr][glg])
-	
+    wHSR.apply("gaussian").mul(param.w.x[hsr][glg])	
 	
     for i=0,nchannels-1  {
         //     if (wLSR.x[i]>0.01) tempsout.add(LSRout[i].c.add(-Lowspont).mul(wLSR.x[i]))
@@ -370,7 +441,7 @@ proc SetRate2() {local i,j,spon_factor
     sg.SetFibreRate(sout,spiketimes,sg_tdres)
     //print "golgi[",i,"][",j,"]: Process ",pnm.myid," mean ", sout.mean()
     objref tempsout
-    //printf(" done\r")
+    printf(" done\r")
 }
 
 proc GenSpikes(){local i,j

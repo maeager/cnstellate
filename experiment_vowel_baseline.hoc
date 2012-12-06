@@ -12,7 +12,7 @@ xopen("pvec_DS_ClickRecovery.hoc")
 proc set_DS_ClickRecovery(){local ii
 //Extra updating feature for DS_ClickRecovery
    for ii = 0,nchannels-1 {
-    dstellate[ii][0].soma.gleak_rm =param.dstellate_gleak_rm
+    dstellate[ii][0].soma.gleak_rm =param.dstellate_gleak
     dstellate[ii][0].soma.gkltbar_klt =param.dstellate_gkltbar
     dstellate[ii][0].GABAA.tau2 = param.gaba_decay
     dstellate[ii][0].GABAA.tau1 = param.gaba_rise
@@ -41,7 +41,7 @@ system("sleep 1")
 
 
 //Setup Auditory model
-   cfhi					=64000
+   cfhi					=40000
    cflo					=200
 
    dur					= 0.08  //duration of stim (seconds)

@@ -20,7 +20,7 @@ exptBox.intercept(1)
     xlabel("Choose an experiment:")
  //   xradiobutton("AN Response Area Simulation", "run_experiment(\"an_responsearea\")")
     xradiobutton("Click Delay response and optimisation", "run_experiment(\"ClickDelay\")")
- //   xradiobutton("Response Level Optimisation of Golgi cell", "run_experiment(\"golgi_ratelevel\")")
+ //   xradiobutton("Rate Level Optimisation of Golgi cell", "run_experiment(\"golgi_ratelevel\")")
 //   xradiobutton("Optimisation of DS cells to increasing notch", "run_experiment(\"DS_notch\")")
 //   xradiobutton("Optimisation of DS cells to MTF", "run_experiment(\"DS_MTF\")")
 

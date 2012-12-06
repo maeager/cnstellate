@@ -6,7 +6,7 @@ set terminal postscript eps enhanced defaultplex \
    palfuncparam 2000,0.003 \
    "Helvetica" 18
 #color solid
-set output "multiplotIVCV3.eps"
+set output "multiplotIVCV4.eps"
 
 #set size 0.49,0.5
 set multiplot layout 2,2 scale 1.1, 0.9
@@ -15,11 +15,11 @@ set style line 2 lc rgb '#dd181f' lt 1 lw 2 pt 5 ps 1.5 # --beautiful red line a
 set style line 3 lc rgb '#00ad06' lt 1 lw 2 pt 9 ps 1.5 # --green line and triangle
 
 set style fill solid 1.0
-set ylabel "Rate (sp/s)" font "Helvetica,18"
+set ylabel "Rate (sp/s)" font "Helvetica,18"  #offset character 0, 0, 0
 set xlabel "Time (ms)" font "Helvetica,18"
 set label 1 "A" at screen 0.075, screen 1 font "Helvetica,24"
-plot [-10:90] 'psth_0.25.dat' i 0 u 1:2 not w boxes lc "black"
-#plot [-10:90] 'psth_1.dat' i 0 u 1:2 w boxes lc "black"
+plot [-10:90] 'psth_0.25.dat' i 0 u 1:2 notitle w boxes lc "black"
+#plot [-10:90] 'psth_1.dat' i 0 u 1:2 not w boxes lc "black"
 
 
 set key outside horiz center top  nobox
@@ -30,19 +30,25 @@ set xrange [-0.5:4.5]
 set border 3
 #set ytics nomirror out 0.1,0.1,0.5
 set xlabel "Time Window" font "Helvetica,18"
-set ylabel "CV " font "Helvetica,18"
+set ylabel "\n\n CV " font "Helvetica,18" offset character +2, 0, 0
 set yrange [0.1:0.4]
 set ytics nomirror out 0.1,0.1,0.4
 unset obj
 set label 1 "B" at screen 0.55, screen 1 font "Helvetica,24"
-plot '< tail -4 TStellate.Fit.dat |  awk ''{print $3}'' ' u ($0):1 t "Test" w lp ls 1 lc 'black', \
-     '../TStellate/PaoliniBalancedInh-Fig2.png.dat' i 1 u 1:2:3 notitle w yerr lc rgb '#0060ad', \
-     '' i 1 u 1:2 t "Ref" w lp lc rgb '#0060ad' lt 1 lw 2 pt 5 ps 1.5
+# plot '< tail -4 TStellate.Fit.dat |  awk ''{print $3}'' ' u ($0):1 t "Test" w lp ls 1 lc 'black', \
+#     '../TStellate/PaoliniBalancedInh-Fig2.png.dat' i 2 u 1:2:3 notitle w yerr lc rgb '#0060ad', \
+#     '' i 2 u 1:2 t "Ref" w lp lc rgb '#0060ad' lt 1 lw 2 pt 5 ps 1.5
 
+plot [-0.5:3.5][0.1:0.5] '< grep -A4 -e ''CV reference'' TStellate.Fit.dat | tr ''#'' '' '' | tr ''-'' ''\n''| grep -v -e ''CV'' ' \
+     i 0 u 1:2 not  w lp ls 1 lc rgb '#AAAAAA', \
+     '' i 2 u 1:2 not w lp ls 1 lc rgb '#AAAAAA', \
+     '' i 1 u 1:2 t "Model" w lp ls 1 lc 'black', \
+     '' u 1:3 t "Ref" w lp lc rgb '#0060ad' lt 1 lw 2 pt 5 ps 1.5
+     
 unset key
 #load '../Responses/default.gnu'
-set xlabel "time (msec)"  font "Helvetica,18"
-set ylabel "Membrane Voltage (mV)"  font "Helvetica,18"
+set xlabel "Time (msec)"  font "Helvetica,18" 
+set ylabel "Membrane Voltage (mV)"  font "Helvetica,18" offset character -1, 0, 0
 set border 3
 #set ytics unset tics
 unset x2tics
@@ -64,8 +70,8 @@ set tics nomirror out
 #set key center top title " " nobox
 set label 1 "C" at screen 0.075,screen 0.5 font "Helvetica,24"
 
-plot 'TStellate.Fit.dat' u ($1-30):3 t "Test" w l lc "black", \
-     '' u 1:2 t "Reference" w l lc rgb "#0060ad"
+plot 'TStellate.Fit.dat' u ($1):2 t "Test" w l lc "black", \
+     '< tail -137 ../TStellate/CT1-01-857-007.png.dat' u 1:2 t "Reference" w l lc rgb "#0060ad"
 unset key
 
 #set key right Right noreverse nobox
@@ -76,9 +82,9 @@ unset xlabel #"Time Window" font "Helvetica,18"
 set arrow 1 from 0.5, graph 0 to 0.5, graph 1 nohead lt 8 lw 1.5 
 unset ytics
 unset obj
-set ylabel "Ratio" font "Helvetica,18"
+set ylabel "\n Ratio " font "Helvetica,18" offset character +2, 0, 0
 set y2label "Relative MP (mV)" font "Helvetica,18"
-set xtics nomirror out ("Onset" 0,"Adaptation" 1,"Offset " 2)
+set xtics nomirror out rotate by -20 offset -1,0 ("Onset" 0,"Adaptation" 2,"Offset" 5)
 set ytics nomirror 0,1,2
 set y2tics
 set tics out
@@ -86,17 +92,25 @@ set tics out
 #set autoscale y2
 set yrange [0:2]
 set y2range [*:*]
-set xrange [-0.5:2.5]
-set x2range [-0.5:2.5]
+set xrange [-0.5:6.5]
+set x2range [-0.5:6.5]
 set label 1 "D" at screen 0.55,screen 0.5 font "Helvetica,24"
 
-plot '< tail -7 TStellate.Fit.dat | head -1 | awk ''{print $3}'' ' axes x1y1 t "Test" w lp lc "black" lt 1 lw 2 pt 7 ps 1.5,\
-     '< tail -7 TStellate.Fit.dat | head -1 | awk ''{print $2}'' ' axes x1y1 t "Ref" w lp ls 1 pt 5 ps 1.5, \
-     '< tail -6 TStellate.Fit.dat | head -2 | awk ''{print $3}'' ' u ($0+1):1 axes x2y2 notitle w p lc "black" lt 1 lw 2 pt 7 ps 1.5,\
-     '< tail -6 TStellate.Fit.dat | head -2 | awk ''{print $2}'' ' u ($0+1):1 axes x2y2 notitle w p ls 1 pt 5 ps 1.5
+plot '< awk ''/IVOnset/ {if ($3!=0) print $3,$4; end}'' TStellate.Fit.dat'  u 1 axes x1y1 t "Test" w lp lc "black" lt 1 lw 2 pt 7 ps 1.5, \
+     '' u 2 axes x1y1 t "Ref" w lp ls 1 pt 5 ps 1.5, \
+     '< awk ''/IVAdapt/ {if ($3!=0) print $3,$4; end}'' TStellate.Fit.dat' u ($0+1):2 axes x2y2 not  w lp lc "black" lt 1 lw 2 pt 7 ps 1.5, \
+     '' u ($0+1):1 axes x2y2 not w lp ls 1 pt 5 ps 1.5, \
+     '< awk ''/IVOffset/ {print $3,$4}'' TStellate.Fit.dat' u ($0+4):2 axes x2y2 not w lp lc "black" lt 1 lw 2 pt 7 ps 1.5, \
+     '' u ($0+4):1 axes x2y2 not w lp ls 1 pt 5 ps 1.5 
+
+
+# plot '< tail -7 TStellate.Fit.dat | head -1 | awk ''{print $3}'' ' axes x1y1 t "Test" w lp lc "black" lt 1 lw 2 pt 7 ps 1.5,\
+#      '< tail -7 TStellate.Fit.dat | head -1 | awk ''{print $2}'' ' axes x1y1 t "Ref" w lp ls 1 pt 5 ps 1.5 , \
+#      '< tail -6 TStellate.Fit.dat | head -2 | awk ''{print $3}'' ' u ($0+1):1 axes x2y2 notitle w p lc "black" lt 1 lw 2 pt 7 ps 1.5,\
+#      '< tail -6 TStellate.Fit.dat | head -2 | awk ''{print $2}'' ' u ($0+1):1 axes x2y2 notitle w p ls 1 pt 5 ps 1.5
 
 unset multiplot
-!fixbb multiplotIVCV3.eps
+!fixbb multiplotIVCV4.eps
 
 # set output "psthcv.eps"
 

@@ -79,9 +79,13 @@ proc create_cells() { local p,i_chan,j_cell
   quitmodel = 0
  print "Creating cells...."
   for i_chan = 0, nchannels-1 {
-    if (nTSperchannel > 0) for j_cell = 0, nTSperchannel-1 {
-        sprint(cmd, "tstellate[%d][%d] = new CNcell(0,cf.x[%d],%d)",i_chan,j_cell,i_chan,i_chan)
-        execute1(cmd)
+      if (nTSperchannel > 0) for j_cell = 0, nTSperchannel-1 {
+		  if (use_ball_stick==1){
+			  sprint(cmd, "tstellate[%d][%d] = new CNcell(0,cf.x[%d],%d,1)",i_chan,j_cell,i_chan,i_chan)
+		  } else {
+		      sprint(cmd, "tstellate[%d][%d] = new CNcell(0,cf.x[%d],%d)",i_chan,j_cell,i_chan,i_chan)
+		  }
+		  execute1(cmd)
     }
     if (nTVperchannel > 0) for j_cell = 0, nTVperchannel-1 {
         sprint(cmd, "tuberculoventral[%d][%d] = new CNcell(1,cf.x[%d],%d)",i_chan,j_cell,i_chan,i_chan)
@@ -735,37 +739,32 @@ proc insert_iclamps() { local i,j, ran // 2 args - del dur
 
 // Randomise initial conditions ----------------------------------------
 
-proc random_init() { local i,j, ran
+proc random_init() {local i,j,ran
 	if(numarg() == 2){
-		random.normal($1,$2)
+       random.normal($1,$2)
 	}else{
-		random.normal(-65,-40)
+       random.normal(-60,5)
 	}
   for i = 0,nchannels-1 {
     for j = 0, nTSperchannel-1 {
       ran = random.repick()
-
-      sprint(cmd, "tstellate[i][j].soma.v(0.5) = ran")
-         execute1(cmd)
+      sprint(cmd, "tstellate[%d][%d].soma.v(0.5) = %g",i,j,ran)
+      execute1(cmd)
     }
     for j = 0, nDSperchannel-1 {
       ran = random.repick()
-
-      sprint(cmd, "dstellate[i][j].soma.v(0.5) = ran")
-         execute1(cmd)
-
+      sprint(cmd, "dstellate[%d][%d].soma.v(0.5) = %g",i,j,ran)
+      execute1(cmd)
     }
     for j = 0, nTVperchannel-1 {
       ran = random.repick()
-
-      sprint(cmd, "tuberculoventral[i][j].soma.v(0.5) = ran")
-         execute1(cmd)
-
+      sprint(cmd, "tuberculoventral[%d][%d].soma.v(0.5) = %g",i,j,ran)
+      execute1(cmd)
     }
    if (LSR2GLG == 1) { for j = 0, nGperchannel-1 {
-      ran = random.repick()
-     sprint(cmd, "golgi[i][j].soma.v(0.5) = ran")
-         execute1(cmd)
+       ran = random.repick()
+       sprint(cmd, "golgi[%d][%d].soma.v(0.5) = %g",i,j,ran)
+       execute1(cmd)
      }}
   }
 }
@@ -914,18 +913,22 @@ proc reset_delays() { local i // 1 arg - delay
 }
 
 
-proc SetGolgiRates(){
+proc SetGolgiRates(){local ii,jj
 	if (usesavedfilterbanks==1){
 		if(RetrieveGolgiFilterBank()==1) {
 			return
 		}else{
-			for i=0,nchannels-1 golgi[i][0].SetRate2()
+			for ii=0,nchannels-1 {
+				for jj=0,nGperchannel-1  golgi[ii][jj].SetRate2()
+			}
 		  printf(" done\n")
 
 			SaveGolgiFilterBank2File()	
 		}
 	} else {
-		for i=0,nchannels-1 golgi[i][0].SetRate2()
+		for ii=0,nchannels-1 {
+				for jj=0,nGperchannel-1 golgi[ii][jj].SetRate2()
+			}
 		printf(" done\n")
 	}
 }
@@ -953,19 +956,19 @@ proc GenSpikesA(){local i,j,count
     for i=0,nchannels-1 {for j=0,HSRsperchannel-1 count+=an.HSRspiketimes[i][j].size}
    // if (count/(nchannels*HSRsperchannel) > 10) system("sleep 0.5")
     for i=0,nchannels-1 {for j=0,LSRsperchannel-1 an.LSR[i][j].SGfast(1)}
-    for i=0,nchannels-1 {golgi[i][0].sg.SGfast(1)}
+    for i=0,nchannels-1 {for j=0,nGperchannel-1 golgi[i][j].sg.SGfast(1)}
   print "GenSpikes time:", stopsw()
 }
 
-proc GenSpikes(){local i
+proc GenSpikes(){local i,j
   startsw()
-    for i=0,nchannels-1 for j=0,HSRsperchannel-1 an.HSR[i][j].SGfast(1)
-    for i=0,nchannels-1 for j=0,LSRsperchannel-1 an.LSR[i][j].SGfast(1)
-    for i=0,nchannels-1  golgi[i][0].sg.SGfast(1)
+    for i=0,nchannels-1 {for j=0,HSRsperchannel-1 an.HSR[i][j].SGfast(1)}
+    for i=0,nchannels-1 {for j=0,LSRsperchannel-1 an.LSR[i][j].SGfast(1)}
+    for i=0,nchannels-1 {for j=0,nGperchannel-1 golgi[i][0].sg.SGfast(1)}
   print "GenSpikes time:", stopsw()
 }
 
-proc GenSpikes2(){local i,xtime
+proc GenSpikes2(){local i,j,xtime
     //Use version 4 spike generator in SGC_fast
   xtime = startsw()
   for i=0,nchannels-1 {
@@ -976,7 +979,9 @@ proc GenSpikes2(){local i,xtime
 	  for j=0,LSRsperchannel-1 {
 		  an.LSR[i][j].SGfast2(1)
 	  }
-	  golgi[i][0].sg.SGfast2(1)
+	  for j=0,nGperchannel-1 {
+		  golgi[i][j].sg.SGfast2(1)
+	  }
   }
   print "GenSpikes2 time:", startsw()-xtime
 }
@@ -994,8 +999,8 @@ proc multi_run(){local ireps,xtime,starttime
         SaveSpikes()
 		
     }
-  starttime=startsw()-xtime
-  print "Total multi_run time: ",starttime, " Per rep: ", starttime/reps 
+  xtime=startsw()-starttime
+  print "Total multi_run time: ",xtime, " Per rep: ", xtime/reps 
 	
 }
 proc multi_run2(){local ireps,xtime
@@ -1003,13 +1008,18 @@ proc multi_run2(){local ireps,xtime
     ClearSpikes()
     for ireps = 0, reps-1 {
         GenSpikes2()
-	print " Rep ", ireps, " of ", reps
-        run()
+		print " Rep ", ireps, " of ", reps
+		if (using_random_init == 0){		
+			run()
+		} else {
+			stdinit()
+			random_init()
+			continuerun(tstop)
+		}
         SaveSpikes()
     }
-  xtime=	 startsw()-xtime
+  xtime=startsw()-xtime
   print "multi_run2 time: ",xtime, " Per rep: ", xtime/reps 
-	
 }
 
 proc ClearInputSpikes(){local ii
@@ -1045,39 +1055,21 @@ proc ClearSpikes(){local ii,jj
 
 
 
-proc reset_DS_ClickRecovery(){local ii
+proc reset_DS_ClickRecovery(){local ii,jj
 	print "updating features for DS_ClickRecovery optimisation routines"
-   for ii = 0,nchannels-1 {
-       dstellate[ii][0].soma.gleak_rm = param.dstellate_gleak_rm
-       dstellate[ii][0].soma.gkltbar_klt = param.dstellate_gkltbar
-       dstellate[ii][0].GABAA.tau2 = param.gaba_decay
-       dstellate[ii][0].GABAA.tau1 = param.gaba_rise
-   }
-   
+	for ii = 0,nchannels-1 {
+		for jj=0,nDSperchannel-1{
+			dstellate[ii][jj].soma.gleak_rm = param.dstellate_gleak
+			dstellate[ii][jj].soma.gkltbar_klt = param.dstellate_gkltbar
+			dstellate[ii][jj].soma.gkhtbar_rm = param.dstellate_gkhtbar
+			dstellate[ii][jj].soma.gnabar_rm = param.dstellate_gnabar
+			
+			dstellate[ii][jj].GABAA.tau2 = param.gaba_decay
+			dstellate[ii][jj].GABAA.tau1 = param.gaba_rise
+		}
+	}   
 }
 
-proc RefreshCellParams(){local ii,jj
-    for ii=0,nchannels-1{
-        for jj=0,nTSperchannel-1{
-			tstellate[ii][jj].soma.gkabar_ka = param.ts_gkabar
-			tstellate[ii][jj].soma.ghbar_rm  = param.ts_ghbar
-			tstellate[ii][jj].soma.gleak_rm  = param.ts_gleak
-			tstellate[ii][jj].soma.erev_rm	 = param.ts_erev
-        }
-        for jj=0,nTVperchannel-1{
-			tuberculoventral[ii][jj].soma.gleak_rm	= param.tv_gleak
-			tuberculoventral[ii][jj].soma.erev_rm	= param.tv_erev
-		}
-        for jj=0,nDSperchannel-1{
-			dstellate[ii][jj].soma.gleak_rm = param.dstellate_gleak_rm
-			dstellate[ii][0].soma.gkltbar_klt = param.dstellate_gkltbar
-			dstellate[ii][0].GABAA.tau2 = param.gaba_decay
-			dstellate[ii][0].GABAA.tau1 = param.gaba_rise			
-		}
-		
-    }
-	print "Reset CN cell parameters"
-}
 
 
 
@@ -1101,4 +1093,32 @@ proc RefreshCNcellsCF(){local ii,jj
         }
     }
  print "Reset CN cell frequencies"
+}
+
+
+proc RefreshCellParams(){local ii,jj
+    for ii=0,nchannels-1{
+        for jj=0,nTSperchannel-1{
+			tstellate[ii][jj].soma.gkabar_ka = param.ts_gkabar
+			tstellate[ii][jj].soma.ghbar_rm  = param.ts_ghbar
+			tstellate[ii][jj].soma.gleak_rm  = param.ts_gleak
+			tstellate[ii][jj].soma.erev_rm	 = param.ts_erev
+        }
+        for jj=0,nTVperchannel-1{
+			tuberculoventral[ii][jj].soma.gleak_rm	= param.tv_gleak
+			tuberculoventral[ii][jj].soma.erev_rm	= param.tv_erev
+		}
+        for jj=0,nDSperchannel-1{
+			dstellate[ii][jj].soma.gleak_rm = param.dstellate_gleak
+			dstellate[ii][jj].soma.gkltbar_klt = param.dstellate_gkltbar
+			dstellate[ii][jj].soma.gkhtbar_rm = param.dstellate_gkhtbar
+			dstellate[ii][jj].soma.gnabar_rm = param.dstellate_gnabar
+			
+			dstellate[ii][0].GABAA.tau2 = param.gaba_decay
+			dstellate[ii][0].GABAA.tau1 = param.gaba_rise			
+		}
+		
+    }
+	print "Reset CN cell parameters"
+	
 }
