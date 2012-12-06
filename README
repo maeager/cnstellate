@@ -1,12 +1,13 @@
 
 
-I generally setup two versions of NEURON one for testing with a GUI and the other with MPI linked in.
+I generally setup two versions of NEURON one for testing with a GUI
+and the other with MPI linked in.
 
 unpack nrn and iv then jump into iv
 
-cd
-mkdir neuron
-cd neuron
+
+mkdir -p ~/src/neuron
+cd ~/src/neuron
 tar zxvf ../iv-17.tar.gz
 mv iv-17 iv
 cd iv
@@ -28,9 +29,11 @@ mkdir mpi
 make && make install
 
 
-In the working directory containing NMOL *.mod files, setup two linkable libraries against the two nrn builds.
+In the working directory containing NMOL *.mod files, setup two
+linkable libraries against the two nrn builds.
 
-See the Makefile for instrstructions to make either the gui or mpi version, otherwise use "make all"
+See the Makefile for instrstructions to make either the gui or mpi
+version, otherwise use "make all"
 
 $ make gui
 
@@ -45,6 +48,8 @@ or
 ./gui/special par_golgi_test.hoc -
 
 
-the MPI version should be run in the background from the mpispecial script or in batch mode.  "np" is the number of processors requested (1 to 50)
+The MPI version should be run in the background from the mpispecial
+script or in batch mode.  "np" is the number of processors requested
+(e.g. 1 to 50)
 
 ./mpispecial np par_batch.hoc > /tmp/batch.log 2>&1 &

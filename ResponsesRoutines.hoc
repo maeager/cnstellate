@@ -64,8 +64,9 @@ ANsoundspath = "/media/data/sounds"  //local sounds path
 ANmodel      = 6      //Zilany Bruce model
 species      = 1      //Cat
 nrep         = 1      //nrep is number of reps of stimulus
-cfhi         = 48000
+cfhi         = 40000
 cflo         = 200
+dutycycle    = 0.5
 srate        = 100000.0
 stimtdres    = 1/srate
 sg_rate      = 50000
@@ -80,15 +81,15 @@ RefreshCF()
 proc RateLevelFunction(){
 	tonefreq=cf.x[50]
 	reps=50
-	ramplngth	= 0.005
-	dur		    = 0.045    //duration of stim (seconds) minus risefall
+	ramplngth	= 0.002
+	dur		    = 0.049    //duration of stim (seconds) minus risefall
 	stimdelay	= 0.02      //sec
 	stimtype	= 1      //tone
 	reps		= 25
 	t_ignore_before = stimdelay*1000/binwidth
-	t_ignore_after  = (stimdelay+dur+ramplngth)*1000/binwidth
+	t_ignore_after  = (stimdelay+dur+ramplngth)*1.2*1000/binwidth
 	
-	for (spl=50;spl<=90;spl=spl+20){
+	for (spl=-10;spl<=90;spl=spl+5){
 		//CREATEFILTERBANKS()
 		MULTIRUN()
 		sprint(fileroot_,"%s/RateLevel/%g",fileroot,spl)
@@ -109,14 +110,14 @@ proc RateLevelFunction(){
 
 // Run Noise RF
 proc NoiseRateLevelFunction(){
-	ramplngth	= 0.005
-	dur		= 0.045    //duration of stim (seconds)
+	ramplngth	= 0.002
+	dur		= 0.049    //duration of stim (seconds)
 	stimdelay	= 0.02      //sec
 	stimtype = 6
 	t_ignore_before=stimdelay*1000/binwidth
-	t_ignore_after=(stimdelay+dur+ramplngth)*1000/binwidth
+	t_ignore_after=(stimdelay+dur+ramplngth)*1.2*1000/binwidth
 	
-	for (spl=40;spl<=120;spl=spl+5){
+	for (spl=-10;spl<=110;spl=spl+5){
 		MULTIRUN()
 		sprint(fileroot_,"%s/NoiseRateLevel/%g",fileroot,spl)
 		print_results()
@@ -196,7 +197,7 @@ proc ResponseArea(){local myCF,ifreq
 	// for tonefreq=CF-freq_increment, tonefreq>= myCF/8; tonefreq= tonefreq-freq_increment {
 	//    	MULTIRUN()
 	//	SAVEDATA
-	//	if act=0 BREAK
+	//	if act=0 BREAK 
 	//    }
 	
 	

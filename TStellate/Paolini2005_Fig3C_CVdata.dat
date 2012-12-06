@@ -1,0 +1,8 @@
+## CV data in Fig3C, Paolini et al.,2005
+# Sound level (dB re AP threshold =25 dB SPL)
+# Time period,45dB,65dB,75dB
+10  0.108   0.12     0.149     
+20  0.157   0.138   0.149  
+30  0.157   0.2     0.146  
+40  0.157   0.189   0.152  
+50  0.157   0.189   0.2    

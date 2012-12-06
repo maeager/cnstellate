@@ -1,36 +1,73 @@
- // Fri Nov 25 12:30:43 EST 2011
+ // Sunday 4 November  13:46:28 EST 2012
   
-param.n.x[lsr][ts] = 0.00994258*1000
-param.n.x[hsr][ts] = 0.0111412*1000
-param.n.x[ds][ts] = 0.0211264*1000
-param.n.x[tv][ts] = 0.021*1000
-param.n.x[glg][ts] = 0.0149578*1000
-param.w.x[lsr][ts] = 0.002*1
-param.w.x[hsr][ts] = 0.003*1
-param.w.x[ds][ts] = 0.0001*1
-param.w.x[tv][ts] = 0.0002*1
-param.w.x[glg][ts] = 0.0005*1
+param.w.x[lsr][ts] = 0.0038*1
+param.w.x[hsr][ts] = 0.0028039*1
+param.w.x[ds][ts] = 0.000156833*1
+param.w.x[tv][ts] = 0.00017*1
+param.w.x[glg][ts] = 0.00013*1
 param.ts_gleak = 0.000473539*1
- // Mon Nov 28 14:51:25 EST 2011
+param.ts_erev = 0.062007*-1000
+ // Sunday 4 November  14:04:03 EST 2012
   
-param.ts_erev = 0.0527193*-1000
-param.ts_ghbar = 0.000347005*1
-param.ts_gleak = 0.000263401*1
-param.n.x[lsr][ts] = 0.0105138*1000
-param.n.x[hsr][ts] = 0.010676*1000
-param.n.x[ds][ts] = 0.0195531*1000
-param.n.x[tv][ts] = 0.0202273*1000
-param.n.x[glg][ts] = 0.0145615*1000
-param.ts_gkabar = 0.0148656*1
- // Wed Nov 30 17:37:20 EST 2011
+param.w.x[lsr][ts] = 0.0042*1
+param.w.x[hsr][ts] = 0.0031039*1
+param.w.x[ds][ts] = 0.000156833*1
+param.w.x[tv][ts] = 0.00017*1
+param.w.x[glg][ts] = 0.00013*1
+param.ts_gleak = 0.000473539*1
+param.ts_erev = 0.062007*-1000
+ // Sunday 4 November  14:33:37 EST 2012
   
-param.n.x[lsr][ts] = 0.012*1000
-param.n.x[hsr][ts] = 0.010432*1000
-param.n.x[ds][ts] = 0.0209368*1000
-param.n.x[tv][ts] = 0.0211256*1000
-param.n.x[glg][ts] = 0.0149972*1000
-param.w.x[lsr][ts] = 0.001*1
-param.w.x[hsr][ts] = 0.00294874*1
-param.w.x[ds][ts] = 0.0001*1
-param.w.x[tv][ts] = 0.0002*1
-param.w.x[glg][ts] = 0.0005*1
+param.w.x[lsr][ts] = 0.0045*1
+param.w.x[hsr][ts] = 0.0030039*1
+param.w.x[ds][ts] = 1.2e-05*1
+param.w.x[tv][ts] = 9.5e-05*1
+param.w.x[glg][ts] = 0.00015*1
+param.ts_gleak = 0.000473539*1
+param.ts_erev = 0.062007*-1000
+ // Monday 5 November  22:03:14 EST 2012
+  
+param.w.x[lsr][ts] = 0.0035*1
+param.w.x[hsr][ts] = 0.0032039*1
+param.w.x[ds][ts] = 4.2e-05*1
+param.w.x[tv][ts] = 0.000125*1
+param.w.x[glg][ts] = 0.00015*1
+param.ts_gleak = 0.000473539*1
+param.ts_erev = 0.062007*-1000
+ // Monday 5 November  22:19:54 EST 2012
+  
+param.w.x[lsr][ts] = 0.0028*1
+param.w.x[hsr][ts] = 0.0022039*1
+param.w.x[ds][ts] = 8.2e-05*1
+param.w.x[tv][ts] = 0.00017*1
+param.w.x[glg][ts] = 0.00015*1
+param.ts_gleak = 0.000473539*1
+param.ts_erev = 0.055007*-1000
+ // Monday 5 November  22:27:26 EST 2012
+  
+param.w.x[lsr][ts] = 0.0028*1
+param.w.x[hsr][ts] = 0.0024039*1
+param.w.x[ds][ts] = 8.2e-05*1
+param.w.x[tv][ts] = 0.00023*1
+param.w.x[glg][ts] = 0.00025*1
+param.ts_gleak = 0.000473539*1
+param.ts_erev = 0.0629*-1000
+ // Monday 5 November  22:32:37 EST 2012
+  
+param.w.x[lsr][ts] = 0.0028*1
+param.w.x[hsr][ts] = 0.0024039*1
+param.w.x[ds][ts] = 0.000122*1
+param.w.x[tv][ts] = 0.00023*1
+param.w.x[glg][ts] = 0.00025*1
+param.ts_gleak = 0.000473539*1
+param.ts_erev = 0.0629*-1000
+ // Monday 5 November  22:42:01 EST 2012
+  
+param.w.x[lsr][ts] = 0.0033*1
+param.w.x[hsr][ts] = 0.0028039*1
+param.w.x[ds][ts] = 0.000122*1
+param.w.x[tv][ts] = 0.000178*1
+param.w.x[glg][ts] = 0.00016*1
+param.ts_gleak = 0.000473539*1
+param.ts_erev = 0.0629*-1000
+param.ts_jitter_sd=0.6

@@ -1,7 +1,7 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
 /*
-*   TV_Notch.hoc for the Unit in Fig 8A of Spirou et al 1999
+*   TV_RateLevel.hoc for the Unit in Fig 8A of Spirou et al 1999
 *
 */
 
@@ -973,16 +973,16 @@ proc Rerun_ANmodel_noise(){
 
 objref myg,myn
 proc PlotRLs(){
-myg = new Graph()
-myn = new Graph()
-for i=3,6 toneRL[i].plot(myg,toneRL[0])
-for i=1,2 toneRL[i].plot(myg,toneRL[0],2,2)
-for i=0,1 target_rate_level[i].plot(myg,toneRL[0],3,3)
-for i=3,6 noiseRL[i].plot(myn,noiseRL[0])
-for i=1,2 noiseRL[i].plot(myn,noiseRL[0],2,2)
-for i=2,3 target_rate_level[i].plot(myn,noiseRL[0],3,3)
-myg.exec_menu("View = plot")
-myn.exec_menu("View = plot")
+	myg = new Graph()
+	myn = new Graph()
+	for i=3,6 toneRL[i].plot(myg,toneRL[0])
+	for i=1,2 toneRL[i].plot(myg,toneRL[0],2,2)
+	for i=0,1 target_rate_level[i].plot(myg,toneRL[0],3,3)
+	for i=3,6 noiseRL[i].plot(myn,noiseRL[0])
+	for i=1,2 noiseRL[i].plot(myn,noiseRL[0],2,2)
+	for i=2,3 target_rate_level[i].plot(myn,noiseRL[0],3,3)
+	myg.exec_menu("View = plot")
+	myn.exec_menu("View = plot")
 }
 
 xopen("TV_RateLevel.ses")
