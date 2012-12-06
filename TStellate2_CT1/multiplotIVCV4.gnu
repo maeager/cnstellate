@@ -84,7 +84,7 @@ unset ytics
 unset obj
 set ylabel "\n Ratio " font "Helvetica,18" offset character +2, 0, 0
 set y2label "Relative MP (mV)" font "Helvetica,18"
-set xtics nomirror out ("Onset" 0,"Adaptation" 2,"Offset" 5)
+set xtics nomirror out rotate by -20 offset -1,0 ("Onset" 0,"Adaptation" 2,"Offset" 5)
 set ytics nomirror 0,1,2
 set y2tics
 set tics out
