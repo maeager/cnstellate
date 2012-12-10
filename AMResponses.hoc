@@ -1,7 +1,7 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
-/*
-*   Responses.hoc
+/* Simulate reponses for chapter 4 of my thesis
+*  AM Responses.hoc
 *  Generate RL,NRL,RA, MTF
 */
 
@@ -14,11 +14,11 @@ xopen("Params.hoc")
 xopen("Utilities.hoc")
 xopen("NetworkParameters.hoc")
 xopen("AuditoryNerve.hoc")
-xopen("CNcell.tem")      // CN cell template
+xopen("par_CNcell.tem")      // CN cell template
 
 //Previous optimisation parameters
 xopen("pvec_Golgi_RateLevel.hoc")
-xopen("pvec_DS_ClickRecovery.hoc"
+xopen("pvec_DS_ClickRecovery.hoc")
 xopen("pvec_DS_RateLevel.hoc")
 
 xopen("pvec_TV_Notch.hoc")
@@ -29,11 +29,20 @@ xopen("parameters_Responses.hoc")
 xopen("CochlearNucleus.hoc")         // model set-up
 xopen("calcisilag.hoc")
 xopen("psth.hoc")
+xopen("jitter.hoc")
+//Parameters for this optimisation
+xopen("parameters_TStellate.hoc")
+
+ use_ball_stick=1
+ fileroot="AMResponses2"
+ create_cells()
+connect_cells(fileroot)
+connect_CNcells(fileroot)
 
 //xopen("par_experiment_TV_RateLevel.hoc")
-xopen("par_experiment_TStellate.hoc")
+xopen("par_experiment_TStellate2.hoc")
 
-fileroot="AMResponses"
+
 
 
 
@@ -87,7 +96,7 @@ CS_data()
 RefreshParameters()
 ANFilterBankRun()  //Generate new AN instant. rates
 SetInputRates()
-xopen("TStellate_CS/pvec_TStellate.hoc")
+xopen("TStellate2_CS/pvec_TStellate.hoc")
 RefreshCellParams()
 connect_cells(fileroot)
 connect_CNcells(fileroot)
@@ -102,7 +111,7 @@ CT1_data()
 RefreshParameters()
 ANFilterBankRun()  //Generate new AN instant. rates
 SetInputRates()
-xopen("TStellate_CT1/pvec_TStellate.hoc")
+xopen("TStellate2_CT1/pvec_TStellate.hoc")
 RefreshCellParams()
 connect_cells(fileroot)
 connect_CNcells(fileroot)
@@ -116,7 +125,7 @@ CT2_data()
 RefreshParameters()
 ANFilterBankRun()  //Generate new AN instant. rates
 SetInputRates()
-xopen("TStellate_CT2/pvec_TStellate.hoc")
+xopen("TStellate2_CT2/pvec_TStellate.hoc")
 RefreshCellParams()
 connect_cells(fileroot)
 connect_CNcells(fileroot)
