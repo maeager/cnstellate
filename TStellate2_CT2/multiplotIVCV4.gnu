@@ -18,7 +18,7 @@ set style line 4 lc rgb '#00ad06' lt 1 lw 2 pt 72 ps 1.5 # --green line and unfi
 set style fill solid 1.0
 set ylabel "Rate (sp/s)" font "Helvetica,18"  #offset character 0, 0, 0
 set xlabel "Time (ms)" font "Helvetica,18"
-set label 1 "{/Sans-Bold A}" at screen 0.075, screen 1 font "Helvetica,32"
+set label 1 "{/Sans-Bold A}" at screen 0.075, screen 1 font "Arial,32"
 plot [-10:90] 'psth_0.25.dat' i 0 u 1:2 notitle w boxes lc "black"
 #plot [-10:90] 'psth_1.dat' i 0 u 1:2 not w boxes lc "black"
 
@@ -35,7 +35,7 @@ set ylabel "\n\n CV " font "Helvetica,18" offset character +2, 0, 0
 set yrange [0.1:0.4]
 set ytics nomirror out 0.1,0.1,0.6
 unset obj
-set label 1 "{/Sans-Bold B}" at screen 0.55, screen 1 font "Helvetica,32"
+set label 1 "{/Sans-Bold B}" at screen 0.55, screen 1 font "Arial,32"
 # plot '< tail -4 TStellate.Fit.dat |  awk ''{print $3}'' ' u ($0):1 t "Test" w lp ls 1 lc 'black', \
 #     '../TStellate/PaoliniBalancedInh-Fig2.png.dat' i 2 u 1:2:3 notitle w yerr lc rgb '#0060ad', \
 #     '' i 2 u 1:2 t "Ref" w lp lc rgb '#0060ad' lt 1 lw 2 pt 5 ps 1.5
@@ -70,7 +70,7 @@ set tics nomirror out
 #set autoscale y
 #set autoscale x
 #set key center top title " " nobox
-set label 1 "{/Sans-Bold C}" at screen 0.075,screen 0.5 font "Helvetica,32"
+set label 1 "{/Sans-Bold C}" at screen 0.075,screen 0.5 font "Arial,32"
 
 plot 'TStellate.Fit.dat' u ($1):2 t "Test" w l lc "black", \
      '< tail -137 ../TStellate/CT2-01-305-014.png.dat' u 1:2 t "Reference" w l lc rgb "#0060ad"
@@ -85,7 +85,7 @@ set arrow 1 from 0.5, graph 0 to 0.5, graph 1 nohead lt 8 lw 1.5
 unset ytics
 unset obj
 set ylabel "\n Ratio " font "Helvetica,18" offset character +2, 0, 0
-set y2label "Relative MP (mV)" font "Helvetica,18"
+set y2label "{/Symbol D}MP (mV)" font "Helvetica,18"
 set xtics nomirror out rotate by -20 offset -1,0 ("Onset" 0,"Adaptation" 2,"Offset" 5)
 set ytics nomirror 0,1,2
 set y2tics
@@ -96,12 +96,12 @@ set yrange [0:2]
 set y2range [*:*]
 set xrange [-0.5:6.5]
 set x2range [-0.5:6.5]
-set label 1 "{/Sans-Bold D}" at screen 0.55,screen 0.5 font "Helvetica,32"
+set label 1 "{/Sans-Bold D}" at screen 0.55,screen 0.5 font "Arial,32"
 
 plot '< awk ''/IVOnset/ {if ($3!=0) print $3,$4; end}'' TStellate.Fit.dat'  u 1 axes x1y1 t "Test" w lp lc "black" lt 1 lw 2 pt 7 ps 1.5, \
      '' u 2 axes x1y1 t "Ref" w lp ls 1 pt 5 ps 1.5, \
-     '< awk ''/IVAdapt/ {if ($3!=0) print $3,$4; end}'' TStellate.Fit.dat' u ($0+1):2 axes x2y2 not  w lp lc "black" lt 1 lw 2 pt 7 ps 1.5, \
-     '' u ($0+1):1 axes x2y2 not w lp ls 1 pt 5 ps 1.5, \
+     '< awk ''/IVAdapt/ {if ($3!=0) print $3,$4; end}'' TStellate.Fit.dat' u ($0+1):(abs($2)) axes x2y2 not  w lp lc "black" lt 1 lw 2 pt 7 ps 1.5, \
+     '' u ($0+1):(abs($1)) axes x2y2 not w lp ls 1 pt 5 ps 1.5, \
      '< awk ''/IVOffset/ {print $3,$4}'' TStellate.Fit.dat' u ($0+4):(abs($2)) axes x2y2 not w lp lc "black" lt 1 lw 2 pt 7 ps 1.5, \
      '' u ($0+4):(abs($1)) axes x2y2 not w lp ls 1 pt 5 ps 1.5 
 
