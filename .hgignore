@@ -26,7 +26,10 @@ x86_64/*
 $pfebk/*
 *.ps
 *.pdf
-#Responses*/*
+AMResponses*/*
+Responses*/*
+*/F0Response/*
+*/ModulationTransferFunction/*
 #Responses*/*.dat
 #Responses*/*/*/*.dat
 #Responses*/*/*/*/*.dat
