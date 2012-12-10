@@ -1000,6 +1000,7 @@ func TStellate2_err( ) {local jj,pp,xtime,error,penalty,sustainedrate,inputresis
 			return 1e9
 		}
 	}
+	
 	//print variables
 	print "TStellate_err2 ", $1
 	for pp=0,NPARAMS-1 { printf("%s = %g * %g",pvec_name.object(pp).s,$&2[pp],pvec_factor.x[pp])}
