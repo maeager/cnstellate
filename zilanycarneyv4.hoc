@@ -2,7 +2,10 @@
  *	zilanycarneyv4.hoc
  *
  */
-load_file("nrngui.hoc")
+ 
+ 
+ 
+ load_file("nrngui.hoc")
 thresh=-20
 
 xopen("mathslib.hoc")			// mathematical procedures

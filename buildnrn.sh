@@ -10,7 +10,8 @@ rm -f $ARCH/.libs/an*
 (cd libresample-0.1.3; make)
 
 #NRNIVPATH=${HOME}/src/neuron/nrnmpi/$ARCH
-NRNIVPATH=/usr/local/nrn/$ARCH
+NRNIVPATH=/usr/local/nrn/${ARCH}
+
 
 ${NRNIVPATH}/bin/nrnivmodl -loadflags `pwd`/libresample-0.1.3/libresample.a
 

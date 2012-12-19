@@ -9,7 +9,7 @@ ls [0-9]*| grep :|sed 's/://'| sort -n> freq.dat
 
 > TS_vs.dat    # Clear data from TS_vs.dat
 {
-for i in `ls  */vs.0.dat|sort -n`
+for i in $(ls  */vs.0.dat|sort -n)
 do 
 	grep '^50' $i | awk '{print $2}'
 	awk '{print $2}' $i > /tmp/vs.dat
@@ -23,7 +23,7 @@ gnuplot TS_temporal.gnu
 
 > DS_vs.dat
 {
-for i in `ls */vs.2.dat|sort -n`
+for i in $(ls */vs.2.dat|sort -n)
 do 
 	grep '^50' $i | awk '{print $2}'
 	awk '{print $2}' $i > /tmp/vs.dat
@@ -36,7 +36,7 @@ sed 's/TS/DS/' TS_temporal.gnu | gnuplot
 
 > TV_vs.dat
 {
-for i in `ls */vs.1.dat|sort -n`; 
+for i in $(ls */vs.1.dat|sort -n); 
 do 
     grep '^50' $i | awk '{print $2}'; done
 	awk '{print $2}'$i > /tmp/vs.dat
@@ -48,7 +48,7 @@ sed 's/TS/TV/' TS_temporal.gnu | gnuplot
 
 > G_vs.dat
 {
-for i in `ls */vs.3.dat|sort -n`
+for i in $(ls */vs.3.dat|sort -n)
 do 
 	grep '^50' $i | awk '{print $2}'
 	awk '{print $2}' $i > /tmp/vs.dat

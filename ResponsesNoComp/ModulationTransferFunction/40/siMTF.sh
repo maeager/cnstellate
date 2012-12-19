@@ -8,19 +8,19 @@ set -eu
 ls [0-9]*| grep :|sed 's/://'| sort -n> freq.dat
 
 
-for cell in `seq 0 1 3`; do
+for cell in $(seq 0 1 3); do
 #    awk '! /#/ {print $1}' ./50/vsSPIKES.$cell.dat > vsSPIKES.$cell.dat    
 #    awk '! /#/ {print $1}' ./50/vs.$cell.dat > vs.$cell.dat
     > vsSPIKES.$cell.dat;> vs.$cell.dat
     {
-    for i in `ls  */vsSPIKES.$cell.dat|sort -n`
+    for i in $(ls  */vsSPIKES.$cell.dat|sort -n)
     do 
 	   grep '^50' $i | awk '{print $2}'
 	   awk '! /#/ {print $2}' $i > /tmp/vsSPIKES.dat
         cp vsSPIKES.$cell.dat /tmp/vsSPIKES.$cell.dat
 	   paste /tmp/vsSPIKES.$cell.dat /tmp/vsSPIKES.dat > vsSPIKES.$cell.dat
     done 
-    for i in `ls  */vs.$cell.dat|sort -n`
+    for i in $(ls  */vs.$cell.dat|sort -n)
     do 
 	   awk '! /#/ {print $2}' $i > /tmp/vs.dat
         cp vs.$cell.dat /tmp/vs.$cell.dat
@@ -35,9 +35,9 @@ for cell in `seq 0 1 3`; do
     display tMTF5810_spikes.$cell.eps &
 done
 
-for cell in `seq 0 1 3`; do
+for cell in $(seq 0 1 3); do
     {
-    for i in `ls  */spctVS.$cell.dat|sort -n`
+    for i in $(ls  */spctVS.$cell.dat|sort -n)
     do
         fm=${i%%/*t}
 	   awk '! /#/ {x=$3/$2; print $1,'$fm',x}' $i 
@@ -61,7 +61,7 @@ done
 # 
 # touch TS_vs.dat
 # {
-# for i in `ls  */vs.0.dat|sort -n`
+# for i in $(ls  */vs.0.dat|sort -n)
 # do 
 # 	grep '^50' $i | awk '{print $2}'
 # 	awk '{print $2}' $i > /tmp/vs.dat
@@ -75,7 +75,7 @@ done
 # 
 # touch DS_vs.dat
 # {
-# for i in `ls */vs.2.dat|sort -n`
+# for i in $(ls */vs.2.dat|sort -n)
 # do 
 # 	grep '^50' $i | awk '{print $2}'
 # 	awk '{print $2}' $i > /tmp/vs.dat
@@ -88,7 +88,7 @@ done
 # 
 # touch TV_vs.dat
 # {
-# for i in `ls */vs.1.dat|sort -n`; 
+# for i in $(ls */vs.1.dat|sort -n); 
 # do 
 #     grep '^50' $i | awk '{print $2}'; done
 # 	awk '{print $2}' $i > /tmp/vs.dat
@@ -100,7 +100,7 @@ done
 # 
 # touch G_vs.dat
 # {
-# for i in `ls */vs.3.dat|sort -n`
+# for i in $(ls */vs.3.dat|sort -n)
 # do 
 # 	grep '^50' $i | awk '{print $2}'
 # 	awk '{print $2}' $i > /tmp/vs.dat

@@ -44,8 +44,10 @@
 double Synapse_v4(double *, double, double, int, int, double, double, double, double *, double);
 int    SpikeGenerator_v4(double *, double, int, int, double *);
 double dbl_exp_adaptation(double cf, double spont);
-double ffGn(double *yffGn, int N, double tdres, double Hinput, double mu, double sigma);
 
+#ifdef _FFGN_
+ double ffGn(double *yffGn, int N, double tdres, double Hinput, double mu, double sigma);
+#endif
 
 
 void IHCAN(double *px, double cf, int nrep, double tdres, int totalstim, 

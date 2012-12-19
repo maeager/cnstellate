@@ -11,14 +11,15 @@ ENDVERBATIM
 VERBATIM
 
 /* #define DEBUG   */
-/*#define _FFGN_ */
+/* #define _FFGN_  */
 
 #include "complex.c"
 #include "carneymodel.c"
 #include "zilanycarneyv4.c"
 #include "resample.c"
+#ifdef _FFGN_
 #include "ffGn.c"
-
+#endif
 
 static double an_zilany_v4(void  *vv)
 {
@@ -407,7 +408,7 @@ static double syn_zilany_v4(void *vv)
 	ipst = (int) (fmod(sptime[i],tdres*nsout) / tdres);
 	psth[ipst] = psth[ipst] + 1;       
       };   
-    }
+     }
   }     
   return out; 
 }
@@ -504,9 +505,11 @@ static double psth_zilany_v4(void *vv)
 }
 
 
-/* The spike generator now uses a method coded up by B. Scott Jackson (bsj22@cornell.edu) Scott's original code is available from Laurel Carney's web site at: http://www.urmc.rochester.edu/smd/Nanat/faculty-research/lab-pages/LaurelCarney/auditory-models.cfm
- */
-/* int SpikeGenerator(double *synouttmp, double tdres, int totalstim, int nrep, double *sptime) 
+/* 
+The spike generator now uses a method coded up by B. Scott Jackson (bsj22@cornell.edu) Scott's original code is available from Laurel Carney's web site at: http://www.urmc.rochester.edu/smd/Nanat/faculty-research/lab-pages/LaurelCarney/auditory-models.cfm
+*/
+/* 
+int SpikeGenerator(double *synouttmp, double tdres, int totalstim, int nrep, double *sptime) 
  */
 static double ANFSpikeGenerator3(void *vv)
 {  
@@ -565,6 +568,7 @@ static double ANFSpikeGenerator3(void *vv)
   return(nspikes);
 }
 
+#ifdef _FFGN_
 static double fast_fGn(void *vv)
 {
 
@@ -633,7 +637,7 @@ static double fast_fGn(void *vv)
   vec_ffGn = ((double*) vector_vec(ptr_ffGn));      /*Get array ptr to ptr_ffGn Vector*/
   printf("\tfast_fGn: calling ffGn(&%x,%d,%g,%g,%g,%g)\n",&vec_ffGn,nsizemax,tdres,Hinput,mu,sigma);
   return ffGn(vec_ffGn,nsizemax,tdres,Hinput,mu,sigma);
-
+  
 }
 
 static double rtresample(void *vv)
@@ -680,23 +684,27 @@ static double rtresample(void *vv)
   vec2_resample = ((double*) vector_vec(ptr_resample));      /*Get array ptr to ptr_resample Vector*/
 
   return resample(vec1_resample,vec2_resample,nin,resamp);
-
+  
 }
+#endif
 ENDVERBATIM
 
 
 PROCEDURE install_an_zbcatmodel_v4()
 {
   VERBATIM
-    install_vector_method("an_zilany_v4", an_zilany_v4);
+  install_vector_method("an_zilany_v4", an_zilany_v4);
   install_vector_method("an_zilany_v4_1", an_zilany_v4_1);
   install_vector_method("ihc_zilany_v4", ihc_zilany_v4);
   install_vector_method("syn_zilany_v4", syn_zilany_v4);
   install_vector_method("psth_zilany_v4", psth_zilany_v4);
   install_vector_method("ANFSpikeGenerator3", ANFSpikeGenerator3);
+  
+  #ifdef _FFGN_  
   install_vector_method("rtresample", rtresample);
   install_vector_method("fast_fGn", fast_fGn);
+  #endif  
   ENDVERBATIM
-    }
+}
 
    
