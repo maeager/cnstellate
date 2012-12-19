@@ -1,12 +1,12 @@
 #!/bin/ bash
-ARCH=`arch`
+ARCH=$(arch)
 NRNHOME="$HOME/src/neuron/nrnmpi"
 NRNBIN="${NRNHOME}/$ARCH/bin/"
 NRNIV="${NRNBIN}nrniv"
-LNRNMECH='`pwd`/${ARCH}/.libs/libnrnmech.so'
-MPIRUN=`which mpirun`
+LNRNMECH="$(pwd)/${ARCH}/.libs/libnrnmech.so"
+MPIRUN=$(which mpirun)
 
-if [[ `ps -u $USER | grep ssh-agent` == "" ]]
+if [[ $(ps -u $USER | grep ssh-agent) == "" ]]
 then
     nohup ssh-agent -s > ~/.ssh-agent
 fi
@@ -25,7 +25,8 @@ dorun() {
 }
 
 
+
 #for np in 25 20 15;
-#dorun $np
+#  dorun $np
 #done
 dorun 3

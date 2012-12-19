@@ -1,6 +1,4 @@
 
-
-
 ## function [ampl]=dB2ampl(dB)
 ## 	ampl = 10^(dB/20)
 ## endfunction

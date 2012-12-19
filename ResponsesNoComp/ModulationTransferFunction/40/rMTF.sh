@@ -9,7 +9,7 @@ ls [0-9]*| grep :|sed 's/://'| sort -n> freq.dat
 
 touch TS_rate.dat
 {
-for i in `ls  */rateplace.0.dat|sort -n`
+for i in $(ls  */rateplace.0.dat|sort -n)
 do 
 	grep 5810 $i | awk '{print $3}' 
 	awk '{print $3}' $i > /tmp/rate.dat
@@ -23,7 +23,7 @@ gnuplot TS_rate.gnu
 
 touch DS_rate.dat
 {
-for i in `ls  */rateplace.2.dat|sort -n`
+for i in $(ls  */rateplace.2.dat|sort -n)
 do 
 	grep 5810 $i | awk '{print $3}' 
 	awk '{print $3}' $i > /tmp/rate.dat
@@ -36,7 +36,7 @@ sed 's/TS/DS/' TS_rate.gnu | gnuplot
 
 touch TV_rate.dat
 {
-for i in `ls */rateplace.1.dat|sort -n`; 
+for i in $(ls */rateplace.1.dat|sort -n); 
 do 
     grep 5810 $i | awk '{print $3}' 
 	awk '{print $3}' $i > /tmp/rate.dat
@@ -48,7 +48,7 @@ rm -f tuberculo.dat
 sed 's/TS/TV/' TS_rate.gnu | gnuplot
 
 {
-for i in `ls */rateplace.3.dat|sort -n`
+for i in $(ls */rateplace.3.dat|sort -n)
 do 
 	grep 5810 $i | awk '{print $3}' 
 	awk '{print $3}' $i > /tmp/rate.dat
@@ -69,9 +69,9 @@ display G_rateMTF.eps &
 ## RASTER
 rm -f raster.0.dat
 {
-for i in `ls */ts_raster.dat|sort -n`
+for i in $(ls */ts_raster.dat|sort -n)
 do 
-        spl=`echo $i| sed 's/\(.*\)\/ts_raster.dat/\1/'`
+        spl=$(echo $i| sed 's/\(.*\)\/ts_raster.dat/\1/')
 #	echo $spl
 	grep '^50' $i | awk '{print $4,'$spl'}'
 	echo ""
@@ -83,9 +83,9 @@ done
 ##PSTHs
 rm -f psth.0.dat
 {
-for i in `ls */psth.0.dat|sort -n`
+for i in $(ls */psth.0.dat|sort -n)
 do 
-        spl=`echo $i| sed 's/\(.*\)\/psth.0.dat/\1/'`
+        spl=$(echo $i| sed 's/\(.*\)\/psth.0.dat/\1/')
 #	echo $spl
 	grep '^50' $i | awk '{print $2,'$spl',$3}'
 	echo ""
@@ -97,9 +97,9 @@ display psth.0.eps &
 
 
 {
-for i in `ls  */periodhist.0.dat|sort -n`
+for i in $(ls  */periodhist.0.dat|sort -n)
 do 
-        fm=`echo $i| sed 's/\(.*\)\/periodhist.0.dat/\1/'`
+        fm=$(echo $i| sed 's/\(.*\)\/periodhist.0.dat/\1/')
 	grep '^50' $i | awk '{print $2,'$fm',$3}'
 	echo ""
 done

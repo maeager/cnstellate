@@ -5,7 +5,9 @@ ARCH=$(shell arch)
 NRNMODL=$(ARCH)/bin/nrnivmodl
 MPIMODL=$(HOME)/src/neuron/nrnmpi/$(NRNMODL)
 GUIMODL=/usr/local/nrn/$(NRNMODL)
+
 MODLFLAGS=-loadflags "$(shell pwd)/libresample-0.1.3/libresample.a"
+#MODLFLAGS=''
 
 all: clean-all libresample gui mpi
 
@@ -27,7 +29,7 @@ gui:  # libresample-0.1.3/libresample.a
 	$(GUIMODL) $(MODLFLAGS)
 #	[ -d gui ] && rm -rf gui
 	mv $(ARCH) gui
-	(cd gui; sed -i 's_cnstellate/$(ARCH)_cnstellate/gui_g' special)
+	(cd gui; sed -i 's#cnstellate/$(ARCH)#cnstellate/gui#g' special)
 
 mpi: #libresample-0.1.3/libresample.a
 	$(MPIMODL) $(MODLFLAGS)
