@@ -35,9 +35,9 @@ mpi: #libresample-0.1.3/libresample.a
 	$(MPIMODL) $(MODLFLAGS)
 #	[ -d mpi ] && rm -rf mpi
 	mv $(ARCH) mpi
-	(cd mpi; find -type f -exec sed -i 's_cnstellate/$(ARCH)_cnstellate/mpi_g' {} \; )
+	(cd mpi; find -type f -exec sed -i 's#cnstellate/$(ARCH)#cnstellate/mpi#g' {} \; )
 
-libresample-0.1.3/libresample.a: libresample_0.1.3.tar.gz
+libresample-0.1.3/libresample.a:
 	(cd libresample-0.1.3; make CFLAGS="-fPIC $CFLAGS -fPIC" CXXFLAGS="-fPIC $CXXFLAGS -fPIC")
 
 libresample_0.1.3.tar.gz:
