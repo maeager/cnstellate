@@ -1,14 +1,15 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
-/** Cochlear Nucleus network model: Neural model templates
-* Templates for Rothman and Manis (2003) neural cell model
-* (CNcell) and Golgi cell model
-*
-*
-* 
+/** Neural model templates of the Cochlear Nucleus Stellate network model: 
+ * Templates originated from Paul Manis' NEURON implemenation of the paper
+ * Rothman and Manis (2003).  CNcell is the compartment neural model for 
+ * TS, DS and TV cells and Golgicell the filter-based Poisson neural model 
+ * for the Golgi cell.
+ *
+ *
+ *    cnstellate was written as part of my PhD at The University of Melbourne
  *   
  *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
- *    cnstellate was written as part of my PhD at The University of Melbourne
  *
  *    This file is part of cnstellate.
  * 
