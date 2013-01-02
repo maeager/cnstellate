@@ -700,6 +700,10 @@ param.ts_gleak						= 0.000473539
 param.ts_erev						= -60.9
 param.ts_ghbar						= 6.20392e-05
 param.ts_gkabar						= 0.01539
+param.ts_dend_g    = 0.001
+param.ts_dend_e    = -65
+
+
 
 proc reset_TStellate(){local ii
     print "updating features for T stellate optimisation routines"
@@ -711,6 +715,13 @@ proc reset_TStellate(){local ii
 		sprint(cmd,"tstellate[%d][0].soma.erev_rm    = param.ts_erev",ii) execute1(cmd)
 		sprint(cmd,"tstellate[%d][0].soma.ghbar_rm   = param.ts_ghbar",ii) execute1(cmd)
 		sprint(cmd,"tstellate[%d][0].soma.gkabar_ka  = param.ts_gkabar",ii) execute1(cmd)
+		
+		if (use_ball_stick == 1){
+			sprint(cmd,"tstellate[%d][0].dend.g_pas  = param.ts_dend_g",ii) 
+			execute1(cmd)
+			sprint(cmd,"tstellate[%d][0].dend.erev_pas  = param.ts_dend_e",ii) 
+			execute1(cmd)
+			}
 		//        }
 	}
 }
@@ -764,23 +775,22 @@ proc IVMeasures(){local offset
 
 
 //mimick connect_CNcells from CochlearNucleus.hoc
-proc connect_TS() {local i,p,target,source,low,high,range,channel,sourcechannel
+proc connect_TS() {local i_chan,i,p,target,source,low,high,range,channel,sourcechannel
 	
 	objref tstellate[nchannels][nTSperchannel]
 	
 	for i_chan = 0, nchannels-1 {
-		if (nTSperchannel > 0) for j_cell = 0, nTSperchannel-1 {
-			if(use_ball_stick==0){
-				sprint(cmd, "tstellate[%d][%d] = new CNcell(0,cf.x[%d],%d)",i_chan,j_cell,i_chan,i_chan)
-			} else {
-				sprint(cmd, "tstellate[%d][%d] = new CNcell(0,cf.x[%d],%d,1)",i_chan,j_cell,i_chan,i_chan)
+		if (nTSperchannel > 0) {
+			for j_cell = 0, nTSperchannel-1 {
+				if(use_ball_stick==0){
+					sprint(cmd, "tstellate[%d][%d] = new CNcell(0,cf.x[%d],%d)",i_chan,j_cell,i_chan,i_chan)
+				} else {
+					sprint(cmd, "tstellate[%d][%d] = new CNcell(0,cf.x[%d],%d,1)",i_chan,j_cell,i_chan,i_chan)
+				}
+				execute1(cmd)
 			}
-			execute1(cmd)
-			tstellate[i_chan][j_cell].dend.g_pas=0.001 
-		}
-		
+		}	
 	}	
-	
 	
 	
 	
@@ -808,7 +818,7 @@ proc connect_TS() {local i,p,target,source,low,high,range,channel,sourcechannel
 					//Choose source channel
 					sourcechannel = random.normal(channel,param.bw.getval(hsr,ts)/2)
 					if ((sourcechannel - int(sourcechannel)) > 0.5 ){
-						sourcechannel = 1+int(sourcechannel)
+						sourcechannel = 1 + int(sourcechannel)
 					} else { 
 						sourcechannel = int(sourcechannel) 
 					}
