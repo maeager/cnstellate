@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 NRNHOME="${HOME}/src/neuron/nrnmpi"
 NRNBIN="${NRNHOME}/${ARCH}/bin"
 NRNIV="${NRNBIN}/nrniv"
