@@ -304,14 +304,19 @@ proc append_ts_jitter_sd(){
 
   NPARAMS=5
  init_params(NPARAMS)
-   
+ 
+ append_ts_dend_g()
+ 
  //
- // append_ghbar() 
+  append_ghbar() 
 // append_num_connections()
  // append_gkabar()
- append_weights()
-// append_gleak()
-// append_rev_potentials()
+// append_weights()
+ append_gleak()
+ //append_ts_soma_erev()
+ 
+ append_hsrts_weights()
+ append_lsrts_weights()
  
  
 // cmd is a strdef variable that should be used in local routines and not passed across procedures

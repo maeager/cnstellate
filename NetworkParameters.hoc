@@ -202,7 +202,7 @@ proc save2hocfile(){local irow,jcol localobj file
 		system("date",datestr)
 		file.printf("// Created on %s \n",datestr)
 		file.printf("objref param \n")
-		file.printf("param = new NetworkParameter(6,4)\n"
+		file.printf("param = new NetworkParameters(6,4)\n")
 		file.printf("// bandwidth\n")
 		for irow=0, nrow-1 {
 			for jcol=0,ncol-1 file.printf("param.bw.x[%d][%d] = %.4f\n",irow,jcol,bw.getval(irow,jcol))

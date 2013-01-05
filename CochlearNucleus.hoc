@@ -1120,6 +1120,10 @@ proc RefreshCellParams(){local ii,jj
 			tstellate[ii][jj].soma.ghbar_rm  = param.ts_ghbar
 			tstellate[ii][jj].soma.gleak_rm  = param.ts_gleak
 			tstellate[ii][jj].soma.erev_rm	 = param.ts_erev
+			if (use_ball_stick == 1){
+				tstellate[ii][jj].dend.g_pas  = param.ts_dend_g
+				tstellate[ii][jj].dend.e_pas  = param.ts_dend_e
+			}
         }
         for jj=0,nTVperchannel-1{
 			tuberculoventral[ii][jj].soma.gleak_rm	= param.tv_gleak
