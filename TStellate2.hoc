@@ -4,9 +4,8 @@
  *   TStellate2.hoc
  *   Optimise parameters controlling TS cells. Second routine with three tones.
  * 
- *   
+ *    cnstellate was written as part of my PhD at The University of Melbourne *   
  *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
- *    cnstellate was written as part of my PhD at The University of Melbourne
  *
  *    This file is part of cnstellate.
  * 
@@ -320,7 +319,7 @@ param.n.x[lsr][ts]=15
 param.n.x[ds][ts]=4
 param.n.x[tv][ts]=7
 param.n.x[glg][ts]=5
-	param.ts_erev=-60.9
+param.ts_erev=-60.9
 
 RefreshParameters()
 ANFilterBankRun()  //Generate new AN instant. rates
@@ -402,3 +401,4 @@ proc optimise_CT2(){
 param.dstellate_gleak/=10
 param.dstellate_gnabar/=2
 TSexemplar_SPL_thresh=10
+

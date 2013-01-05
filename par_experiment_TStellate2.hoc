@@ -1,9 +1,11 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
-/* 
+/*  par_experiment_TStellate2
+ *  Experimental setup for second TStellate optimisation 
+ *
+ *    cnstellate was written as part of my PhD at The University of Melbourne 
  *   
  *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
- *    cnstellate was written as part of my PhD at The University of Melbourne
  *
  *    This file is part of cnstellate.
  * 
@@ -38,7 +40,7 @@
 //  using a Tucker-Davis signal generator (Tucker-Davis Technologies,
 
 
-// Issues with simulated model and experimental data.
+// Issues with simulated model and experimental data:
 
 // Mean RMP and AP in CS/CT rat neurons Paolini et al 2004:
 // average resting potentials (-60.9 ± 1.4 mV), AP heights
@@ -49,6 +51,7 @@
 // dB, respectively (t25 = 3.02, P < 0.05), and the minimal SPLs
 // that evoked AP generation were 41.8 ± 3.8 and 56.6 ± 2.2 dB,
 // respectively (t25 = 2.5, P < 0.05).
+
 TSexemplar_RMP = -60.9
 TSexemplar_SPL_thresh = 40
 TSexemplar_CF = 9100
@@ -702,7 +705,7 @@ param.ts_ghbar						= 6.20392e-05
 param.ts_gkabar						= 0.01539
 param.ts_dend_g    = 0.001
 param.ts_dend_e    = -65
-
+param.ts_jitter_sd = 0.2
 
 
 proc reset_TStellate(){local ii
@@ -719,7 +722,7 @@ proc reset_TStellate(){local ii
 		if (use_ball_stick == 1){
 			sprint(cmd,"tstellate[%d][0].dend.g_pas  = param.ts_dend_g",ii) 
 			execute1(cmd)
-			sprint(cmd,"tstellate[%d][0].dend.erev_pas  = param.ts_dend_e",ii) 
+			sprint(cmd,"tstellate[%d][0].dend.e_pas  = param.ts_dend_e",ii) 
 			execute1(cmd)
 			}
 		//        }

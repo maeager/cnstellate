@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-ARCH=`arch`
+ARCH=$(arch)
 # Force rebuilding of AN model files
 rm -f $ARCH/an*
 rm -f $ARCH/.libs/an*
@@ -13,7 +13,7 @@ rm -f $ARCH/.libs/an*
 NRNIVPATH=/usr/local/nrn/${ARCH}
 
 
-${NRNIVPATH}/bin/nrnivmodl -loadflags `pwd`/libresample-0.1.3/libresample.a
+${NRNIVPATH}/bin/nrnivmodl -loadflags $(pwd)/libresample-0.1.3/libresample.a
 
 
 # previous version recompiled the libnrnmech library with the libresample library included
