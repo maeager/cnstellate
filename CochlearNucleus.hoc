@@ -1116,27 +1116,34 @@ proc RefreshCNcellsCF(){local ii,jj
 proc RefreshCellParams(){local ii,jj
     for ii=0,nchannels-1{
         for jj=0,nTSperchannel-1{
-			tstellate[ii][jj].soma.gkabar_ka = param.ts_gkabar
-			tstellate[ii][jj].soma.ghbar_rm  = param.ts_ghbar
-			tstellate[ii][jj].soma.gleak_rm  = param.ts_gleak
-			tstellate[ii][jj].soma.erev_rm	 = param.ts_erev
+			sprint(cmd,"tstellate[%d][%d].soma.gnabar_rm  = param.ts_gnabar",ii,jj) execute1(cmd)
+			sprint(cmd,"tstellate[%d][%d].soma.gkhtbar_rm = param.ts_gkhtbar",ii,jj) execute1(cmd)
+			sprint(cmd,"tstellate[%d][%d].soma.gleak_rm   = param.ts_gleak",ii,jj) execute1(cmd)
+			sprint(cmd,"tstellate[%d][%d].soma.erev_rm    = param.ts_erev",ii,jj) execute1(cmd)
+			sprint(cmd,"tstellate[%d][%d].soma.ghbar_rm   = param.ts_ghbar",ii,jj) execute1(cmd)
+			sprint(cmd,"tstellate[%d][%d].soma.gkabar_ka  = param.ts_gkabar",ii,jj) execute1(cmd)
+			
 			if (use_ball_stick == 1){
-				tstellate[ii][jj].dend.g_pas  = param.ts_dend_g
-				tstellate[ii][jj].dend.e_pas  = param.ts_dend_e
+				sprint(cmd,"tstellate[%d][%d].dend.g_pas  = param.ts_dend_g",ii,jj) 
+				execute1(cmd)
+				sprint(cmd,"tstellate[%d][%d].dend.e_pas  = param.ts_dend_e",ii,jj) 
+				execute1(cmd)
 			}
         }
         for jj=0,nTVperchannel-1{
-			tuberculoventral[ii][jj].soma.gleak_rm	= param.tv_gleak
-			tuberculoventral[ii][jj].soma.erev_rm	= param.tv_erev
+			sprint(cmd,"tuberculoventral[%d][%d].soma.gleak_rm   = param.tv_gleak",ii,jj) execute1(cmd)
+			sprint(cmd,"tuberculoventral[%d][%d].soma.erev_rm    = param.tv_erev",ii,jj) execute1(cmd)
 		}
         for jj=0,nDSperchannel-1{
-			dstellate[ii][jj].soma.gleak_rm = param.dstellate_gleak
-			dstellate[ii][jj].soma.gkltbar_klt = param.dstellate_gkltbar
-			dstellate[ii][jj].soma.gkhtbar_rm = param.dstellate_gkhtbar
-			dstellate[ii][jj].soma.gnabar_rm = param.dstellate_gnabar
+						sprint(cmd,"dstellate[%d][%d].soma.gkhtbar_rm = param.dstellate_gkhtbar",ii,jj) execute1(cmd)
+			sprint(cmd,"dstellate[%d][%d].soma.gleak_rm   = param.dstellate_gleak",ii,jj) execute1(cmd)
+			sprint(cmd,"dstellate[%d][%d].soma.gkltbar_klt   = param.dstellate_gkltbar",ii,jj) execute1(cmd)
+			sprint(cmd,"dstellate[%d][%d].soma.gnabar_rm  = param.dstellate_gnabar",ii,jj) execute1(cmd)
+
 			
-			dstellate[ii][0].GABAA.tau2 = param.gaba_decay
-			dstellate[ii][0].GABAA.tau1 = param.gaba_rise			
+			sprint(cmd,"dstellate[%d][%d].soma.GABAA.tau2 = param.gaba_decay",ii,jj) execute1(cmd)
+			sprint(cmd,"dstellate[%d][%d].soma.GABAA.tau1 = param.gaba_rise",ii,jj) execute1(cmd)
+			
 		}
 		
     }
