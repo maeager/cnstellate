@@ -761,13 +761,29 @@ proc RefreshCellParams(){local i,j
 		for j=0,nTSperchannel-1{
 			if (pnm.gid_exists(tsgid,i,j)){
 				tstellate[i][j].soma {
-					// gnabar_rm = param.ts_gnabar
-					//gkhtbar_rm = param.ts_gkhtbar
+					gnabar_rm = param.ts_gnabar
+					gkhtbar_rm = param.ts_gkhtbar
 					gkabar_ka =  param.ts_gkabar
 					ghbar_rm = param.ts_ghbar
 					gleak_rm = param.ts_gleak
 					erev_rm = param.ts_erev
-				}
+        // sprint(cmd,"tstellate[%d][0].soma.gnabar_rm  = param.ts_gnabar",ii) execute1(cmd)
+		// sprint(cmd,"tstellate[%d][0].soma.gkhtbar_rm = param.ts_gkhtbar",ii) execute1(cmd)
+		// sprint(cmd,"tstellate[%d][0].soma.gleak_rm   = param.ts_gleak",ii) execute1(cmd)
+		// sprint(cmd,"tstellate[%d][0].soma.erev_rm    = param.ts_erev",ii) execute1(cmd)
+		// sprint(cmd,"tstellate[%d][0].soma.ghbar_rm   = param.ts_ghbar",ii) execute1(cmd)
+		// sprint(cmd,"tstellate[%d][0].soma.gkabar_ka  = param.ts_gkabar",ii) execute1(cmd)
+		}
+		if (use_ball_stick == 1){
+			sprint(cmd,"tstellate[%d][%d].dend.g_pas  = param.ts_dend_g",i,j) 
+			execute1(cmd)
+			sprint(cmd,"tstellate[%d][%d].dend.e_pas  = param.ts_dend_e",i,j) 
+			execute1(cmd)
+			}
+
+					
+					
+				
 			}
 		}
 		for j=0,nTVperchannel-1{
