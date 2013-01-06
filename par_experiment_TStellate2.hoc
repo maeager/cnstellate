@@ -697,6 +697,7 @@ proc RunTStellate(){
 	PSTHcell(tstellate_spikes,10,1)
 }
 
+
 param.ts_gnabar						= 0.23677
 param.ts_gkhtbar					= 0.0189416
 param.ts_gleak						= 0.000473539
@@ -706,6 +707,8 @@ param.ts_gkabar						= 0.01539
 param.ts_dend_g    = 0.001
 param.ts_dend_e    = -65
 param.ts_jitter_sd = 0.2
+param.dstellate_gleak/=10
+param.dstellate_gnabar/=2
 
 
 proc reset_TStellate(){local ii
