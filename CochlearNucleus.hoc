@@ -1130,19 +1130,22 @@ proc RefreshCellParams(){local ii,jj
 				execute1(cmd)
 			}
         }
+		
         for jj=0,nTVperchannel-1{
 			sprint(cmd,"tuberculoventral[%d][%d].soma.gleak_rm   = param.tv_gleak",ii,jj) execute1(cmd)
 			sprint(cmd,"tuberculoventral[%d][%d].soma.erev_rm    = param.tv_erev",ii,jj) execute1(cmd)
 		}
+		
         for jj=0,nDSperchannel-1{
-						sprint(cmd,"dstellate[%d][%d].soma.gkhtbar_rm = param.dstellate_gkhtbar",ii,jj) execute1(cmd)
+
+			sprint(cmd,"dstellate[%d][%d].soma.gkhtbar_rm = param.dstellate_gkhtbar",ii,jj) execute1(cmd)
 			sprint(cmd,"dstellate[%d][%d].soma.gleak_rm   = param.dstellate_gleak",ii,jj) execute1(cmd)
 			sprint(cmd,"dstellate[%d][%d].soma.gkltbar_klt   = param.dstellate_gkltbar",ii,jj) execute1(cmd)
 			sprint(cmd,"dstellate[%d][%d].soma.gnabar_rm  = param.dstellate_gnabar",ii,jj) execute1(cmd)
 
 			
-			sprint(cmd,"dstellate[%d][%d].soma.GABAA.tau2 = param.gaba_decay",ii,jj) execute1(cmd)
-			sprint(cmd,"dstellate[%d][%d].soma.GABAA.tau1 = param.gaba_rise",ii,jj) execute1(cmd)
+			sprint(cmd,"dstellate[%d][%d].GABAA.tau2 = param.gaba_decay",ii,jj) execute1(cmd)
+			sprint(cmd,"dstellate[%d][%d].GABAA.tau1 = param.gaba_rise",ii,jj) execute1(cmd)
 			
 		}
 		
