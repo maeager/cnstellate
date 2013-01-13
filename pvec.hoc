@@ -33,16 +33,18 @@ proc init_params(){
 
 
 proc add_opt_param(){
-    if (pvec.size()-1 != $1){
+    if (pvec.size()-1 != $1 || pvec_ranges.getcol(0).size()-1 < $1){
 	print "Error in add_opt_param: index not in range or pvec not initialised."
     }
+    print "Adding variable: ", $s3
+    print "Factor ", $4, " Init value ", $2, " range [", $5, ",", $6, "]" 
     NPARAMS+=1
     pvec.append($2)                   //Initial value    
     pvec_name.append(new String($s3)) //Variable Name
     pvec_factor.append($4)
     pvec_ranges.x[$1][0]= $5
     pvec_ranges.x[$1][1]= $6
-    if (pvec_ranges.size()-1 == NPARAMS){
+    if (pvec_ranges.getcol(0).size() == NPARAMS){
 	print "add_opt_param: pvec fully populated. Optimisation can begin."
     }    
 }
@@ -93,6 +95,10 @@ strdef error_fn
 error_fn = "TStellate2_err"
 
 proc runprax(){
+    	//Set the attributes of the praxis method
+	// tolerance : find f(x) that minimises norm(x-x0)<tolerance
+	// maxstepsize: max distance between initial guess and minimum
+	// printmode: verbosity of debugging output
    attr_praxis(tolerance, maxstepsize, printmode)
    fit_praxis(NPARAMS,error_fn,&pvec.x[0])
 }
