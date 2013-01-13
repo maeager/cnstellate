@@ -76,40 +76,58 @@ xopen("pvec.hoc")
 
 //Names                                               //Initial values	//Param Factor
 
-
 proc append_num_lsrts_connections(){
-	NPARAMS+=1
-	pvec_name.append(new String("param.n.x[lsr][ts]"))	pvec.append(0.015)	   pvec_factor.append(1000)
-	pvec_ranges.x[pvec.size-1][0]=0.001
-	pvec_ranges.x[pvec.size-1][1]=0.1
+	add_opt_params(NPARAMS,0.015,"param.n.x[lsr][ts]",1000,0.001,0.1)
+// NPARAMS+=1
+// 	pvec_name.append(new String("param.n.x[lsr][ts]"))	
+// 	pvec.append(0.015)	   
+// 	pvec_factor.append(1000)
+// 	pvec_ranges.x[pvec.size-1][0]=0.001
+// 	pvec_ranges.x[pvec.size-1][1]=0.1
+	
 }
 
 proc append_num_hsrts_connections(){
-	NPARAMS+=1
-	pvec_name.append(new String("param.n.x[hsr][ts]"))	pvec.append(0.008)	   pvec_factor.append(1000)
-	pvec_ranges.x[pvec.size-1][0]=0.001
-	pvec_ranges.x[pvec.size-1][1]=0.1
+	add_opt_params(NPARAMS,0.008,"param.n.x[hsr][ts]",1000,0.001,0.1)
+// NPARAMS+=1
+// 	pvec_name.append(new String("param.n.x[hsr][ts]"))	
+// 	pvec.append(0.008)	   
+// 	pvec_factor.append(1000)
+// 	pvec_ranges.x[pvec.size-1][0]=0.001
+// 	pvec_ranges.x[pvec.size-1][1]=0.1
+	
 }
 
 proc append_num_dsts_connections(){
-	NPARAMS+=1
-	pvec_name.append(new String("param.n.x[ds][ts]"))	    pvec.append(0.017)  pvec_factor.append(1000)
-	pvec_ranges.x[pvec.size-1][0]=0.001
-	pvec_ranges.x[pvec.size-1][1]=0.1
+	add_opt_params(NPARAMS,0.017,"param.n.x[ds][ts]",1000,0.001,0.1)
+// NPARAMS+=1
+// 	pvec_name.append(new String("param.n.x[ds][ts]"))	    
+// 	pvec.append(0.017)  
+// 	pvec_factor.append(1000)
+// 	pvec_ranges.x[pvec.size-1][0]=0.001
+// 	pvec_ranges.x[pvec.size-1][1]=0.1
+	
 }
 
 proc append_num_tvts_connections(){
-	NPARAMS+=1
-	pvec_name.append(new String("param.n.x[tv][ts]"))	    pvec.append(0.015)   pvec_factor.append(1000)
-	pvec_ranges.x[pvec.size-1][0]=0.001
-	pvec_ranges.x[pvec.size-1][1]=0.1
+	add_opt_params(NPARAMS,0.015,"param.n.x[tv][ts]",1000,0.001,0.1)
+// NPARAMS+=1
+// 	pvec_name.append(new String("param.n.x[tv][ts]"))	    
+// 	pvec.append(0.015)   
+// 	pvec_factor.append(1000)
+// 	pvec_ranges.x[pvec.size-1][0]=0.001
+// 	pvec_ranges.x[pvec.size-1][1]=0.1
 }
 
 proc append_num_glgts_connections(){
-	NPARAMS+=1
-	pvec_name.append(new String("param.n.x[glg][ts]"))	pvec.append(0.005)	pvec_factor.append(1000)
-	pvec_ranges.x[pvec.size-1][0]=0.001
-	pvec_ranges.x[pvec.size-1][1]=0.1
+	add_opt_params(NPARAMS,0.005,"param.n.x[glg][ts]",1000,0.001,0.1)
+// NPARAMS+=1
+// 	pvec_name.append(new String("param.n.x[glg][ts]"))	
+// 	pvec.append(0.005)	
+// 	pvec_factor.append(1000)
+// 	pvec_ranges.x[pvec.size-1][0]=0.001
+// 	pvec_ranges.x[pvec.size-1][1]=0.1
+	
 }
 
 
@@ -136,34 +154,53 @@ proc append_num_connections(){
 
 
 proc append_lsrts_weights(){
-    NPARAMS		+=1
-	pvec_name.append(new String("param.w.x[lsr][ts]"))	pvec.append(0.003)	pvec_factor.append(1)
-	pvec_ranges.x[pvec.size()-1][0]		=0.0000001  //
-	pvec_ranges.x[pvec.size()-1][1]		=0.1    // 
+    add_opt_params(NPARAMS,0.003,"param.w.x[lsr][ts]",1,0.0000001  ,0.1     )
+// NPARAMS		+=1
+// 	pvec_name.append(new String("param.w.x[lsr][ts]"))	
+// 	pvec.append(0.003)	
+// 	pvec_factor.append(1)
+// 	pvec_ranges.x[pvec.size()-1][0]		=0.0000001  
+// 	pvec_ranges.x[pvec.size()-1][1]		=0.1     
+	
 }
 proc append_hsrts_weights(){
-    NPARAMS		+=1
-	pvec_name.append(new String("param.w.x[hsr][ts]"))	pvec.append(0.0025)	pvec_factor.append(1)
-	pvec_ranges.x[pvec.size()-1][0]		=0.0000001  //
-	pvec_ranges.x[pvec.size()-1][1]		=0.1    // 
+    add_opt_params(NPARAMS,0.0025,"param.w.x[hsr][ts]",1,0.0000001  ,0.1     )
+// NPARAMS		+=1
+// 	pvec_name.append(new String("param.w.x[hsr][ts]"))	
+// 	pvec.append(0.0025)	
+// 	pvec_factor.append(1)
+// 	pvec_ranges.x[pvec.size()-1][0]		=0.0000001  
+// 	pvec_ranges.x[pvec.size()-1][1]		=0.1     
+	
 }
 proc append_dsts_weights(){
-    NPARAMS		+=1  
-	pvec_name.append(new String("param.w.x[ds][ts]"))	    pvec.append(0.000170)	pvec_factor.append(1)
-	pvec_ranges.x[pvec.size()-1][0]		=0.0000001  //
-	pvec_ranges.x[pvec.size()-1][1]		=0.1    // 
+	add_opt_params(NPARAMS,0.000170,"param.w.x[ds][ts]",1,0.0000001,0.1 )
+////  NPARAMS		+=1  
+// // 	pvec_name.append(new String("param.w.x[ds][ts]"))	    pvec.append(0.000170)	pvec_factor.append(1)
+// // 	pvec_ranges.x[pvec.size()-1][0]		=0.0000001  //
+// // 	pvec_ranges.x[pvec.size()-1][1]		=0.1    // 
+	
+
 }
 proc append_tvts_weights(){
-    NPARAMS		+=1  
-	pvec_name.append(new String("param.w.x[tv][ts]"))	    pvec.append(0.00010)	    pvec_factor.append(1)
-	pvec_ranges.x[pvec.size()-1][0]		=0.0000001  //
-	pvec_ranges.x[pvec.size()-1][1]		=0.1    // 
+    add_opt_params(NPARAMS,0.00010,"param.w.x[tv][ts]",1,0.0000001  ,0.1 )   
+// NPARAMS		+=1  
+// 	pvec_name.append(new String("param.w.x[tv][ts]"))	    
+// 	pvec.append(0.00010)	    
+// 	pvec_factor.append(1)
+// 	pvec_ranges.x[pvec.size()-1][0]		=0.0000001  
+// 	pvec_ranges.x[pvec.size()-1][1]		=0.1    
+	
 }
 proc append_glgts_weights(){
-    NPARAMS		+=1  
-	pvec_name.append(new String("param.w.x[glg][ts]"))	pvec.append(0.000130)	pvec_factor.append(1)
-	pvec_ranges.x[pvec.size()-1][0]		=0.0000001  //
-	pvec_ranges.x[pvec.size()-1][1]		=0.1    // 
+    add_opt_params(NPARAMS,0.000130,"param.w.x[glg][ts]",1,0.0000001  ,0.1     )
+// NPARAMS		+=1  
+// 	pvec_name.append(new String("param.w.x[glg][ts]"))	
+// 	pvec.append(0.000130)	
+// 	pvec_factor.append(1)
+// 	pvec_ranges.x[pvec.size()-1][0]		=0.0000001  
+// 	pvec_ranges.x[pvec.size()-1][1]		=0.1     
+	
 }
 
 
@@ -201,65 +238,79 @@ pvec_ranges.x[4][1]					=0.00700
 
 
 proc append_ts_soma_erev(){ // Reversal potential
-    NPARAMS += 1 
-	pvec_name.append(new String("param.ts_erev"))	    
-	pvec.append(0.055 )     
-	pvec_factor.append(-1000)
-	pvec_ranges.x[pvec.size()-1][0]	=0.030
-	pvec_ranges.x[pvec.size()-1][1]	=0.080
+    add_opt_params(NPARAMS,0.055 ,"param.ts_erev",-1000,0.030,0.080)
+// NPARAMS += 1 
+// 	pvec_name.append(new String("param.ts_erev"))	    
+// 	pvec.append(0.055 )     
+// 	pvec_factor.append(-1000)
+// 	pvec_ranges.x[pvec.size()-1][0]	=0.030
+// 	pvec_ranges.x[pvec.size()-1][1]	=0.080
+	
 } 
 
 proc append_ghbar(){ 
-	NPARAMS += 1 
-	pvec_name.append(new String("param.ts_ghbar"))	
-	pvec.append(6.20392e-05)  
-	pvec_factor.append(1)
-	pvec_ranges.x[pvec.size()-1][0]		=5e-06  
-	pvec_ranges.x[pvec.size()-1][1]		=0.0005
+	add_opt_params(NPARAMS,6.20392e-05,"param.ts_ghbar",1,5e-06  ,0.0005)
+// NPARAMS += 1 
+// 	pvec_name.append(new String("param.ts_ghbar"))	
+// 	pvec.append(6.20392e-05)  
+// 	pvec_factor.append(1)
+// 	pvec_ranges.x[pvec.size()-1][0]		=5e-06  
+// 	pvec_ranges.x[pvec.size()-1][1]		=0.0005
+	
 }
 proc append_gkabar(){
-	NPARAMS += 1 
-	pvec_name.append(new String("param.ts_gkabar"))	
-	pvec.append(0.01539) 
-	pvec_factor.append(1)
-	pvec_ranges.x[pvec.size()-1][0]		=5e-03  
-	pvec_ranges.x[pvec.size()-1][1]		=0.05
+	add_opt_params(NPARAMS,0.01539,"param.ts_gkabar",1,5e-03  ,0.05)
+// NPARAMS += 1 
+// 	pvec_name.append(new String("param.ts_gkabar"))	
+// 	pvec.append(0.01539) 
+// 	pvec_factor.append(1)
+// 	pvec_ranges.x[pvec.size()-1][0]		=5e-03  
+// 	pvec_ranges.x[pvec.size()-1][1]		=0.05
+	
 }
 proc append_gleak(){
-	NPARAMS += 1 
-	//Leak conductance effects Input resistance and Membrane time constant
-	pvec_name.append(new String("param.ts_gleak"))	
-	pvec.append(0.000473539) 
-	pvec_factor.append(1)  
-	pvec_ranges.x[pvec.size()-1][0]		=5e-05  
-	pvec_ranges.x[pvec.size()-1][1]		=0.005
+		//Leak conductance effects Input resistance and Membrane time constant
+	add_opt_params(NPARAMS,0.000473539,"param.ts_gleak",1,5e-05  ,0.005)
+// NPARAMS += 1 
+// 	pvec_name.append(new String("param.ts_gleak"))	
+// 	pvec.append(0.000473539) 
+// 	pvec_factor.append(1)  
+// 	pvec_ranges.x[pvec.size()-1][0]		=5e-05  
+// 	pvec_ranges.x[pvec.size()-1][1]		=0.005
+	
 }
 
 proc append_ts_dend_g(){
-	NPARAMS += 1 
-	pvec_name.append(new String("param.ts_dend_g"))	
-	pvec.append(0.001) 
-	pvec_factor.append(1)
-	pvec_ranges.x[pvec.size()-1][0]		=5e-04  
-	pvec_ranges.x[pvec.size()-1][1]		=0.01
+	add_opt_params(NPARAMS,0.001,"param.ts_dend_g",1,5e-04  ,0.01)
+// NPARAMS += 1 
+// 	pvec_name.append(new String("param.ts_dend_g"))	
+// 	pvec.append(0.001) 
+// 	pvec_factor.append(1)
+// 	pvec_ranges.x[pvec.size()-1][0]		=5e-04  
+// 	pvec_ranges.x[pvec.size()-1][1]		=0.01
+	
 }
 proc append_ts_dend_erev(){
 	// Reversal potential
-    NPARAMS += 1 
-	pvec_name.append(new String("param.ts_dend_e"))	    
-	pvec.append(0.065 )     
-	pvec_factor.append(-1000)
-	pvec_ranges.x[pvec.size()-1][0]	=0.030
-	pvec_ranges.x[pvec.size()-1][1]	=0.080
+    add_opt_params(NPARAMS,0.065 ,"param.ts_dend_e",-1000,0.030,0.080)
+// NPARAMS += 1 
+// 	pvec_name.append(new String("param.ts_dend_e"))	    
+// 	pvec.append(0.065 )     
+// 	pvec_factor.append(-1000)
+// 	pvec_ranges.x[pvec.size()-1][0]	=0.030
+// 	pvec_ranges.x[pvec.size()-1][1]	=0.080
+	
 } 
 
 proc append_ts_jitter_sd(){
-	NPARAMS += 1 
-	pvec_name.append(new String("param.ts_jitter_sd"))	
-	pvec.append(0.0025) 
-	pvec_factor.append(1000)
-	pvec_ranges.x[pvec.size()-1][0]		=1e-04  
-	pvec_ranges.x[pvec.size()-1][1]		=0.01
+	add_opt_params(NPARAMS,0.0025,"param.ts_jitter_sd",1000,1e-04  ,0.01)
+	// NPARAMS += 1 
+	// pvec_name.append(new String("param.ts_jitter_sd"))	
+	// pvec.append(0.0025) 
+	// pvec_factor.append(1000)
+	// pvec_ranges.x[pvec.size()-1][0]		=1e-04  
+	// pvec_ranges.x[pvec.size()-1][1]		=0.01
+	
 }
 
 

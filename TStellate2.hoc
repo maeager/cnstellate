@@ -110,115 +110,6 @@ xopen("par_experiment_TStellate2.hoc")
  SetInputRates()
 
  
-/* 
-strdef datestr,grlbl
-objref errorvec,tempcf,indcf,refvec,gr,ref,test,weightvec
-gr = new Graph()
-
-ref_shift=0
-test_shift=0
-plot_variables=0
-
-func TStellate_err2( ) {local jj,pp,xtime,error,penalty,sustainedrate,inputresistance
-
-    //check for bad values
-    for pp=0,NPARAMS-1 {
-    if (($&2[pp] <= pvec_ranges.x[pp][0]) || ($&2[pp] > pvec_ranges.x[pp][1])) {
-      return 1e9
-    }
-    }
-  //print variables
-  print "TStellate_err2 ", $1
-    for pp=0,NPARAMS-1 { printf("%s = %g * %g",pvec_name.object(pp).s,$&2[pp],pvec_factor.x[pp])}
-  //Set the parameters (see parameters_TStellate.hoc)
-  for pp=0,NPARAMS-1 {
-    sprint(cmd,"%s = %g * %g ",pvec_name.object(pp).s,$&2[pp],pvec_factor.x[pp])
-    execute1(cmd)
-  }
-flushf()
-  // if (plot_variables == 1) {
-  //   tgr[0].line($&2[0], $&2[1])
-  //   tgr[0].flush()
-  //   tgr[1].line($&2[1], $&2[2])
-  //   tgr[1].flush()
-  //   doNotify()
-  //   print $1, $&2[0], $&2[2], $&2[3]
-  // }
-  
-  connect_TS(fileroot)
-  RefreshCellParams() //refresh_TStellate()
-  jitterdelay(param.delay.x[hsr][ts],param.ts_jitter_sd)
-  RunTStellate()
-    //Analyse spikes
-    doNotify()
-    //CNSpikes2()
-
-  // Calculate fitness
-  objref errorvec,weightvec,ref,test
-  errorvec = new Vector()
-  weightvec = new Vector(7,1)
-  ref = new Vector(7,0)
-  test = new Vector(7,0)
-  
-  errorvec.interpolate(tvec,ivdata[0],ivdata[1])
-  
-  //Calculate the IV shift in depolarisation 
-  ref_shift = (errorvec.max_ind(200,300)/10) - 2.5
-  test_shift = (meaniv.max_ind(500,600)/10) - 2.5
-  IVMeasures(tvec,errorvec,ref,ref_shift)
-  IVMeasures(tvec,meaniv,test,test_shift)
-  PSTHcell(tstellate_spikes,10,1)
-  test.copy(cvISI, 3, 0, 3, 1, 1)
-  ref.copy(CV_data, 3, 0, 3, 1, 1)
-  
-  //Calculate additional penalties
-  penalty =0
-  sustainedrate = psth.sum(2,6)/25
-  if(sustainedrate < 10) penalty += 12 - sustainedrate //penalty for lack of spikes during tone
-  if(checkedtrials < 0.9*reps) penalty += 5
-  if(cvISI.x[0] > 0.2) penalty += 5
-   if(cvISI.x[0] > 0.3) penalty += 5
-  if(cvISI.x[1] > 0.5 || cvISI.x[1] == 0) penalty += 10
-  if(cvISI.x[2] > 0.55 || cvISI.x[2] == 0) penalty += 10
-  if(cvISI.x[3] > 0.55 || cvISI.x[3] == 0) penalty += 10  
-  access tstellate[whichcell][0].soma 
-  inputresistance = rn() //Calculate input resistance, see Utilities.hoc   
-  if(inputresistance < 30 || inputresistance > 400) penalty += 10
-  
-  // Weighting of IV and CV measures
-  //weightvec.x[0]/=10 //initial depolarisation approx -50 to -30  mV
-  weightvec.x[1]*=10 //adaptation approx 0.2-0.5
-  //weightvec.x[2]/=10 //post-tone hyperpolarisation approx 0 to -5 mV
-  weightvec.x[3]*=200 //CV
-  weightvec.x[4]*=200
-  weightvec.x[5]*=200
-  weightvec.x[6]*=200
-  
-  print error=sqrt(ref.meansqerr(test,weightvec)) + penalty
-  
-  	sprint(fname,"%s/error_out.dat",fileroot)
-	file.aopen(fname)
-	for pp=0,NPARAMS-1 {
-		file.printf("%g\t",$&2[pp]*pvec_factor.x[pp])
-    }
-	file.printf("%g\n",error)
-	file.close()
-
-  
-    //plot the result
-    // gr.erase_all()
-    // errorvec.plot(gr,ivdata[0],1,1)
-    // ivdata[1].plot(gr,ivdata[0],2,2)
-    // sprint(grlbl,"Error = %g", a)
-    // gr.label(0.65,0.85,grlbl)
-    // for jj=0,NPARAMS-1{
-  //   sprint(grlbl,"%s = %g", pvec_name.object(jj).s,pvec.x[jj])
-  //   gr.label(0.65,0.75-0.05*jj,grlbl)
-    // }
-  doNotify()
-    return error
-}
-*/
 
 //tstop=300
 proc QuickRun(){
@@ -235,17 +126,13 @@ strdef error_fn
 error_fn = "TStellate2_err"
 
 proc runprax(){
-	//Set the attributes of the praxis method
-	// tolerance : find f(x) that minimises norm(x-x0)<tolerance
-	// maxstepsize: max distance between initial guess and minimum
-	// printmode: verbosity of debugging output
 	attr_praxis(tolerance, maxstepsize, printmode)
-   fit_praxis(NPARAMS,error_fn,&pvec.x[0])
+	fit_praxis(NPARAMS,error_fn,&pvec.x[0])
 }
 
 
 
-objref pval[NPARAMS]
+//objref pval[NPARAMS]
 
 objref nil
 access tstellate[whichcell][0].soma
