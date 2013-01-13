@@ -3,7 +3,7 @@
 /* 
  *   
  *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
- *    cnstellate was written as part of my PhD at The University of Melbourne
+ *    cnstellate was written as part of my PhD at the University of Melbourne
  *
  *    This file is part of cnstellate.
  * 
@@ -82,6 +82,8 @@ secondorder						=2
 
 //Optimisation parameters
 print "Optimisation parameters"
+xopen("pvec.hoc")
+
 NPARAMS							=7
 objref pvec,fvec,pvec_ranges,pvec_name,pvec_factor
 pvec			  				= new Vector(NPARAMS) //contains the parameters to be fitted

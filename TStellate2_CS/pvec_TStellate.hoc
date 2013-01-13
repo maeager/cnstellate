@@ -304,3 +304,17 @@ param.w.x[hsr][ts] = 0.00412879*1
 param.w.x[ds][ts] = 8.61282e-05*1
 param.w.x[tv][ts] = 7.47697e-05*1
 param.w.x[glg][ts] = 3.13607e-05*1
+ // Thursday 3 January  02:31:19 EST 2013
+  
+param.ts_dend_g = 0.000936398*1
+param.ts_ghbar = 0.00013003*1
+param.ts_gleak = 0.000153366*1
+param.w.x[hsr][ts] = 0.00378181*1
+param.w.x[lsr][ts] = 0.00716864*1
+ // Saturday 12 January  18:50:57 EST 2013
+  
+param.ts_dend_g = 0.000934154*1
+param.ts_ghbar = 0.00013003*1
+param.ts_gleak = 5.3366e-05*1
+param.w.x[hsr][ts] = 0.00378181*1
+param.w.x[lsr][ts] = 0.00706864*1

@@ -3,8 +3,8 @@ set -eu
 
 ARCH=$(arch)
 # Force rebuilding of AN model files
-rm -f $ARCH/an*
-rm -f $ARCH/.libs/an*
+rm -f $(ARCH)/an*
+rm -f $(ARCH)/.libs/an*
 
 #Check libresample
 (cd libresample-0.1.3; make)
