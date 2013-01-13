@@ -3,7 +3,7 @@
 /*  par_experiment_TStellate2
  *  Experimental setup for second TStellate optimisation 
  *
- *    cnstellate was written as part of my PhD at The University of Melbourne 
+ *    cnstellate was written as part of my PhD at the University of Melbourne 
  *   
  *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
  *
@@ -1267,11 +1267,12 @@ for ii=0,2 {
 	file.printf("# Sustained rate \t%g\n", sustainedrate)
 	
 	if (ii > 1)	{
-		if(sustainedrate < 10) penalty = 10 - sustainedrate //penalty for lack of spikes during tone
+		//penalty for lack of spikes during tone
+		if(sustainedrate < 10) penalty = 10 - sustainedrate 
 		file.printf("# Sustained rate penalty \t%g\n", penalty)
 	}
-	
-	if(psth.sum(8,12)/25 > 10) penalty = psth.sum(8,12)/25 - 10 //penalty for too many spikes after tone
+	//penalty for too many spikes after tone
+	if(psth.sum(8,12)/25 > 10) penalty = psth.sum(8,12)/25 - 10 
 		file.printf("# Post stimulus rate penalty \t%g\n", penalty)
 	
 	

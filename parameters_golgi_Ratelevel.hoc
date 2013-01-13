@@ -3,7 +3,7 @@
 /* 
  *   
  *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
- *    cnstellate was written as part of my PhD at The University of Melbourne
+ *    cnstellate was written as part of my PhD at the University of Melbourne
  *
  *    This file is part of cnstellate.
  * 
@@ -61,7 +61,6 @@ secondorder=2
 	count = 0
 	tonefreq = 8489
 	dur 		= 0.049 	//duration of tone segment (seconds)
-	
 	dutycycle 	= 0.2		//quiet duration = dutycycle*dur
 	ramplngth 	= 0.001
 	ANmodel = 6
