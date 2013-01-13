@@ -28,34 +28,61 @@ gnuplot -p ANplot.gnu
 ** Golgi Model
 
 #+BEGIN_SRC sh
+./gui/special golgi_RateLevel.hoc
+
+#+END_SRC
+
+
+#+BEGIN_SRC sh
 cd golgi
 gnuplot -p GolgiRateLevel.gnu
 gnuplot -p Golgi_RateLevelNoise.gnu
-
 gnuplot -p GolgiRateLevel_result.gpi
 #+END_SRC
 
 
 ** D stellate model
 
+Run the DS cell optimisation using the ClickRecovery procedure
 #+BEGIN_SRC sh
-cd DS_ClickRecovery
-gnuplot -p ClickRecoveryDiagram.gnu
-gnuplot -p ANinput.gnu
-gnuplot -p leakvsklt-contour.gpi
-gnuplot -p DS_ClickRecovery_result.gpi
+  ./gui/special DS_ClockRecovery.hoc
+#+END_SRC
+
+Run the RateLevel routine for the DS cell model optimisation
+#+BEGIN_SRC sh
+ ./gui/special DS_RateLevel.hoc
+#+END_SRC
+
+Plot the results of the DS click recovery and rate level optimisations
+#+BEGIN_SRC sh
+  cd DS_ClickRecovery
+  gnuplot -p ClickRecoveryDiagram.gnu
+  # gnuplot -p ANinput.gnu
+  # gnuplot -p leakvsklt-contour.gpi
+  gnuplot -p DS_ClickRecovery_result.gpi
 #+END_SRC
 
 #+BEGIN_SRC sh
-cd ../thesis/SimpleResponsesChapter/
-gnuplot gfx/DS_RateLevel_result.gpi
-epstopdf DS_RateLevel_result.eps
-
+ cd ../thesis/SimpleResponsesChapter/
+ gnuplot gfx/DS_RateLevel_result.gpi
+ epstopdf DS_RateLevel_result.eps
 #+END_SRC
 
 
 ** TV model
 
+Run the rate level TV cell optimisation 
+#+BEGIN_SRC sh
+  ./gui/special TV_RateLevel.hoc
+#+END_SRC
+
+Run the notch noise routine for the DS to TV connection optimisation
+#+BEGIN_SRC sh
+ ./gui/special TV_Notch.hoc
+#+END_SRC
+
+
+Plot the optimisation results
 #+BEGIN_SRC sh
 cd TV_Notch/Run2/spl70
 gnuplot -p TV_Notch_result.gpi
@@ -74,6 +101,20 @@ gnuplot -p TV_RateLevel_result.gpi
 #+END_SRC
 
 
+
+** TS model
+
+
+
+#+BEGIN_SRC sh
+   cd ~/Work/cnstellate 
+   ./mpi/special TStellate2.hoc -c "optimise_CT1()"
+   cd TStellate2_CT1
+   gnuplot multiplotIVCV4.gnu 
+   gv multiplotIVCV4.eps 
+   epstopdf multiplotIVCV4.eps
+   cp pvec_TStellate.hoc *.dat multiplotIVCV4.pdf ~/Work/thesis/SimpleResponsesChapter/gfx/TStellate2_CT1/
+#+END_SRC
 
 ** other
 
