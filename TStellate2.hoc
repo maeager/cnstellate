@@ -203,7 +203,9 @@ set_pvec()
 
 proc optimise_CS(){
 	CS_data()	
-param.n.x[hsr][ts]=8
+	for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(10)
+	
+	param.n.x[hsr][ts]=8
 param.n.x[lsr][ts]=15
 param.n.x[ds][ts]=4
 param.n.x[tv][ts]=7
@@ -232,7 +234,9 @@ PSTHcell(tstellate_spikes,0.25,2)
 proc optimise_CT1(){
 	CT1_data()	
 xopen("TStellate2_CT1/pvec_TStellate.hoc")	
-	param.ts_erev=-62.9
+	for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(10)
+
+param.ts_erev=-62.9
 param.n.x[hsr][ts]=12
 param.n.x[lsr][ts]=15
 param.n.x[ds][ts]=5
@@ -261,6 +265,8 @@ PSTHcell(tstellate_spikes,0.25,2)
 proc optimise_CT2(){ 
 	xopen("TStellate2_CT2/pvec_TStellate.hoc")
 	CT2_data()
+	for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(10)
+
 	param.ts_erev=-62.9
 	param.n.x[hsr][ts]=12
 	param.n.x[lsr][ts]=15

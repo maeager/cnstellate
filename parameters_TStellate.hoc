@@ -1,6 +1,6 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
-/* 
+/*   parameters_TStellate2.hoc
  *   
  *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
  *    cnstellate was written as part of my PhD at the University of Melbourne
@@ -77,7 +77,7 @@ xopen("pvec.hoc")
 //Names                                               //Initial values	//Param Factor
 
 proc append_num_lsrts_connections(){
-	add_opt_params(NPARAMS,0.015,"param.n.x[lsr][ts]",1000,0.001,0.1)
+	add_opt_param(NPARAMS,0.015,"param.n.x[lsr][ts]",1000,0.001,0.1)
 // NPARAMS+=1
 // 	pvec_name.append(new String("param.n.x[lsr][ts]"))	
 // 	pvec.append(0.015)	   
@@ -88,7 +88,7 @@ proc append_num_lsrts_connections(){
 }
 
 proc append_num_hsrts_connections(){
-	add_opt_params(NPARAMS,0.008,"param.n.x[hsr][ts]",1000,0.001,0.1)
+	add_opt_param(NPARAMS,0.008,"param.n.x[hsr][ts]",1000,0.001,0.1)
 // NPARAMS+=1
 // 	pvec_name.append(new String("param.n.x[hsr][ts]"))	
 // 	pvec.append(0.008)	   
@@ -99,7 +99,7 @@ proc append_num_hsrts_connections(){
 }
 
 proc append_num_dsts_connections(){
-	add_opt_params(NPARAMS,0.017,"param.n.x[ds][ts]",1000,0.001,0.1)
+	add_opt_param(NPARAMS,0.017,"param.n.x[ds][ts]",1000,0.001,0.1)
 // NPARAMS+=1
 // 	pvec_name.append(new String("param.n.x[ds][ts]"))	    
 // 	pvec.append(0.017)  
@@ -110,7 +110,7 @@ proc append_num_dsts_connections(){
 }
 
 proc append_num_tvts_connections(){
-	add_opt_params(NPARAMS,0.015,"param.n.x[tv][ts]",1000,0.001,0.1)
+	add_opt_param(NPARAMS,0.015,"param.n.x[tv][ts]",1000,0.001,0.1)
 // NPARAMS+=1
 // 	pvec_name.append(new String("param.n.x[tv][ts]"))	    
 // 	pvec.append(0.015)   
@@ -120,7 +120,7 @@ proc append_num_tvts_connections(){
 }
 
 proc append_num_glgts_connections(){
-	add_opt_params(NPARAMS,0.005,"param.n.x[glg][ts]",1000,0.001,0.1)
+	add_opt_param(NPARAMS,0.005,"param.n.x[glg][ts]",1000,0.001,0.1)
 // NPARAMS+=1
 // 	pvec_name.append(new String("param.n.x[glg][ts]"))	
 // 	pvec.append(0.005)	
@@ -154,7 +154,7 @@ proc append_num_connections(){
 
 
 proc append_lsrts_weights(){
-    add_opt_params(NPARAMS,0.003,"param.w.x[lsr][ts]",1,0.0000001  ,0.1     )
+    add_opt_param(NPARAMS,0.003,"param.w.x[lsr][ts]",1,0.0000001  ,0.1     )
 // NPARAMS		+=1
 // 	pvec_name.append(new String("param.w.x[lsr][ts]"))	
 // 	pvec.append(0.003)	
@@ -164,7 +164,7 @@ proc append_lsrts_weights(){
 	
 }
 proc append_hsrts_weights(){
-    add_opt_params(NPARAMS,0.0025,"param.w.x[hsr][ts]",1,0.0000001  ,0.1     )
+    add_opt_param(NPARAMS,0.0025,"param.w.x[hsr][ts]",1,0.0000001  ,0.1     )
 // NPARAMS		+=1
 // 	pvec_name.append(new String("param.w.x[hsr][ts]"))	
 // 	pvec.append(0.0025)	
@@ -174,7 +174,7 @@ proc append_hsrts_weights(){
 	
 }
 proc append_dsts_weights(){
-	add_opt_params(NPARAMS,0.000170,"param.w.x[ds][ts]",1,0.0000001,0.1 )
+	add_opt_param(NPARAMS,0.000170,"param.w.x[ds][ts]",1,0.0000001,0.1 )
 ////  NPARAMS		+=1  
 // // 	pvec_name.append(new String("param.w.x[ds][ts]"))	    pvec.append(0.000170)	pvec_factor.append(1)
 // // 	pvec_ranges.x[pvec.size()-1][0]		=0.0000001  //
@@ -183,7 +183,7 @@ proc append_dsts_weights(){
 
 }
 proc append_tvts_weights(){
-    add_opt_params(NPARAMS,0.00010,"param.w.x[tv][ts]",1,0.0000001  ,0.1 )   
+    add_opt_param(NPARAMS,0.00010,"param.w.x[tv][ts]",1,0.0000001  ,0.1 )   
 // NPARAMS		+=1  
 // 	pvec_name.append(new String("param.w.x[tv][ts]"))	    
 // 	pvec.append(0.00010)	    
@@ -193,7 +193,7 @@ proc append_tvts_weights(){
 	
 }
 proc append_glgts_weights(){
-    add_opt_params(NPARAMS,0.000130,"param.w.x[glg][ts]",1,0.0000001  ,0.1     )
+    add_opt_param(NPARAMS,0.000130,"param.w.x[glg][ts]",1,0.0000001  ,0.1     )
 // NPARAMS		+=1  
 // 	pvec_name.append(new String("param.w.x[glg][ts]"))	
 // 	pvec.append(0.000130)	
@@ -238,7 +238,7 @@ pvec_ranges.x[4][1]					=0.00700
 
 
 proc append_ts_soma_erev(){ // Reversal potential
-    add_opt_params(NPARAMS,0.055 ,"param.ts_erev",-1000,0.030,0.080)
+    add_opt_param(NPARAMS,0.055 ,"param.ts_erev",-1000,0.030,0.080)
 // NPARAMS += 1 
 // 	pvec_name.append(new String("param.ts_erev"))	    
 // 	pvec.append(0.055 )     
@@ -249,7 +249,7 @@ proc append_ts_soma_erev(){ // Reversal potential
 } 
 
 proc append_ghbar(){ 
-	add_opt_params(NPARAMS,6.20392e-05,"param.ts_ghbar",1,5e-06  ,0.0005)
+	add_opt_param(NPARAMS,6.20392e-05,"param.ts_ghbar",1,5e-06  ,0.0005)
 // NPARAMS += 1 
 // 	pvec_name.append(new String("param.ts_ghbar"))	
 // 	pvec.append(6.20392e-05)  
@@ -259,7 +259,7 @@ proc append_ghbar(){
 	
 }
 proc append_gkabar(){
-	add_opt_params(NPARAMS,0.01539,"param.ts_gkabar",1,5e-03  ,0.05)
+	add_opt_param(NPARAMS,0.01539,"param.ts_gkabar",1,5e-03  ,0.05)
 // NPARAMS += 1 
 // 	pvec_name.append(new String("param.ts_gkabar"))	
 // 	pvec.append(0.01539) 
@@ -270,7 +270,7 @@ proc append_gkabar(){
 }
 proc append_gleak(){
 		//Leak conductance effects Input resistance and Membrane time constant
-	add_opt_params(NPARAMS,0.000473539,"param.ts_gleak",1,5e-05  ,0.005)
+	add_opt_param(NPARAMS,0.000473539,"param.ts_gleak",1,5e-05  ,0.005)
 // NPARAMS += 1 
 // 	pvec_name.append(new String("param.ts_gleak"))	
 // 	pvec.append(0.000473539) 
@@ -281,7 +281,7 @@ proc append_gleak(){
 }
 
 proc append_ts_dend_g(){
-	add_opt_params(NPARAMS,0.001,"param.ts_dend_g",1,5e-04  ,0.01)
+	add_opt_param(NPARAMS,0.001,"param.ts_dend_g",1,5e-04  ,0.01)
 // NPARAMS += 1 
 // 	pvec_name.append(new String("param.ts_dend_g"))	
 // 	pvec.append(0.001) 
@@ -292,7 +292,7 @@ proc append_ts_dend_g(){
 }
 proc append_ts_dend_erev(){
 	// Reversal potential
-    add_opt_params(NPARAMS,0.065 ,"param.ts_dend_e",-1000,0.030,0.080)
+    add_opt_param(NPARAMS,0.065 ,"param.ts_dend_e",-1000,0.030,0.080)
 // NPARAMS += 1 
 // 	pvec_name.append(new String("param.ts_dend_e"))	    
 // 	pvec.append(0.065 )     
@@ -303,7 +303,7 @@ proc append_ts_dend_erev(){
 } 
 
 proc append_ts_jitter_sd(){
-	add_opt_params(NPARAMS,0.0025,"param.ts_jitter_sd",1000,1e-04  ,0.01)
+	add_opt_param(NPARAMS,0.0025,"param.ts_jitter_sd",1000,1e-04  ,0.01)
 	// NPARAMS += 1 
 	// pvec_name.append(new String("param.ts_jitter_sd"))	
 	// pvec.append(0.0025) 
@@ -316,19 +316,18 @@ proc append_ts_jitter_sd(){
 
 
 
-NPARAMS=8
+NPARAMS=12
 init_params(NPARAMS)
+append_gleak() 
 append_num_connections() 
 // append_ts_dend_g()
-append_hsrts_weights()
-append_lsrts_weights()
-append_gleak() 
+//append_hsrts_weights()
+//append_lsrts_weights()
 //
 //  append_ghbar() 
 //  append_gkabar()
-//  append_weights()
-
-//  append_ts_soma_erev()
+  append_weights()
+  append_ts_soma_erev()
 
 
 

@@ -33,8 +33,9 @@ proc init_params(){
 
 
 proc add_opt_param(){
-    if (pvec.size()-1 != $1 || pvec_ranges.getcol(0).size()-1 < $1){
+    if (pvec.size() != $1 || pvec_ranges.getcol(0).size()-1 < $1){
 	print "Error in add_opt_param: index not in range or pvec not initialised."
+	return
     }
     print "Adding variable: ", $s3
     print "Factor ", $4, " Init value ", $2, " range [", $5, ",", $6, "]" 
