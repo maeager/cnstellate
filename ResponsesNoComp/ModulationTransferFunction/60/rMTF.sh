@@ -1,3 +1,4 @@
+
 #!/bin/bash
 # rMTF.sh: Reorganise rate information and plot using gnuplot
 #

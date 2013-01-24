@@ -39,8 +39,8 @@ DS_RateLevel/*.dat
 TV_RateLevel/*.dat
 TV_Notch/*
 TV_Notch_spl50/*
-TStellate2_C*/ModulationTransferFunction/
-TStellate2_C*/F0Response/*
+TStellate2_*/ModulationTransferFunction/*
+TStellate2_*/F0Response/*
 
 syntax: regexp
 .*\#.*\#$

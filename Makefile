@@ -9,7 +9,8 @@ GUIMODL=/usr/local/nrn/$(NRNMODL)
 MODLFLAGS=-loadflags "$(shell pwd)/libresample-0.1.3/libresample.a"
 #MODLFLAGS=''
 
-all: clean-all libresample gui mpi
+
+all: gui mpi
 
 clean-mpi:
 	-[ -d mpi ] && rm -rf mpi 

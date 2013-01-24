@@ -35,7 +35,8 @@ gnuplot TV_ratelevel.gnu
 for i in $(ls -rt */rateplace.3.dat)
 do 
 	grep 5810 $i | awk '{print $3}'
-done;}> golgi.dat
+done
+} > golgi.dat
 paste level.dat golgi.dat > G_ratelevel_5810.dat
 rm -f golgi.dat
 gnuplot G_ratelevel.gnu
