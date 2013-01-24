@@ -133,3 +133,45 @@ param.n.x[hsr][ts] = 0.008*1000
 param.n.x[ds][ts] = 0.004*1000
 param.n.x[tv][ts] = 0.007*1000
 param.n.x[glg][ts] = 0.00499443*1000
+ // Monday 14 January  07:14:23 EST 2013
+  
+param.ts_gleak = 0.000573539*1
+param.n.x[lsr][ts] = 0.0014*10000
+param.n.x[hsr][ts] = 0.00124841*10000
+param.n.x[ds][ts] = 0.0005*10000
+param.n.x[tv][ts] = 0.0009*10000
+param.n.x[glg][ts] = 0.0005*10000
+param.w.x[lsr][ts] = 0.00387471*1
+param.w.x[hsr][ts] = 0.00140151*1
+param.w.x[ds][ts] = 0.000109447*1
+param.w.x[tv][ts] = 1.46063e-05*1
+param.w.x[glg][ts] = 0.0012868*1
+param.ts_erev = 0.0629*-1000
+ // Monday 14 January  17:36:50 EST 2013
+  
+param.ts_gleak = 0.000580826*1
+param.n.x[lsr][ts] = 0.00170005*10000
+param.n.x[hsr][ts] = 0.00126151*10000
+param.n.x[ds][ts] = 0.000474973*10000
+param.n.x[tv][ts] = 0.000997462*10000
+param.n.x[glg][ts] = 0.000481586*10000
+param.w.x[lsr][ts] = 0.00383291*1
+param.w.x[hsr][ts] = 0.00139743*1
+param.w.x[ds][ts] = 0.000163914*1
+param.w.x[tv][ts] = 7.97895e-06*1
+param.w.x[glg][ts] = 0.00127402*1
+param.ts_erev = 0.0629413*-1000
+ // Monday 21 January  01:22:25 EST 2013
+  
+param.ts_gleak = 0.000580826*1
+param.n.x[lsr][ts] = 0.0015*10000
+param.n.x[hsr][ts] = 0.0011*10000
+param.n.x[ds][ts] = 0.000996725*10000
+param.n.x[tv][ts] = 0.001*10000
+param.n.x[glg][ts] = 0.000997867*10000
+param.w.x[lsr][ts] = 0.00383291*1
+param.w.x[hsr][ts] = 0.00129743*1
+param.w.x[ds][ts] = 0.000163914*1
+param.w.x[tv][ts] = 7.97895e-06*1
+param.w.x[glg][ts] = 0.00127402*1
+param.ts_erev = 0.063*-1000
