@@ -1,0 +1,36 @@
+# 
+# gnuplot is available from http://www.gnuplot.info
+
+load '/media/data/Work/cnstellate/Responses/default.gnu'
+
+set terminal postscript eps enhanced size 7,5 defaultplex \
+   leveldefault mono solid\
+   dashlength 1.0 linewidth 2.0 butt noclip \
+   palfuncparam 2000,0.003 \
+   "Helvetica" 18 
+set output "baseline_exc.eps"
+
+set multiplot layout 1,2 scale 1,0.3
+unset key
+unset xtics
+unset border
+unset ytics
+set tmargin 0
+set rmargin 0
+#unset arrow 2
+
+set label 1 '{/Helvetica=20 A}' at 10,-50
+set label 3 '{/Helvetica=14 10 mV}' at 0,-65 right rotate 
+set arrow 1 from 5,-65 to 5,-55 nohead lw 1
+plot [10:110][-70:-50] "/media/data/Work/cnstellate/TStellate/lsr_single_noNa.dat" w l lw 1, \
+ "/media/data/Work/cnstellate/TStellate/lsr_average_noNa.dat" u ($1+20):2 w l lw 2
+set label 1 '{/Helvetica=20 B}' at 10,-50
+unset arrow 1
+unset label 3
+plot [10:110][-70:-50] "/media/data/Work/cnstellate/TStellate/hsr_single_noNa.dat" w l lw 1, \
+ "/media/data/Work/cnstellate/TStellate/hsr_average_noNa.dat" u ($1+20):2 w l lw 2
+
+
+unset multiplot
+
+!fixbb baseline_exc.eps

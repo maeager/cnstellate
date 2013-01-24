@@ -1,0 +1,766 @@
+// calcisilag.hoc
+// Adapted by Michael Eager from  Andrew Davison (The Babraham Institute, 2000) 
+// Original Olfactory bulb network model: calculate inter-spike interval and lag time statistics
+// 
+
+
+
+/* The following procedures are defined for writing results to file
+ * fileroot is the filename root. A suffix will be added to
+ * this, e.g. fileroot.synch for print_si().
+ * i,j are the Tstellate cell indices
+ *
+ * print_smooth_hist(variance,fileroot)
+ * print_an_smooth_hist(variance,fileroot)
+ * print_spiketimes(i,j,fileroot)
+ * print_raster(fileroot)
+ * print_an_raster(fileroot)
+ * print_isis(i,j,fileroot)
+ * print_isi_stats(fileroot)
+ * print_lags(i,j,fileroot)
+ * print_si(fileroot)
+ */
+
+// Variables used in this file
+strdef tstr
+objref work, work2, TSoutputarray,DSoutputarray,TVoutputarray,Goutputarray, isi, lags, hist, tmpspike,psth[nchannels]
+work    = new Vector()
+work2    = new Vector()
+TSoutputarray = new Matrix(nchannels,nTSperchannel)
+DSoutputarray = new Matrix(nchannels,nDSperchannel)
+TVoutputarray = new Matrix(nchannels,nTVperchannel)
+Goutputarray = new Matrix(nchannels,nGperchannel)
+binwidth=0.1
+isi    = new Vector()
+lags    = new Vector()
+tmpspike = new Vector()
+
+// Procedures for processing spike times -------------------------------
+VectorStrength=0
+RayleighTest=0
+proc CalcVectorStrength() {local i,j,k,sumxi,sumyi,n,period,thetai,binwidth
+			   // $o1 vector of psth or faster with a period histogram
+			   //$2 binwidth variable in ms
+			   //$3 period length T in ms (i.e. 1000/AM_modfreq)
+// From Kajikawa and Hackett: J Neurosci meth 
+	VectorStrength=0
+        RayleighTest=0
+    sumxi=0
+    sumyi=0
+	n=$o1.sum()
+	if (n <= 0) return
+	
+	binwidth=$2   
+	period = $3  
+	for i=0, $o1.size()-1 {
+		thetai = (((binwidth*i)%period) /period)*2*PI
+		sumxi+=$o1.x[i]*cos(thetai)
+		sumyi+=$o1.x[i]*sin(thetai)
+	}
+	VectorStrength=sqrt((sumxi^2)+(sumyi^2))/n
+	RayleighTest=2*n*(VectorStrength)^2
+}
+
+
+
+proc CalcVectorStrengthSpikes() {local i,sumxi,sumyi,n,period,thetai,t_start, t_end localobj spikes
+
+	// $1 cell type
+        //$2 cell number
+	//$3 period length T in ms (i.e. 1000/AM_modfreq)
+        //$4 start time, ignore spikes before this
+        //$5 end time
+// From Kajikawa and Hackett: J Neurosci meth
+// Also Chang et al. 10.1073/pnas.0508239102
+//The Rayleigh statistic is 2n(vector strength) (6), with critical values of 5.991 for a= 0.05 and 13.816 for a = 0.001.
+//6. Shannon, R. V., Zeng, F. G., Kamath, V., Wygonski, J. & Ekelid, M. (1995) Science 270, 303304.
+
+    if($1==ts){
+	  spikes = new Vector()
+	  for i=0,nTSperchannel-1 {
+	      spikes.append(tstellate[$2][i].spikes)
+	  }
+      }
+    //Assume one cell per channel for TV,DS and GLG  
+    if($1==tv) spikes = tuberculoventral[$2][0].spikes
+    if($1==ds) spikes = dstellate[$2][0].spikes
+    if($1==glg) spikes = golgi[$2][0].spikes
+    if($1==hsr){
+	  spikes = new Vector()
+	  for i=0,HSRsperchannel-1 {
+	    if( an.HSRspikes[$2][i].size() == 0) {
+	      spikes.append(an.HSRspiketimes[$2][i])
+	    } else {
+	      spikes.append(an.HSRspikes[$2][i])
+	    }
+	  }
+    }
+    if($1==lsr){
+        
+	    spikes = new Vector()
+	    for i=0,LSRsperchannel-1 {
+	      if( an.LSRspikes[$2][i].size() == 0) {
+		spikes.append(an.LSRspiketimes[$2][i])
+	      } else {
+		spikes.append(an.LSRspikes[$2][i])
+	      }
+	    }
+      
+    }
+
+    sumxi=0
+    sumyi=0
+	VectorStrength=0
+    RayleighTest=0
+	n=spikes.size()
+    if (n <= 0) return
+    period = $3
+    t_start = $4
+    if (t_start < 0  || t_start > tstop) tstart =0
+    t_end = $5
+    if (t_end < 0  || t_end > tstop || t_end <= t_start) t_end = tstop
+
+    for i=0, n-1 {
+        if( spikes.x[i] >= t_start && spikes.x[i] <= t_end){
+		  thetai =  (((spikes.x[i])%period)/period)*2*PI
+		  sumxi+=cos(thetai)
+		  sumyi+=sin(thetai)
+        }
+	}
+	VectorStrength=sqrt((sumxi^2)+(sumyi^2))/n
+	RayleighTest=2*n*(VectorStrength)^2
+}
+
+
+
+
+objref period_psth[nchannels]
+proc period_hist(){local i,j,period, periodsize
+    //reformat the PSTH to fold into period T of modulation freq.
+    //$1 is the modulation freq in Hz
+ period = int((1000/$1)/binwidth)
+ if ($1 >= 600) {
+   periodsize=period+1
+ } else {
+    periodsize = period
+ }
+ for i = 0, nchannels-1 {
+    period_psth[i] = new Vector(periodsize,0)
+    for j=0,psth[0].size()-1 period_psth[i].x[j%period] += psth[i].x[j] 
+ } 
+}
+
+
+proc calc_isis() { local i,j,k,n // 3 args - indices of Tstellate cell, transient time
+  if ($1 > nchannels || $2 > nTSperchannel) {
+    print "Sorry - index out of range. Please try again."
+    return
+  }
+  i = int($1)
+  j = int($2)
+  isi.resize(0)
+  n = tstellate[i][j].spiketimes.size()
+  if (n > 1) {
+    for k = 1,n-1 {
+      if (tstellate[i][j].spiketimes.x[k-1] > $3) {
+        isi.append(tstellate[i][j].spiketimes.x[k]-tstellate[i][j].spiketimes.x[k-1])
+      }
+    }
+  }
+}
+
+proc calc_an_isis() { local i,j,k,n // 3 args - indices of an.HSR cell, transient time
+  if ($1 > nchannels || $2 > HSRsperchannel) {
+    print "Sorry - index out of range. Please try again."
+    return
+  }
+  i = int($1)
+  j = int($2)
+  isi.resize(0)
+  n = an.HSRspiketimes[i][j].size()
+  if (n > 1) {
+    for k = 1,n-1 {
+      if (an.HSRspiketimes[i][j].x[k-1] > $3) {
+        isi.append(an.HSRspiketimes[i][j].x[k]-an.HSRspiketimes[i][j].x[k-1])
+      }
+    }
+  }
+}
+
+func minisi() { local i,j,min   // find shortest mean ISI
+  min = 1e6
+  for i = 0, nchannels-1 {
+    for j = 0, nTSperchannel-1 {
+      calc_isis(i,j,t_ignore_before,t_ignore_after)
+      if (isi.size() > 0) {
+        if (isi.mean() < min) { min = isi.mean() }
+      }
+    }
+  }
+  return min
+}
+
+
+proc rate_array() { local i,j
+  for i = 0,nchannels-1 {
+    for j = 0, nTSperchannel-1 {
+      calc_isis(i,j,t_ignore_before,t_ignore_after)
+      if (isi.size() > 0) {
+        TSoutputarray.x[i][j] = 1000/isi.mean()
+      }else {
+        TSoutputarray.x[i][j] = 0
+      }
+    }
+  }
+  print "Max: ",arraymax(TSoutputarray)
+  TSoutputarray.muls(1/arraymax(TSoutputarray))
+}
+
+proc calc_lags() { local i1,j1,i2,j2,k,minidx,min // 5 args - indices of Tstellate cells, transient time
+    if ($1 > nchannels || $2 > nTSperchannel || $3 > nchannels || $4 > nTSperchannel) {
+    print "Sorry - index out of range. Please try again."
+    return
+  }
+  i1 = int($1)
+  j1 = int($2)
+  i2 = int($3)
+  j2 = int($4)
+  lags.resize(0)
+  // for each spiketime in cell 1, find closest spike in cell 2
+  // Note: first and last spikes ignored since can't calculate previous ISI
+  if (tstellate[i2][j2].spiketimes.size > 0) {
+    for k = 1,tstellate[i1][j1].spiketimes.size()-2 {
+      if (tstellate[i1][j1].spiketimes.x[k] > $5) {
+        work = tstellate[i2][j2].spiketimes.c.add(-tstellate[i1][j1].spiketimes.x[k])
+        minidx = work.c.abs.min_ind()
+        min = work.x[minidx]
+        isiprev = tstellate[i1][j1].spiketimes.x[k-1]-tstellate[i1][j1].spiketimes.x[k]
+        isinext = tstellate[i1][j1].spiketimes.x[k+1]-tstellate[i1][j1].spiketimes.x[k]
+        if (min > isiprev/2 && min < isinext/2) {
+          lags.append(min)
+        }
+      }
+    }
+  }
+}
+
+proc calc_phase_lags() { local i1,j1,i2,j2,k,minidx,min // 5 args - indices of Tstellate cells, transient time
+    if ($1 > nchannels || $2 > nTSperchannel || $3 > nchannels || $4 > nTSperchannel) {
+    print "Sorry - index out of range. Please try again."
+    return
+  }
+  i1 = int($1)
+  j1 = int($2)
+  i2 = int($3)
+  j2 = int($4)
+  lags.resize(0)
+  // for each spiketime in cell 1, find closest spike in cell 2
+  // Note: first and last spikes ignored since can't calculate previous ISI
+  if (tstellate[i2][j2].spiketimes.size > 0) {
+    for k = 1,tstellate[i1][j1].spiketimes.size()-2 {
+      if (tstellate[i1][j1].spiketimes.x[k] > $5) {
+        work = tstellate[i2][j2].spiketimes.c.add(-tstellate[i1][j1].spiketimes.x[k])
+        minidx = work.c.abs.min_ind()
+        min = work.x[minidx]
+        isiprev = tstellate[i1][j1].spiketimes.x[k-1]-tstellate[i1][j1].spiketimes.x[k]
+        isinext = tstellate[i1][j1].spiketimes.x[k+1]-tstellate[i1][j1].spiketimes.x[k]
+        if (min > isiprev/2 && min < isinext/2) {
+          if (min < 0) {
+            lags.append(min/isiprev)
+          } else {
+            lags.append(min/isinext)
+          }
+        }
+      }
+    }
+  }
+}
+
+proc calc_an_lags() { local i1,j1,i2,j2,k,minidx,min // 5 args - indices of an.HSR cells, transient time
+    if ($1 > nchannels || $2 > HSRsperchannel || $3 > nchannels || $4 > HSRsperchannel) {
+    print "Sorry - index out of range. Please try again."
+    return
+  }
+  i1 = int($1)
+  j1 = int($2)
+  i2 = int($3)
+  j2 = int($4)
+  lags.resize(0)
+  // for each spiketime in cell 1, find closest spike in cell 2
+  // Note: first and last spikes ignored since can't calculate p
+revious ISI
+  if (an.HSRspiketimes[i2][j2].size > 0) {
+    for k = 1,an.HSRspiketimes[i1][j1].size()-2 {
+      if (an.HSRspiketimes[i1][j1].x[k] > $5) {
+        work = an.HSRspiketimes[i2][j2].c.add(-an.HSRspiketimes[i1][j1].x[k])
+        minidx = work.c.abs.min_ind()
+        min = work.x[minidx]
+        isiprev = an.HSRspiketimes[i1][j1].x[k]-an.HSRspiketimes[i1][j1].x[k-1]
+        isinext = an.HSRspiketimes[i1][j1].x[k]-an.HSRspiketimes[i1][j1].x[k+1]
+        if (min < isiprev/2 && min > isinext/2) {
+          lags.append(min)
+        }
+      }
+    }
+  }
+}
+
+proc time_hist() { // 1 arg - time step
+  work.resize(0)
+  for i = 0, nchannels-1 {
+    for j = 0, nTSperchannel-1 {
+      work.append(tstellate[i][j].spiketimes)
+    }
+  }
+  hist = work.histogram(0,tstop,$1)
+  hist.printf("%d\n")
+}
+
+func synch_index() { local i1,j1,i2,j2,n
+  synchindex = 0
+  n = 0
+  for i1 = 0, nchannels-1 {
+    for j1 = 0, nTSperchannel-1 {
+      if (tstellate[i1][j1].spiketimes.size() > 0) {
+        for i2 = 0, nchannels-1 {
+          for j2 = 0, nTSperchannel-1 {
+            if (i1 != i2 || j1 != j2) {
+              calc_phase_lags(i1,j1,i2,j2,t_ignore_before,t_ignore_after)
+              n += lags.size()
+              synchindex += lags.reduce("abs",0)
+            }
+          }
+        }
+      }
+    }
+  }
+  if (n > 0) {
+    return synchindex/n
+  } else {
+    return 1e6
+  }
+}
+
+
+func phaselock_index() { local n,i1,j1,i2,j2
+  synchindex = 0
+  n = 0
+  for i1 = 0, nchannels-1 {
+    for j1 = 0, nTSperchannel-1 {
+      if (tstellate[i1][j1].spiketimes.size() > 0) {
+        for i2 = 0, nchannels-1 {
+          for j2 = 0, nTSperchannel-1 {
+            if (i1 != i2 || j1 != j2) {
+              calc_phase_lags(i1,j1,i2,j2,t_ignore_before,t_ignore_after)
+              if (lags.size() > 1) {
+                synchindex += lags.var()
+                n += 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (n > 0) {
+    synchindex = sqrt(synchindex/n)
+    return synchindex
+  } else {
+    return 1e6
+  }
+}
+
+// Procedures for writing out data --------------------------------
+
+proc calc_psth(){local i
+ objref psth[nchannels]
+ for i = 0, nchannels-1 {
+    psth[i] = new Vector()
+    if($1==ts) psth[i] = tstellate[i][0].spikes.histogram(0,tstop,binwidth)
+    if($1==tv) psth[i] = tuberculoventral[i][0].spikes.histogram(0,tstop,binwidth)
+    if($1==ds) psth[i] = dstellate[i][0].spikes.histogram(0,tstop,binwidth)
+    if($1==glg) psth[i] = golgi[i][0].spikes.histogram(0,tstop,binwidth)
+  } 
+}
+
+
+proc print_psth() { // 2 args - variance, filename root
+
+  calc_psth($1)
+
+ // if (t_ignore_after == 0) t_ignore_after = int((stimdelay+dur+ramplngth/2)*1000)/binwidth)
+  if (t_ignore_after > psth[0].size()) t_ignore_after = psth[0].size()
+  if (t_ignore_before > psth[0].size()) t_ignore_before = psth[0].size()
+
+  sprint(filename,"%s/psth.%d.dat",$s2,$1)
+  outfile.wopen(filename)
+  outfile.printf("# %s cell histogram\n",$s3)
+  for i=0, nchannels-1{
+    for j=0,psth[0].size()-1 {
+	outfile.printf("%d\t%.2f\t%8.3f\n",i,j*binwidth,psth[i].x[j])
+    }
+    outfile.printf("\n")
+  }
+  outfile.close()
+
+
+  sprint(filename,"%s/rateplace.%d.dat",$s2,$1)
+  outfile.wopen(filename)
+  outfile.printf("# %s cell rate place\n",$s3)
+  
+  for i=0, nchannels-1{
+    if (t_ignore_after != 0 && t_ignore_after < psth[i].size) psth[i].remove(t_ignore_after,psth[i].size-1)
+    if (t_ignore_before != 0 && t_ignore_before < psth[i].size) psth[i].remove(0,t_ignore_before)
+    outfile.printf("%d\t%.2f\t%8.3f\n",i,cf.x[i],psth[i].sum()/(reps))
+  }
+  outfile.close()
+
+}
+
+
+
+
+
+
+proc print_periodpsth() { // 3 args - celltype, str: filename root, str: name of cell
+     t_ignore_after = int(((stimdelay+dur)*1000)/binwidth)
+       t_ignore_before= int(((stimdelay+ramplngth*2)*1000)/binwidth)
+     calc_psth($1)
+
+  for i=0, nchannels-1{
+    if (t_ignore_after != 0 && t_ignore_after < psth[i].size) psth[i].remove(t_ignore_after,psth[i].size-1)
+    if (t_ignore_before != 0 && t_ignore_before < psth[i].size) psth[i].remove(0,t_ignore_before)
+  }
+   period_hist(AM_modfreq)
+
+  sprint(filename,"%s/periodhist.%d.dat",$s2,$1)
+  outfile.wopen(filename)
+  outfile.printf("# %s cell histogram folded to mod freq %d\n",$s3,AM_modfreq)
+  for i=0, nchannels-1{
+    for j=0,period_psth[0].size()-1 {
+	outfile.printf("%d\t%.2f\t%8.3f\n",i,j*binwidth,period_psth[i].x[j])
+    }
+    outfile.printf("\n")
+  }
+  outfile.close()
+
+//Print vector strength and rayleigh coefficient
+  sprint(filename,"%s/vs.%d.dat",$s2,$1)
+  outfile.wopen(filename)
+  outfile.printf("# %s Vector strength and Rayleigh Coefficient for period %d Hz\n",$s3,AM_modfreq)
+  for i=0, nchannels-1{	
+      	CalcVectorStrength(period_psth[i],binwidth,1000/AM_modfreq)
+	outfile.printf("%d\t%8.5f\t%8.5f\n",i,VectorStrength,RayleighTest)
+  }
+  outfile.close()
+
+    //Print vector strength and rayleigh coefficient
+  sprint(filename,"%s/vsSPIKES.%d.dat",$s2,$1)
+  outfile.wopen(filename)
+  outfile.printf("# %s Vector strength and Rayleigh Coefficient for period %d Hz\n",$s3,AM_modfreq)
+  for i=0, nchannels-1{
+      CalcVectorStrengthSpikes($1,i,1000/AM_modfreq, t_ignore_before*binwidth, t_ignore_after*binwidth)
+outfile.printf("%d\t%0.6f\t%8.2f\t%d\n",i,VectorStrength,RayleighTest, psth[i].sum())
+  }
+  outfile.close()
+
+//Print spectrogram of PSTH hist
+  sprint(filename,"%s/spctFULL.%d.dat",$s2,$1)
+  outfile.wopen(filename)
+  outfile.printf("# %s cell PSTH spectrogram\n",$s3)
+  for i=0, nchannels-1{
+    work.resize(0)
+    work.spctrm(psth[i])
+ if (work.size() >= 2 ){
+    for j=0,work.size-1 outfile.printf("%d\t%d\t%8.4f\n",i,j,work.x[j])
+    outfile.printf("\n")
+    } else {
+    outfile.printf("%d\t0.0\t0.0\n",i)
+    }
+  }
+  outfile.close()
+
+  
+  
+  
+//Print spectrogram of period hist
+  sprint(filename,"%s/spct.%d.dat",$s2,$1)
+  outfile.wopen(filename)
+  outfile.printf("# %s cell rate place\n",$s3)
+  sprint(filename,"%s/spctVS.%d.dat",$s2,$1)
+  file.wopen(filename)
+  for i=0, nchannels-1{	
+      	work.resize(0)
+	work.spctrm(period_psth[i])
+	for j=0,work.size-1 outfile.printf("%d\t%d\t%8.4f\n",i,j,work.x[j])
+        outfile.printf("\n")
+	if (work.size >= 2) {
+	    file.printf("%d\t%g\t%g",i,work.x[1],work.x[0])
+	} else {
+	   file.printf("%d\t%g\t%g",i,0,work.x[0])
+	}  
+  }
+  outfile.close()
+    file.close()
+}
+
+proc calc_smooth_hist() { // 1 arg - variance
+  work.resize(0)
+  for i = 0, nchannels-1 {
+    for j = 0, nTSperchannel-1 {
+      work.append(tstellate[i][j].spiketimes)
+    }
+  }
+  hist = work.sumgauss(0,tstop,1,$1)
+}
+
+proc print_smooth_hist() { // 2 args - variance, filename root
+  calc_smooth_hist($1)
+  sprint(filename,"%s/smhist.dat",$s2)
+  outfile.wopen(filename)
+  outfile.printf("# tstellate cell smoothed histogram\n")
+  hist.printf(outfile,"%8.3f\n")
+  outfile.close()
+
+  work.resize(0)
+  //hist.remove(t_ignore_after, hist.size-1)
+  //hist.remove(0,t_ignore_before)
+  work.spctrm(hist)
+  sprint(filename,"%s/pow.dat",$s2)
+  outfile.wopen(filename)
+  outfile.printf("# Power spectrum of Tstellate cell smoothed histogram\n")
+  work.printf(outfile,"%9.5f\n")
+  outfile.close()
+
+}
+
+
+
+proc calc_an_smooth_hist() { // 1 arg - variance
+  work.resize(0)
+  for i = 0, nchannels-1 {
+    for j = 0, HSRsperchannel-1 {
+      work.append(an.HSRspiketimes[i][j])
+    }
+  }
+  hist = work.sumgauss(0,tstop,1,$1)
+}
+
+proc print_an_smooth_hist() { // 2 args - variance, filename root
+  calc_an_smooth_hist($1)
+  sprint(filename,"%s/an.HSR.smhist",$s2)
+  outfile.wopen(filename)
+  outfile.printf("# an.HSR cell smoothed histogram\n")
+  hist.printf(outfile,"%8.3f\n")
+  outfile.close()
+  //work.resize(0)
+  //hist.remove(0,t_ignore_before,t_ignore_after
+  //work.spctrm(hist)
+  //sprint(filename,"%s.an.HSR.pow",$s2)
+  //outfile.wopen(filename)
+  //outfile.printf("# Power spectrum of HSR ANF smoothed histogram\n")
+  //work.printf(outfile,"%9.5f\n")
+  //outfile.close()
+}
+
+proc print_an_hist() { // 2 args - binsize, filename root
+  work.resize(0)
+  for i = 0, nchannels-1 {
+    for j = 0, HSRsperchannel-1 {
+    	   work.append(an.HSRspiketimes[i][j])
+    }
+  }
+  hist = work.histogram(0,tstop,$1)
+  sprint(filename,"%s/an.HSR.hist",$s2)
+  outfile.wopen(filename)
+  outfile.printf("# an.HSR cell unsmoothed histogram\n")
+  hist.printf(outfile,"%8.3f\n")
+  outfile.close()
+}
+
+proc print_spiketimes() { // 3 args - indices of Tstellate cell plus filename root
+  if (numarg() == 3) {
+    sprint(filename,"%s/spikes_%d_%d.isi",$s3,$1,$2)
+    outfile.wopen(filename)
+    outfile.printf("# Spiketimes for Tstellate cell [%d][%d]",$1,$2)
+    tstellate[$1][$2].spiketimes.printf(outfile,"%10.3f")
+  }
+  if (numarg() == 1) {
+    sprint(filename,"%s/spikes.ts.isi",$s1)
+    outfile.wopen(filename)
+    for i = 0, nchannels-1 {
+      for j = 0, nTSperchannel-1 {
+        outfile.printf("[%d][%d]",i,j)
+        tstellate[i][j].spiketimes.printf(outfile,"%10.3f")
+      }
+    }
+    sprint(filename,"%s/spikes.ds.isi",$s1)
+    outfile.wopen(filename)
+    for i = 0, nchannels-1 {
+      for j = 0, nDSperchannel-1 {
+        outfile.printf("[%d][%d]",i,j)
+        dstellate[i][j].spiketimes.printf(outfile,"%10.3f")
+      }
+    }
+  }
+  outfile.close()
+}
+
+
+proc print_ts_raster() { // 1 arg - filename root
+
+  sprint(filename,"%s/ts_raster.dat",$s1)
+  outfile.wopen(filename)
+  outfile.printf("# Tstellate cell raster plot\n")
+  for i = 0, nchannels-1 {
+    for j = 0, nTSperchannel-1 {
+      for k = 0, tstellate[i][j].spiketimes.size()-1 {
+        outfile.printf("%d %d %d %10.3f\n",i,j,i*nTSperchannel+j,tstellate[i][j].spiketimes.x[k])
+      }
+    }
+  }
+  outfile.close()
+}
+
+proc print_ds_raster() { // 1 arg - filename root
+
+  sprint(filename,"%s/ds_raster.dat",$s1)
+  outfile.wopen(filename)
+  outfile.printf("# Dstellate cell raster plot\n")
+  for i = 0, nchannels-1 {
+    for j = 0, nDSperchannel-1 {
+      for k = 0, dstellate[i][j].spiketimes.size()-1 {
+        outfile.printf("%d %d %d %10.3f\n",i,j,i*nDSperchannel+j,dstellate[i][j].spiketimes.x[k])
+      }
+    }
+  }
+  outfile.close()
+}
+proc print_tv_raster() { // 1 arg - filename root
+
+  sprint(filename,"%s/tv_raster.dat",$s1)
+  outfile.wopen(filename)
+  outfile.printf("# TV cell raster plot\n")
+  for i = 0, nchannels-1 {
+    for j = 0, nTVperchannel-1 {
+      for k = 0, tuberculoventral[i][j].spiketimes.size()-1 {
+        outfile.printf("%d %d %d %10.3f\n",i,j,i*nTVperchannel+j,tuberculoventral[i][j].spiketimes.x[k])
+      }
+    }
+  }
+  outfile.close()
+}
+
+proc print_golgi_raster() { // 1 arg - filename root
+  sprint(filename,"%s/glg_raster.dat",$s1)
+  outfile.wopen(filename)
+  outfile.printf("# Golgi cell raster plot\n")
+  for i = 0, nchannels-1 {
+    for j = 0, nGperchannel-1 {
+      for k = 0, golgi[i][j].spiketimes.size()-1 {
+        outfile.printf("%d %d %d %10.3f\n",i,j,i*nGperchannel+j,golgi[i][j].spiketimes.x[k])
+      }
+    }
+  }
+  outfile.close()
+}
+
+
+proc print_an_raster() { // 1 arg - filename root
+  sprint(filename,"%s/anHSR_raster.dat",$s1)
+  outfile.wopen(filename)
+  outfile.printf("# HSR ANF raster plot\n")
+  for i = 0, nchannels-1 {
+    for j = 0, HSRsperchannel-1 {
+      for k = 0, an.HSRspiketimes[i][j].size()-1 {
+        outfile.printf("%d %d %d %10.3f\n",i,j,i*HSRsperchannel+j,an.HSRspiketimes[i][j].x[k])
+      }
+    }
+  }
+  outfile.close()
+    sprint(filename,"%s/anLSR_raster.dat",$s1)
+  outfile.wopen(filename)
+  outfile.printf("# LSR ANF raster plot\n")
+  for i = 0, nchannels-1 {
+    for j = 0, LSRsperchannel-1 {
+      for k = 0, an.LSRspiketimes[i][j].size()-1 {
+        outfile.printf("%d %d %d %10.3f\n",i,j,i*LSRsperchannel+j,an.LSRspiketimes[i][j].x[k])
+      }
+    }
+  }
+  outfile.close()
+}
+
+proc print_isis() { // 3 args - indices of tstellate cell plus filename root
+  calc_isis($1,$2,t_ignore_before,t_ignore_after)
+  sprint(filename,"%s/isis_%d_%d.dat",$s3,$1,$2)
+  outfile.wopen(filename)
+  outfile.printf("# Interspike intervals for Tstellate cell [%d][%d]",$1,$2)
+  isi.printf(outfile,"%10.3f")
+  outfile.close()
+}
+
+proc print_isi_stats() { // 1 arg - filename root
+  sprint(filename,"%s/ts_stats.dat",$s1)
+  outfile.wopen(filename)
+  outfile.printf("#Interspike interval statistics for tstellate cells\n")
+  outfile.printf("# i  j   n   mean   median   stdev  \n")
+  for i = 0, nchannels-1 {
+    for j = 0, nTSperchannel-1 {
+      calc_isis(i,j,t_ignore_before,t_ignore_after)
+      outfile.printf("%3d%3d%4d",i,j,isi.size())
+      if (isi.size() > 0) {
+        outfile.printf("%8.2f%8.2f",isi.mean(),isi.median())
+        if (isi.size() > 1) {
+          outfile.printf("%8.2f\n",isi.stdev())
+        } else {
+          printf("\n")
+        }
+      } else { outfile.printf("\n") }
+    }
+  }
+  outfile.close()
+  sprint(filename,"%s/ts.stats",$s1)
+  outfile.wopen(filename)
+  outfile.printf("#Interspike interval statistics for ANFs\n")
+  outfile.printf("# i  j   n   mean   median   stdev  \n")
+  for i = 0, nchannels-1 {
+    for j = 0, HSRsperchannel-1 {
+      calc_an_isis(i,j,t_ignore_before,t_ignore_after)
+      outfile.printf("%3d%3d%4d",i,j,isi.size())
+      if (isi.size() > 0) {
+        outfile.printf("%8.2f%8.2f",isi.mean(),isi.median())
+        if (isi.size() > 1) {
+          outfile.printf("%8.2f\n",isi.stdev())
+        }
+      } else { outfile.printf("\n") }
+    }
+  }
+  outfile.close()
+}
+
+proc print_lags() { local i,j // 3 args - indices of Tstellate cell + filename root
+  sprint(filename,"%s/lags_%d_%d.dat",$s3,$1,$2)
+  outfile.wopen(filename)
+  outfile.printf("# Lag times for Tstellate cell [%d][%d]\n",$1,$2)
+  for i = 0, nchannels-1 {
+    for j = 0, nTSperchannel-1 {
+      calc_lags($1,$2,i,j,t_ignore_before,t_ignore_after)
+      outfile.printf("[%d,%d]",i,j)
+      lags.printf(outfile,"%10.3f")
+    }
+  }
+  outfile.close()
+}
+
+proc print_si() { // 1 arg - fileroot
+  print "Calculating synchronization indices"
+  sprint(filename,"%s/synch.dat",$s1)
+  outfile.wopen(filename)
+  outfile.printf("Synchronization index: %10.3f\n",synch_index())
+  outfile.printf("Phase-locking index:   %10.3f\n",phaselock_index())
+  outfile.close()
+}
+
+
+k

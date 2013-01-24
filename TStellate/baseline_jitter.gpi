@@ -1,0 +1,43 @@
+# 
+# gnuplot is available from http://www.gnuplot.info
+
+## GRAY
+## FONTSIZE 18
+## SIZE 7,5 
+load '../../cnstellate/Responses/default.gnu'
+
+#set terminal postscript eps enhanced size 7,5 defaultplex \
+#   leveldefault mono solid\
+#   dashlength 1.0 linewidth 2.0 butt noclip \
+#   palfuncparam 2000,0.003 \
+#   "Helvetica" 18 
+#set output "baseline_jitter.eps"
+
+set multiplot layout 1,2 scale 1,0.5
+unset key
+unset xtics
+unset border
+unset ytics
+set tmargin 0
+set rmargin 0
+
+set arrow 2 from 20,-68 to 70,-68 nohead lw 3
+set arrow 1 from 5,-60 to 5,-50 nohead lw 1
+set label 1 '{/Sans-Bold=30 A}' at 10,50
+set label 2 '{/Sans-Bold=30 C}' at 10,-20
+set label 3 '{/Helvetica=18 10 mV}' at 0,-55 right rotate 
+set label 4 '{/Helvetica=18 50 msec}' at 20,-73
+
+plot [10:110][-75:50] "../../cnstellate/TStellate/hsrlsr_jitter0_0.1.dat" u ($1+20):2 w l lw 2, \
+  "../../cnstellate/TStellate/hsr_average_noNa.dat" u ($1+20):($2+70) w l lw 2 #0.5
+unset arrow 1
+set label 1 '{/Sans-Bold=30 B}' at 10,50
+set label 2 '{/Sans-Bold=30 D}' at 10,-20
+unset label 3
+unset label 4
+plot [10:110][-75:50] "../../cnstellate/TStellate/hsrlsr_jitter0_0.1_wspikes.dat" u ($1+20):2 w l lw 2, \
+"../../cnstellate/TStellate/hsr_average.dat" u ($1+20):($2+70) w l lw 2 #0.5
+
+
+unset multiplot
+!fixbb ../../cnstellate/TStellate/baseline_jitter.eps
