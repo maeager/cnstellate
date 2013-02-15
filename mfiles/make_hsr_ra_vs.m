@@ -1,8 +1,8 @@
-# make_an_plots.m
+# make_hsr_ra_vs.m
 # Calculate synchronisation index and rate information from spike times in ANFs
 # and store in same format as CN cells
 #
-# Michael Eager
+# Michael Eager <mick.eager@gmail.com>
 
 rfile = fopen("response_area.4.dat","w+")
 for ii = 1:16
@@ -15,6 +15,20 @@ for ii = 1:16
   fprintf(rfile,"%d\t%d\t%d\t%g\n",freqmod,jj,cf(jj),mean(xh(100:end))*100/5);
  end
  fprintf(rfile,"\n");
+
+ ## for jj=0:99
+ ##   spk_index = find(ras(:,1)==jj);
+ ##   xsumSI = 0; ysumSI=0; n=0;
+ ##   for kk = 1:length(spk_index)
+ ##     spike = ras(spk_index(kk),4);
+ ##     if spike > 40
+ ##       theta = 2*pi* mod(spike , 1000/freqmod);
+ ##       xsumSI += cos(theta);
+ ##       ysumSI += sin(theta);
+ ##       n+=1;
+ ##     end
+ ##   end
+ ##   HSR_SI(jj+1,ii) = sqrt(xsumSI^2 + ysumSI^2)/n;
   xh=[];
  for jj=0:99
    spk_index = find(ras(:,1)==jj);
@@ -35,8 +49,10 @@ fclose(rfile);
 dlmwrite("vsSPIKES.4.dat",HSR_SI,"\t");
 
 
+#  Cochlea to frequency functions for Cat model only
+
 function f=cf(x)
-# Assuming Cat model and CF range
+# Cat data
 cflo=200
 cfhi=48000
 nchannels=100
