@@ -1,0 +1,67 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+
+proc prun() {
+    pnm.set_maxstep(10)
+    runtime    = startsw()
+    waittime   = pnm.pc.wait_time
+    stdinit()
+    pnm.psolve(tstop)
+    waittime   = pnm.pc.wait_time - waittime
+    runtime    = startsw() - runtime
+   steptime    = pnm.pc.step_time
+   sendtime    = pnm.pc.send_time
+//        printf("%d wtime %g\n", pnm.myid, waittime)
+}
+
+proc poststat() {
+   pnm.pc.post("poststat", pnm.myid, steptime, sendtime, waittime)
+}
+
+proc getstat() {local i, id
+   idmax = 0
+   waitmax = waittime
+   stepmax = steptime
+   sendmax = sendtime
+   idmin   = 0
+   waitmin = waittime
+   stepmin = steptime
+   sendmin = sendtime
+   if (pnm.nwork > 1) {
+      pnm.pc.context("poststat()\n")
+      for i=0, pnm.nwork-2 {
+         pnm.pc.take("poststat", &id, &steptime, &sendtime, &waittime)
+         if (waittime > waitmax) {
+            idmax = id
+            waitmax = waittime
+            stepmax = steptime
+            sendmax = sendtime
+         }
+         if (waittime < waitmin) {
+            idmin = id
+            waitmin = waittime
+            stepmin = steptime
+            sendmin = sendtime
+         }
+      }
+   }
+}
+
+proc perf2file() { localobj perf
+   perf = new File()
+   perf.aopen("perf.dat")
+   perf.printf("%d %g %g %g    %d %g %g %g    %d %g %g %g\n", \
+      pnm.nhost, tstop, setuptime, runtime,\
+      idmax, waitmax, stepmax, sendmax, \
+      idmin, waitmin, stepmin, sendmin)
+   perf.close
+}
+
+proc spike2file() { localobj outf
+   outf = new File()
+   outf.wopen("out.dat")
+   for i=0, pnm.idvec.size-1 {
+      outf.printf("%g\t%d\n", pnm.spikevec.x[i], pnm.idvec.x[i])
+   }
+   outf.close
+}

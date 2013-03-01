@@ -1,0 +1,262 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+/* 
+ *   
+ *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
+ *    cnstellate was written as part of my PhD at the University of Melbourne
+ *
+ *    This file is part of cnstellate.
+ * 
+ *    This is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation, either version 3 of the License, or
+ *    (at your option) any later version.
+ *
+ *    This is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+ */
+
+
+/*
+proc reset_weights() { local i // 1 arg - weight
+   for i = 0,hsr2tsAMPAvec.size()-1 {
+   netpar_weight(hsr2tsAMPAvec, i, param.w.x[hsr][ts])
+  }
+  for i = 0,lsr2tsAMPAvec.size()-1 {
+   netpar_weight(lsr2tsAMPAvec, i,param.w.x[lsr][ts])
+  }
+  for i = 0,hsr2tvAMPAvec.size()-1 {
+   netpar_weight(hsr2tvAMPAvec, i, param.w.x[hsr][tv])
+  }
+  for i = 0,lsr2tvAMPAvec.size()-1 {
+   netpar_weight(lsr2tvAMPAvec,i,param.w.x[hsr][tv])
+  }
+  for i = 0,hsr2dsAMPAvec.size()-1 {
+   netpar_weight(hsr2dsAMPAvec, i, param.w.x[hsr][ds])
+  }
+  for i = 0,lsr2dsAMPAvec.size()-1 {
+   netpar_weight(lsr2dsAMPAvec, i, param.w.x[lsr][ds])
+  }
+  for i = 0,hsr2glgAMPAvec.size()-1 {
+   netpar_weight(hsr2glgAMPAvec, i, param.w.x[hsr][glg])
+  }
+  for i = 0,lsr2glgAMPAvec.size()-1 {
+   netpar_weight(lsr2glgAMPAvec, i, param.w.x[lsr][glg])
+  }
+  for i = 0,glg2dsGABAvec.size()-1 {
+   netpar_weight(glg2dsGABAvec, i, param.w.x[glg][ds])
+  }
+  for i = 0,glg2tsGABAvec.size()-1 {
+   netpar_weight(glg2tsGABAvec, i, param.w.x[glg][ts])
+  }
+  for i = 0,ds2tsGLYvec.size()-1 {
+   netpar_weight(ds2tsGLYvec, i, param.w.x[ds][ts])
+  }
+  for i = 0,ds2tvGLYvec.size()-1 {
+   netpar_weight(ds2tvGLYvec, i, param.w.x[ds][tv])
+  }
+  for i = 0,tv2tsGLYvec.size()-1 {
+   netpar_weight(tv2tsGLYvec, i, param.w.x[tv][ts])
+  }
+  for i = 0,ts2tsAMPAvec.size()-1 {
+   netpar_weight(ts2tsAMPAvec, i, param.w.x[ts][ts])
+  }
+
+}
+proc reset_delays() { local i // 1 arg - weight
+   for i = 0,hsr2tsAMPAvec.size()-1 {
+   netpar_delay(hsr2tsAMPAvec, i, param.delay.x[hsr][ts])
+  }
+  for i = 0,lsr2tsAMPAvec.size()-1 {
+   netpar_delay(lsr2tsAMPAvec, i,param.delay.x[lsr][ts])
+  }
+  for i = 0,hsr2tvAMPAvec.size()-1 {
+   netpar_delay(hsr2tvAMPAvec, i, param.delay.x[hsr][tv])
+  }
+  for i = 0,lsr2tvAMPAvec.size()-1 {
+   netpar_delay(lsr2tvAMPAvec,i,param.w.x[hsr][tv])
+  }
+  for i = 0,hsr2dsAMPAvec.size()-1 {
+   netpar_delay(hsr2dsAMPAvec, i, param.delay.x[hsr][ds])
+  }
+  for i = 0,lsr2dsAMPAvec.size()-1 {
+   netpar_delay(lsr2dsAMPAvec, i, param.delay.x[lsr][ds])
+  }
+  for i = 0,hsr2glgAMPAvec.size()-1 {
+   netpar_delay(hsr2glgAMPAvec, i, param.delay.x[hsr][glg])
+  }
+  for i = 0,lsr2glgAMPAvec.size()-1 {
+   netpar_delay(lsr2glgAMPAvec, i, param.delay.x[lsr][glg])
+  }
+  for i = 0,glg2dsGABAvec.size()-1 {
+   netpar_delay(glg2dsGABAvec, i, param.delay.x[glg][ds])
+  }
+  for i = 0,glg2tsGABAvec.size()-1 {
+   netpar_delay(glg2tsGABAvec, i, param.delay.x[glg][ts])
+  }
+  for i = 0,ds2tsGLYvec.size()-1 {
+   netpar_delay(ds2tsGLYvec, i, param.delay.x[ds][ts])
+  }
+  for i = 0,ds2tvGLYvec.size()-1 {
+   netpar_delay(ds2tvGLYvec, i, param.delay.x[ds][tv])
+  }
+  for i = 0,tv2tsGLYvec.size()-1 {
+   netpar_delay(tv2tsGLYvec, i, param.delay.x[tv][ts])
+  }
+  for i = 0,ts2tsAMPAvec.size()-1 {
+   netpar_delay(ts2tsAMPAvec, i, param.delay.x[ts][ts])
+  }
+
+}
+
+
+
+proc delayspanel(){
+xpanel("Network Delays")
+xvalue("param.delay.x[hsr][ts]")
+xvalue("param.delay.x[hsr][tv]")
+xvalue("param.delay.x[hsr][ds]")
+xvalue("param.delay.x[lsr][ts]")
+xvalue("param.delay.x[lsr][tv]")
+xvalue("param.delay.x[lsr][ds]")
+xvalue("param.delay.x[lsr][glg]")
+xvalue("param.delay.x[ds][ts]")
+xvalue("param.delay.x[ds][tv]")
+xvalue("param.delay.x[glg][ds]")
+xvalue("param.delay.x[tv][ts]")
+xbutton("Reset Delays","reset_delays()")
+xpanel()
+}
+
+
+
+proc weightspanel(){
+xpanel("Network Weights")
+xvalue("param.w.x[hsr][ts]")
+xvalue("param.w.x[hsr][tv]")
+xvalue("param.w.x[hsr][ds]")
+xvalue("param.w.x[lsr][ts]")
+xvalue("param.w.x[lsr][tv]")
+xvalue("param.w.x[lsr][ds]")
+xvalue("param.w.x[lsr][glg]")
+xvalue("param.w.x[ds][ts]")
+xvalue("param.w.x[ds][tv]")
+xvalue("param.w.x[glg][ds]")
+xvalue("param.w.x[tv][ts]")
+xbutton("Reset Weights","reset_weights()")
+xpanel()
+}
+proc numberspanel(){
+xpanel("Network No. of Inputs")
+xvalue("param.n.x[hsr][ts]")
+xvalue("param.n.x[hsr][tv]")
+xvalue("param.n.x[hsr][ds]")
+xvalue("param.n.x[lsr][ts]")
+xvalue("param.n.x[lsr][tv]")
+xvalue("param.n.x[lsr][ds]")
+xvalue("param.n.x[lsr][glg]")
+xvalue("param.n.x[ds][ts]")
+xvalue("param.n.x[ds][tv]")
+xvalue("param.n.x[glg][ds]")
+xvalue("param.n.x[tv][ts]")
+xbutton("Reset No. of Inputs","{create_cells() connect_cells() connect_CNcells()}")
+xpanel()
+}
+
+proc NetParamsPanel(){
+xpanel("Network Parameters")
+xbutton("Weights","weightspanel()")
+xbutton("Delays", "delayspanel()")
+xbutton("Number of Inputs", "numberspanel()")
+xbutton("View ANF input histograms","anfhistograms()")
+xpanel()
+}
+
+NetParamsPanel()
+
+
+*/
+
+//NetCon list iterator  (from netconlist help documentation)
+iterator ltr() {local i, cnt
+ for i = 0, $o2.count - 1 {
+  $o1 = $o2.object(i)
+  iterator_statement
+ }
+}
+
+objref anfcons,xo
+
+objref dstslist, dstsg
+proc tsconnections(){local count,ii,jj
+	for ii = 0, nchannels-1 {
+		for jj=0,nTSperchannel-1 {
+//if(ii == 20 || ii == 38 || ii == 51){
+count=0
+for ltr(xo, cvode.netconlist("CNcell", tstellate[ii][jj], "")) {
+print xo, xo.weight
+print xo.precell
+print xo.precell.model
+count+=1
+}
+}
+} 
+}
+
+
+proc tsconnections(){local count,ii
+for ii = 0, numTS-1 {
+if(ii == 20 || ii == 38 || ii == 51){
+count=0
+for ltr(xo, cvode.netconlist("", tstellate[ii][0], "")) {
+if (xo.postcell.model == 0){	
+print xo, xo.weight
+print xo.precell
+//print xo.precell.model
+count+=1
+}
+}
+}
+}
+}
+
+/*
+objref tvtslist, tvtsg
+proc tvtsconnections(){local count,tvtsc localobj temp,tvtssize
+  objref anfcons,tvtslist,tvtsg
+ anfcons = new Vector()
+ tvtssize = new Vector()
+ tvtslist = new List()
+    for tvtsc = 0, cn.TS_num-1 {
+  count=0
+  anfcons.resize(0)
+  for ltr(xo, cvode.netconlist("", cn.tscells[tvtsc], "")) {
+
+   if (object_id(xo.precell)){if (xo.precell.model == 2) {
+   print "cn.tscell ",cn.tscells[tvtsc]," cn.tvcell ",xo.precell
+   anfcons.append(cf2idx(xo.precell.cf))
+   count+=1
+   }}
+  }
+
+  tvtslist.append(anfcons.histogram(0,ANFilterbanks,1))
+  tvtssize.append(count)
+
+
+    }
+ tvtsg = new Graph()
+ for tvtsc = 0, cn.TS_num-1 {
+  tvtslist.object(tvtsc).add(tvtsc*5)
+  tvtslist.object(tvtsc).plot(tvtsg, 1, tvtsc%5+1,1)
+
+ }
+  tvtssize.printf
+ tvtsg.label(0.3,0.9,"TV to TS connections")
+ tvtsg.exec_menu("View = plot")
+}
+*/

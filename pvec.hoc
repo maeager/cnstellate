@@ -1,0 +1,108 @@
+
+  objref pvec,fvec,pvec_ranges,pvec_name,pvec_factor
+  pvec			= new Vector()//NPARAMS) //contains the parameters to be fitted
+  pvec_name		= new List()			 //names of parameters in String list
+  pvec_factor	= new Vector() //NPARAMS,1)
+  //mul factor
+  //for i		=0,NPARAMS-1 pvec_factor.x[i] = 1
+  
+  NPARAMS		= 11
+  
+  pvec_ranges	= new Matrix(NPARAMS,2) // (min,max) pairs for each param
+  //min
+  for i			=0,NPARAMS-1 pvec_ranges.x[i][0]= 0.000001
+  //max
+  for i			=0,NPARAMS-1 pvec_ranges.x[i][1]= 0.03
+
+proc init_params(){
+    objref pvec,fvec,pvec_ranges,pvec_name,pvec_factor
+    pvec	= new Vector()//NPARAMS) //contains the parameters to be fitted
+    pvec_name = new List() //names of parameters in String list
+    pvec_factor = new Vector() //NPARAMS,1) //mul factor
+    //for i = 0,NPARAMS-1 pvec_factor.x[i] = 1
+    
+    NPARAMS = $1
+    pvec_ranges	= new Matrix(NPARAMS,2) // (min,max) pairs for each param
+    //minimum value
+    for i	= 0,NPARAMS-1 pvec_ranges.x[i][0]= 0.000001
+    //maximum value	
+    for i	= 0,NPARAMS-1 pvec_ranges.x[i][1]= 0.03
+    
+    NPARAMS=0 // Reset value so that appending variables will give a quick check on the num of params 
+}
+
+
+proc add_opt_param(){
+    if (pvec.size() != $1 || pvec_ranges.getcol(0).size()-1 < $1){
+	print "Error in add_opt_param: index not in range or pvec not initialised."
+	return
+    }
+    print "Adding variable: ", $s3
+    print "Factor ", $4, " Init value ", $2, " range [", $5, ",", $6, "]" 
+    NPARAMS+=1
+    pvec.append($2)                   //Initial value    
+    pvec_name.append(new String($s3)) //Variable Name
+    pvec_factor.append($4)
+    pvec_ranges.x[$1][0]= $5
+    pvec_ranges.x[$1][1]= $6
+    if (pvec_ranges.getcol(0).size() == NPARAMS){
+	print "add_opt_param: pvec fully populated. Optimisation can begin."
+    }    
+}
+
+// Example setup: 1. initialise, 2. add the correct number of parameters
+// init_params(4) 
+// add_opt_param( 0, 0.001, "param.w.x[glg][ds]", 1,    0.000001, 0.03)
+// add_opt_param( 1, 0.002, "param.w.x[hsr][ds]", 1,    0.000001, 0.03)
+// add_opt_param( 2, 0.003, "param.w.x[lsr][ds]", 1,    0.000001, 0.03)
+// add_opt_param( 3, 0.001592,"param.dstellate_gkltbar",10,   0.000001, 0.03)
+
+
+
+
+
+// cmd is a strdef variable that should be used in local routines and not passed across procedures
+strdef cmd
+proc set_pvec(){local pp
+    for pp=0,NPARAMS-1 {
+		sprint(cmd,"pvec.x[%d]= %s / %g ",pp,pvec_name.object(pp).s,pvec_factor.x[pp])
+		execute1(cmd)
+    }
+}
+
+proc set_params(){local pp
+    for pp=0,NPARAMS-1 {
+		sprint(cmd,"%s= %g * %g ",pvec_name.object(pp).s,pvec.x[pp],pvec_factor.x[pp] )
+		execute1(cmd)
+    }
+}
+
+proc show_pvec(){local pp
+    //    pvec.printf
+    for pp =0,NPARAMS-1 {
+	print pvec_name.object(pp).s
+	sprint(cmd,"print \"pvec:\", %g / %g  ",pvec.x[pp], pvec_factor.x[pp])
+	execute1(cmd)
+	sprint(cmd,"print \"actual:\", %s  ",pvec_name.object(pp).s)
+	execute1(cmd)		
+    }
+}
+
+
+tolerance = 0.0001
+maxstepsize = 0.0001
+printmode = 3
+strdef error_fn
+error_fn = "TStellate2_err"
+
+proc runprax(){
+    	//Set the attributes of the praxis method
+	// tolerance : find f(x) that minimises norm(x-x0)<tolerance
+	// maxstepsize: max distance between initial guess and minimum
+	// printmode: verbosity of debugging output
+   attr_praxis(tolerance, maxstepsize, printmode)
+   fit_praxis(NPARAMS,error_fn,&pvec.x[0])
+}
+
+	
+	

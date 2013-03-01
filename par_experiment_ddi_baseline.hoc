@@ -1,0 +1,110 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+
+// experiment_ddi_baseline.hoc
+// Olfactory bulb network model: experiment file
+//   for dendrodendritic inhibition.
+// Andrew Davison, The Babraham Institute, 2000.
+
+// *** Set inputs and connections
+set_no_input()
+glomshock(20,2,5)
+randomise_NMDA(NMDAweight,(0.5*NMDAweight)^2)
+
+// *** Voltage clamp mitral cell
+objref vclamp
+if (pnm.gid_exists(tsgid.x[3][3])) {
+mit[3][3].GABAA.e = 0 // mV
+mit[3][3].soma vclamp = new SEClamp(0.5)
+vclamp.rs = 2 // Mohm
+vclamp.dur1 = 1
+vclamp.amp1 = -65
+vclamp.dur2 = 4000
+vclamp.amp2 = -70
+vclamp.dur3 = 0
+vclamp.amp3 = -65
+}
+
+// *** Set-up recording
+objref igabaa, tvec, vgran, vmit, iclamp
+record_step = 0.1
+record_vec_size = int(tstop/record_step)+1
+igabaa = new Vector(record_vec_size)
+tvec = new Vector(record_vec_size)
+vgran = new Vector(record_vec_size)
+vmit = new Vector(record_vec_size)
+iclamp = new Vector(record_vec_size)
+record_step = 0.1
+if (pnm.gid_exists(tsgid.x[3][3])) igabaa.record(&mit[3][3].GABAA.i,record_step)
+if (pnm.myid == 0) tvec.record(&t,record_step)
+if (pnm.gid_exists(tvgid.x[0][6])) vgran.record(&gran[0][6].periph.v(0.5),record_step)
+if (pnm.gid_exists(tsgid.x[0][0])) vmit.record(&mit[0][0].dend.v(0.5),record_step)
+if (pnm.gid_exists(tsgid.x[3][3])) iclamp.record(&vclamp.i,record_step)
+
+proc post_record() {
+   if (pnm.gid_exists(tsgid.x[3][3])) pnm.pc.post("igabaa", igabaa)
+   if (pnm.gid_exists(tvgid.x[0][6])) pnm.pc.post("vgran", vgran)
+   if (pnm.gid_exists(tsgid.x[0][0])) pnm.pc.post("vmit", vmit)
+   if (pnm.gid_exists(tsgid.x[3][3])) pnm.pc.post("iclamp", iclamp)
+}
+proc take_record() {
+   pnm.pc.context("post_record()")
+   if (!pnm.pc.gid_exists(tsgid.x[3][3])) pnm.pc.take("igabaa", igabaa)
+   if (!pnm.pc.gid_exists(tvgid.x[0][6])) pnm.pc.take("vgran", vgran)
+   if (!pnm.pc.gid_exists(tsgid.x[0][0])) pnm.pc.take("vmit", vmit)
+   if (!pnm.pc.gid_exists(tsgid.x[3][3])) pnm.pc.take("iclamp", iclamp)
+}
+
+
+//Setup Auditory model
+
+stimtype = 0  //read stim from file
+path = "./stim/"
+wavdatafile = "./stim/b6t.dat"
+
+proc RescaleStim(){local rms
+rms = Decibels(stim)
+stim.mul(spl2amplNoise(spl)/spl2amplNoise(rms))
+}
+
+sg_rate = 50000
+sg_tdres = 1/sg_rate
+
+proc LoadVowel(){
+RefreshParameters()   //Generate or get stim from file
+spl=$1
+RescaleStim()      //Scale the vowel
+ANFilterBankRun()   //Build the filterbank
+//an.SetRates()      //Allocate filterbanks to ANFs
+//DummyGraphs()
+}
+
+
+LoadVowel(73)   
+
+an.GenSpikes() //calls SGfast(1) on each fibre
+                //it might be quicker to use another method
+                //eg. calling the original zbcatmodel and
+                //outputing several spike trains
+                //since ANFs are just VecStims
+
+
+
+// *** Process data and print out results
+xopen("par_calcisilag.hoc") // everybody needs this for the post_results
+
+proc print_results() {
+  print_raster(fileroot)
+  print_an_raster(fileroot)
+  print_an_hist(1,fileroot)
+  sprint(filename,"%s.curvs",fileroot)
+  outfile.wopen(filename)
+  take_record()
+  for i = 0, tvec.size()-1 {
+    outfile.printf("%8.3g %8.3g %8.3g %8.3g %8.3g \n",tvec.x[i],igabaa.x[i],vmit.x[i],vgran.x[i],iclamp.x[i])
+  }
+  outfile.close()
+  print "Results printed to files"
+}
+
+xopen("vowel_baseline.ses")

@@ -1,0 +1,348 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+/* 
+ *   
+ *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
+ *    cnstellate was written as part of my PhD at the University of Melbourne
+ *
+ *    This file is part of cnstellate.
+ * 
+ *    This is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation, either version 3 of the License, or
+ *    (at your option) any later version.
+ *
+ *    This is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+ */
+
+
+proc RedefineCNmodel(){local i_chan,j_cell,ii
+	//define the cell objects
+	
+    objref an, tuberculoventral[nchannels][nTVperchannel],dstellate[nchannels][nDSperchannel], dstellate[nchannels][nGperchannel]
+	objref hsr2tvAMPAlist, lsr2tvAMPAlist, hsr2dsAMPAlist, lsr2dsAMPAlist,glg2dsGABAlist, ds2tvGLYlist
+	
+	hsr2tvAMPAlist = new List()
+	lsr2tvAMPAlist = new List()
+	hsr2dsAMPAlist = new List()
+	lsr2dsAMPAlist = new List()
+	glg2dsGABAlist = new List()
+	ds2tvGLYlist = new List()
+	create_cells()
+	connect_cells(origfileroot)
+	connect_CNcells(origfileroot)
+	for ii=0,99 tuberculoventral[ii][0].soma.erev_rm = param.tv_erev
+}
+
+
+func TV_Notch_err2() {local jj,pp,xtime
+    
+    //check for bad values
+    for pp=0,NPARAMS-1 {
+		if (($&2[pp] <= pvec_ranges.x[pp][0]) || ($&2[pp] > pvec_ranges.x[pp][1])) {
+			return 1e9
+		}
+    }
+	//print variables
+	print "TV_Notch_err ", $1 
+    for pp=0,NPARAMS-1 { printf("%s = %g * %g",pvec_name.object(pp).s,$&2[pp],pvec_factor.x[pp])}
+	//Set the parameters (see parameters_TV_Notch.hoc)
+	for pp=0,NPARAMS-1 {
+		sprint(cmd,"%s = %g * %g ",pvec_name.object(pp).s,$&2[pp],pvec_factor.x[pp])
+		execute1(cmd)
+    }
+	//Rearrange synapses is using n, bw or offset parameters
+	RedefineCNmodel()
+    reset_weights()
+    SetInputRates()
+    tstop = 70 
+    multi_run() 
+    //Analyse spikes
+    doNotify()
+    CNSpikes2()
+    plot_fitgr()
+    objref errorvec,tempcf,indcf,refvec
+    indcf = new Vector()
+    //grab freq range
+    indcf.indvwhere(cf,"()",freq_1oct.x[0],freq_1oct.x[freq_1oct.size()-1])
+    tempcf = cf.c(indcf.x[0]-5,indcf.x[indcf.size()-1]+1)
+    //grab test vector within reference range
+    errorvec = new Vector()
+    //SYNTAX obj = ydest.interpolate(xdest, xsrc, ysrc)
+    //errorvec.interpolate(freq1_notch,cf,CNrate[tv])
+    //print a=errorvec.meansqerr(expected_notch[1])
+    errorvec = CNrate[tv].c(indcf.x[0]-5,indcf.x[indcf.size()-1]+1)
+    refvec = new Vector()
+    refvec.interpolate(tempcf,freq_1oct,type2_1oct_sweep[1])    
+    print a=errorvec.meansqerr(refvec)
+    //plot the result
+    if(object_id(gr)==0) gr = new Graph()
+    gr.erase_all()
+    errorvec.plot(gr,tempcf,1,1)
+    refvec.plot(gr,tempcf,2,2)
+    sprint(grlbl,"Error = %g", a)
+    gr.label(0.65,0.85,grlbl)
+    for jj=0,NPARAMS-1{
+		sprint(grlbl,"%s = %g", pvec_name.object(jj).s,pvec.x[jj])
+		gr.label(0.65,0.75-0.05*jj,grlbl)
+    }
+	doNotify()
+	
+    sprint(fname,"%s/error_out.dat",fileroot)
+	file.aopen(fname)
+	for pp=0,NPARAMS-1 {
+		file.printf("%g\t",$&2[pp]*pvec_factor.x[pp])
+    }
+	file.printf("%g\n",a)
+	file.close()
+    return a
+}
+
+
+proc runprax2(){
+    sprint(cmd,"mkdir -p %s",fileroot)
+    system(cmd)
+    sprint(cmd,"touch %s/error_out.dat",fileroot)
+    system(cmd)
+    attr_praxis(0.01, 0.1, 3)
+    fit_praxis(NPARAMS,"TV_Notch_err2",&pvec.x[0])
+}
+
+//tstop=300
+proc QuickRun2(){
+	set_pvec()
+    pvec.printf
+    print TV_Notch_err2(0,&pvec.x[0])
+}
+
+
+proc printprax2(){local pp,ii,pp2
+	//Output model data with best parameters
+	
+    sprint(cmd,"mkdir -p %s",fileroot)
+    system(cmd)
+   	
+    reps=50
+	print error=TV_Notch_err2(0,&pvec.x[0])
+	system("date",datestr)
+    sprint(fname,"%s/%s.Fit.dat",fileroot,origfileroot)
+	file.wopen(fname)
+	if (file.isopen()){
+		file.printf("# %s Optimisation\n",fileroot)
+		file.printf("# %s \n",datestr)
+		for pp=0,NPARAMS-1 {
+			file.printf("#%s = %g\t[%g,%g]\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp],pvec_ranges.x[pp][0],pvec_ranges.x[pp][1])
+		}
+		file.printf("# final error=%f\n",error)
+		
+		/*
+		file.printf("# Principle axis matrix\n")
+		for pp=0,NPARAMS-1 {
+			pval[pp] = new Vector(NPARAMS)
+			pval_praxis(pp,&pval[pp].x[0])
+			
+			file.printf("#\t")
+			if (pval[pp].size == NPARAMS){
+				for pp2=0,NPARAMS-1 file.printf("%g\t",pval[pp].x[pp2])
+			}
+			file.printf("\n")
+		}
+		*/
+		file.printf("# Frequency\tError Vec\t Reference Vec (rate sp/s)\n")
+		for ii=0,tempcf.size()-1 file.printf("%.1f\t%.6f\t%.15f\n",tempcf.x[ii],errorvec.x[ii],refvec.x[ii]) 
+	}
+	
+	file.printf("#Other values \n")
+	file.printf("#spl = %g\n",spl)
+	file.printf("#  halfoct_compress = %g\n",  halfoct_compress)
+	file.printf("#  halfoct_shift = %g\n",  halfoct_shift)
+	file.printf("# oct_compress = %g\n", oct_compress)
+	file.printf("# oct_shift  = %g\n", oct_shift )
+	file.printf("# centrepoint = %g\n",centrepoint)
+	file.printf("# TV erev = %g\n",tuberculoventral[0][0].soma.erev_rm)
+	param.printparams(file,"#") //let Network Parameters print the struct
+	file.close()
+	
+	
+	
+	//Write parameters to general optimisation file
+	sprint(fname,"%s/pvec_%s.hoc",fileroot,origfileroot)
+	file.aopen(fname)
+	file.printf(" // %s  \n",datestr)
+	for pp=0,NPARAMS-1 {
+		file.printf("%s = %g*%g\n",pvec_name.object(pp).s,pvec.x[pp],pvec_factor.x[pp])
+    }
+	file.close()
+}
+
+
+/* reps=20 */
+/*  multi_run() */
+/*   RedefineCNmodel() */
+
+/*  SetRates() */
+/*   multi_run() */
+/*     RedefineCNmodel() */
+/*   SetRates() */
+/*   multi_run() */
+/*     RedefineCNmodel() */
+/*   SetRates() */
+
+proc Run1Params(){
+	NPARAMS=3
+	objref pvec,fvec,pvec_ranges,pvec_name,pvec_factor
+	pvec = new Vector()//NPARAMS) //contains the parameters to be fitted
+	pvec_ranges= new Matrix(NPARAMS,2) // (min,max) pairs for each param
+	pvec_name = new List() //names of parameters in String list
+	pvec_factor = new Vector() //NPARAMS,1)
+	//mul factor
+	//for i=0,NPARAMS-1 pvec_factor.x[i] = 1	
+	//min
+	for i=0,NPARAMS-1 pvec_ranges.x[i][0]= 0.000001
+	//max
+	for i=0,NPARAMS-1 pvec_ranges.x[i][1]= 0.03
+	//Names                                               //Initial values	//Param Factor
+	pvec_name.append(new String("param.w.x[lsr][tv]"))	pvec.append(0.00190)	pvec_factor.append(1)
+	pvec_name.append(new String("param.w.x[hsr][tv]"))	pvec.append(0.00130)	pvec_factor.append(1)
+	pvec_name.append(new String("param.w.x[hsr][ds]"))	pvec.append(0.00170)	pvec_factor.append(1) 
+	
+}
+
+proc Run2Params(){local ipvec localobj range
+	NPARAMS=6
+	objref pvec,fvec,pvec_ranges,pvec_name,pvec_factor
+	pvec = new Vector()//NPARAMS) //contains the parameters to be fitted
+	pvec_ranges= new Matrix(NPARAMS,2) // (min,max) pairs for each param
+	pvec_name = new List() //names of parameters in String list
+	pvec_factor = new Vector() //NPARAMS,1)
+    range = new Vector(2)
+	//mul factor
+	//for i=0,NPARAMS-1 pvec_factor.x[i] = 1	
+	//min
+	for i=0,NPARAMS-1 pvec_ranges.x[i][0]= 0.00001
+	//max
+	for i=0,NPARAMS-1 pvec_ranges.x[i][1]= 0.1
+	ipvec=0  
+	//Names                                               //Initial values	//Param Factor    //Ranges 
+	pvec_name.append(new String("param.n.x[ds][tv]"))	pvec.append(0.0170)	pvec_factor.append(1000)  pvec_ranges.setrow(ipvec, range.set(0,0).set(1,0.1)) ipvec+=1
+	pvec_name.append(new String("param.w.x[ds][tv]"))	pvec.append(0.00170)	pvec_factor.append(1)    ipvec+=1
+	pvec_name.append(new String("param.n.x[lsr][tv]"))    pvec.append(0.00190)	pvec_factor.append(1000)  pvec_ranges.setrow(ipvec, range.set(0,0).set(1,0.1))  ipvec+=1
+	pvec_name.append(new String("param.n.x[hsr][tv]"))	pvec.append(0.00130)	pvec_factor.append(1000)  pvec_ranges.setrow(ipvec, range.set(0,0).set(1,0.1)) ipvec+=1
+	pvec_name.append(new String("param.w.x[lsr][tv]"))    pvec.append(0.00190)	pvec_factor.append(1)   ipvec+=1
+	pvec_name.append(new String("param.w.x[hsr][tv]"))	pvec.append(0.00130)	pvec_factor.append(1)   ipvec+=1
+	
+}
+
+
+proc Run3Params(){local ipvec localobj range
+	NPARAMS=5
+	objref pvec,fvec,pvec_ranges,pvec_name,pvec_factor
+	pvec = new Vector()//NPARAMS) //contains the parameters to be fitted
+	pvec_ranges= new Matrix(NPARAMS,2) // (min,max) pairs for each param
+	pvec_name = new List() //names of parameters in String list
+	pvec_factor = new Vector() //NPARAMS,1)
+    range = new Vector(2)
+	//mul factor
+	//for i=0,NPARAMS-1 pvec_factor.x[i] = 1	
+	//min
+	for i=0,NPARAMS-1 pvec_ranges.x[i][0]= 0.00001
+	//max
+	for i=0,NPARAMS-1 pvec_ranges.x[i][1]= 0.1
+	ipvec=0  
+	//Names                                               //Initial values	//Param Factor    //Ranges 
+	pvec_name.append(new String("param.bw.x[ds][tv]"))	pvec.append(0.0008)	pvec_factor.append(1000) pvec_ranges.setrow(ipvec, range.set(0,0).set(1,0.1)) ipvec+=1
+	pvec_name.append(new String("param.tv_erev"))	pvec.append(-0.065)	pvec_factor.append(1000) pvec_ranges.setrow(ipvec, range.set(0,-0.08).set(1,-0.05)) ipvec+=1
+	pvec_name.append(new String("param.offset"))	pvec.append(0.0021)	pvec_factor.append(1000)  pvec_ranges.setrow(ipvec, range.set(0,-0.1).set(1,0.1))  ipvec+=1
+	pvec_name.append(new String("param.n.x[ds][tv]"))	pvec.append(0.0170)	pvec_factor.append(1000)  pvec_ranges.setrow(ipvec, range.set(0,0).set(1,0.1)) ipvec+=1
+	pvec_name.append(new String("param.w.x[ds][tv]"))	pvec.append(0.00170)	pvec_factor.append(1)    ipvec+=1
+}
+
+
+
+proc Notch2Runspl70(){
+	reps=20
+    spl=70
+    set_pvec()
+    RefreshParameters()
+    ANFilterBankRun()
+    CheckFilterbank()
+    SetInputRates()
+    Run2Params()
+    set_params()
+    sprint(fileroot,"%s/Run2/spl70/r1",origfileroot)
+    runprax2() 
+    printprax2()
+    reps=20
+    sprint(fileroot,"%s/Run2/spl70/r2",origfileroot)
+    runprax2() 
+    printprax2()
+    reps=20
+    sprint(fileroot,"%s/Run2/spl70/r3",origfileroot)
+    runprax2() 
+    printprax2()
+	Run3Params()
+    sprint(fileroot,"%s/Run2/spl70/r4",origfileroot)
+    runprax2() 
+    printprax2()
+    reps=20
+    sprint(fileroot,"%s/Run2/spl70/r5",origfileroot)
+    runprax2() 
+    printprax2()
+    reps=20
+    sprint(fileroot,"%s/Run2/spl70/r6",origfileroot)
+    runprax2() 
+    printprax2()
+	
+}
+
+
+
+proc Notch2Runspl50(){
+	reps=20
+    spl=50
+    set_pvec()
+    RefreshParameters()
+    ANFilterBankRun()
+    CheckFilterbank()
+    SetInputRates()
+    Run2Params()   
+    set_params()
+    sprint(fileroot,"%s/Run2/spl50/r1",origfileroot)
+    runprax2() 
+    printprax2()
+    reps=20
+    sprint(fileroot,"%s/Run2/spl50/r2",origfileroot)
+    runprax2() 
+    printprax2()
+    reps=20
+    sprint(fileroot,"%s/Run2/spl50/r3",origfileroot)
+    runprax2() 
+    printprax2()
+	Run3Params()
+    sprint(fileroot,"%s/Run2/spl50/r4",origfileroot)
+    runprax2() 
+    printprax2()
+    reps=20
+    sprint(fileroot,"%s/Run2/spl50/r5",origfileroot)
+    runprax2() 
+    printprax2()
+    reps=20
+    sprint(fileroot,"%s/Run2/spl50/r6",origfileroot)
+    runprax2() 
+    printprax2()
+	
+}
+
+type2_1oct_sweep[1].reverse()
+param.tv_erev=-65
+param.w.x[hsr][ds]*=10
+Run2Params()
+
+// Notch2Runspl70()
+//Notch2Runspl50()

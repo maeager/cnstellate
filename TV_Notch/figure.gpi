@@ -1,0 +1,28 @@
+#!/usr/local/bin/gnuplot
+#
+#    
+#    	G N U P L O T
+#    	Version 4.4 patchlevel 0-rc1
+#    	last modified Sat Nov 28 14:34:01 PST 2009
+#    	System: Linux 2.6.31-20-generic
+#    
+#    	Copyright (C) 1986-1993, 1998, 2004, 2007-2009
+#    	Thomas Williams, Colin Kelley and many others
+#    
+#    	gnuplot home:     http://www.gnuplot.info
+#    	faq, bugs, etc:   type "help seeking-assistance"
+#    	immediate help:   type "help"
+#    	plot window:      hit 'h'
+set terminal postscript eps enhanced defaultplex \
+   leveldefault mono \
+   solid dashlength 1.0 linewidth 2.0 butt noclip \
+   palfuncparam 2000,0.003 \
+   "Helvetica" 18 
+set output 'figure.eps'
+set border 3 front linetype -1
+set xrange [ 1e3 : 40e3 ] noreverse nowriteback 
+set title "Type-II Notch response: Falling edge 12.5 kHz"
+plot  'Reiss_Fig9_E_1oct.png.dat'  using (1000*($1)):2 title "1" with linespoints, \
+ 'Reiss_Fig9_E_halfoct.png.dat'  using (1000*($1)):2 title "1/2 " with linespoints,\
+'< tail -100 AN_rateplace_1oct.lsr.dat' using $1 title "LSR 90dB" with lp
+'< tail -100 AN_rateplace_1oct.hsr.dat' using $1 title "HSR 90dB" with lp

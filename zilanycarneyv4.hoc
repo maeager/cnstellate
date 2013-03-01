@@ -1,0 +1,282 @@
+/*
+ *	zilanycarneyv4.hoc
+ *
+ */
+ 
+ 
+ 
+ load_file("nrngui.hoc")
+thresh=-20
+
+xopen("mathslib.hoc")			// mathematical procedures
+xopen("Params.hoc")
+xopen("Utilities.hoc")
+xopen("NetworkParameters.hoc")
+xopen("AuditoryNerve.hoc")
+//  xopen("parameters_vowel_baseline.hoc")           // model parameters	
+
+/*  Setup Auditory model */
+mycf            = 10000
+ANmodel         = 7
+cfhi            = 40000
+cflo            = 200
+tonefreq        = mycf
+dur 		= 0.06 	//duration of stim (seconds)
+sg_rate 	= 10000		
+sg_tdres 	= 1/sg_rate
+stimdelay 	= 0.02		//sec
+reps		= 50
+usesavedfilterbanks=0
+stimtype        = 0  //read stim from file
+path            = "./stim/"
+wavdatafile        = "./stim/b6t.dat"
+
+/* Zilany, Bruce, Nelson, Carney Parameters */
+ANmodel	        = 7		//Zilany EtAl Cat model v4
+species	        = 1		//Cat
+srate 	        = 100000      // 500k is no longer needed
+stimtdres 	= 1/srate
+stimtype 	= 1
+
+
+// proc RescaleStim(){ local rms
+//   rms = Decibels(stim)
+//   stim.mul(spl2amplNoise(spl)/spl2amplNoise(rms))
+// }
+
+
+proc LoadVowel(){
+    stimtype = 0  //read stim from file
+    path = "./stim/"
+    wavdatafile = "./stim/b6t.dat"
+    RefreshParameters()	//Generate or get stim from file
+    stim.resample(stim,3)
+    srate = 44100*3 
+    stimtdres 	= 1/srate
+    spl=$1
+    RescaleStim()		//Scale the vowel
+    ANFilterBankRun()	//Build the filterbank
+    //an.SetRates()		//Allocate filterbanks to ANFs
+    //DummyGraphs()
+}
+
+// objref vfile 
+// proc SaveData() {
+//   vfile = new File()
+//     vfile.wopen("vowels/vowel_b6t_HSR.sout")
+
+//     for i=0,99 {
+// 	for j=0,HSRout[0].size-1 {
+// 	    vfile.printf("%.2f %d %.0f\n",sg_tdres*j,i, HSRout[i].x[j])
+// 	}
+//       }
+//   vfile.close()
+//     vfile.wopen("vowels/vowel_b6t_HSR.matrix")
+//     for i=0,99 {
+// 	HSRout[i].printf(vfile,"%.0f\t")
+//       }
+//   vfile.close()
+// }
+
+
+objref stimgr, b1,  gr
+/*graph variables*/
+objref  ihcgr,soutgr, b2, Sout[nchannels]
+changescale=1
+scale = 60
+
+//LoadVowel(80)	
+//quit()
+
+/* Zilany, Bruce, Nelson, Carney Parameters */
+spl             = 10
+ANmodel	        = 7		//Zilany EtAl Cat model v4
+species	        = 1		//Cat
+srate 	        = 100000      // 500k is no longer needed
+stimtdres 	= 1/srate
+stimtype 	= 1
+dutycycle 	= 1		//quiet duration = dutycycle*dur
+ramplngth 	= 0.005
+sg_rate 	= 100000		
+sg_tdres 	= 1/sg_rate
+fibertype = HighSponFibre
+implnt =   ZilanyApprox
+
+RefreshParameters()	//Generate or get stim from file
+//    ANFilterBankRun()	//Build the filterbank
+
+objref ghsr,rr,grr
+rr = new Vector(stim.size)
+
+
+proc ShowInputGraphs() {
+    objref ihcgr,soutgr,stimgr, b1,  gr
+    /*graph variables*/
+    objref  ANFBgr, b2, Sout[nchannels]
+    
+    /*** Set up Stimulus Graph*/
+    b1 = new VBox()
+    b1.intercept(1)
+    stimgr = new Graph(0)
+    stimgr.view(0, -0.01, 0.042, 0.02, 308, 88, 685, 150)
+    stimgr.label(0.1, 0.91, grlbl)
+    stimgr.label(0.0, 0.65, "Amplitude  (uPascals)")
+    stimgr.label(0.85, 0.35, "time (ms)")
+    stim.plot(stimgr, tvec)
+    stimgr.exec_menu("View = plot")
+    //b1.intercept(0)
+    //b1.map("Stimulus waveform",360, 0, 650.7, 193.5)
+    
+    ihcgr = new Graph(0)
+    ihcgr.size(0,0.05,0,180000)
+    ihcgr.view(0, 0, 0.05, 180000, 308, 345, 685, 365)
+    ihcgr.label(0.1,0.95,"IHC Output Profiles")
+    
+    if(object_id(HSRout[0])) HSRout[0].plot(ihcgr,sg_tdres, 1, 0)
+    //system("date")
+    ihcgr.exec_menu("View = plot")
+    /**** Set up AN filterbank graph ***/
+    //b1.intercept(1)
+    soutgr = new Graph(0)
+    soutgr.size(0,0.05,0,180000)
+    soutgr.view(0, 0, 0.05, 180000, 308, 345, 685, 365)
+    soutgr.label(0.1,0.95,"Instantaneous Rate Profile")
+    
+    if(object_id(HSRout[67])) HSRout[67].plot(soutgr,sg_tdres, 1, 0)
+    //system("date")
+    soutgr.exec_menu("View = plot")
+    
+    b1.intercept(0)
+    b1.map("Stimulus and Auditory Filterbank",308, 345, 685, 365)
+    
+    
+}//Dummy Graphs
+
+
+
+proc plotrand(){
+    grr = new Graph()
+    rr.plot(grr)
+    grr.exec_menu("View = plot")
+}
+
+
+
+proc runzilany(){
+    HSRout[67] = new Vector(stim.size)
+    HSRout[67].an_zilany_v4(stim, stimtdres, mycf, fibertype,implnt,1,1,1, 1)
+    ShowInputGraphs()
+}
+
+proc runzilany2(){
+    HSRout[0] = new Vector(stim.size)
+    HSRout[67] = new Vector(stim.size)
+    HSRout[1] = new Vector()
+    HSRout[0].ihc_zilany_v4(stim, stimtdres, mycf,1,1,1,1)
+    HSRout[67].syn_zilany_v4(HSRout[0], stimtdres, mycf, fibertype,implnt,nrep,1,HSRout[1])
+    HSRout[0] = HSRout[1].histogram(0,stim.size*stimtdres*1000,0.2)
+    ShowInputGraphs()
+}
+
+
+
+
+
+spont=100
+
+proc runzilany3(){
+    HSRout[0] = new Vector(stim.size)
+    HSRout[67] = new Vector(stim.size)
+    HSRout[67].an_zilany_v4(stim, stimtdres, mycf,fibertype,implnt,1,1,1,1,HSRout[0])
+    ShowInputGraphs()
+}
+
+proc runzilany4(){
+    HSRout[0] = new Vector(stim.size)
+    HSRout[67] = new Vector(stim.size)
+    HSRout[68] = new Vector(stim.size)
+    
+    HSRout[67].an_zilany_v4_1(stim, stimtdres, mycf,spont,implnt,1,1,1,nrep,HSRout[0])
+    HSRout[68].an_zilany_v4_1(stim, stimtdres, mycf,spont/100,implnt,1,1,1,nrep,HSRout[0])
+    
+    ShowInputGraphs()
+}
+
+proc runzilany5(){
+    HSRout[0] = new Vector(stim.size/10)
+    HSRout[67] = new Vector(stim.size)
+    //psth_zilany_v4( stim, tdres,cf,fibertype,implnt,cihc,cohc,species,nrep,psth)
+    HSRout[67].psth_zilany_v4(stim, stimtdres, mycf,fibertype,implnt,1,1,1,reps,HSRout[0])
+    ShowInputGraphs()
+}
+
+
+
+proc getspikes(){local x
+    HSRout[1] = new Vector()
+    x = startsw()
+    HSRout[67].ANFSpikeGenerator3(HSRout[1],reps,stimtdres)
+    print "SpikeGenerator3 reps ", reps, " time ", startsw()-x
+    HSRout[0] = HSRout[1].histogram(0,stim.size*stimtdres*1000,0.2)
+    HSRout[0].x[1] -= reps
+    ShowInputGraphs()
+    
+}
+
+proc getspikes1(){local x
+    HSRout[1] = new Vector()
+    x = startsw()
+    HSRout[67].ANFSpikeGenerator(HSRout[1],reps,stimtdres)
+    print "SpikeGenerator reps ", reps, " time ", startsw()-x
+    HSRout[0] = HSRout[1].histogram(0,stim.size*stimtdres*1000,0.2)
+    HSRout[0].x[1] = 0
+    ShowInputGraphs()
+}
+
+create a 
+access a
+objref sgc
+sgc = new SGC_fast(0.5)
+proc getsgc(){local x
+    HSRout[1] = new Vector()
+    sgc.cf=mycf
+    sgc.spont=50
+    sgc.SetFibreRate(HSRout[67],HSRout[1],stimtdres)
+    x = startsw()
+    sgc.SGfast(reps)
+    print "SGfast reps", reps, " time ", startsw()-x
+    
+    HSRout[0] = HSRout[1].histogram(0,stim.size*stimtdres*1000,0.2)
+    HSRout[0].x[1] = 0
+    ShowInputGraphs()
+}
+proc getsgc2(){local x
+    
+    HSRout[1] = new Vector()
+    sgc.cf=mycf
+    sgc.spont=50
+    sgc.SetFibreRate(HSRout[67],HSRout[1],stimtdres)
+    x = startsw()
+    sgc.SGfast2(reps)
+    print "SGfast2 reps", reps, " time ", startsw()-x
+    HSRout[0] = HSRout[1].histogram(0,stim.size*stimtdres*1000,0.2)
+    HSRout[0].x[1] = 0
+    
+    ShowInputGraphs()
+    
+}
+
+
+runzilany3()
+reps=50
+//getsgc2()
+
+objref ihc 
+ihc = new Vector(stim.size,0)
+for icf=0,99{  
+    mycf = cf.x[icf]
+    HSRout[icf] = new Vector(stim.size,0)
+//    HSRout[icf].an_zilany_v4(stim, stimtdres, mycf,3,0,cihc.x[icf],cohc.x[icf],1,1,ihc) 
+    ihc.mul(0)
+}
+//for icf=0,99{  HSRout[icf].plot(Graph[2],stimtdres) }
