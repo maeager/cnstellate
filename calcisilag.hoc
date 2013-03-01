@@ -380,6 +380,7 @@ proc calc_psth(){local i
     if($1==tv) psth[i] = tuberculoventral[i][0].spikes.histogram(0,tstop,binwidth)
     if($1==ds) psth[i] = dstellate[i][0].spikes.histogram(0,tstop,binwidth)
     if($1==glg) psth[i] = golgi[i][0].spikes.histogram(0,tstop,binwidth)
+    
   } 
 }
 
@@ -553,14 +554,14 @@ proc print_an_smooth_hist() { // 2 args - variance, filename root
   outfile.printf("# an.HSR cell smoothed histogram\n")
   hist.printf(outfile,"%8.3f\n")
   outfile.close()
-  //work.resize(0)
-  //hist.remove(0,t_ignore_before,t_ignore_after
-  //work.spctrm(hist)
-  //sprint(filename,"%s.an.HSR.pow",$s2)
-  //outfile.wopen(filename)
-  //outfile.printf("# Power spectrum of HSR ANF smoothed histogram\n")
-  //work.printf(outfile,"%9.5f\n")
-  //outfile.close()
+  work.resize(0)
+  //hist.remove(0,t_ignore_before,t_ignore_after)
+  work.spctrm(hist)
+  sprint(filename,"%s/an.HSR.smpow",$s2)
+  outfile.wopen(filename)
+  outfile.printf("# Power spectrum of HSR ANF smoothed histogram\n")
+  work.printf(outfile,"%9.5f\n")
+  outfile.close()
 }
 
 proc print_an_hist() { // 2 args - binsize, filename root
@@ -576,6 +577,15 @@ proc print_an_hist() { // 2 args - binsize, filename root
   outfile.printf("# an.HSR cell unsmoothed histogram\n")
   hist.printf(outfile,"%8.3f\n")
   outfile.close()
+   work.resize(0)
+  hist.remove(0,t_ignore_before,t_ignore_after)
+  work.spctrm(hist)
+  sprint(filename,"%s/an.HSR.pow",$s2)
+  outfile.wopen(filename)
+  outfile.printf("# Power spectrum of HSR ANF histogram\n")
+  work.printf(outfile,"%9.5f\n")
+  outfile.close()
+ 
 }
 
 proc print_spiketimes() { // 3 args - indices of Tstellate cell plus filename root
@@ -669,6 +679,7 @@ proc print_golgi_raster() { // 1 arg - filename root
 proc print_an_raster() { // 1 arg - filename root
   sprint(filename,"%s/anHSR_raster.dat",$s1)
   outfile.wopen(filename)
+  if (outfile.isopen()) {
   outfile.printf("# HSR ANF raster plot\n")
   for i = 0, nchannels-1 {
     for j = 0, HSRsperchannel-1 {
@@ -678,17 +689,24 @@ proc print_an_raster() { // 1 arg - filename root
     }
   }
   outfile.close()
-    sprint(filename,"%s/anLSR_raster.dat",$s1)
+} else {print "Unable to open file anHSR_raster.dat"}
+
+
+  
+  sprint(filename,"%s/anLSR_raster.dat",$s1)
   outfile.wopen(filename)
+if (outfile.isopen()) {  
   outfile.printf("# LSR ANF raster plot\n")
   for i = 0, nchannels-1 {
     for j = 0, LSRsperchannel-1 {
       for k = 0, an.LSRspiketimes[i][j].size()-1 {
         outfile.printf("%d %d %d %10.3f\n",i,j,i*LSRsperchannel+j,an.LSRspiketimes[i][j].x[k])
-      }
     }
-  }
-  outfile.close()
+}
+}
+outfile.close()
+} else {print "Unable to open file anHSR_raster.dat"}
+
 }
 
 proc print_isis() { // 3 args - indices of tstellate cell plus filename root
@@ -763,4 +781,4 @@ proc print_si() { // 1 arg - fileroot
 }
 
 
-k
+
