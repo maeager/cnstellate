@@ -156,6 +156,26 @@ proc NoiseRateLevelFunction(){
 	
 }
 
+proc MaskedRateLevelFunction(){local ifreq,freq_increment, myCF
+	stimtype=7 //tone and noise
+	ramplngth	= 0.005
+	dur		= 0.045    //duration of stim (seconds)
+	stimdelay	= 0.02      //sec
+	
+	tonefreq=cf.x[50]
+	NoiseLevel=50 //(50% mark SPL)
+	dur       = 0.024    //duration of stim (seconds)
+	
+	//Masked RL
+	for (spl=20; spl<=90;spl=spl+5){
+		MULTIRUN()
+		sprint(fileroot_,"%s/MaskedRateLevel/%g",fileroot,spl)
+		print_results()
+		
+	}
+}
+
+
 // Run tone RF with 50%noise
 proc MaskedResponseCurve(){local ifreq,freq_increment, myCF
 	stimtype=7 //tone and noise
@@ -169,13 +189,6 @@ proc MaskedResponseCurve(){local ifreq,freq_increment, myCF
 	
 	freq_increment=cf.x[50]/8
 	myCF = cf.x[50]
-	//Masked RL
-	for (spl=20; spl<=90;spl=spl+5){
-		MULTIRUN()
-		sprint(fileroot_,"%s/MaskedRateLevel/%g",fileroot,spl)
-		print_results()
-		
-	}
 	
 	//MRC Masked Responses curve
 	spl=80
