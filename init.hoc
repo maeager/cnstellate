@@ -40,7 +40,6 @@ proc run_experiment() {
       xpanel()
       ctrlBox.intercept(0)
       ctrlBox.map("Cochlear Nucleus stellate network model",0,80,-1,-1)
-      xopen("mathslib.hoc")         // mathematical procedures
       xopen("Params.hoc")
       xopen("Utilities.hoc")
       xopen("NetworkParameters.hoc")

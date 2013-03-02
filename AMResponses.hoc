@@ -6,12 +6,9 @@
 */
 
 load_file("nrngui.hoc")
-//load_file("par_netpar.hoc")
-//load_file("par_init.hoc")
 
-xopen("mathslib.hoc")         // mathematical procedures
 xopen("Params.hoc")
-xopen("Utilities.hoc")
+ xopen("Utilities.hoc")
 xopen("NetworkParameters.hoc")
 xopen("AuditoryNerve.hoc")
 xopen("par_CNcell.tem")      // CN cell template
