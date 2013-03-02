@@ -5,6 +5,9 @@
 // Andrew Davison, The Babraham Institute, 2000.
 
 /*
+
+ xopen("mathslib.hoc")  // provides: mod, arraymax,arraymin,nint,invabs  
+
 strdef odourfile,inputfile
 objref odour, inputarray
 objref A, X, S

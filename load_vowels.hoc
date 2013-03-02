@@ -25,7 +25,6 @@
 
 load_file("nrngui.hoc")
 
-xopen("mathslib.hoc")         // mathematical procedures
 xopen("Params.hoc")
 xopen("Utilities.hoc")
 xopen("NetworkParameters.hoc")

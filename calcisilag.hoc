@@ -1,4 +1,5 @@
 // calcisilag.hoc
+
 // Adapted by Michael Eager from  Andrew Davison (The Babraham Institute, 2000) 
 // Original Olfactory bulb network model: calculate inter-spike interval and lag time statistics
 // 
@@ -20,7 +21,10 @@
  * print_lags(i,j,fileroot)
  * print_si(fileroot)
  */
+ 
+xopen("mathslib.hoc")  // provides: mod, arraymax,arraymin,nint,invabs  
 
+ 
 // Variables used in this file
 strdef tstr
 objref work, work2, TSoutputarray,DSoutputarray,TVoutputarray,Goutputarray, isi, lags, hist, tmpspike,psth[nchannels]

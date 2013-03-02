@@ -21,6 +21,8 @@
  * print_lags(i,j,fileroot)
  * print_si(fileroot)
  */
+ 
+ xopen("mathslib.hoc")  // provides: mod, arraymax,arraymin,nint,invabs  
 
 // Variables used in this file
 strdef tstr

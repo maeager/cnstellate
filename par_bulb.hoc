@@ -40,6 +40,7 @@ objref outfile
 outfile = new File()
 strdef filename, celltype
 
+xopen("mathslib.hoc")  // provides: mod, arraymax,arraymin,nint,invabs  
 
 //
 
