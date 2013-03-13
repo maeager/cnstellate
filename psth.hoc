@@ -1,8 +1,11 @@
 
-/* 
- *   
- *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
- *    cnstellate was written as part of my PhD at the University of Melbourne
+/*    PSTH.hoc contains the PSTHcell function that calculates first 
+ *    spike latency, inter-spike interval statistics (histogram, binned 
+ *    mean, binned stdev, binned co-efficient of variation) 
+ */
+ 
+ 
+/*    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
  *
  *    This file is part of cnstellate.
  * 
@@ -120,8 +123,8 @@ proc PSTHcell() {local i, j, sp1, sp2, index, intv,first, cvmean, count,sizebins
         checkspikes.indvwhere($o1.object(i),"[]",stimdelay*1000 +  2.5, stimdelay*1000 + 17.5)
         if(checkspikes.size() >= 3) {
 	// Go through spike train only if no spikes occur immediately before stimulus evoked spike
-	checkspikes.indvwhere($o1.object(i),"[]",stimdelay*1000 - 5 ,stimdelay*1000 + 2.5)
-	if(checkspikes.size() == 0) {
+	//checkspikes.indvwhere($o1.object(i),"[]",stimdelay*1000 - 5 ,stimdelay*1000 + 2.5)
+	//if(checkspikes.size() == 0) {
 	    checkedtrials+=1
 	   
 	for j = 0, $o1.object(i).size() - 2 {
@@ -153,7 +156,8 @@ proc PSTHcell() {local i, j, sp1, sp2, index, intv,first, cvmean, count,sizebins
 		bins[index].append(intv)
 		ISI.append(intv)
 	    }
-}} //checked trials: no spikes beforehand, 3 spikes in first 15 ms
+	} //checked trials: no spikes beforehand,
+	//} //checked trials:  min 3 spikes in first 15 ms
 	}
     }
 
