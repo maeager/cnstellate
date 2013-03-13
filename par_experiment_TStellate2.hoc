@@ -3,7 +3,6 @@
 /*  par_experiment_TStellate2
  *  Experimental setup for second TStellate optimisation 
  *
- *    cnstellate was written as part of my PhD at the University of Melbourne 
  *   
  *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
  *
@@ -25,10 +24,8 @@
 
 
 // CS and CT data were from Long-Evans and Hooded Wistar rats at RVEEH
-// reported in \citep{PaoliniClareyEtAl:2005}
-
-
-//   The cell’s rate-level function was then determined by presenting 50-ms CF
+// reported in \citep{PaoliniClareyEtAl:2005}:
+//  The cell’s rate-level function was then determined by presenting 50-ms CF
 //  tone bursts (5 ms rise–fall time; 25–50 repetitions; 10 Hz repetition
 //  frequency) in 5- or 10-dB steps from subthreshold sound pressure
 //  levels (SPLs) to SPLs that produced discharge rate saturation. If
@@ -57,7 +54,7 @@ TSexemplar_SPL_thresh = 40
 TSexemplar_CF = 9100
 
 
-//  Differences in the extent of hyperpolarization in
+// Differences in the extent of hyperpolarization in
 // the identified stellate cell groups can not be attributed to differences in
 // RMP because there was no significant difference in this measure
 // between groups (F3,40 1⁄4 0.2, P > 0.05). The mean RMP (± SEM) for
@@ -72,7 +69,6 @@ func SetChopperRMP(){
 	}else if ($1 == 2 ) {
 		return -59.0
 	}
-	
 	print "SetChopperRMP: Using default TS RMP"
 	return TSexemplar_RMP	
 }
@@ -91,18 +87,18 @@ func SetChopperRMP(){
 
 
 delay					= 0.02
-dur						= 0.0475 // Actual duration minus half ramplength
+dur						= 0.0475    // Actual duration minus half ramplength
 ramplngth				= 0.005 
-dutycycle				= 0.8        // get an extra 40msec post-tone
-cfhi					= 40000
-cflo					= 200
-srate					= 100000      // 500k is no longer needed
+dutycycle				= 0.8       // get an extra 40msec post-tone
+cfhi					= 40000     //suitable for cat and rat model but not for human
+cflo					= 200       
+srate					= 100000    // 500k is no longer needed in Zilany AN model
 stimtdres				= 1/srate
-sg_rate					= 50000
+sg_rate					= 50000     // store AN model at 50k 
 sg_tdres				= 1/sg_rate
-tstop					= 110
-ANmodel					= 6
-species					= 2 //Rat
+tstop					= 110       // 20 ms delay, 50 ms stim, 40 post tone
+ANmodel					= 6         // ZilanyBruce
+species					= 2         //Rat
 audiogram_file			= "rat_bruce_audiogram.dat"
 reps					= 25
 usesavedfilterbanks		= 1
@@ -142,12 +138,9 @@ plot_variables=0
 objref TSIVList,TSspikeList
 
 
-
-
 proc SetupChopperCV(){local nrow,ncol
 	nrow					= 5
 	ncol					= 3
-	
 	
 	objref CV_sustained, CV_transient1, CV_transient2
 	CV_transient2			= new Matrix()
@@ -1016,10 +1009,7 @@ proc connect_TS() {local i_chan,i,p,target,source,low,high,range,channel,sourcec
 		}
 		printf("\rGLG->TS=== done ===\n")
 	}
-	
-	
-	outfile.close()
-	
+	outfile.close()	
 }
 
 threshold_rate=0
@@ -1305,7 +1295,7 @@ for ii=0,2 {
 		file.printf("#  Input Resistance = %g\n",inputresistance)
 		file.printf("#  Input Resistance Penalty = %g\n",penalty)
 		file.printf("#  tonefreq = %g\n",tonefreq)
-		param.printparams(file,"#") //let Network Parameters print the struct
+		param.print2file(file,"#") //let Network Parameters print the struct
 	}
 	file.close()
 	//Write parameters to general optimisation file

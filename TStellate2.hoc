@@ -2,9 +2,9 @@
 
 /*
  *   TStellate2.hoc
- *   Optimise parameters controlling TS cells. Second routine with three tones.
+ *   Optimise parameters controlling TS cells. Second routine 
+ *   with three tones.
  * 
- *    cnstellate was written as part of my PhD at the University of Melbourne 
  *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
  *
  *    This file is part of cnstellate.
@@ -114,8 +114,7 @@ xopen("par_experiment_TStellate2.hoc")
 proc QuickRun(){
   set_pvec()
   pvec.printf
-  print TStellate2_err(0,&pvec.x[0])
-  
+  print TStellate2_err(0,&pvec.x[0])  
 }
 
 tolerance = 0.0001
@@ -213,12 +212,13 @@ param.n.x[ds][ts]=3
 param.n.x[tv][ts]=3
 param.n.x[glg][ts]=3
 param.ts_erev=-60.9  
-set_pvec()
+
 RefreshParameters()
 ANFilterBankRun()  //Generate new AN instant. rates
 SetInputRates()
 xopen("TStellate_CS/pvec_TStellate.hoc")
-QuickRun()
+set_pvec()
+//QuickRun()
 runprax()
 printprax()
 //runprax()
