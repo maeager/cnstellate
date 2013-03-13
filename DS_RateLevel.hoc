@@ -2,10 +2,10 @@
 
 /*
  *   DS_RateLevel.hoc
- * 
- *   
+ *   This file optimises the DS cell model using rate-level reponses to tones
+ *   and noise from experimental data.
+ *
  *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
- *    cnstellate was written as part of my PhD at the University of Melbourne
  *
  *    This file is part of cnstellate.
  * 
@@ -811,7 +811,7 @@ file.printf("#Other values \n")
 // file.printf("# oct_shift  = %g\n", oct_shift )
 // file.printf("# centrepoint = %g\n",centrepoint)
 //file.printf("# DS erev = %g\n",tuberculoventral[0][0].soma.erev_rm)
-param.printparams(file,"#") //let Network Parameters print the struct
+param.print2file(file,"#") //let Network Parameters print the struct
 file.close()
 }
 //Write parameters to general optimisation file

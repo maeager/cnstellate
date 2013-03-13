@@ -7,7 +7,6 @@
  * 
  *   
  *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
- *    cnstellate was written as part of my PhD at the University of Melbourne
  *
  *    This file is part of cnstellate.
  * 
@@ -273,7 +272,7 @@ file.printf("%.2f\t%.6f\t%.6f\n",tvec.x[ii],errorvec.x[ii],meaniv.x[ii])
 file.printf("#Other values \n")
 file.printf("#  spl = %g\n",spl)
 file.printf("#  tonefreq = %g\n",tonefreq)
-param.printparams(file,"#") //let Network Parameters print the struct
+param.print2file(file,"#") //let Network Parameters print the struct
 file.printf("#\n#IV Measures  Reference Test\n")
 file.printf("#RMP\t%g\t%g\n", ivdata[1].mean(0,ivdata[0].indwhere(">",0)),meaniv.mean(ivdata[0].indwhere(">",-10),ivdata[0].indwhere(">",0)))
 file.printf("#IVshift\t%g\t%g\n", ref_shift, test_shift)
