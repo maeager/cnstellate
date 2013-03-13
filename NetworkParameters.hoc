@@ -5,7 +5,6 @@
 *   
 *   
 *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
-*    cnstellate was written as part of my PhD at the University of Melbourne
 *
 *    This file is part of cnstellate.
 * 
@@ -48,7 +47,7 @@ public ts_jitter_sd     // standard deviation in delay of ANF inputs from simila
 
 
 //functions
-public getnetparameters, saveparameters,printparams,show
+public getnetparameters, saveparameters,print2file,show
 objref bw, n, w,delay
 //Default values
 offset=3
@@ -135,7 +134,7 @@ proc saveparameters(){
 }
 
 
-proc printparams(){local irow,jcol
+proc print2file(){local irow,jcol
     //first object is file 
     //second variable is string
 	file = $o1

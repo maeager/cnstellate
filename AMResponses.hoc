@@ -15,7 +15,7 @@ xopen("par_CNcell.tem")      // CN cell template
 
 //Previous optimisation parameters
 xopen("pvec_Golgi_RateLevel.hoc")
-xopen("pvec_DS_ClickRecovery.hoc")
+xopen("pvec_DS_ClickRecovery.hoc") 
 xopen("pvec_DS_RateLevel.hoc")
 
 xopen("pvec_TV_Notch.hoc")
@@ -30,18 +30,14 @@ xopen("jitter.hoc")
 //Parameters for this optimisation
 xopen("parameters_TStellate.hoc")
 
- use_ball_stick=1
- fileroot="AMResponses2"
- create_cells()
+use_ball_stick=1
+fileroot="AMResponses2"
+create_cells()
 connect_cells(fileroot)
 connect_CNcells(fileroot)
 
 //xopen("par_experiment_TV_RateLevel.hoc")
 xopen("par_experiment_TStellate2.hoc")
-
-
-
-
 
 create_cells()
 RefreshCellParams()

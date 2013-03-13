@@ -134,14 +134,14 @@ proc set_tstellate() {
     soma {
         insert rm
         insert ka
-        eh_rm    = -43
-        Ra       = 150            //axial resistance per cm
-        cm       = 0.9            //micro farad per cm^2, membrance capacitance
-        erev_rm = Erest          //mV, Leak reversal potential mV
-        RM       = 96             //MOhms, expected membrane resistance
-        L            = 19.5           //length of cell body
-        diam     = L              //diameter of cell body
-        somaarea = PI*(L/1E4)^2   //um to cm2
+        eh_rm    = -43        //mV, Ih reversla potential
+        Ra       = 150        //axial resistance per cm
+        cm       = 0.9        //micro farad per cm^2, membrance capacitance
+        erev_rm  = Erest      //mV, Leak reversal potential mV
+        RM       = 96         //MOhms, expected membrane resistance
+        L        = 19.5       //length of cell body
+        diam     = L          //diameter of cell body
+        somaarea = PI*(L/1E4)^2 //cm^2
 		
         //Set maximum conductance for each current
         gnabar_rm = nstomho(1000)*qt()
@@ -164,8 +164,8 @@ proc set_tuberc() {
         cm         = 0.9
         erev_rm    = Erest	// reversal potential mV
         //RM = 170  //Expected membrane resistance in MOhms
-        L            = 19
-        diam     = L
+        L          = 19
+        diam       = L
         somaarea = PI*(L/1E4)^2   //um to cm2
 		
         gnabar_rm = nstomho(1000)*qt()
@@ -180,14 +180,15 @@ proc set_dstellate() {
     soma {
         insert rm
         insert klt
-        ek_rm = -70
-        ena_rm = 50
-        eh_rm=-43
-        Ra=150 cm=0.9
-        erev_rm                 =       Erest	// reversal potential mV
+        ek_rm    = -70
+        ena_rm   = 50
+        eh_rm    =-43
+        Ra       = 150 
+		cm       = 0.9
+        erev_rm  =  Erest  // reversal potential mV
         //RM =  //MOhms
-        L	= 21
-        diam    = L
+        L	     = 21
+        diam     = L
         somaarea = PI*(L/1E4)^2   //um to cm2
         gnabar_rm = nstomho(1000)*qt()
         gkhtbar_rm = nstomho(150)*qt()
@@ -198,21 +199,20 @@ proc set_dstellate() {
 }
 
 proc set_golgi() {
-    model = 3
-	
+    model = 3	
     soma {
         insert rm
-        ek_rm = -70
-        ena_rm = 50
-        eh_rm=-43
-        Ra=150
-        cm=0.9
-        erev_rm                 =       Erest	// reversal potential mV
-        RM = 130  //MOhms
-        L	= 14
-        diam    = L
+        ek_rm    = -70
+        ena_rm   = 50
+        eh_rm    = -43
+        Ra       = 150
+        cm       = 0.9
+        erev_rm  = Erest    // reversal potential mV
+        RM       = 130   //MOhms
+        L	     = 14
+        diam     = L
         somaarea = PI*(L/1E4)^2   //um to cm2
-        gnabar_rm = nstomho(1000)*qt()
+        gnabar_rm= nstomho(1000)*qt()
         gkhtbar_rm = nstomho(150)*qt()
         ghbar_rm = nstomho(0.5)*qt(1)
         gleak_rm = nstomho(2)*qt()

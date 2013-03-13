@@ -851,7 +851,7 @@ proc printprax2(){local pp,ii,pp2,error
 		// file.printf("# oct_shift  = %g\n", oct_shift )
 		// file.printf("# centrepoint = %g\n",centrepoint)
 		file.printf("# TV erev = %g\n",tuberculoventral[0][0].soma.erev_rm)
-		param.printparams(file,"#") //let Network Parameters print the struct
+		param.print2file(file,"#") //let Network Parameters print the struct
 		file.close()
 	
 	}

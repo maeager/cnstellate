@@ -86,7 +86,7 @@ proc init() { local length,RM, p, q, r, Atotal
     channel=$3
 	
 	if (numarg() == 4) { //Ball-and-stick model
-		print "Using Ball-Stick model ", $4
+		// print "Using Ball-Stick model ", $4
 		ball_stick =1
 		create dend
 		dend.nseg=1
@@ -96,7 +96,7 @@ proc init() { local length,RM, p, q, r, Atotal
 	 	dend.Ra = 150
 		dend.cm = 0.9
 		dend insert pas
-		dend.g_pas=0.002
+		dend.g_pas=0.001
 		connect dend(0),soma(1)
 	}
 

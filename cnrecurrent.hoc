@@ -3,7 +3,6 @@
 /* 
  *   
  *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
- *    cnstellate was written as part of my PhD at the University of Melbourne
  *
  *    This file is part of cnstellate.
  * 
@@ -27,7 +26,7 @@ public bw, n, w,delay   //bandwidth, number, weight, delay
 public offset
 public ncol, nrow
 //functions
-public test, getparameters, saveparameters,printparams,randomise
+public test, getparameters, saveparameters,print2file,randomise
 external random,ds
 objref bw, n, w,delay
 offset=3
@@ -90,13 +89,13 @@ proc test(){local i
     bw.ident()
     n.ident()
     w.ident()
-    printparams()
+    print2file()
     getparameters(filename)
-    printparams()
+    print2file()
     i=startsw()-i
     print i
 }
-proc printparams(){
+proc print2file(){
     print "bandwidth\n", bw.printf
     print "number of syn\n",    n.printf
     print "weights\n",  w.printf
