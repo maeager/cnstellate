@@ -35,8 +35,7 @@ public ncol,nrow
 //Golgi model parameters
 public golgi_spatial_filter_variance_LSR,golgi_syn_filter_scale_factor,golgi_spon
 //DS_ClickRecovery and RateLevel 
-external _gaba_rise, _gaba_decay
-public dstellate_gkltbar,gaba_decay,gaba_rise,dstellate_gleak,dstellate_gnabar,dstellate_gkhtbar,DS_params
+public ds_gkltbar,gaba_decay,gaba_rise,ds_gleak,dstellate_gnabar,dstellate_gkhtbar,DS_params
 //TV_Notch and RateLevel
 public offset           // offset in channel units of mean distribution of connections between DS and TV cells
 public tv_erev, tv_gleak
@@ -62,22 +61,20 @@ proc init(){
     n = new Matrix(nrow, ncol)
     w = new Matrix(nrow, ncol)
     delay = new Matrix(nrow,ncol)
-    offset=0
-	
-	
-	gaba_decay								= _gaba_rise
-	gaba_rise								= _gaba_decay
+    offset           =  0  //DS to TV oofset
 	
 	//Default values
+	ds_gaba_decay	 = 9   //see Params.hoc
+	ds_gaba_rise	 = 0.7	
 	golgi_spatial_filter_variance_LSR		= 2  //channel units when N=100, cfhi=64k, cflo=200	
-	golgi_syn_filter_scale_factor			= 1														
-	golgi_spon								= 3	
+	golgi_syn_filter_scale_factor	= 1								
+	golgi_spon		= 3	
 	
 	
-	dstellate_gkhtbar                       = 0.030623   //default I-II RM model
-	dstellate_gkltbar					    = 0.0163897	 //default gleak for Type I-II RM model	 
-	dstellate_gleak				            = 0.000274146 // default gleak	 
-	dstellate_gnabar				        = 0.408307  //2 times default TypeI-II RM model	   
+	ds_gkhtbar                       = 0.030623   //default I-II RM model
+	ds_gkltbar					    = 0.0163897	 //default gleak for Type I-II RM model	 
+	ds_gleak				            = 0.000274146 // default gleak	 
+	ds_gnabar				        = 0.408307  //2 times default TypeI-II RM model	   
 	
 	tv_gleak     = 0.0004987
     tv_erev      = -70
@@ -169,10 +166,10 @@ proc print2file(){local irow,jcol
 		file.printf("%s golgi_spon %g\n",$s2,golgi_spon)
 		file.printf("%s gaba_decay			 %g\n",$s2,gaba_decay)
 		file.printf("%s gaba_rise			 %g\n",$s2,gaba_rise)
-		file.printf("%s dstellate_gkltbar	 %g\n",$s2,dstellate_gkltbar)
-		file.printf("%s dstellate_gkhtbar	 %g\n",$s2,dstellate_gkhtbar)
-		file.printf("%s dstellate_gleak  %g\n",$s2,dstellate_gleak)
-		file.printf("%s dstellate_gnabar  %g\n",$s2, dstellate_gnabar)
+		file.printf("%s ds_gkltbar	 %g\n",$s2,ds_gkltbar)
+		file.printf("%s ds_gkhtbar	 %g\n",$s2,ds_gkhtbar)
+		file.printf("%s ds_gleak  %g\n",$s2,ds_gleak)
+		file.printf("%s ds_gnabar  %g\n",$s2, ds_gnabar)
 		file.printf("%s tv_gleak  %g\n",$s2, tv_gleak)
 		file.printf("%s tv_erev  %g\n",$s2, tv_erev)
 		
@@ -224,10 +221,10 @@ proc save2hocfile(){local irow,jcol localobj file
 		file.printf("param.golgi_spon = %g\n",golgi_spon)
 		file.printf("param.gaba_decay			 = %g\n",gaba_decay)
 		file.printf("param.gaba_rise			 = %g\n",gaba_rise)
-		file.printf("param.dstellate_gkltbar	 = %g\n",dstellate_gkltbar)
-		file.printf("param.dstellate_gkhtbar	 = %g\n",dstellate_gkhtbar)
-		file.printf("param.dstellate_gleak  = %g\n",dstellate_gleak)
-		file.printf("param.dstellate_gnabar  = %g\n", dstellate_gnabar)
+		file.printf("param.ds_gkltbar	 = %g\n",ds_gkltbar)
+		file.printf("param.ds_gkhtbar	 = %g\n",ds_gkhtbar)
+		file.printf("param.ds_gleak  = %g\n",ds_gleak)
+		file.printf("param.ds_gnabar  = %g\n", ds_gnabar)
 		file.printf("param.tv_gleak  = %g\n", tv_gleak)
 		file.printf("param.tv_erev  = %g\n", tv_erev)
 		
@@ -277,10 +274,10 @@ proc show(){local irow,jcol
 	printf("// golgi_spon %g\n",golgi_spon)
 	printf("// gaba_decay			 %g\n",gaba_decay)
 	printf("// gaba_rise			 %g\n",gaba_rise)
- 	printf("// dstellate_gkltbar	 %g\n",dstellate_gkltbar)
-	printf("// dstellate_gkhtbar	 %g\n",dstellate_gkhtbar)
-	printf("// dstellate_gleak_rm  %g\n",dstellate_gleak)
-	printf("// dstellate_gnabar_rm  %g\n", dstellate_gnabar)
+ 	printf("// ds_gkltbar	 %g\n",ds_gkltbar)
+	printf("// ds_gkhtbar	 %g\n",ds_gkhtbar)
+	printf("// ds_gleak_rm  %g\n",ds_gleak)
+	printf("// ds_gnabar_rm  %g\n", ds_gnabar)
 	printf("// tv_gleak  %g\n", tv_gleak)
 	printf("// tv_erev  %g\n", tv_erev)
 	
@@ -315,11 +312,11 @@ endtemplate NetworkParameters
 // param.w.x[glg][ds]							= 0.000531549
 // param.w.x[hsr][ds]							= 0.000167221
 // param.w.x[lsr][ds]							= 0.013091
-// param.dstellate_gkltbar					= 0.0163897
+// param.ds_gkltbar					= 0.0163897
 // param.gaba_decay								= 5.43235
 // param.gaba_rise								= 0.261939
-// param.dstellate_gleak				= 0.00274146
-// param.dstellate_gnabar               = 0.408307
+// param.ds_gleak				= 0.00274146
+// param.ds_gnabar               = 0.408307
 // }
 
 
@@ -334,10 +331,10 @@ endtemplate NetworkParameters
 // proc DS_params(){
 // 	xopen("pvec_DS_ClickRecovery.hoc")
 // 	xopen("pvec_DS_RateLevel.hoc")
-// param.dstellate_gkltbar					= dstellate_gkltbar
+// param.ds_gkltbar					= ds_gkltbar
 // param.gaba_decay						= _gaba_decay
 // param.gaba_rise							= _gaba_rise
-// param.dstellate_gleak_rm				= dstellate_gleak_rm
+// param.ds_gleak_rm				= ds_gleak_rm
 // }
 
 strdef paramfilename

@@ -12,10 +12,10 @@ xopen("pvec_DS_ClickRecovery.hoc")
 proc set_DS_ClickRecovery(){local ii
 //Extra updating feature for DS_ClickRecovery
    for ii = 0,nchannels-1 {
-    dstellate[ii][0].soma.gleak_rm =param.dstellate_gleak
-    dstellate[ii][0].soma.gkltbar_klt =param.dstellate_gkltbar
-    dstellate[ii][0].GABAA.tau2 = param.gaba_decay
-    dstellate[ii][0].GABAA.tau1 = param.gaba_rise
+    dstellate[ii][0].soma.gleak_rm =param.ds_gleak
+    dstellate[ii][0].soma.gkltbar_klt =param.ds_gkltbar
+    dstellate[ii][0].GABAA.tau2 = param.ds_gaba_decay
+    dstellate[ii][0].GABAA.tau1 = param.ds_gaba_rise
   }
 }
 

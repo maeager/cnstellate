@@ -1075,13 +1075,13 @@ proc reset_DS_ClickRecovery(){local ii,jj
 	print "updating features for DS_ClickRecovery optimisation routines"
 	for ii = 0,nchannels-1 {
 		for jj=0,nDSperchannel-1{
-			dstellate[ii][jj].soma.gleak_rm = param.dstellate_gleak
-			dstellate[ii][jj].soma.gkltbar_klt = param.dstellate_gkltbar
-			dstellate[ii][jj].soma.gkhtbar_rm = param.dstellate_gkhtbar
-			dstellate[ii][jj].soma.gnabar_rm = param.dstellate_gnabar
+			dstellate[ii][jj].soma.gleak_rm = param.ds_gleak
+			dstellate[ii][jj].soma.gkltbar_klt = param.ds_gkltbar
+			dstellate[ii][jj].soma.gkhtbar_rm = param.ds_gkhtbar
+			dstellate[ii][jj].soma.gnabar_rm = param.ds_gnabar
 			
-			dstellate[ii][jj].GABAA.tau2 = param.gaba_decay
-			dstellate[ii][jj].GABAA.tau1 = param.gaba_rise
+			dstellate[ii][jj].GABAA.tau2 = param.ds_gaba_decay
+			dstellate[ii][jj].GABAA.tau1 = param.ds_gaba_rise
 		}
 	}   
 }
@@ -1137,14 +1137,14 @@ proc RefreshCellParams(){local ii,jj
 		
         for jj=0,nDSperchannel-1{
 
-			sprint(cmd,"dstellate[%d][%d].soma.gkhtbar_rm = param.dstellate_gkhtbar",ii,jj) execute1(cmd)
-			sprint(cmd,"dstellate[%d][%d].soma.gleak_rm   = param.dstellate_gleak",ii,jj) execute1(cmd)
-			sprint(cmd,"dstellate[%d][%d].soma.gkltbar_klt   = param.dstellate_gkltbar",ii,jj) execute1(cmd)
-			sprint(cmd,"dstellate[%d][%d].soma.gnabar_rm  = param.dstellate_gnabar",ii,jj) execute1(cmd)
+			sprint(cmd,"dstellate[%d][%d].soma.gkhtbar_rm = param.ds_gkhtbar",ii,jj) execute1(cmd)
+			sprint(cmd,"dstellate[%d][%d].soma.gleak_rm   = param.ds_gleak",ii,jj) execute1(cmd)
+			sprint(cmd,"dstellate[%d][%d].soma.gkltbar_klt   = param.ds_gkltbar",ii,jj) execute1(cmd)
+			sprint(cmd,"dstellate[%d][%d].soma.gnabar_rm  = param.ds_gnabar",ii,jj) execute1(cmd)
 
 			
-			sprint(cmd,"dstellate[%d][%d].GABAA.tau2 = param.gaba_decay",ii,jj) execute1(cmd)
-			sprint(cmd,"dstellate[%d][%d].GABAA.tau1 = param.gaba_rise",ii,jj) execute1(cmd)
+			sprint(cmd,"dstellate[%d][%d].GABAA.tau2 = param.ds_gaba_decay",ii,jj) execute1(cmd)
+			sprint(cmd,"dstellate[%d][%d].GABAA.tau1 = param.ds_gaba_rise",ii,jj) execute1(cmd)
 			
 		}
 		

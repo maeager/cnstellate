@@ -150,13 +150,13 @@ strdef cmd
 proc reset_DS_RateLevel(){local i  
   for i=0,nchannels -1 {
   	  if (object_id(dstellate[i][0])) {
-		  sprint(cmd,"dstellate[%d][0].soma.gkhtbar_rm = param.dstellate_gkhtbar",i)
+		  sprint(cmd,"dstellate[%d][0].soma.gkhtbar_rm = param.ds_gkhtbar",i)
 		  execute1(cmd)
-		  sprint(cmd,"dstellate[%d][0].soma.gleak_rm = param.dstellate_gleak",i)
+		  sprint(cmd,"dstellate[%d][0].soma.gleak_rm = param.ds_gleak",i)
 		  execute1(cmd)
-		  sprint(cmd,"dstellate[%d][0].soma.gkltbar_klt =  param.dstellate_gkltbar",i)
+		  sprint(cmd,"dstellate[%d][0].soma.gkltbar_klt =  param.ds_gkltbar",i)
 		  execute1(cmd)
-		  sprint(cmd,"dstellate[%d][0].soma.gkltbar_rm =  param.dstellate_gnabar",i)
+		  sprint(cmd,"dstellate[%d][0].soma.gkltbar_rm =  param.ds_gnabar",i)
 		  execute1(cmd)
 	  }
   }
