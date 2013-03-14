@@ -114,10 +114,10 @@ pvec_name.append(new String("param.n.x[glg][ds]"))
   pvec_ranges.x[5][1]=0.2  
   pvec_ranges.x[5][0]=0.001
 
-//pvec_name.append(new String("param.dstellate_gkltbar"))
+//pvec_name.append(new String("param.ds_gkltbar"))
 //pvec_name.append(new String("gaba_decay"))
 //pvec_name.append(new String("gaba_rise"))
-//pvec_name.append(new String("param.dstellate_gleak_rm"))
+//pvec_name.append(new String("param.ds_gleak_rm"))
 
 //min
  for i=0,NPARAMS-1 pvec_ranges.x[i][0]= 0.000001
@@ -149,8 +149,8 @@ pvec_name.append(new String("param.n.x[glg][ds]"))
 // add_param( 0, 0.001, "param.w.x[glg][ds]", 1,    0.000001, 0.03)
 // add_param( 1, 0.002, "param.w.x[hsr][ds]", 1,    0.000001, 0.03)
 // add_param( 2, 0.003, "param.w.x[lsr][ds]", 1,    0.000001, 0.03)
-// add_param( 3, 0.001592,"param.dstellate_gkltbar",10,   0.000001, 0.03)
+// add_param( 3, 0.001592,"param.ds_gkltbar",10,   0.000001, 0.03)
 // add_param( 4, 0.00095,"gaba_decay",        10000,0.000001, 0.03)
 // add_param( 5, 0.0007, "gaba_rise",         1000, 0.000001, 0.03)
-// add_param( 6, 0.0008, "param.dstellate_gleak_rm",1,    0.000001, 0.03)
+// add_param( 6, 0.0008, "param.ds_gleak_rm",1,    0.000001, 0.03)
 

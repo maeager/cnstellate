@@ -61,7 +61,7 @@ public SaveSpikes,ClearSpikes
 
 external thresh,Erest,param
 external ampa_decay,ampa_erev,gly_decay,gly_erev,gly_rise
-external _gaba_decay, gaba_erev,_gaba_rise
+external gaba_decay, gaba_erev,gaba_rise
 
 create soma,dend
 objref AMPA, GlyR, GABAA, spikecount, spiketimes, synlist,spikes
@@ -148,8 +148,8 @@ proc init() { local length,RM, p, q, r, Atotal
 						
 		    GABAA = new Exp2Syn(0.5)
 			synlist.append(GABAA)
-			GABAA.tau2  = _gaba_decay  // use default values 
-			GABAA.tau1  = _gaba_rise
+			GABAA.tau2  = gaba_decay  // use default values 
+			GABAA.tau1  = gaba_rise
 			GABAA.e     = gaba_erev
 		}
 	} else {
@@ -170,8 +170,8 @@ proc init() { local length,RM, p, q, r, Atotal
 						
 		    GABAA = new Exp2Syn(0.5)
 			synlist.append(GABAA)
-			GABAA.tau2  = param.gaba_decay
-			GABAA.tau1  = param.gaba_rise
+			GABAA.tau2  = gaba_decay
+			GABAA.tau1  = gaba_rise
 			GABAA.e     = gaba_erev
 
 		}

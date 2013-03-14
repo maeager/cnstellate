@@ -72,13 +72,13 @@ gly_rise										= 0.4      //half width of glyc mIPSCs in MNTB is 2.3msec, ris
 //MNTB rat P30 gly decay constant 2.0,
 gly_erev										= -72      //see Paolini 1999
 
-default_gaba_decay			= 9      //probably a combination of two time constants see Awatramani gabaA fast 5-10 slow 20-60
-default_gaba_rise			= 0.7
+gaba_decay			= 9      //probably a combination of two time constants see Awatramani gabaA fast 5-10 slow 20-60
+gaba_rise			= 0.7
 gaba_erev					=-72      // in T stellates this is more likely to be closer to RMP as
 //Ferragamo et al. 1998 found no GABAergic IPSPs but the cells were still
 //sensitive to bicuculine
 
-// param.dstellate_gleak							= 0.0008
+// param.ds_gleak							= 0.0008
 
 
 /*
