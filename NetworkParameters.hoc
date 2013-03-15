@@ -164,8 +164,8 @@ proc print2file(){local irow,jcol
 		file.printf("%s golgi_spatial_filter_variance_LSR	 %g\n",$s2,golgi_spatial_filter_variance_LSR	)
 		file.printf("%s golgi_syn_filter_scale_factor %g\n",$s2,golgi_syn_filter_scale_factor	)
 		file.printf("%s golgi_spon %g\n",$s2,golgi_spon)
-		file.printf("%s gaba_decay			 %g\n",$s2,gaba_decay)
-		file.printf("%s gaba_rise			 %g\n",$s2,gaba_rise)
+		file.printf("%s ds_gaba_decay			 %g\n",$s2,ds_gaba_decay)
+		file.printf("%s ds_gaba_rise			 %g\n",$s2,ds_gaba_rise)
 		file.printf("%s ds_gkltbar	 %g\n",$s2,ds_gkltbar)
 		file.printf("%s ds_gkhtbar	 %g\n",$s2,ds_gkhtbar)
 		file.printf("%s ds_gleak  %g\n",$s2,ds_gleak)
@@ -219,8 +219,8 @@ proc save2hocfile(){local irow,jcol localobj file
 		file.printf("param.golgi_spatial_filter_variance_LSR	 = %g\n",golgi_spatial_filter_variance_LSR	)
 		file.printf("param.golgi_syn_filter_scale_factor = %g\n",golgi_syn_filter_scale_factor	)
 		file.printf("param.golgi_spon = %g\n",golgi_spon)
-		file.printf("param.gaba_decay			 = %g\n",gaba_decay)
-		file.printf("param.gaba_rise			 = %g\n",gaba_rise)
+		file.printf("param.ds_gaba_decay			 = %g\n",ds_gaba_decay)
+		file.printf("param.ds_gaba_rise			 = %g\n",ds_gaba_rise)
 		file.printf("param.ds_gkltbar	 = %g\n",ds_gkltbar)
 		file.printf("param.ds_gkhtbar	 = %g\n",ds_gkhtbar)
 		file.printf("param.ds_gleak  = %g\n",ds_gleak)
@@ -272,8 +272,8 @@ proc show(){local irow,jcol
 	printf("// golgi_spatial_filter_variance_LSR	 %g\n",golgi_spatial_filter_variance_LSR	)
 	printf("// golgi_syn_filter_scale_factor %g\n",golgi_syn_filter_scale_factor	)
 	printf("// golgi_spon %g\n",golgi_spon)
-	printf("// gaba_decay			 %g\n",gaba_decay)
-	printf("// gaba_rise			 %g\n",gaba_rise)
+	printf("// ds_gaba_decay			 %g\n",ds_gaba_decay)
+	printf("// ds_gaba_rise			 %g\n",ds_gaba_rise)
  	printf("// ds_gkltbar	 %g\n",ds_gkltbar)
 	printf("// ds_gkhtbar	 %g\n",ds_gkhtbar)
 	printf("// ds_gleak_rm  %g\n",ds_gleak)
@@ -313,8 +313,8 @@ endtemplate NetworkParameters
 // param.w.x[hsr][ds]							= 0.000167221
 // param.w.x[lsr][ds]							= 0.013091
 // param.ds_gkltbar					= 0.0163897
-// param.gaba_decay								= 5.43235
-// param.gaba_rise								= 0.261939
+// param.ds_gaba_decay								= 5.43235
+// param.ds_gaba_rise								= 0.261939
 // param.ds_gleak				= 0.00274146
 // param.ds_gnabar               = 0.408307
 // }
@@ -332,8 +332,8 @@ endtemplate NetworkParameters
 // 	xopen("pvec_DS_ClickRecovery.hoc")
 // 	xopen("pvec_DS_RateLevel.hoc")
 // param.ds_gkltbar					= ds_gkltbar
-// param.gaba_decay						= _gaba_decay
-// param.gaba_rise							= _gaba_rise
+// param.ds_gaba_decay						= gaba_decay
+// param.ds_gaba_rise							= gaba_rise
 // param.ds_gleak_rm				= ds_gleak_rm
 // }
 
