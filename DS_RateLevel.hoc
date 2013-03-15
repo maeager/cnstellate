@@ -469,11 +469,10 @@ for i = 0, nchannels-1 {
 	dstellate[i][0].soma.gkltbar_klt=0.0163897
 }
 
-param.w.x[lsr][tv] = 0.0021707
-param.w.x[hsr][tv] = 0.0006168
-
 
 //Initial values
+param.w.x[lsr][tv] = 0.0021707
+param.w.x[hsr][tv] = 0.0006168
 param.w.x[glg][ds]	= 0.000532	
 param.w.x[hsr][ds]	= 0.00127  
 param.w.x[lsr][ds]	= 0.00309  
@@ -930,6 +929,7 @@ whichcell=ArnottFig12_CFpos
 	dstellate[whichcell][0].soma.erev_rm=-70 
 	
 	reps=10	
-	QuickRun()
+
 	xopen("DS_RateLevel/pvec_DS_RateLevel.hoc")	
-	run_multipleprax()
+	QuickRun()	
+	//	run_multipleprax()
