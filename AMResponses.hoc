@@ -43,14 +43,9 @@ create_cells()
 RefreshCellParams()
 connect_cells(fileroot)
 connect_CNcells(fileroot)
+RefreshCellParams()
 
-// reset_TV_RateLevel()
-// reset_DS_ClickRecovery()
-// param.w.x[hsr][ds]*=10
-// param.w.x[ds][tv]/=10
-// reset_weights()
 
-usesavedfilterbanks=1
 
 
 strdef targetcell
@@ -68,7 +63,7 @@ xopen("ResponsesRoutines.hoc")
 ANmodel					= 7 //Zilany Bruce model (Zilany et al, 2009)
 species					= 1 //Cat
 audiogram_file			= "cat_audiogram.txt"
-
+usesavedfilterbanks     = 1
 ANsoundspath = "/media/data/sounds"  //local sounds path
 nrep         = 1      //nrep is number of reps of stimulus
 cfhi         = 40000
@@ -77,7 +72,6 @@ srate        = 100000.0
 stimtdres    = 1/srate
 sg_rate      = 50000
 sg_tdres     = 1/sg_rate
-usesavedfilterbanks=1
 RefreshCF()
 /****************************************/
 
