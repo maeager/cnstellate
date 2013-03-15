@@ -35,7 +35,7 @@ public ncol,nrow
 //Golgi model parameters
 public golgi_spatial_filter_variance_LSR,golgi_syn_filter_scale_factor,golgi_spon
 //DS_ClickRecovery and RateLevel 
-public ds_gkltbar,gaba_decay,gaba_rise,ds_gleak,dstellate_gnabar,dstellate_gkhtbar,DS_params
+public ds_gkltbar,ds_gaba_decay,ds_gaba_rise,ds_gleak,ds_gnabar,ds_gkhtbar,DS_params
 //TV_Notch and RateLevel
 public offset           // offset in channel units of mean distribution of connections between DS and TV cells
 public tv_erev, tv_gleak
