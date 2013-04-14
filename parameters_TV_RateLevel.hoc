@@ -37,7 +37,7 @@
   numG					= nchannels*nGperchannel   // total number of Golgi cells
   HSRsperchannel		= 50
   MSRsperchannel		= 0
-  LSRsperchannel		= 20
+  LSRsperchannel		= 30
   seed					= 0			// seed for random number generator
   thresh				= -20		// mV	// threshold for detecting spikes
 
@@ -45,7 +45,7 @@
   strdef fileroot
   sprint(fileroot,"TV_RateLevel") // root for output filenames
 
-  inputnumber		= 1		   // fixed input file
+  
   stimtype			= 9		   // Two tone 
   tstop				= 120	   // ms   total simulation time
   ttrans			= 20	   // ms,  when calculating statistics, ignore spikes occuring before this time

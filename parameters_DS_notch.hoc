@@ -42,7 +42,7 @@ thresh			= -10       // mV, threshold for detecting spikes
 strdef fileroot
 sprint(fileroot,"DS_notch")   	// root for output filenames
 vowelnumber		= 1			// which vowel
-inputnumber		= 1                 // fixed input file
+
 tstop			= 400		// ms, total simulation time
 ttrans			= 20		// ms,  when calculating statistics, ignore
 				// spikes occuring after 20ms 
