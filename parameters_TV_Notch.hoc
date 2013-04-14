@@ -35,9 +35,9 @@
   numDS				= nchannels*nDSperchannel	// total number of DS cells
   nGperchannel		= 1	  // number of Golgi cells in each freq channel
   numG				= nchannels*nGperchannel   // total number of Golgi cells
-  HSRsperchannel	=	40
+  HSRsperchannel	=	50
   MSRsperchannel	=	0
-  LSRsperchannel	=	20
+  LSRsperchannel	=	30
   seed				= 0			// seed for random number generator
   thresh			= -20		// mV	// threshold for detecting spikes
 
@@ -45,7 +45,7 @@
   strdef fileroot
   sprint(fileroot,"TV_Notch") // root for output filenames
 
-  inputnumber		= 1		// fixed input file
+  
   stimtype			= 8		// Notch noise (White noise filtered with stop-band filter)
   tstop				= 80		// ms	total simulation time
   ttrans			= 10	   // ms	// when calculating statistics, ignore

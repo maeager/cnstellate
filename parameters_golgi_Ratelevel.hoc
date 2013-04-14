@@ -36,40 +36,42 @@ nDSperchannel   = 1	                // number of DS cells in each freq channel
 numDS	= nchannels*nDSperchannel	// total number of DS cells
 nGperchannel	= 1	                // number of Golgi cells in each freq channel
 numG	= nchannels*nGperchannel	// total number of Golgi cells
-HSRsperchannel  =   100
+HSRsperchannel  =   50
 MSRsperchannel  =   0
-LSRsperchannel  =   100
+LSRsperchannel  =   30
+
+
 seed        = 0			// seed for random number generator
 thresh      = -10       // mV threshold for detecting spikes
-
 
 strdef fileroot
 sprint(fileroot,"golgi_Ratelevel") // root for output filenames
 //system("mkdir golgi_Ratelevel")	
-inputnumber = 1			// fixed input file
+
 tstop	    = 400	// ms	// total simulation time
 ttrans	    = 10	// ms   // when calculating statistics, ignore
 				// spikes occuring before this time
 cvode.active(0)
-dt 	    = 0.05	//ms
+dt 	         = 0.05	//ms
 steps_per_ms = 10
 setdt()
-celsius = 37
-secondorder=2
+celsius      = 37 //degrees C
+secondorder  = 2  // Crank-Nicholson integration method
 
-	count = 0
-	tonefreq = 8489
+
+    count       = 0
+	tonefreq    = 8489      //Hz
 	dur 		= 0.049 	//duration of tone segment (seconds)
 	dutycycle 	= 0.2		//quiet duration = dutycycle*dur
-	ramplngth 	= 0.001
-	ANmodel = 6
-	srate 		= 500000.0  
-	stimtdres 	= 1/srate
-	sg_rate = 50000		
-	sg_tdres = 1/sg_rate
+	ramplngth 	= 0.001     //sec
+	ANmodel     = 6
+	srate 		= 500000.0  //Hz, stimulus sampling rate
+	stimtdres 	= 1/srate   //sec, resolution of AN model
+	sg_rate     = 50000     //Hz, spike generator rate
+	sg_tdres    = 1/sg_rate //sec, resolution of ANF spikes
 	stimdelay 	= 0.02		//sec
-	stimtype=1	//tone
-	reps=25
+	stimtype    = 1	//tone stimulus
+	reps        = 25
 
 
 
