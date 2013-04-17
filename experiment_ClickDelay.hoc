@@ -150,9 +150,9 @@ func fun() {local f,mspikerate
    }
    spl=$1
    //weight_sum=$2
-   golgi_spon=$2
-   golgi_spatial_filter_stdev =$3
-   golgi_syn_filter_scale_factor=$4
+   param.golgi_spon=$2
+   param.golgi_spatial_filter_stdev =$3
+   param.golgi_syn_filter_scale_factor=$4
    runtime = startsw()
    golgi[76][0].ClearSpikes()
    tonefreq = cf.x[76]

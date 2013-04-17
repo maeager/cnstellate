@@ -61,17 +61,20 @@ for i=0,99 {
 
 cfhi        = 64000
 cflo        = 200
-dur         = 0.08    //duration of stim (seconds)
-srate       = 100000.0
-stimtdres   = 1/srate
-sg_rate     = 50000
-sg_tdres    = 1/sg_rate
+dur         = 0.08      //sec, duration of stimulus 
+srate       = 1e6       //Hz  
+stimtdres   = 1/srate   //sec
+sg_rate     = 50000     //Hz
+sg_tdres    = 1/sg_rate //sec
 stimdelay   = 0.01      //sec
-stimtype    = 2      //Silence
+stimtype    = 2         //Silence
 reps        = 25
-ANmodel     = 6      //Zilany Bruce model
-species     = 2      //Rat
-nrep        = 1        //nrep is number of reps of stimulus
+ANmodel     = 6         //Zilany Bruce model
+species     = 2         //Rat
+nrep        = 1         //nrep is number of reps of stimulus
+
+RefreshCF()
+whichcell = FindInd(21000)
 
 
 ANFBgr = new Graph()
@@ -194,7 +197,8 @@ proc RatelevelGolgi1(){local i,j,count,sum,runtime,cell,xtime localobj tmp
 	rate_level_graph.exec_menu("View = plot")
 }
 
-
+RefreshCF()
+whichcell = FindInd(21000) 
 
 count			= 0
 tonefreq		= golgi[76][0].cf
