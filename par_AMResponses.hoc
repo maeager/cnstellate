@@ -46,7 +46,7 @@ xopen("par_CochlearNucleus.hoc")         // model set-up
 xopen("par_calcisilag.hoc")
 
 
-xopen("psth.hoc")
+xopen("spike_stats.hoc")
 
 
 RefreshCellParams() // in CochlearNucleus.hoc

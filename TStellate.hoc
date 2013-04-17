@@ -48,7 +48,7 @@ xopen("parameters_TStellate.hoc")
 //--- Setup CN Stellate Network model
 xopen("CochlearNucleus.hoc")         // model set-up
 // xopen("par_CochlearNucleus.hoc")   // parallel model set-up
- xopen("calcisilag.hoc")
+xopen("calcisilag.hoc")
 
  
  use_ball_stick=1
@@ -93,7 +93,7 @@ connect_cells(fileroot)
 connect_CNcells(fileroot)
 xopen("cngui.hoc")
 
-xopen("psth.hoc")
+xopen("spike_stats.hoc")
 xopen("par_experiment_TStellate.hoc")
 
 

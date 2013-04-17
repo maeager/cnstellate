@@ -92,7 +92,7 @@ connect_cells(fileroot)
 connect_CNcells(fileroot)
 xopen("cngui.hoc")
 
-xopen("psth.hoc")
+xopen("spike_stats.hoc")
 xopen("par_experiment_TStellate2.hoc")
 
 

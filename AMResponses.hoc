@@ -25,7 +25,7 @@ xopen("parameters_Responses.hoc")
 //--- Setup CN Stellate Network model
 xopen("CochlearNucleus.hoc")         // model set-up
 xopen("calcisilag.hoc")
-xopen("psth.hoc")
+xopen("spike_stats.hoc")
 xopen("jitter.hoc")
 //Parameters for this optimisation
 xopen("parameters_TStellate.hoc")
@@ -65,7 +65,7 @@ species					= 1 //Cat
 audiogram_file			= "cat_audiogram.txt"
 usesavedfilterbanks     = 1
 ANsoundspath = "/media/data/sounds"  //local sounds path
-nrep         = 1      //nrep is number of reps of stimulus
+nrep         = 1               //nrep is number of reps of stimulus
 cfhi         = 40000
 cflo         = 200
 srate        = 100000.0

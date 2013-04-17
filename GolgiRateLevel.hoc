@@ -191,15 +191,16 @@ proc RatelevelGolgi1(){local i,j,count,sum,runtime,cell,xtime localobj tmp
 
 stimtype     = 1   //tone stimulus
 count        = 0
-dur          = 0.049    //duration of tone segment (seconds)
-dutycycle    = 0.2      //quiet duration = dutycycle*dur
-ramplngth    = 0.001
-srate        = 500000.0  //stimulus sampling rate
-stimtdres    = 1/srate
-sg_rate      = 50000     //spike generator rate
-sg_tdres     = 1/sg_rate
+dur          = 0.049    //sec, 50 ms duration of tone segment 
+dutycycle    = 0.2      //ratio, quiet duration = dutycycle*dur
+ramplngth    = 0.001    //sec
+ANmodel      = 6
+srate        = 500000.0  //Hz, stimulus sampling rate
+stimtdres    = 1/srate   //sec, resolution of AN model
+sg_rate      = 50000     //Hz, spike generator rate
+sg_tdres     = 1/sg_rate //sec, resolution of ANF spikes
 stimdelay    = 0.02      //sec
-reps         = 25        //repetitions
+reps         = 25        //, repetitions
 
 
 objref gr, targetrl, rlst,level,isi,ind
