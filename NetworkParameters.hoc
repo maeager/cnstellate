@@ -35,9 +35,9 @@ public ncol,nrow
 //Golgi model parameters
 public golgi_spatial_filter_variance_LSR,golgi_syn_filter_scale_factor,golgi_spon
 //DS_ClickRecovery and RateLevel 
-public ds_gkltbar,ds_gaba_decay,ds_gaba_rise,ds_gleak,ds_gnabar,ds_gkhtbar,DS_params
+public ds_erev,ds_gkltbar,ds_gaba_decay,ds_gaba_rise,ds_gleak,ds_gnabar,ds_gkhtbar,DS_params
 //TV_Notch and RateLevel
-public offset           // offset in channel units of mean distribution of connections between DS and TV cells
+public offset       // offset in channel units of mean distribution of connections between DS and TV cells
 public tv_erev, tv_gleak
 //TS cell parameters
 public ts_gleak,ts_erev,ts_ghbar,ts_gkabar,ts_gnabar,ts_gkhtbar
@@ -49,11 +49,36 @@ public ts_jitter_sd     // standard deviation in delay of ANF inputs from simila
 public getnetparameters, saveparameters,print2file,show
 objref bw, n, w,delay
 //Default values
-offset=3
-tv_erev=-65
-ts_jitter_sd=0.2
-ts_dend_g=0.001
-ts_dend_e=-65
+offset      = 0
+
+golgi_spatial_filter_variance_LSR = 2  //channel units when N=100, cfhi=48k, cflo=200	
+golgi_syn_filter_scale_factor	  = 1								
+golgi_spon		= 3	
+
+ds_gaba_decay	 = 9   
+ds_gaba_rise	 = 0.7
+ds_erev          =-65
+ds_gnabar        = 0.408307  //2 times default TypeI-II RM model	   
+ds_gkhtbar       = 0.030623   //default I-II RM model
+ds_gkltbar       = 0.0163897	 //default gleak for Type I-II RM model	 
+ds_gleak         = 0.000274146 // default gleak	 
+ds_ghbar         = 0.0004
+
+tv_erev     = -65
+tv_gleak    = 0.0004987
+
+
+ts_jitter_sd = 0.2
+ts_erev      = -55
+ts_gnabar	= 0.23677
+ts_gkhtbar	= 0.0189416	
+ts_gleak    = 0.000473539
+ts_ghbar    = 6.20392e-05
+ts_gkabar   = 0.01539   
+ts_dend_g   = 0.001
+ts_dend_e   =-65
+
+
 
 proc init(){
     nrow = $1  ncol = $2
@@ -70,11 +95,11 @@ proc init(){
 	golgi_syn_filter_scale_factor	= 1								
 	golgi_spon		= 3	
 	
-	
-	ds_gkhtbar                       = 0.030623   //default I-II RM model
-	ds_gkltbar					    = 0.0163897	 //default gleak for Type I-II RM model	 
-	ds_gleak				            = 0.000274146 // default gleak	 
-	ds_gnabar				        = 0.408307  //2 times default TypeI-II RM model	   
+	ds_erev           =-65
+	ds_gkhtbar        = 0.030623   //default I-II RM model
+	ds_gkltbar        = 0.0163897	 //default gleak for Type I-II RM model	 
+	ds_gleak          = 0.000274146 // default gleak	 
+	ds_gnabar         = 0.408307  //2 times default TypeI-II RM model	   
 	
 	tv_gleak     = 0.0004987
     tv_erev      = -70
@@ -82,12 +107,12 @@ proc init(){
 	ts_jitter_sd=0.2
 	ts_gnabar	= 0.23677
 	ts_gkhtbar	= 0.0189416	
-	ts_gleak = 0.000473539
-	ts_erev = -55
-	ts_ghbar = 6.20392e-05
-	ts_gkabar =	0.01539   
-    ts_dend_g=0.001
-    ts_dend_e=-65
+	ts_gleak    = 0.000473539
+	ts_erev     = -55
+	ts_ghbar    = 6.20392e-05
+	ts_gkabar   = 0.01539   
+    ts_dend_g   = 0.001
+    ts_dend_e   =-65
 	
 }
 
@@ -166,6 +191,7 @@ proc print2file(){local irow,jcol
 		file.printf("%s golgi_spon %g\n",$s2,golgi_spon)
 		file.printf("%s ds_gaba_decay			 %g\n",$s2,ds_gaba_decay)
 		file.printf("%s ds_gaba_rise			 %g\n",$s2,ds_gaba_rise)
+		file.printf("%s ds_erev  %g\n",$s2, ds_erev)
 		file.printf("%s ds_gkltbar	 %g\n",$s2,ds_gkltbar)
 		file.printf("%s ds_gkhtbar	 %g\n",$s2,ds_gkhtbar)
 		file.printf("%s ds_gleak  %g\n",$s2,ds_gleak)
@@ -221,6 +247,7 @@ proc save2hocfile(){local irow,jcol localobj file
 		file.printf("param.golgi_spon = %g\n",golgi_spon)
 		file.printf("param.ds_gaba_decay			 = %g\n",ds_gaba_decay)
 		file.printf("param.ds_gaba_rise			 = %g\n",ds_gaba_rise)
+		file.printf("param.ds_erev  = %g\n", ds_erev)		
 		file.printf("param.ds_gkltbar	 = %g\n",ds_gkltbar)
 		file.printf("param.ds_gkhtbar	 = %g\n",ds_gkhtbar)
 		file.printf("param.ds_gleak  = %g\n",ds_gleak)
@@ -274,6 +301,7 @@ proc show(){local irow,jcol
 	printf("// golgi_spon %g\n",golgi_spon)
 	printf("// ds_gaba_decay			 %g\n",ds_gaba_decay)
 	printf("// ds_gaba_rise			 %g\n",ds_gaba_rise)
+	printf("// ds_erev  %g\n", tv_erev)
  	printf("// ds_gkltbar	 %g\n",ds_gkltbar)
 	printf("// ds_gkhtbar	 %g\n",ds_gkhtbar)
 	printf("// ds_gleak_rm  %g\n",ds_gleak)
