@@ -230,3 +230,9 @@ proc SaveSpikes() {local i,j
 }
 
 endtemplate AuditoryNerve
+
+
+// Create Auditory Nerve object
+objref an
+an = new AuditoryNerve()
+
