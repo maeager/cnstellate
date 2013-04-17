@@ -78,66 +78,70 @@ strdef filename, celltype
 //param.getnetparameters("defaultrecurrentparams.dat")
 
 // Create Auditory Nerve object
-objref an
-an = new AuditoryNerve()
+if (object_id(an) == 0){
+  objref an
+  an = new AuditoryNerve()
+}
 
 // Create cells --------------------------------------------------------
 strdef cmd
 //Having trouble with local variables when using execute1
 
 proc create_cells() { local p,i_chan,j_cell
-    if(!object_id(an)){
-        objref an
-        an = new AuditoryNerve()
-    }
+	
+    objref an
+    an = new AuditoryNerve()
+	
     i_chan=0
     j_cell=0
-  quitmodel = 0
- print "Creating cells...."
-  for i_chan = 0, nchannels-1 {
-      if (nTSperchannel > 0) for j_cell = 0, nTSperchannel-1 {
-		  if (use_ball_stick==1){
-			  sprint(cmd, "tstellate[%d][%d] = new CNcell(0,cf.x[%d],%d,1)",i_chan,j_cell,i_chan,i_chan)
-		  } else {
-		      sprint(cmd, "tstellate[%d][%d] = new CNcell(0,cf.x[%d],%d)",i_chan,j_cell,i_chan,i_chan)
-		  }
-		  execute1(cmd)
-    }
-    if (nTVperchannel > 0) for j_cell = 0, nTVperchannel-1 {
-        sprint(cmd, "tuberculoventral[%d][%d] = new CNcell(1,cf.x[%d],%d)",i_chan,j_cell,i_chan,i_chan)
-        execute1(cmd)
-    }
-    if (nDSperchannel > 0) for j_cell = 0, nDSperchannel-1 {
-        sprint(cmd, "dstellate[%d][%d] = new CNcell(2,cf.x[%d],%d)",i_chan,j_cell,i_chan,i_chan)
-        execute1(cmd)
-    }
-    if (nGperchannel > 0) for j_cell = 0, nGperchannel-1 {
-      if ( LSR2GLG == 0 ) {//Golgi filterbank model
-         sprint(cmd, "golgi[%d][%d] = new Golgicell(3,cf.x[%d],%d,param.bw.x[lsr][glg])",i_chan,j_cell,i_chan,i_chan)
-        execute1(cmd)
-
-      } else {  //Golgi Conductance based model
-        sprint(cmd, "golgi[%d][%d] = new CNcell(3,cf.x[%d],%d)",i_chan,j_cell,i_chan,i_chan)
-        execute1(cmd)
-      }
-    }
-    for j_cell = 0, HSRsperchannel-1 {
-      //sprint(celltype,"new SGC_fast(%d,%d,%d)",4,cf.x[i],i)
-      an.HSR[i_chan][j_cell] = new SGC_fast(0.5)
-    }
-    for j_cell = 0, LSRsperchannel-1 {
-      //sprint(celltype,"new ANF(%d,%d,%d)",5,cf.x[i],i)
-      an.LSR[i_chan][j_cell] = new SGC_fast(0.5)
-    }
-
-    p = 100*(i_chan)/(nchannels)
-    printf("\r=== %3d%% ===",p)
-    flushf()
-    doNotify() // Although this slows down cell creation, the
-               // process is so long that we have to allow the
-               // user to quit during the creation.
-  }
- printf("\n")
+	quitmodel = 0
+	print "Creating cells...."
+	for i_chan = 0, nchannels-1 {
+		
+		for j_cell = 0, HSRsperchannel-1 {
+			//sprint(celltype,"new SGC_fast(%d,%d,%d)",4,cf.x[i],i)
+			an.HSR[i_chan][j_cell] = new SGC_fast(0.5)
+		}
+		for j_cell = 0, LSRsperchannel-1 {
+			//sprint(celltype,"new ANF(%d,%d,%d)",5,cf.x[i],i)
+			an.LSR[i_chan][j_cell] = new SGC_fast(0.5)
+		}
+		
+		if (nTSperchannel > 0) for j_cell = 0, nTSperchannel-1 {
+			if (use_ball_stick==1){
+				sprint(cmd, "tstellate[%d][%d] = new CNcell(0,cf.x[%d],%d,1)",i_chan,j_cell,i_chan,i_chan)
+			} else {
+				sprint(cmd, "tstellate[%d][%d] = new CNcell(0,cf.x[%d],%d)",i_chan,j_cell,i_chan,i_chan)
+			}
+			execute1(cmd)
+		}
+		if (nTVperchannel > 0) for j_cell = 0, nTVperchannel-1 {
+			sprint(cmd, "tuberculoventral[%d][%d] = new CNcell(1,cf.x[%d],%d)",i_chan,j_cell,i_chan,i_chan)
+			execute1(cmd)
+		}
+		if (nDSperchannel > 0) for j_cell = 0, nDSperchannel-1 {
+			sprint(cmd, "dstellate[%d][%d] = new CNcell(2,cf.x[%d],%d)",i_chan,j_cell,i_chan,i_chan)
+			execute1(cmd)
+		}
+		if (nGperchannel > 0) for j_cell = 0, nGperchannel-1 {
+			if ( LSR2GLG == 0 ) {//Golgi filterbank model
+				sprint(cmd, "golgi[%d][%d] = new Golgicell(3,cf.x[%d],%d,param.bw.x[lsr][glg])",i_chan,j_cell,i_chan,i_chan)
+				execute1(cmd)
+				
+			} else {  //Golgi Conductance based model
+				sprint(cmd, "golgi[%d][%d] = new CNcell(3,cf.x[%d],%d)",i_chan,j_cell,i_chan,i_chan)
+				execute1(cmd)
+			}
+		}
+		
+		p = 100*(i_chan)/(nchannels)
+		printf("\r=== %3d%% ===",p)
+		flushf()
+		doNotify() // Although this slows down cell creation, the
+        // process is so long that we have to allow the
+        // user to quit during the creation.
+	}
+	printf("\n")
 }
 
 // Connect cells, set synaptic parameters ------------------------------
@@ -1078,8 +1082,7 @@ proc reset_DS_ClickRecovery(){local ii,jj
 			dstellate[ii][jj].soma.gleak_rm = param.ds_gleak
 			dstellate[ii][jj].soma.gkltbar_klt = param.ds_gkltbar
 			dstellate[ii][jj].soma.gkhtbar_rm = param.ds_gkhtbar
-			dstellate[ii][jj].soma.gnabar_rm = param.ds_gnabar
-			
+			dstellate[ii][jj].soma.gnabar_rm = param.ds_gnabar			
 			dstellate[ii][jj].GABAA.tau2 = param.ds_gaba_decay
 			dstellate[ii][jj].GABAA.tau1 = param.ds_gaba_rise
 		}
@@ -1142,7 +1145,6 @@ proc RefreshCellParams(){local ii,jj
 			sprint(cmd,"dstellate[%d][%d].soma.gkltbar_klt   = param.ds_gkltbar",ii,jj) execute1(cmd)
 			sprint(cmd,"dstellate[%d][%d].soma.gnabar_rm  = param.ds_gnabar",ii,jj) execute1(cmd)
 
-			
 			sprint(cmd,"dstellate[%d][%d].GABAA.tau2 = param.ds_gaba_decay",ii,jj) execute1(cmd)
 			sprint(cmd,"dstellate[%d][%d].GABAA.tau1 = param.ds_gaba_rise",ii,jj) execute1(cmd)
 			
