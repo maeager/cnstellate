@@ -28,139 +28,32 @@
 load_file("nrngui.hoc")
 //load_file("par_netpar.hoc")
 //load_file("par_init.hoc")
-
-xopen("Params.hoc")           // default parameters
-xopen("Utilities.hoc")
-xopen("NetworkParameters.hoc")
-xopen("AuditoryNerve.hoc")
-xopen("par_CNcell.tem")      // CN cell template
-xopen("parameters_DS_RateLevel.hoc")     //This model's parameters
+xopen("Params.hoc")           // default parameters of cnstellate
+xopen("Utilities.hoc")        // tools and methods
+xopen("NetworkParameters.hoc")// template for network params
+xopen("AuditoryNerve.hoc")    // template for AN model filterbank and ANFs
+xopen("par_CNcell.tem")       // CN cell templates
+xopen("parameters_DS_RateLevel.hoc") //This model's parameters
 xopen("CochlearNucleus.hoc")         // model set-up
 xopen("cngui.hoc")
+
+
+
+
+//Previous optimisation parameters
+xopen("pvec_Golgi_RateLevel.hoc")
+//xopen("pvec_DS_ClickRecovery.hoc")
+
 
 //--- Setup Auditory and CN Stellate model
 create_cells()
 connect_cells(fileroot)
 connect_CNcells(fileroot)
-//Previous optimisation parameters
-xopen("pvec_Golgi_RateLevel.hoc")
-xopen("pvec_DS_ClickRecovery.hoc")
 
-reset_weights()
-reset_DS_ClickRecovery()
 
-xopen("jitter.hoc")
-//Call:   jitterdelay_DS(param.delay.x[hsr][ds],0.2)
+// reset_weights()
+// reset_DS_ClickRecovery()
 
-// Replacement of connect_cells in Cochlear Nucleus.hoc
-strdef cmd
-proc connect_cells_DS(){local i,p,target,source,low,high,range,channel,sourcechannel
-	
-    print "Connecting cells"
-    sprint(filename,"%s.connect",$s1)
-    outfile.wopen(filename)
-	
-    hsr2tsAMPAlist.remove_all()
-    lsr2tsAMPAlist.remove_all()
-        hsr2dsAMPAlist.remove_all()
-    lsr2dsAMPAlist.remove_all()
-    hsr2glgAMPAlist.remove_all()
-    lsr2glgAMPAlist.remove_all()
-    glg2dsGABAlist.remove_all()
-    glg2tsGABAlist.remove_all()
-    
-	print "HSR->DS"
-	if( ( param.n.getval(hsr,ds) > 0 ) && ( nDSperchannel != 0 ) ){
-		outfile.printf("\n%d %d\n",hsr,ds)
-		channel = whichcell
-		target = 0
-		for i=0, param.n.getval(hsr,ds)-1{
-			//Choose source channel
-			sourcechannel = random.normal(channel,param.bw.getval(hsr,ds)/2)
-			if ((sourcechannel - int(sourcechannel)) > 0.5 ){
-				sourcechannel = 1+int(sourcechannel)
-			} else { 
-				sourcechannel = int(sourcechannel) 
-			}
-			if (sourcechannel <=0 ) sourcechannel=0
-			if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
-			//Choose random source from available cells
-			source = random.discunif(0,HSRsperchannel-1)
-			//print "HSR[",sourcechannel,"][",source,"] connected to DS[",channel,"][",target,"]"
-			sprint(cmd, "dstellate[%d][%d].soma hsr2dsAMPAlist.append( new NetCon( an.HSR[%d][%d],  dstellate[%d][%d].AMPA,thresh,param.delay.getval(hsr,ds), param.w.getval(hsr,ds)))",channel,target,sourcechannel,source,channel,target)
-			execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
-			outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
-			
-		}
-		
-		p = 100*(channel)/(nchannels)
-		printf("\r=== %3d%% ===",p)
-		flushf()
-		doNotify() // Although this slows down cell creation, the
-        // process is so long that we have to allow the
-        // user to quit during the creation.
-		
-	}
-	print "LSR->DS"
-	if( ( param.n.getval(lsr,ds) > 0 ) && ( nDSperchannel != 0 ) ){
-		outfile.printf("\n%d %d\n",lsr,ds)
-		channel = whichcell
-		target = 0
-		for i=0, param.n.getval(lsr,ts)-1{
-			//Choose source channel
-			sourcechannel = random.normal(channel,param.bw.getval(lsr,ds)/2)
-			if ((sourcechannel - int(sourcechannel)) > 0.5 ){
-				sourcechannel = 1+int(sourcechannel)
-			} else { 
-				sourcechannel = int(sourcechannel) 
-			}
-			if (sourcechannel <=0 ) sourcechannel=0
-			if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
-			//Choose random source from available cells
-			source = random.discunif(0,LSRsperchannel-1)
-			//print "LSR[",sourcechannel,"][",source,"] connected to DS[",channel,"][",target,"]"
-			sprint(cmd, "dstellate[%d][%d].soma lsr2dsAMPAlist.append( new NetCon( an.LSR[%d][%d],  dstellate[%d][%d].AMPA, thresh,param.delay.getval(lsr,ds), param.w.getval(lsr,ds)))",channel,target,sourcechannel,source,channel,target)
-			execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
-			outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
-		}
-		p = 100*(channel)/(nchannels)
-		printf("\r=== %3d%% ===",p)
-		flushf()
-		doNotify() // Although this slows down cell creation, the
-		// process is so long that we have to allow the
-		// user to quit during the creation.
-	}
-	print "GLG->DS"
-	if( ( param.n.getval(glg,ds) > 0 ) && ( nDSperchannel != 0 ) && ( nGperchannel != 0 ) ){
-		outfile.printf("\n%d %d\n",glg,ds)
-		channel = whichcell
-		target = 0
-		for i=0, param.n.getval(glg,ds)-1{
-			//Choose source channel
-			sourcechannel = random.normal(channel,param.bw.getval(glg,ds)/2)
-			if ((sourcechannel - int(sourcechannel)) > 0.5 ){
-				sourcechannel = 1+int(sourcechannel)
-			} else { 
-				sourcechannel = int(sourcechannel) 
-			}
-			if (sourcechannel <=0 ) sourcechannel=0
-			if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
-			//Choose random source from available cells
-			source = random.discunif(0,nGperchannel-1)
-			// print "GLG[",sourcechannel,"][",source,"] connected to "DS[",channel,"][",target,"]"
-			if (LSR2GLG ==1 ) {
-				sprint(cmd, "golgi[%d][%d].soma glg2dsGABAlist.append( new NetCon(&v(0.5),dstellate[%d][%d].GABAA,thresh,param.delay.getval(glg,ds), param.w.getval(glg,ds)))",sourcechannel, source, channel, target )
-				execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
-			} else {
-				sprint(cmd, "glg2dsGABAlist.append( new NetCon( golgi[%d][%d].sg,dstellate[%d][%d].GABAA, thresh,param.delay.getval(glg,ds), param.w.getval(glg,ds)))",sourcechannel, source ,channel ,target )
-				execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
-			}
-			outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
-		}
-	}
-	outfile.close
-	jitterdelay_DS(param.delay.x[hsr][ds],1)
-}
 
 //Setup this experiment
 xopen("par_experiment_DS_RateLevel.hoc")
@@ -168,17 +61,15 @@ xopen("par_experiment_DS_RateLevel.hoc")
 
 //--- Setup Auditory model
 //create_cells()
-objref dstellate[nchannels][1]
+//objref dstellate[nchannels][1]
 
-dstellate[ArnottFig3_CFpos][0] = new CNcell(2,cf.x[ArnottFig3_CFpos],ArnottFig3_CFpos)
-dstellate[ArnottFig12_CFpos][0] = new CNcell(2,cf.x[ArnottFig12_CFpos],ArnottFig12_CFpos)
+//dstellate[ArnottFig3_CFpos][0] = new CNcell(2,cf.x[ArnottFig3_CFpos],ArnottFig3_CFpos)
+//dstellate[ArnottFig12_CFpos][0] = new CNcell(2,cf.x[ArnottFig12_CFpos],ArnottFig12_CFpos)
 
 //connect_cells_DS(fileroot)
-reset_DS_RateLevel()
-xopen("cngui.hoc")
-//reset_DS_RateLevel()
+RefreshCellParams()
 
-//create_connect_TV(fileroot)
+
 
 //overload SaveSpikes from CochlearNucleus.hoc
 proc SaveSpikes(){local ii 
@@ -194,72 +85,29 @@ proc ClearSpikes(){local ii,jj
 	dstellate[ArnottFig3_CFpos][0].ClearSpikes()
 	dstellate[ArnottFig12_CFpos][0].ClearSpikes()
 	ClearInputSpikes()
-
 	print "Cleared CN cell Spikes"
 }
 
 
-proc multi_run(){local irep,xtime
-    xtime = startsw()
-    ClearSpikes()
-    for irep=0,reps-1{
-		GenInputSpikes()
-		print irep
-		//run()
-		stdinit()
-		continuerun(tstop)
-        SaveSpikes()
-    }
-    print "Multi_run time:", startsw() - xtime
-}
+// proc multi_run(){local irep,xtime
+//     xtime = startsw()
+//     ClearSpikes()
+//     for irep=0,reps-1{
+// 		GenInputSpikes()
+// 		print irep
+// 		//run()
+// 		stdinit()
+// 		continuerun(tstop)
+//         SaveSpikes()
+//     }
+//     print "Multi_run time:", startsw() - xtime
+// }
 
 
 
-
-
-//////////Default Parameters for DS_RateLevel///////////////
-
-ANsoundspath	    = "../../sounds"
-cfhi				= 48000
-cflo				= 200
+whichcell           = ArnottFig3_CFpos
 RefreshCF()
-dur                 = 0.049
-ramplngth			= 0.002
-stimdelay			= 0.02   //sec, 20 msec
-dutycycle                       = 0.2 //, usually 0.2
-reps				= 25     //
-ANmodel				= 6      // Zilany Bruce model version 3
-species				= 1      // Cat
-ANFBgr					= new Graph()
-usesavedfilterbanks		= 1
-srate					= 500000
-stimtdres				= 1/srate
-sg_rate					= 50000
-sg_tdres				= 1/sg_rate
-whichcell = ArnottFig3_CFpos
 
-proc DS_BFtone(){
-	stimtype	= 1     // Pure Tone
-	dur		= 0.049  // duration of stim (seconds)
-	tonefreq        = cf.x[whichcell] //Hz, unit 1 CF
-	GetAudiogramData()
-	RefreshParameters()
-	ANFilterBankRun()
-//  CheckFilterbank()
-//  SetInputRates()
-}
-
-proc DS_Noise(){
-	stimtype			= 6     //BBN 
-	dur				    = 0.049  // duration of stim (seconds)
-	tstop				= 70    // ms
-	spl				    = 20     //dB SPL
-	GetAudiogramData()
-	RefreshParameters()
-	ANFilterBankRun()
-//  CheckFilterbank()
-//  SetInputRates()
-}
 
 DS_BFtone()
 SetInputRates()
@@ -269,64 +117,9 @@ GenInputSpikes()
 //  CheckFilterbank()
 //  SetInputRates()
 
-/*
-proc DS_2tone(){
-	stimtype			= 9     //TwoTone
-	dur				    = 0.049  // duration of stim (seconds)
-	tstop				= 70    // ms
-	spl				    = 20     //dB SPL
-	tonefreq            = 6600 //Hz, unit 1 CF
-	tone2freq           = 9350 //Hz ,unit 2 
-	tone2spl            = spl // set the second tone's sound level to the same as the first
-	GetAudiogramData()
-	RefreshParameters()
-	ANFilterBankRun()
-//  CheckFilterbank()
-//  SetInputRates()
-}
-
-*/
-
-/*
-
-
-//xopen("TV_Notch.ses")
-
-objref fitgr,gg
-//DS rate-level  Optimisation
-objref gr,target_ratelevel, dslist, fvec,dvec,ivec,weighting,errorvec
-objref anrate[nchannels],rate_level_graph
-gr = new Graph()
-
-
-//
-// Fitness/error function
-//
-proc plot_fitgr(){
-    objref fitgr
-    fitgr = new Graph()
-//    expected_notch[1].plot(fitgr,freq1_notch,4,1)
-//    CNrate[tv].plot(fitgr,cf,3,1)
-//    type2_1oct_sweep[1].plot(fitgr,freq_1oct,5,1)
-//    fitgr.exec_menu("View = plot")
-}
-
-objref templevel,indlevel,errorvec,refvec
-
-reps=20
-strdef origfileroot
-origfileroot = fileroot
-
-error=0
-strdef datestr,grlbl
-objref ivec //,pval[NPARAMS]
-ivec= new Vector()
-ivec.append(3,9,7,5,1,2,8,6,4,0,10,11,12,13)
 
 
 
-
-*/
 
 
 objref ind,isi
@@ -449,50 +242,6 @@ proc Ratelevel(){local ispl,i,j,count,sum,runtime,cell,xtime localobj tmp
 
 
 /*
-TV_BFtone()
-level=new Vector(20)
-level.indgen().mul(3).add(20) //20:3:60
-Ratelevel()
-TV_Noise()
-level=new Vector(20)
-level.indgen().mul(2).add(50)
-Ratelevel()
-
-
-
-for i = 0, nchannels-1 {
-	dstellate[i][0].soma.gnabar_rm=0.408307 
-	dstellate[i][0].soma.gkhtbar_rm=0.030623 
-	dstellate[i][0].soma.gleak_rm=0.000274146 
-	dstellate[i][0].soma.erev_rm= -65 
-	dstellate[i][0].soma.ghbar_rm=0.000427944
-	dstellate[i][0].soma.gkltbar_klt=0.0163897
-}
-
-
-//Initial values
-param.w.x[lsr][tv] = 0.0021707
-param.w.x[hsr][tv] = 0.0006168
-param.w.x[glg][ds]	= 0.000532	
-param.w.x[hsr][ds]	= 0.00127  
-param.w.x[lsr][ds]	= 0.00309  
-param.w.x[tv][ds]	= 0.00  
-param.w.x[ds][tv]	= 0.0018  
-reset_weights()
-
-
-
-//QuickRun()
-//spl=50
-//sprint(fileroot,"%s_spl50",origfileroot)
-//param.w.x[hsr][tv]=-0.0002
-//param.w.x[lsr][tv]*=2
-objref origpvec
-//set_pvec()
-//origpvec = pvec.c
-
-
-
 DS_BFtone()
 level=new Vector(20)
 level.indgen().mul(20).add(20) //20:20:100
@@ -513,7 +262,7 @@ error2=0
 error3=0
 error4=0
 
-proc show_fit_curves(){
+proc show_fitness_curves(){
 	level=new Vector(5)
 	level.indgen().mul(20).add(20) //20:20:100
 	target_rate_level[0] = set_target_rate_level(Arnott2004_Fig3_Tone)
@@ -531,8 +280,8 @@ proc show_fit_curves(){
 	 fitgr.exec_menu("View = plot")
 }
 
-
-func DS_RateLevel_err(){local jj,pp,xtime
+objref rate_level_weighting
+func DS_RateLevel_err(){local ii,jj,pp,xtime
     xtime=startsw()
     //check for bad values
     for pp=0,NPARAMS-1 {
@@ -549,21 +298,26 @@ func DS_RateLevel_err(){local jj,pp,xtime
 		execute1(cmd)
     }
 	//Rearrange synapses is using weight parameters
-	//connect_cells(fileroot)  connect_CNcells(fileroot)
+	// connect_cells(fileroot)  
+	// connect_CNcells(fileroot)
 	connect_cells_DS(fileroot)
-	//reset_weights()
+	// reset_weights()
 
 	DS_BFtone()
 	level=new Vector(15)
 	level.indgen().mul(5).add(30) //20:10:100
 	Ratelevel()
+	
 	if (whichcell == ArnottFig3_CFpos){
 		target_rate_level[0] =set_target_rate_level(Arnott2004_Fig3_Tone)
 	} else {
 		target_rate_level[0] =set_target_rate_level(Arnott2004_Fig12_Tone)
 		
 	}
-	error1 = sqrt(dsrate[whichcell].meansqerr(target_rate_level[0]))
+	rate_level_weighting = new Vector(15,1)
+	for ii=9,14 rate_level_weighting.x[ii]=3
+	
+	error1 = sqrt(dsrate[whichcell].meansqerr(target_rate_level[0],rate_level_weighting))
 
 	toneRL[0] =  level.c
 	toneRL[1] =  dsrate[whichcell].c
@@ -580,9 +334,12 @@ func DS_RateLevel_err(){local jj,pp,xtime
 		target_rate_level[2] =set_target_rate_level(Arnott2004_Fig3_Noise)
 	} else {
        target_rate_level[2] =set_target_rate_level(Arnott2004_Fig12_Noise)
-	}
-	error3 = sqrt(dsrate[whichcell].meansqerr(target_rate_level[2]))
-        noiseRL[0] =	level.c
+   }
+	rate_level_weighting = new Vector(12,1)
+	for ii=7,11 rate_level_weighting.x[ii]=3
+   
+   error3 = sqrt(dsrate[whichcell].meansqerr(target_rate_level[2],rate_level_weighting))
+    noiseRL[0] =	level.c
 	noiseRL[1] =  dsrate[whichcell].c
 	noiseRL[2] =  grate[whichcell].c
 	noiseRL[3] =  hsrrate[whichcell].c
@@ -601,22 +358,21 @@ func DS_RateLevel_err(){local jj,pp,xtime
      target_rate_level[2].plot(fitgr,level,1,1)
      //target_rate_level[3].plot(fitgr,level,2,1)
 
-     sprint(grlbl,"Error1 = %g", error1)
+     sprint(grlbl,"Tone Error = %g", error1)
      fitgr.label(0.05,0.85,grlbl)
-	 sprint(grlbl,"Error2 = %g", error2)
-	 fitgr.label(0.05,0.75,grlbl)
+//	 sprint(grlbl,"Error2 = %g", error2)
+//	 fitgr.label(0.05,0.75,grlbl)
 	 sprint(grlbl,"Error3 = %g", error3)
 	 fitgr.label(0.05,0.65,grlbl)
-	 sprint(grlbl,"Error4 = %g", error4)
-     fitgr.label(0.05,0.55,grlbl)
+	// sprint(grlbl,"Error4 = %g", error4)
+    // fitgr.label(0.05,0.55,grlbl)
 	 
 	 for jj=0,NPARAMS-1{
 		sprint(grlbl,"%s = %g", pvec_name.object(jj).s,pvec.x[jj])
 		fitgr.label(0.65,0.45-0.05*jj,grlbl)
     }
 	fitgr.exec_menu("View = plot")	
-	doNotify()
-	
+	doNotify()	
 	sprint(fname,"%s/error_out.dat",fileroot)
 	file.aopen(fname)
 	for pp=0,NPARAMS-1 {
@@ -656,13 +412,11 @@ func DS_RateLevel_err2(){local jj,pp,xtime
 	level.indgen().mul(5).add(30) //20:10:100
 	Ratelevel()
 	if (whichcell == ArnottFig3_CFpos){
-		target_rate_level[0] =set_target_rate_level(Arnott2004_Fig3_Tone)
+		target_rate_level[0] = set_target_rate_level(Arnott2004_Fig3_Tone)
 	} else {
-		target_rate_level[0] =set_target_rate_level(Arnott2004_Fig12_Tone)
-		
+		target_rate_level[0] = set_target_rate_level(Arnott2004_Fig12_Tone)		
 	}
 	error1 = dsrate[whichcell].c.sub(target_rate_level[0]).div(target_rate_level[0].c.add(0.1)).abs().mean()
-
 	toneRL[0] =  level.c
 	toneRL[1] =  dsrate[whichcell].c
 	toneRL[2] =  grate[whichcell].c
@@ -734,7 +488,8 @@ func DS_RateLevel_err2(){local jj,pp,xtime
 proc QuickRun(){
     set_pvec()
     pvec.printf
-    print DS_RateLevel_err(0,&pvec.x[0])
+    sprint(cmd,"%s(0,&pvec.x[0])",error_fn)
+	execute1(cmd)
 }
 
 proc runprax2(){
@@ -743,12 +498,12 @@ proc runprax2(){
     sprint(cmd,"touch %s/error_out.dat",fileroot)
     system(cmd)
     attr_praxis(0.01, 0.01, 3)
-    fit_praxis(NPARAMS,"DS_RateLevel_err2",&pvec.x[0])
+    fit_praxis(NPARAMS,error_fn,&pvec.x[0])
 }
 
 proc runprax(){
 	attr_praxis(0.001, 0.001, 3)
-	fit_praxis(NPARAMS,"DS_RateLevel_err2",&pvec.x[0])
+	fit_praxis(NPARAMS,error_fn,&pvec.x[0])
 }
 
 strdef origfileroot
@@ -759,11 +514,12 @@ datestr=""
 strdef cmd
 cmd=""
 error=0
+
 proc printprax2(){local pp,ii,pp2,error
 //Output model data with best parameters
   sprint(cmd,"mkdir -p %s",fileroot)
   system(cmd)
-error=DS_RateLevel_err2(0,&pvec.x[0])
+error=DS_RateLevel_err(0,&pvec.x[0])
 print error
 system("date",datestr)
 print datestr
@@ -804,12 +560,7 @@ for i=0,toneRL[0].size-1{
 }		
 file.printf("#Other values \n")
  file.printf("#tonefreq = %g\n",cf.x[whichcell])
-// file.printf("#  halfoct_compress = %g\n",  halfoct_compress)
-// file.printf("#  halfoct_shift = %g\n",  halfoct_shift)
-// file.printf("# oct_compress = %g\n", oct_compress)
-// file.printf("# oct_shift  = %g\n", oct_shift )
-// file.printf("# centrepoint = %g\n",centrepoint)
-//file.printf("# DS erev = %g\n",tuberculoventral[0][0].soma.erev_rm)
+
 param.print2file(file,"#") //let Network Parameters print the struct
 file.close()
 }
@@ -922,14 +673,20 @@ proc Rerun_ANmodel_noise(){
 
 
 whichcell=ArnottFig12_CFpos
+error_fn = "DS_RateLevel_err"
+param.ds_gnabar  = 0.408307/2
+param.ds_gkltbar = 0.0163897
 
-    dstellate[whichcell][0].soma.gnabar_rm=0.408307 
-	dstellate[whichcell][0].soma.gkhtbar_rm=0.030623 
-	dstellate[whichcell][0].soma.gleak_rm=0.000274146/2 
-	dstellate[whichcell][0].soma.erev_rm=-70 
+	param.ds_gkhtbar = 0.030623 
+	param.ds_gleak   = 0.000274146 
+	param.ds_erev    =-65 
 	
-	reps=10	
+	reps=25	
 
-	xopen("DS_RateLevel/pvec_DS_RateLevel.hoc")	
-	QuickRun()	
+	//xopen("DS_RateLevel/pvec_DS_RateLevel.hoc")	
+	//QuickRun()	
 	//	run_multipleprax()
+//	runprax()
+//	reps=50
+//	printprax2()
+ANsoundspath="../sounds"	
