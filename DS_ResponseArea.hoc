@@ -1,8 +1,7 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
 /*
  *   DS_ResponseArea.hoc
- *
- * 
  *   
  *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
  *
@@ -25,21 +24,19 @@
 load_file("nrngui.hoc")
 //load_file("par_netpar.hoc")
 //load_file("par_init.hoc")
-thresh=-20
 
-      xopen("Params.hoc")
-      xopen("Utilities.hoc")
-      xopen("NetworkParameters.hoc")
-      xopen("AuditoryNerve.hoc")
-      xopen("par_CNcell.tem")      // CN cell template
-      xopen("parameters_DS_ResponseArea.hoc")           // model parameters
-      xopen("CochlearNucleus.hoc")         // model set-up
-      xopen("cngui.hoc")
-
+xopen("Params.hoc")
+xopen("Utilities.hoc")
+xopen("NetworkParameters.hoc")
+xopen("AuditoryNerve.hoc")
+xopen("par_CNcell.tem")      // CN cell template
+xopen("parameters_DS_ResponseArea.hoc")           // model parameters
+xopen("CochlearNucleus.hoc")         // model set-up
+xopen("cngui.hoc")
 
 
 proc SaveSpikes(){local i
-    //an.SaveSpikes()
+   //an.SaveSpikes()
    //for i=0,99
    i=76
    golgi[i][0].SaveSpikes()
@@ -48,10 +45,6 @@ proc ClearSpikes(){local i
    an.ClearSpikes()
    for i=0,99 golgi[i][0].ClearSpikes()
 }
-
-
-
-
 
 objref an,golgi[nchannels][1],g, dstellate[nchannels][1]
 
@@ -179,14 +172,6 @@ if( ( param.n.getval(glg,ds) > 0 ) && ( nDSperchannel != 0 ) && ( nGperchannel !
      }}
 outfile.close
 }
-
-//Previous optim parameters
-
-golgi_spon								= 3.7271
-weight_sum_HSR							= 0.04872
-weight_sum_LSR							= 0.516646
-golgi_spatial_filter_variance_LSR		= 2.48372
-
 
 
 //--- Setup Auditory model

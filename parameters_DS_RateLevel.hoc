@@ -35,18 +35,19 @@ nDSperchannel   = 1   // number of DS cells in each freq channel
 numDS   = nchannels*nDSperchannel   // total number of DS cells
 nGperchannel   = 1   // number of Golgi cells in each freq channel
 numG   = nchannels*nGperchannel   // total number of Golgi cells
-HSRsperchannel  =   40
+HSRsperchannel  =   50
 MSRsperchannel  =   0
-LSRsperchannel  =   20
+LSRsperchannel  =   30
 seed        = 0         // seed for random number generator
 thresh      = -20       // mV   // threshold for detecting spikes
 
 
 strdef fileroot
 sprint(fileroot,"DS_RateLevel") // root for output filenames
-system("mkdir DS_RateLevel")
-inputnumber  = 1         // fixed input file
-ttrans       = 20   // ms   // when calculating statistics, ignore
+system("[ ! -d DS_RateLevel ] && mkdir DS_RateLevel")
+
+ttrans       = 20   // ms   
+            // when calculating statistics, ignore
             // spikes occuring before this time
 cvode.active(0)
 dt           = 0.05   //ms
@@ -75,64 +76,136 @@ secondorder  = 2      // Crank-Nickolson integration method
 
 
 //Optimisation parameters
-print "Optimisation parameters"
+print "Optimisation parameters for DS RateLevel"
 xopen("pvec.hoc")
+
+
+proc append_num_lsrds_connections(){
+	add_opt_param(NPARAMS,0.045,"param.n.x[lsr][ds]",1000,0.001,0.4)	
+}
+
+proc append_num_hsrds_connections(){
+	add_opt_param(NPARAMS,0.080,"param.n.x[hsr][ds]",1000,0.001,0.4)
+}
+
+proc append_num_tvds_connections(){
+	add_opt_param(NPARAMS,0.015,"param.n.x[tv][ds]",1000,0.001,0.1)
+}
+
+proc append_num_glgds_connections(){
+	add_opt_param(NPARAMS,0.005,"param.n.x[glg][ds]",1000,0.001,0.1)
+}
+
+proc append_weight_lsrds(){
+    add_opt_param(NPARAMS,0.003,"param.w.x[lsr][ds]",1,0.0000001,0.1)
+}
+proc append_weight_hsrds(){
+    add_opt_param(NPARAMS,0.0025,"param.w.x[hsr][ds]",1,0.0000001,0.1)
+}
+proc append_weight_tvds(){
+    add_opt_param(NPARAMS,0.000130,"param.w.x[tv][ds]",1,0.0000001,0.1)
+}
+
+proc append_weight_glgds(){
+    add_opt_param(NPARAMS,0.000130,"param.w.x[glg][ds]",1,0.0000001,0.1)
+}
+
+
+//DS Cell params
+proc append_ds_soma_erev(){ // Reversal potential
+    add_opt_param(NPARAMS,0.065 ,"param.ds_erev",-1000,0.030,0.080)
+} 
+
+proc append_ds_ghbar(){ 
+	add_opt_param(NPARAMS,6.20392e-05,"param.ds_ghbar",1,5e-06  ,0.0005)
+}
+proc append_ds_gkltbar(){
+	add_opt_param(NPARAMS,0.01539,"param.ds_gkabar",1,5e-03  ,0.05)
+}
+proc append_gleak(){
+	//Leak conductance effects Input resistance and Membrane time constant
+	add_opt_param(NPARAMS,0.000473539,"param.ds_gleak",1,5e-05  ,0.005)
+}
+
+proc append_ds_gaba_rise(){
+	add_opt_param(NPARAMS,0.0007,"param.ds_gaba_rise",1,1e-05  ,0.01)
+}
+
+proc append_ds_gaba_decay(){
+	add_opt_param(NPARAMS,0.009,"param.ds_gaba_decay",1000,1e-05,0.05)
+}
+
+proc append_ds_dend_erev(){
+	// Reversal potential in dendrite
+    add_opt_param(NPARAMS,0.065 ,"param.ds_e",-1000,0.040,0.080)
+} 
+
+
 NPARAMS=6
-objref pvec,fvec,pvec_ranges,pvec_name,pvec_factor
-pvec = new Vector(NPARAMS) //contains the parameters to be fitted
-pvec_ranges= new Matrix(NPARAMS,2) // (min,max) pairs for each param
-pvec_name = new List() //names of parameters in String list
-pvec_factor = new Vector(NPARAMS,1)
-//Initial values
-pvec.x[0] = 0.001    //initial values will come from pvec_DS_ClickRecovery results
-pvec.x[1] = 0.002
-pvec.x[2] = 0.003
-//pvec.x[3] = 0.001592   //nstomho(2)*qt()
-//pvec.x[4] = 0.00095
-//pvec.x[5] = 0.0007
-//pvec.x[6] = 0.0008
-//pvec_factor.x[3] = 10
-//pvec_factor.x[4] = 10000
-//pvec_factor.x[5] = 1000
+init_params(NPARAMS)
+append_num_lsrds_connections()
+append_num_hsrds_connections()
+append_num_glgds_connections()
+append_weight_lsrds()
+append_weight_hsrds()
+append_weight_glgds()
 
-pvec_name.append(new String("param.w.x[glg][ds]"))
-pvec_name.append(new String("param.w.x[hsr][ds]"))
-pvec_name.append(new String("param.w.x[lsr][ds]"))
-pvec_name.append(new String("param.n.x[lsr][ds]"))	    
-  pvec.x[3] = 0.020 
-  pvec_factor.x[3] =1000	
-  pvec_ranges.x[3][1]=0.2  
-  pvec_ranges.x[3][0]=0.001
-pvec_name.append(new String("param.n.x[hsr][ds]"))	    
-  pvec.x[4] =   0.020 
-  pvec_factor.x[4] = 1000	
-  pvec_ranges.x[4][1]=0.2  
-  pvec_ranges.x[4][0]=0.001
-pvec_name.append(new String("param.n.x[glg][ds]"))	    
-  pvec.x[5] =   0.020 
-  pvec_factor.x[5] = 1000	
-  pvec_ranges.x[5][1]=0.2  
-  pvec_ranges.x[5][0]=0.001
 
-//pvec_name.append(new String("param.ds_gkltbar"))
-//pvec_name.append(new String("gaba_decay"))
-//pvec_name.append(new String("gaba_rise"))
-//pvec_name.append(new String("param.ds_gleak_rm"))
+// objref pvec,fvec,pvec_ranges,pvec_name,pvec_factor
+// pvec = new Vector(NPARAMS) //contains the parameters to be fitted
+// pvec_ranges= new Matrix(NPARAMS,2) // (min,max) pairs for each param
+// pvec_name = new List() //names of parameters in String list
+// pvec_factor = new Vector(NPARAMS,1)
+// //Initial values
+// pvec.x[0] = 0.001    //initial values will come from pvec_DS_ClickRecovery results
+// pvec.x[1] = 0.002
+// pvec.x[2] = 0.003
+// //pvec.x[3] = 0.001592   //nstomho(2)*qt()
+// //pvec.x[4] = 0.00095
+// //pvec.x[5] = 0.0007
+// //pvec.x[6] = 0.0008
+// //pvec_factor.x[3] = 10
+// //pvec_factor.x[4] = 10000
+// //pvec_factor.x[5] = 1000
 
-//min
- for i=0,NPARAMS-1 pvec_ranges.x[i][0]= 0.000001
-//max
- for i=0,NPARAMS-1 pvec_ranges.x[i][1]= 0.03
+// pvec_name.append(new String("param.w.x[glg][ds]"))
+// pvec_name.append(new String("param.w.x[hsr][ds]"))
+// pvec_name.append(new String("param.w.x[lsr][ds]"))
+// pvec_name.append(new String("param.n.x[lsr][ds]"))	    
+//   pvec.x[3] = 0.020 
+//   pvec_factor.x[3] =1000	
+//   pvec_ranges.x[3][1]=0.2  
+//   pvec_ranges.x[3][0]=0.001
+// pvec_name.append(new String("param.n.x[hsr][ds]"))	    
+//   pvec.x[4] =   0.020 
+//   pvec_factor.x[4] = 1000	
+//   pvec_ranges.x[4][1]=0.2  
+//   pvec_ranges.x[4][0]=0.001
+// pvec_name.append(new String("param.n.x[glg][ds]"))	    
+//   pvec.x[5] =   0.020 
+//   pvec_factor.x[5] = 1000	
+//   pvec_ranges.x[5][1]=0.2  
+//   pvec_ranges.x[5][0]=0.001
+
+// //pvec_name.append(new String("param.ds_gkltbar"))
+// //pvec_name.append(new String("gaba_decay"))
+// //pvec_name.append(new String("gaba_rise"))
+// //pvec_name.append(new String("param.ds_gleak_rm"))
+
+// //min
+//  for i=0,NPARAMS-1 pvec_ranges.x[i][0]= 0.000001
+// //max
+//  for i=0,NPARAMS-1 pvec_ranges.x[i][1]= 0.03
  
- pvec_ranges.x[3][1]=0.2  
-  pvec_ranges.x[3][0]=0.001
-  pvec_ranges.x[4][1]=0.2  
-  pvec_ranges.x[4][0]=0.001
+//  pvec_ranges.x[3][1]=0.2  
+//   pvec_ranges.x[3][0]=0.001
+//   pvec_ranges.x[4][1]=0.2  
+//   pvec_ranges.x[4][0]=0.001
   
 
-  pvec_factor.x[5] = 1000	
-  pvec_ranges.x[5][1]=0.2  
-  pvec_ranges.x[5][0]=0.001
+//   pvec_factor.x[5] = 1000	
+//   pvec_ranges.x[5][1]=0.2  
+//   pvec_ranges.x[5][0]=0.001
   
 
 
@@ -154,3 +227,35 @@ pvec_name.append(new String("param.n.x[glg][ds]"))
 // add_param( 5, 0.0007, "gaba_rise",         1000, 0.000001, 0.03)
 // add_param( 6, 0.0008, "param.ds_gleak_rm",1,    0.000001, 0.03)
 
+
+
+
+proc DS_optim_param_panel(){
+	xpanel("D stellate Optimisation Param")
+	xvalue("NPARAMS")
+	xbutton("Initialise pvec","init_params(NPARAMS)")
+	xbutton("Include ds_gleak","append_gleak()")
+	xbutton("Include ds_erev","append_ds_erev()")
+	xbutton("Include ds_ghbar","append_ghbar()")
+	xbutton("Include ds_gkltbar","append_gkltbar()")
+	xbutton("Include ds_gaba_decay","append_ds_gaba_decay()")
+	xbutton("Include ds_gaba_rise","append_ds_gaba_rise()")
+	xbutton("Include ds_jitter_sd","append_ds_jitter_sd()")
+	
+	xbutton("Include w.x[hsr][ds]","append_weight_hsrds()")
+	xbutton("Include w.x[lsr][ds]","append_weight_lsrds()")
+//	xbutton("Include w.x[ds][ds]","append_weight_dsds()")
+	xbutton("Include w.x[tv][ds]","append_weight_tvds()")
+	xbutton("Include w.x[glg][ds]","append_weight_glgds()")
+	
+	xbutton("Include n.x[hsr][ds]","append_num_hsrds_connections()")
+	xbutton("Include n.x[lsr][ds]","append_num_lsrds_connections()")
+//	xbutton("Include n.x[ds][ds]","append_num_dsds_connections()")
+	xbutton("Include n.x[tv][ds]","append_num_tvds_connections()")
+	xbutton("Include n.x[glg][ds]","append_num_glgds_connections()")
+	xbutton("pvec to params","set_params()")
+	xbutton("params to pvec","set_pvec()")
+	xbutton("Quick run","QuickRun()")	
+	xpanel() 
+}
+DS_optim_param_panel()
