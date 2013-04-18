@@ -112,32 +112,32 @@ proc append_weight_glgds(){
 
 
 //DS Cell params
-proc append_ds_soma_erev(){ // Reversal potential
-    add_opt_param(NPARAMS,0.065 ,"param.ds_erev",-1000,0.030,0.080)
-} 
-
+//Initial values for default dstellate model diam=21 um
 proc append_ds_ghbar(){ 
-	add_opt_param(NPARAMS,6.20392e-05,"param.ds_ghbar",1,5e-06  ,0.0005)
+	add_opt_param(NPARAMS,0.213972,"param.ds_ghbar",1e-3, 2e-3 ,2)
+}
+proc append_ds_gnabar(){ 
+	add_opt_param(NPARAMS,0.408307,"param.ds_gnabar",1,0.15,0.6)
 }
 proc append_ds_gkltbar(){
-	add_opt_param(NPARAMS,0.01539,"param.ds_gkabar",1,5e-03  ,0.05)
+	add_opt_param(NPARAMS,0.0163897,"param.ds_gkltbar",1,0.001,0.04)
 }
-proc append_gleak(){
+proc append_ds_gleak(){
 	//Leak conductance effects Input resistance and Membrane time constant
-	add_opt_param(NPARAMS,0.000473539,"param.ds_gleak",1,5e-05  ,0.005)
+	add_opt_param(NPARAMS,0.274146,"param.ds_gleak",1e-3,5e-2,5)
 }
 
 proc append_ds_gaba_rise(){
-	add_opt_param(NPARAMS,0.0007,"param.ds_gaba_rise",1,1e-05  ,0.01)
+	add_opt_param(NPARAMS,0.7,"param.ds_gaba_rise",1,0.1  ,1.5)
 }
 
 proc append_ds_gaba_decay(){
-	add_opt_param(NPARAMS,0.009,"param.ds_gaba_decay",1000,1e-05,0.05)
+	add_opt_param(NPARAMS,0.009,"param.ds_gaba_decay",1000,2e-3,0.05)//2 to 50 ms
 }
 
 proc append_ds_dend_erev(){
 	// Reversal potential in dendrite
-    add_opt_param(NPARAMS,0.065 ,"param.ds_e",-1000,0.040,0.080)
+    add_opt_param(NPARAMS,0.065 ,"param.ds_e",-1000,0.040,0.080)//
 } 
 
 
@@ -234,10 +234,11 @@ proc DS_optim_param_panel(){
 	xpanel("D stellate Optimisation Param")
 	xvalue("NPARAMS")
 	xbutton("Initialise pvec","init_params(NPARAMS)")
-	xbutton("Include ds_gleak","append_gleak()")
+	xbutton("Include ds_gnabar","append_ds_gnabar()")
+	xbutton("Include ds_gleak","append_ds_gleak()")
 	xbutton("Include ds_erev","append_ds_erev()")
-	xbutton("Include ds_ghbar","append_ghbar()")
-	xbutton("Include ds_gkltbar","append_gkltbar()")
+	xbutton("Include ds_ghbar","append_ds_ghbar()")
+	xbutton("Include ds_gkltbar","append_ds_gkltbar()")
 	xbutton("Include ds_gaba_decay","append_ds_gaba_decay()")
 	xbutton("Include ds_gaba_rise","append_ds_gaba_rise()")
 	xbutton("Include ds_jitter_sd","append_ds_jitter_sd()")
