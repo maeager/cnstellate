@@ -1,8 +1,7 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 /*
  *   DS_ClickRecovery.hoc
- *
- *  
+ * 
  *   
  *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
  *
@@ -48,20 +47,10 @@ proc connect_cells(){local i,p,target,source,low,high,range,channel,sourcechanne
     sprint(filename,"%s.connect",$s1)
     outfile.wopen(filename)
 	
-    hsr2tsAMPAlist.remove_all()
-    lsr2tsAMPAlist.remove_all()
-    hsr2tvAMPAlist.remove_all()
-    lsr2tvAMPAlist.remove_all()
-    hsr2dsAMPAlist.remove_all()
-    lsr2dsAMPAlist.remove_all()
-    hsr2glgAMPAlist.remove_all()
-    lsr2glgAMPAlist.remove_all()
-    glg2dsGABAlist.remove_all()
-    glg2tsGABAlist.remove_all()
-    ds2tsGLYlist.remove_all()
-    ds2tvGLYlist.remove_all()
-    tv2tsGLYlist.remove_all()
-    ts2tsAMPAlist.remove_all()
+	hsr2dsAMPAlist.remove_all()
+	lsr2dsAMPAlist.remove_all()
+	glg2dsGABAlist.remove_all()
+
 	print "HSR->DS"
 	if( ( param.n.getval(hsr,ds) > 0 ) && ( nDSperchannel != 0 ) ){
 		outfile.printf("\n%d %d\n",hsr,ds)
@@ -239,7 +228,7 @@ func fun() {local f
 	reset_weights()
 	for j=0, reps-1{
 		print j
-		GenSpikes()
+		GenInputSpikes()
 		run()
 		DSvec.append(dstellate[50][0].spiketimes)
 		//print startsw()-x, "secs"
@@ -296,25 +285,6 @@ proc RunFit(){
 // Praxis method
 a=0
 b=0
-/*
-print "Setup parameters"
-NPARAMS=6
-pvec = new Vector(NPARAMS)
-//pvec contains the parameters to be fitted
-//Initial values
-pvec.x[0] = 0.00081
-pvec.x[1] = 0.00201
-pvec.x[2] = 0.00206
-pvec.x[3] = 0.0008
-pvec.x[4] = 0.002
-pvec.x[5] = 0.0007
-//pvec_ranges  (min,max) pairs for each param
-pvec_ranges= new Matrix(NPARAMS,2)
-//min
-for i=0,NPARAMS-1 pvec_ranges.x[i][0]= 0.00001
-//max
-for i=0,NPARAMS-1 pvec_ranges.x[i][1]= 0.005
-*/
 
 proc reset_DS(){local i
 	//Extra updating feature for DS_ClickRecovery
@@ -330,9 +300,10 @@ proc reset_DS(){local i
 objref ivec,pval[NPARAMS]
 ivec= new Vector()
 ivec.append(3,9,7,5,1,2,8,6,4,0,10,11,12,13)
+binwidth = 0.1
 
 
-func err() {local ii,jj,pp
+func DS_ClickRecovery_err() {local ii,jj,pp
 	DSvec = new Vector()
 	Gvec = new Vector()
 	//Show parameters
@@ -359,7 +330,7 @@ func err() {local ii,jj,pp
 	//Run the model
 	for jj=0, reps-1{
 		//print jj
-		GenSpikes2()
+		GenInputSpikes()
 		run()
 		DSvec.append(dstellate[50][0].spiketimes)
 		Gvec.append(golgi[50][0].spiketimes)
@@ -367,11 +338,11 @@ func err() {local ii,jj,pp
 	}
 	
 	//View the output
-	DShist = DSvec.histogram(0,tstop,0.1)
-	Ghist = Gvec.histogram(0,tstop,0.1)
-	DShist.plot(g,0.1)
+	DShist = DSvec.histogram(0,tstop,binwidth)
+	Ghist = Gvec.histogram(0,tstop,binwidth)
+	DShist.plot(g,binwidth)
 	g.exec_menu("View = plot")
-	Ghist.plot(gg,0.1)
+	Ghist.plot(gg,binwidth)
 	gg.exec_menu("View = plot")
 	doNotify()
 	objref errorvec
@@ -379,17 +350,23 @@ func err() {local ii,jj,pp
 	//Find the mean number of spikes in the first click
 	//maxrate = (DShist.sum(240,260) + DShist.sum(740,760)+ DShist.sum(1340,1360))/3
 	//if (maxrate < 1) return 1e10
-	//Calc ratio of number of spikes in second clcik relative to mean first click
-	
+	//Calc ratio of number of spikes in second click relative to mean first click
+	//
 	for (i=0;i<clicktimes.size;i=i+1){
-		errorvec.append(DShist.sum(clicktimes.x[i]*10000/srate+40,clicktimes.x[i]*10000/srate+60))
+		errorvec.append(DShist.sum(clicktimes.x[i]*10000/srate + 4/binwidth , \
+		clicktimes.x[i]*10000/srate + 6/binwidth))
 	}
-	//  targetclickrecovery.append(1,1,1,0.2,0,1,0.63,0,1,0.45,0,1,0.3)
-	//clicktimes.append(10,26,80,82,150,158,210,214,280,283).mul(srate/1000)
-	errorvec.append(DShist.sum(clicktimes.x[1]*10000/srate+60,clicktimes.x[2]*10000/srate+40))
-	errorvec.append(DShist.sum(clicktimes.x[3]*10000/srate+60,clicktimes.x[4]*10000/srate+40))
-	errorvec.append(DShist.sum(clicktimes.x[5]*10000/srate+80,clicktimes.x[6]*10000/srate+40))
-	errorvec.append(DShist.sum(clicktimes.x[7]*10000/srate+80,clicktimes.x[8]*10000/srate+40))
+	
+	//Measure idle times between spikes
+	
+	errorvec.append(DShist.sum(clicktimes.x[1]*10000/srate + 6/binwidth, \
+ 	  clicktimes.x[2]*10000/srate + 4/binwidth))
+	errorvec.append(DShist.sum(clicktimes.x[3]*10000/srate + 6/binwidth, \
+	  clicktimes.x[4]*10000/srate+4/binwidth))
+	errorvec.append(DShist.sum(clicktimes.x[5]*10000/srate + 8/binwidth, \
+	  clicktimes.x[6]*10000/srate+4/binwidth))
+	errorvec.append(DShist.sum(clicktimes.x[7]*10000/srate + 8/binwidth, \
+	  clicktimes.x[8]*10000/srate+40))
 	
 	errorvec.mul(1/reps)
 	printf("Unweighted error: %f\n",b=errorvec.meansqerr(targetclickrecovery))
@@ -420,14 +397,15 @@ func err() {local ii,jj,pp
 
 
 pvec.printf
+error_fn="DS_ClickRecovery_err"
 
 proc QuickRun(){
-	print err(0,&pvec.x[0])
+	print DS_ClickRecovery_err(0,&pvec.x[0])
 }
 
 proc runprax(){
 	attr_praxis(0.0001, 0.001, 3)
-	fit_praxis(NPARAMS,"err",&pvec.x[0])
+	fit_praxis(NPARAMS,error_fn,&pvec.x[0])
 }
 
 error=0
@@ -439,7 +417,7 @@ proc runprax2(){local pp,pp2
 	//attr_praxis(0.01, 0.0001, 3)
 	//fit_praxis(NPARAMS,"err",&pvec.x[0])
 	//Output
-	print error=err(0,&pvec.x[0])
+	print error=DS_ClickRecovery_err(0,&pvec.x[0])
 	system("date",datestr)
 	sprint(fname,"%s/%s.Fit.dat",fileroot,fileroot)
 	file.wopen(fname)
