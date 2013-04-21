@@ -101,14 +101,14 @@ objref tmp_rate_level, level, tvrate[nchannels], tvrate[nchannels], \
 dsrate[nchannels],grate[nchannels], hsrrate[nchannels],lsrrate[nchannels]
 
 /// Save rate-level values to file
-proc save_rate_level(){
+proc save_rate_level(){local ii,jj
 	sprint(fname,"%s/rate_level.dat",fileroot)
 	file.aopen(fname)
-	for i=0,level.size-1{
-		file.printf("%d\t%g\t%g\t%g\t%g\t%g\t%g\n",level.x[i],\
-		tvrate[0].x[i],tvrate[1].x[i],\
-		dsrate[whichcell].x[i],grate[whichcell].x[i], \
-		hsrrate[whichcell].x[i],lsrrate[whichcell].x[i])			
+	for ii=0,level.size-1{
+		file.printf("%d\t%g\t%g\t%g\t%g\t%g\t%g\n",level.x[ii],\
+		tvrate[0].x[ii],tvrate[1].x[ii],\
+		dsrate[whichcell].x[ii],grate[whichcell].x[ii], \
+		hsrrate[whichcell].x[ii],lsrrate[whichcell].x[ii])			
 	}
 	file.close()
 }	

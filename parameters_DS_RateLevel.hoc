@@ -79,7 +79,7 @@ secondorder  = 2      // Crank-Nickolson integration method
 print "Optimisation parameters for DS RateLevel"
 xopen("pvec.hoc")
 
-
+ 
 proc append_num_lsrds_connections(){
 	add_opt_param(NPARAMS,0.045,"param.n.x[lsr][ds]",1000,0.001,0.4)	
 }
@@ -97,13 +97,13 @@ proc append_num_glgds_connections(){
 }
 
 proc append_weight_lsrds(){
-    add_opt_param(NPARAMS,0.003,"param.w.x[lsr][ds]",1,0.0000001,0.1)
+    add_opt_param(NPARAMS,0.003,"param.w.x[lsr][ds]",1,0.000001,0.2)
 }
 proc append_weight_hsrds(){
-    add_opt_param(NPARAMS,0.0025,"param.w.x[hsr][ds]",1,0.0000001,0.1)
+    add_opt_param(NPARAMS,0.0025,"param.w.x[hsr][ds]",1,0.000001,0.2)
 }
 proc append_weight_tvds(){
-    add_opt_param(NPARAMS,0.000130,"param.w.x[tv][ds]",1,0.0000001,0.1)
+    add_opt_param(NPARAMS,0.000130,"param.w.x[tv][ds]",1,0.000001,0.2)
 }
 
 proc append_weight_glgds(){

@@ -107,6 +107,22 @@ proc save_rate_level(){
 	file.close()
 }	
 
+/// Save rate-level values to file
+proc save_rate_level_network(){local ii,jj
+	sprint(fname,"%s/rate_level.dat",fileroot)
+	file.aopen(fname)
+	for jj=0,nchannels-1 {
+	for ii=0,level.size-1{
+		file.printf("%d\t%g\t%g\t%g\t%g\n",level.x[ii],\
+		dsrate[jj].x[ii],grate[jj].x[ii], \
+		hsrrate[jj].x[ii],lsrrate[jj].x[ii])			
+	}
+	file.printf("\n\n")
+	}
+	file.close()
+}	
+
+
 // set_target_rate_level(target 2D matrix)
 // set RL optimisation data 
 // convert xdata to dB SPL and ydata to sp/s
