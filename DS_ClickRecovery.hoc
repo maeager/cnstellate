@@ -37,17 +37,16 @@ xopen("cngui.hoc")
 //previous optimisation parameters
 xopen("pvec_Golgi_RateLevel.hoc")
 
-xopen("par_experiment_DS_ClickRecovery.hoc")
-
-
 
 //--- Setup Auditory model
 create_cells()
-objref dstellate[nchannels][1]
-
-dstellate[50][0] = new CNcell(2,cf.x[50],50)
+//objref dstellate[nchannels][1]
+//dstellate[50][0] = new CNcell(2,cf.x[50],50)
 connect_cells(fileroot)
 tstop=300
+
+xopen("par_experiment_DS_ClickRecovery.hoc")
+
 
 //--- Setup Auditory model
 RefreshParameters()
@@ -56,8 +55,6 @@ ANFilterBankRun()   //Build the filterbank
 SetInputRates()      //Allocate filterbanks to ANFs and Golgi units
 //ShowInputGraphs()
 //ShowGolgiGraphs()
-
-
 
 
 pvec.printf
