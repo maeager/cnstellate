@@ -45,7 +45,7 @@ create_cells()
 connect_cells(fileroot)
 tstop=300
 
-xopen("par_experiment_DS_ClickRecovery.hoc")
+//xopen("par_experiment_DS_ClickRecovery.hoc")
 
 
 //--- Setup Auditory model
@@ -288,18 +288,18 @@ proc April12(){
 	}
 	reps=100
 	print bstar, "was the best unweighted optimisation"
-	sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery.Fit.%d.dat /home/maeager/work/thesis/SimpleResponsesChapter/gfx/DS_ClickRecovery_best_unweighted.Fit.%d.dat",bstar,bstar)
+	sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery.Fit.%d.dat ~/Work/thesis/SimpleResponsesChapter/gfx/DS_ClickRecovery_best_unweighted.Fit.%d.dat",bstar,bstar)
 	system(cmd)
 	pvec = mypvec.c
 	runprax2()
-	sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery_result.eps /home/maeager/work/thesis/SimpleResponsesChapter/gfx/DS_ClickRecovery_result_unweighted.%d.eps",bstar)
+	sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery_result.eps ~/Work/thesis/SimpleResponsesChapter/gfx/DS_ClickRecovery_result_unweighted.%d.eps",bstar)
 	system(cmd)
 	print astar, "was the best weighted optimisation"
-	sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery.Fit.%d.dat /home/maeager/work/thesis/SimpleResponsesChapter/gfx/DS_ClickRecovery_best_weighted.Fit.%d.dat",astar,astar)
+	sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery.Fit.%d.dat ~/Work/thesis/SimpleResponsesChapter/gfx/DS_ClickRecovery_best_weighted.Fit.%d.dat",astar,astar)
 	system(cmd)
 	pvec = aapvec.c
 	runprax2()
-	sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery_result.eps /home/maeager/work/thesis/SimpleResponsesChapter/gfx/DS_ClickRecovery_result_weighted.%d.eps",astar)
+	sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery_result.eps ~/Work/thesis/SimpleResponsesChapter/gfx/DS_ClickRecovery_result_weighted.%d.eps",astar)
 	system(cmd)
 	
 	
@@ -316,6 +316,23 @@ proc April12(){
 		lineno+=9
 	}
 }//April12
+
+
+
+
+NPARAMS=2
+init_params(NPARAMS)
+append_ds_gaba_decay()
+append_ds_gleak()
+
+xopen("pvec_DS_ClickRecovery.hoc")
+
+
+//append_num_lsrds_connections()
+//param.w.x[glg][ds]=0.0000
+//param.w.x[hsr][ds]=0.0000
+//reps=10
+//runprax()
 
 
 

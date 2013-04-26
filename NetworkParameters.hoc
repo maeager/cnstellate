@@ -38,7 +38,7 @@ public golgi_spatial_filter_variance_LSR,golgi_syn_filter_scale_factor,golgi_spo
 public ds_erev,ds_gkltbar,ds_gaba_decay,ds_gaba_rise,ds_gleak,ds_gnabar,ds_gkhtbar,DS_params
 //TV_Notch and RateLevel
 public offset       // offset in channel units of mean distribution of connections between DS and TV cells
-public tv_erev, tv_gleak
+public tv_erev, tv_gleak,tv_gnabar,tv_gkhtbar
 //TS cell parameters
 public ts_gleak,ts_erev,ts_ghbar,ts_gkabar,ts_gnabar,ts_gkhtbar
 public ts_dend_g,ts_dend_e
@@ -55,13 +55,13 @@ golgi_spatial_filter_variance_LSR = 2  //channel units when N=100, cfhi=48k, cfl
 golgi_syn_filter_scale_factor	  = 1								
 golgi_spon		= 3	
 
-ds_gaba_decay	 = 9   
+ds_gaba_decay	 = 9         //See Param.hoc
 ds_gaba_rise	 = 0.7
-ds_erev          =-65
-ds_gnabar        = 0.408307  //2 times default TypeI-II RM model	   
-ds_gkhtbar       = 0.030623   //default I-II RM model
-ds_gkltbar       = 0.0163897	 //default gleak for Type I-II RM model	 
-ds_gleak         = 0.000274146 // default gleak	 
+ds_erev          = -70
+ds_gnabar        = 0.408307  //2 times default for Type I-II RM model  (25 um diam)	   
+ds_gkhtbar       = 0.030623   //default for Type  I-II RM model (25 um diam)
+ds_gkltbar       = 0.0163897	 //default gleak for Type I-II RM model	 (25 um diam)
+ds_gleak         = 0.000274146 // default gleak	 for  TypeI-II RM model  (25 um diam)
 ds_ghbar         = 0.0004
 
 tv_erev     = -65
@@ -89,22 +89,23 @@ proc init(){
     offset           =  0  //DS to TV oofset
 	
 	//Default values
-	ds_gaba_decay	 = 9   //see Params.hoc
-	ds_gaba_rise	 = 0.7	
 	golgi_spatial_filter_variance_LSR		= 2  //channel units when N=100, cfhi=64k, cflo=200	
 	golgi_syn_filter_scale_factor	= 1								
-	golgi_spon		= 3	
+	golgi_spon   = 3   // spontaneous rate of GLG cell 	
 	
-	ds_erev           =-65
-	ds_gkhtbar        = 0.030623   //default I-II RM model
-	ds_gkltbar        = 0.0163897	 //default gleak for Type I-II RM model	 
-	ds_gleak          = 0.000274146 // default gleak	 
-	ds_gnabar         = 0.408307  //2 times default TypeI-II RM model	   
+	ds_gaba_decay= 9   //see Params.hoc
+	ds_gaba_rise = 0.7	
+
+	ds_erev      = -65
+	ds_gkhtbar	 = 0.030623	   //default I-II RM model
+	ds_gkltbar	 = 0.0163897	//default gleak for Type I-II RM model	 
+	ds_gleak	 = 0.000274146 // default gleak	 
+	ds_gnabar	 = 0.408307	   // 2 times default TypeI-II RM model	   
 	
 	tv_gleak     = 0.0004987
     tv_erev      = -70
 	
-	ts_jitter_sd=0.2
+	ts_jitter_sd= 0.2
 	ts_gnabar	= 0.23677
 	ts_gkhtbar	= 0.0189416	
 	ts_gleak    = 0.000473539
@@ -112,7 +113,7 @@ proc init(){
 	ts_ghbar    = 6.20392e-05
 	ts_gkabar   = 0.01539   
     ts_dend_g   = 0.001
-    ts_dend_e   =-65
+    ts_dend_e   = -65
 	
 }
 

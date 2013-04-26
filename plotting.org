@@ -9,9 +9,9 @@
 #+begin_src gnuplot :results file
 reset
 set pm3d
-splot [20:80][0.02:*] '<  sed -ne "9~6p" /media/data/sounds/bruce/Cat/T4980_L70_dur81_del20.dat' matrix u 2:($1/50000):3 w pm3d
+splot [20:80][0.02:*] '<  sed -ne "9~6p" ../sounds/bruce/Cat/T4980_L70_dur81_del20.dat' matrix u 2:($1/50000):3 w pm3d
 
-splot [0.02:*][30:70] '<  sed -ne "15~6p" /media/data/sounds/bruce/Cat/T4980_L70_dur81_del20.dat' matrix u ($1/50000):2:3 w pm3d
+splot [0.02:*][30:70] '<  sed -ne "15~6p" ../sounds/bruce/Cat/T4980_L70_dur81_del20.dat' matrix u ($1/50000):2:3 w pm3d
 #+end_src
 
 
@@ -28,7 +28,7 @@ gnuplot -p ANplot.gnu
 ** Golgi Model
 
 #+BEGIN_SRC sh
-./gui/special golgi_RateLevel.hoc
+./gui/special golgi_RateLevel.hoc -
 
 #+END_SRC
 
@@ -45,7 +45,7 @@ gnuplot -p GolgiRateLevel_result.gpi
 
 Run the DS cell optimisation using the ClickRecovery procedure
 #+BEGIN_SRC sh
-  ./gui/special DS_ClockRecovery.hoc
+  ./gui/special DS_ClockRecovery.hoc -
 #+END_SRC
 
 Run the RateLevel routine for the DS cell model optimisation
@@ -73,12 +73,12 @@ Plot the results of the DS click recovery and rate level optimisations
 
 Run the rate level TV cell optimisation 
 #+BEGIN_SRC sh
-  ./gui/special TV_RateLevel.hoc
+  ./gui/special TV_RateLevel.hoc -
 #+END_SRC
 
 Run the notch noise routine for the DS to TV connection optimisation
 #+BEGIN_SRC sh
- ./gui/special TV_Notch.hoc
+ ./gui/special TV_Notch.hoc -
 #+END_SRC
 
 
@@ -116,12 +116,16 @@ gnuplot -p TV_RateLevel_result.gpi
    cp pvec_TStellate.hoc *.dat multiplotIVCV4.pdf ~/Work/thesis/SimpleResponsesChapter/gfx/TStellate2_CT1/
 #+END_SRC
 
+
+* Full model simulations
+
+
+
+
 ** other
 
 #+BEGIN_SRC sh
 gnuplot -p vowel_b6t.gnu
 gnuplot -p vowel_baseline.ds.gnu
-
-
 
 #+END_SRC
