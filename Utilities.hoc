@@ -995,24 +995,6 @@ proc RampTone() {local stimtdres, rampts, rstep, totalpts, steadypts, tonefreque
     
 }
 
-// Wav file Chooser
-
-{load_file("stdlib.hoc", "String")}
-
-objref rwl_, rwf_, sf_, tobj, box
-objref ldfile
-strdef tstr, rwdname, path, fname
-
-sprint(path, "%s", getcwd())
-ldfile = new File()
-
-sf_ = new StringFunctions()
-if (unix_mac_pc() == 1) {
-    rwdname = "$(HOME)/.NRNWorkingDirs"
-} \
-else{
-    rwdname = "$(NEURONHOME)/RecentWorkingDirs"
-}
 proc filemenu() {
     box = new VBox()
     box.intercept(1)
@@ -1214,14 +1196,6 @@ proc NotchNoise() {local stimtdres, rampts, rstep, totalpts, steadypts, tonefreq
 *    GenerateFilterbank()
 **********************************************************/
 objref stim, file, tvec, cf
-ifspike = 1
-//sout is adjusted so that instant. rate can be fed to spike generator
-//not neccessary for Bruce model
-delx    = 0.05
-//"delta x", or spacing of "IHC"s along BM (linearly spaced IHCs in terms of location along BM
-//  results in approximately logarithmic spacing in terms of frequency.
-
-
 
 objref  LSRout[nchannels], HSRout[nchannels],cf, ANfile, MSRout[nchannels]
 cf						= new Vector(nchannels)
@@ -1332,6 +1306,8 @@ proc RefreshParameters() {local aa localobj tmprand
 		grlbl=""
 	}
 	
+	//Force the stim resolution to match the sampling rate to avoid confusion
+	stimtdres = 1.0 / srate
 	
 	//Tone
 	if (stimtype == 1){
@@ -1344,7 +1320,7 @@ proc RefreshParameters() {local aa localobj tmprand
 	if (stimtype == 2){
 		objref stim
 		stim  = new Vector(int(dur/stimtdres), 0 )
-		if (nrep > 1) { for i=2,nrep { stim.append(new Vector(int(stimdur/stimtdres), 0 ))} }
+		if (nrep > 1) { for i=2,nrep { stim.append(new Vector(int(dur*1000/stimtdres), 0 ))} }
 		sprint(grlbl,"Silence %.0f ms", dur*1000)
 	}
 	//AM tone
@@ -1704,11 +1680,11 @@ func CheckANvector(){local vsize,iserror
 	vsize=$o1.size
 	iserror=0
 	sprint(end_sout,"%g",$o1.x[vsize-1])
-	if (strcmp(end_sout,"nan") != -1) {
+	if (strcmp(end_sout,"nan") == 0) {
 		print " NaN error"
 		iserror=1
 	}
-	if (stimtype == 1 && dutycycle*spl > 5){
+/*	if (stimtype == 1 && dutycycle*spl > 5){
  		if ($o1.mean(vsize-10,vsize-1) < float_epsilon*1e3 ) {
 			print "Final values below epsilon*1000"
 			iserror=1
@@ -1718,6 +1694,7 @@ func CheckANvector(){local vsize,iserror
 			iserror = 1
 		}
 	}
+*/
 	if ($o1.max() > 1e5 ) {
 		print " Max above 1e5"
 		iserror = 1
@@ -1734,6 +1711,7 @@ proc GenerateFilterbank(){ local ii,out,icf, mycf, myohc,myihc,ZilanyImplmnt_ori
 	//    ZilanyImplmnt_orig = ZilanyImplmnt
 	if (name_declared("pnm") == 0 && say_once!=1) print "Generating AN model instantaneous rate functions"
 	for icf = 0, nchannels-1 {
+		printf("GenerateFilterbank %d", icf)
 		LSRout[icf] = new Vector(stim.size,0)
 		HSRout[icf] = new Vector(stim.size,0)
     	IHC[icf] = new Vector(stim.size,0)
@@ -1754,7 +1732,9 @@ proc GenerateFilterbank(){ local ii,out,icf, mycf, myohc,myihc,ZilanyImplmnt_ori
 		}	
 		if(ANmodel==6){
 			LSRout[icf].an_zbcatmodel07(stim, stimtdres, mycf, Lowspont, myihc,myohc,species, nrep)
+			system("sleep 0.5")
 			HSRout[icf].an_zbcatmodel07(stim, stimtdres, mycf, Highspont, myihc,myohc,species, nrep)
+			system("sleep 0.5")
 			if (MSRsperchannel>0){
 				MSRout[icf] = new Vector(stim.size)
 				MSRout[icf].an_zbcatmodel07(stim, stimtdres, mycf, Medspont, myihc,myohc,species, nrep)
@@ -1772,7 +1752,7 @@ proc GenerateFilterbank(){ local ii,out,icf, mycf, myohc,myihc,ZilanyImplmnt_ori
 				print "GenerateFilterbank:an_zilany_v4_1: found second error in IHC, moving on"
 			} 
 			*/						
-			system("sleep 0.1")
+			system("sleep 0.5")
 			out = HSRout[icf].an_zilany_v4_1(stim, stimtdres, mycf, Highspont,ZilanyImplmnt,myihc,myohc,species, nrep, IHC[icf])
 			/*		if (CheckANvector(HSRout[icf]) == 1) {
 				print "GenerateFilterbank:an_zilany_v4_1: found error in HSR, trying again."
@@ -1797,9 +1777,9 @@ proc GenerateFilterbank(){ local ii,out,icf, mycf, myohc,myihc,ZilanyImplmnt_ori
 		}
 		*/
 		// print icf, cf.x[icf]
-		
+		printf("\r")
 	}
-	
+	printf("GenerateFilterbank ... done\n")
 	//    ZilanyImplmnt = ZilanyImplmnt_orig
 	
 	// Resampling rate should be set prior to calling GenerateFilterbank eg. sg_rate = 50000
@@ -1899,4 +1879,3 @@ proc GenerateMSRs(){ local icf
 }
 
 // see GUIs in cngui.hoc
-

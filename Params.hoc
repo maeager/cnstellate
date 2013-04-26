@@ -157,6 +157,25 @@ celsius		= 37	   //degrees, base model temperature
 // for temperature conversion using qt()
 
 
+
+// Wav file Chooser parameters
+{load_file("stdlib.hoc", "String")}
+objref rwl_, rwf_, sf_, tobj, box
+objref ldfile
+strdef tstr, rwdname, path, fname
+sprint(path, "%s", getcwd())
+ldfile = new File()
+sf_ = new StringFunctions()
+if (unix_mac_pc() == 1) {
+    rwdname = "$(HOME)/.NRNWorkingDirs"
+} \
+else{
+    rwdname = "$(NEURONHOME)/RecentWorkingDirs"
+}
+
+
+
+
 /**********************************************************
 **  Auditory Model Simulation Parameters
 **********************************************************/

@@ -941,15 +941,14 @@ proc SetGolgiRates(){local ii,jj
 			for ii=0,nchannels-1 {
 				for jj=0,nGperchannel-1  golgi[ii][jj].SetRate2()
 			}
-		  printf(" done\n")
-
+			printf("\n")
 			SaveGolgiFilterBank2File()	
 		}
 	} else {
 		for ii=0,nchannels-1 {
-				for jj=0,nGperchannel-1 golgi[ii][jj].SetRate2()
-			}
-		printf(" done\n")
+			for jj=0,nGperchannel-1 golgi[ii][jj].SetRate2()
+		}
+		printf("\n")
 	}
 }
 
