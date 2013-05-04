@@ -42,11 +42,13 @@ static double an_zilany_v4(void  *vv)
   }
    
   /*Get Input arguments*/
-  /*if( ifarg(9)!=1 && ifarg(10)!=1 ){  //Must be changed if more input arguments added
+  /*
+  if( ifarg(9)!=1 && ifarg(10)!=1 )
+  {  //Must be changed if more input arguments added
     hoc_execerror("an_zilany_v4: input syntax must be sout.an_zilany_v4( stim, tdres,  cf, fibertype,implnt,cihc,cohc, species,nrep,ihcout[optional])", 0);
     return 0;
-}
-*/
+  }
+  */
 
 /*TDRES  resolution of stim vector*/
   /*Bruce model uses seconds rather than msec*/
@@ -95,7 +97,7 @@ static double an_zilany_v4(void  *vv)
   /*Species*/
   species = (int)round(*getarg(8));
   if (species != 1 && species !=9){
-    printf("an_zilany_v4: species other than cat (1 or 9) are not fully implemented");
+    printf("an_zilany_v4: species other than cat (1 or 9) are not fully implemented. Continuing with untested species model.");
   }
   /*Reps*/
   nrep = (int)round(*getarg(9));
@@ -104,7 +106,9 @@ static double an_zilany_v4(void  *vv)
   if(ifarg(10)) {
     nihcout = vector_arg_px(10, &ihcout);
     if(nihcout != nstim){
-      printf("ihcout must be the same size as stim, sout\n"); return 0;}
+	printf("ihcout must be the same size as stim, sout\n"); 
+	return 0;
+    }
   } else {
     ihcout = makevector(nstim);
   }
@@ -190,12 +194,12 @@ static double an_zilany_v4_1(void *vv)
     }
 
   /*Species*/
-  species = (int)(*getarg(8));
-  if (species != 1){
-    hoc_execerror("an_zilany_v4: species other than cat (1) are not implemented");
+  species = (int)round(*getarg(8));
+  if (species != 1 && species !=9){
+    printf("an_zilany_v4: species other than cat (1 or 9) are not fully implemented. Continuing with untested species model.");
   }
   /*Reps*/
-  nrep = (int)(*getarg(9));
+  nrep = (int)round(*getarg(9));
   if (nrep < 1) {printf("an_zilany_v4: nrep must be 1 or greater"); return 0;}
    
   if(ifarg(10)) {
@@ -208,7 +212,7 @@ static double an_zilany_v4_1(void *vv)
     ihcout = makevector(nstim);
   }
 
-/* printf("\tAN model: Zilany, Carney, Bruce, Nelson and others  (version 4 c2010)\n");
+/* printf("\tAN model: Zilany, Carney, Bruce, Nelson and others  (version 4 c2010).  Modified for different species.\n");
 */  
   if( ihcout[nihcout-1] == 0.0 ){
       printf("\t\tIHCAN(stim,%.0f,%d,%g,%d,%g,%g,ihcout,%d)\n", cf, nrep, tdres, nstim, cohc, cihc, species);
@@ -274,8 +278,7 @@ static double ihc_zilany_v4(void *vv)
   /*Species*/
   species = (int)(*getarg(6));
   if ( species != 1 || species != 9 ){
-    printf("an_zilany_v4: species other than cat (1) are not correctly implemented");
-
+    printf("an_zilany_v4: species other than cat (1 or 9) are not correctly implemented");
   }
   /*Reps*/
   nrep = (int)(*getarg(7));
@@ -482,7 +485,7 @@ static double psth_zilany_v4(void *vv)
 
   /*Species*/
   species = (int)(*getarg(8));
-  if (species != 1){
+  if (species != 1 || species != 9){
     printf("an_zilany_v4: cat (species=1 or 9) is the default, others are not fully tested\n");
   }
   /*Reps*/

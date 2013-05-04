@@ -22,7 +22,8 @@
 
 
 /* Declarations of the functions used in the program */
-/*extern double C1ChirpFilt(double, double, double, int, double, double);
+/*
+  extern double C1ChirpFilt(double, double, double, int, double, double);
   extern double C2ChirpFilt(double, double, double, int, double, double);
   extern double WbGammaTone(double, double, double, int, double, double, int);
   extern double gain_groupdelay(double, double, double, double, int *);
@@ -40,6 +41,7 @@
   extern double cochlea_x2f(int , double);
   extern double delay_cat(double , int);
 */
+
 /* Declarations of the functions used in the SingleAN_v4 program */
 double Synapse_v4(double *, double, double, int, int, double, double, double, double *, double);
 int    SpikeGenerator_v4(double *, double, int, int, double *);
@@ -207,7 +209,7 @@ void IHCAN(double *px, double cf, int nrep, double tdres, int totalstim,
 
   /* Adjust total path delay to IHC output signal */
 
-  delay      = delay_cat(cf,species);
+  delay      = delay_species(cf,species);
   delaypoint = __max(0, (int) ceil(delay / tdres));
 
   for (i = delaypoint;i < totalstim*nrep;i++) {
@@ -267,7 +269,7 @@ double Synapse_v4(double *ihcout, double tdres, double cf, int totalstim, int nr
   int resamp = (int) ceil(1 / (tdres * sampFreq)); //sampFreq is not the same as 1/tdres
   double incr = 0.0;    // int delaypoint = floor(7500 / (cf / 1e3));   
     
-  double delay      = delay_cat(cf, species);
+  double delay      = delay_species(cf, species);
   int delaypoint = __max(0, (int) ceil(delay / tdres));  // from version 2
 #ifdef DEBUG    
   printf("\t\t\tSynapse_v4: resamp %d delaypoint %d\n",resamp,delaypoint);
