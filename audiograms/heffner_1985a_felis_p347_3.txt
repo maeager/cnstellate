@@ -1,0 +1,15 @@
+Frequency (Hz)	dB SPL
+Heffner (1985) Behavioral audiogram of Felis catus (cat).	
+45	75
+62.5	52
+125	37
+250	22
+500	8
+1000	3
+2000	1
+4000	1
+8000	-3
+16000	-2
+32000	2.5
+64000	30
+91000	80
