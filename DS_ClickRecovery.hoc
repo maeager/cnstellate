@@ -45,7 +45,7 @@ create_cells()
 connect_cells(fileroot)
 tstop=300
 
-//xopen("par_experiment_DS_ClickRecovery.hoc")
+xopen("experiment_DS_ClickRecovery.hoc")
 
 
 //--- Setup Auditory model
@@ -283,8 +283,8 @@ proc April12(){
 		gr.printfile(grlbl)
 		//g.printfile("DS_ClickRecovery/DS_ClickRecovery_DSpsth.eps")
 		//gg.printfile("DS_ClickRecovery/DS_ClickRecovery_Gpsth.eps")
-		g.erase_all()
-		gg.erase_all()
+		//g.erase_all()
+		//gg.erase_all()
 	}
 	reps=100
 	print bstar, "was the best unweighted optimisation"
@@ -319,14 +319,15 @@ proc April12(){
 
 
 
-
+species=1
 NPARAMS=2
 init_params(NPARAMS)
 append_ds_gaba_decay()
 append_ds_gleak()
 
 xopen("pvec_DS_ClickRecovery.hoc")
-
+reps=25
+runprax()
 
 //append_num_lsrds_connections()
 //param.w.x[glg][ds]=0.0000
