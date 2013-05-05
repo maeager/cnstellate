@@ -30,10 +30,11 @@ strdef tstr
 objref work, work2, TSoutputarray,DSoutputarray,TVoutputarray,Goutputarray, isi, lags, hist, tmpspike,psth[nchannels]
 work    = new Vector()
 work2    = new Vector()
-TSoutputarray = new Matrix(nchannels,nTSperchannel)
-DSoutputarray = new Matrix(nchannels,nDSperchannel)
-TVoutputarray = new Matrix(nchannels,nTVperchannel)
-Goutputarray = new Matrix(nchannels,nGperchannel)
+if (nTSperchannel>0) TSoutputarray = new Matrix(nchannels,nTSperchannel)
+if (nDSperchannel > 0) DSoutputarray = new Matrix(nchannels,nDSperchannel) 
+if (nTVperchannel > 0) TVoutputarray = new Matrix(nchannels,nTVperchannel) 
+if (nGperchannel > 0) Goutputarray = new Matrix(nchannels,nGperchannel)	   
+
 binwidth=0.1
 isi    = new Vector()
 lags    = new Vector()
