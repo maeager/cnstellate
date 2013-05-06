@@ -1,0 +1,49 @@
+objref v1, v2, v3, v4 
+objref box, g1, g2, g3, g4, b1   
+                
+proc setup_gui() {
+        box = new VBox()
+        box.intercept(1)
+        xpanel("")
+                xvalue("delay (points)", "delay", 1, "p()")
+                xvalue("duration (points)", "duration", 1, "p()")
+        xpanel()
+        g1 = new Graph()
+        b1 = new HBox()
+        b1.intercept(1)
+        g2 = new Graph()
+        g3 = new Graph() 
+        b1.intercept(0)
+        b1.map()
+        g4 = new Graph()
+        box.intercept(0)
+        box.map()
+        g1.size(0,N, -1, 1)  
+        g2.size(0,N/2, -1, 1) 
+        g3.size(0,N/2, -1, 1)   
+        g4.size(0,N, -1, 1)
+} 
+//@code...
+N=128
+delay = 0
+duration = N/2
+setup_gui()
+proc p() {
+        v1.plot(g1)
+                
+        v2 = new Vector()
+        v3 = new Vector()
+        FFT(1, v1, v2, v3)
+        v2.plot(g2)
+        v3.plot(g3)
+                
+        v4 = new Vector()
+        FFT(-1, v4, v2, v3)
+        v4.plot(g4)
+  g1.size(0,N, -1, 1)  
+        g2.size(0,N/2, -1, 1) 
+        g3.size(0,N/2, -1, 1)   
+        g4.size(0,N, -1, 1)
+}
+p()
+

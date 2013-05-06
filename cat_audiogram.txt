@@ -1,0 +1,24 @@
+45	75	0	0
+62.5	52	0	0
+125	37	0	0.025
+250	22	0	0.3
+500	8	0.65	0.7
+1000	3	0.9	0.9
+2000	1	0.95	1
+4000	1	0.95	1
+8000	-3	1	1
+16000	-2	1	1
+32000	2.5	0.9	0.9
+64000	30	0.35	0.3
+91000	80	0.009	0.05
+
+
+#Freq       Atten       Cohc        Cihc
+
+# Cat audiogram data obtained from earlab.bu.edu then passed
+# through Zilany and Bruce MATLAB function fitaudiogram
+# eg:
+# x=dlmread("heffner_1985a_felis_p347_3.txt",'\t',2,0)
+# [Cohc,Cihc,OHC_Loss]=fitaudiogram(x(:,1),x(,2))
+# dlmwrite ("cat_audiogram.txt",[x co' ci'],'\t',0,0,"precision","%g")
+#NEURON code will extrapolate audiogram to CF values

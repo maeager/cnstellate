@@ -1,0 +1,32 @@
+
+# *****************************************************************
+# BM Functions adapted from CMPA.C of Heinz et al. 1999
+# Calculate the location on Basilar Membrane from best frequency
+#
+#     Implemented in hoc  2004
+#     Rat model added 2007
+#     Implemented in GNUplot, 2008
+#     
+# Author Michael Eager, The University of Melbourne
+# ****************************************************************
+
+
+f2x(f)  = 11.9 * log10(0.80 + (f / 456.0))
+f2x_rat(f) = 8.65 * log10(1.0 + (f / 7613.3))
+x2f(x) = 456.0*((10**(x/11.9))-0.80)
+x2f_rat(x) = 7613.3*((10**(x/8.65))-1.0)
+x2f_human(x) = 165.4*((10**(0.06*x))-0.88)
+x2f_human_checked(x) = x>35 ? x2f_human(35) : x<0 ? x2f_human(0): x2f_human(x)
+
+
+
+# Cat data
+cflo=200
+cfhi=48000
+nchannels=100
+xlo = f2x(cflo)
+xhi = f2x(cfhi)
+xcenter = (xhi - xlo)/2.0 + xlo
+delx = (xhi-xlo)/(nchannels-1)
+
+cf(x) = ceil(x2f(xlo + (x)*delx))

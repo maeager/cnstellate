@@ -1,0 +1,25 @@
+
+ARCH=i686
+MPIMODL = ~/Neuron/nrn/nrnmpi/$(ARCH)/bin/nrnivmodl
+GUIMODL=~/Neuron/nrn/nrngui/$(ARCH)/bin/nrnivmodl
+
+all: clean-all gui mpi
+
+clean-mpi:
+	-rm -rf *.[0-9]*
+	-rm -f PI*
+	
+clean: clean-mpi
+	-rm -f *.ras *.hist *.connect *.curvs
+	-rm -f out.dat *.[0-9]* *~ *.bak *.sav 
+
+clean-all: clean
+	-rm -rf mpi gui
+
+gui:
+	$(GUIMODL)
+	mv $(ARCH) gui
+	
+mpi:
+	$(MPIMODL)
+	mv $(ARCH) mpi
