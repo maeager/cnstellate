@@ -374,7 +374,7 @@ proc RedefineTVmodel(){local i_chan,j_cell,ii
 	lsr2dsAMPAlist = new List()
 	glg2dsGABAlist = new List()
 	ds2tvGLYlist = new List()
-	connect_TV(origfileroot)
+	create_connect_TV(origfileroot)
 	for ii=0,1 tuberculoventral[0][ii].soma.erev_rm = param.tv_erev
 }
 
@@ -539,7 +539,9 @@ func TV_RateLevel_err(){local jj,pp,xtime
 		execute1(cmd)
     }
 	//Rearrange synapses is using weight parameters
-	reset_weights()
+	create_connect_TV(fileroot)
+	RefreshCellParams()
+	//reset_weights()
 	for i = 0, ds2tvGLYlist.count-1 if(ds2tvGLYlist.object(i).postcell() == tuberculoventral[0][1]) print ds2tvGLYlist.object(i).weight=0
 	TV_BFtone()
 	level=new Vector(10)

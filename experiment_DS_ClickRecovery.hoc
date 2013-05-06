@@ -17,28 +17,28 @@ vstel = new Vector(record_vec_size)
 vtv = new Vector(record_vec_size)
 //iclamp = new Vector(record_vec_size)
 record_step = 0.1
-if (pnm.gid_exists(dsgid.x[whichcell][0])) dsvec.record(&dstellate[whichcell][0].soma.v(0.5),record_step)
-if (pnm.myid == 0) tvec.record(&t,record_step)
-if (pnm.gid_exists(tsgid.x[whichcell][0])) vstel.record(&tstellate[whichcell][0].soma.v(0.5),record_step)
-if (pnm.gid_exists(tvgid.x[whichcell][0])) vtv.record(&tuberculoventral[whichcell][0].soma.v(0.5),record_step)
+//if (pnm.gid_exists(dsgid.x[whichcell][0])) dsvec.record(&dstellate[whichcell][0].soma.v(0.5),record_step)
+//if (pnm.myid == 0) tvec.record(&t,record_step)
+//if (pnm.gid_exists(tsgid.x[whichcell][0])) vstel.record(&tstellate[whichcell][0].soma.v(0.5),record_step)
+//if (pnm.gid_exists(tvgid.x[whichcell][0])) vtv.record(&tuberculoventral[whichcell][0].soma.v(0.5),record_step)
 //if (pnm.gid_exists(tsgid.x[3][3])) iclamp.record(&vclamp.i,record_step)
 
-proc post_record() {
-   if (pnm.gid_exists(dsgid.x[whichcell][0])) pnm.pc.post("dsvec", dsvec)
-   if (pnm.gid_exists(tsgid.x[whichcell][0])) pnm.pc.post("vstel", vstel)
-   if (pnm.gid_exists(tvgid.x[whichcell][0])) pnm.pc.post("vtv", vtv)
-   //if (pnm.gid_exists(tsgid.x[3][3])) pnm.pc.post("iclamp", iclamp)
-}
-proc take_record() {
-   pnm.pc.context("post_record()")
-   if (!pnm.pc.gid_exists(dsgid.x[whichcell][0])) pnm.pc.take("dsvec", dsvec)
-   if (!pnm.pc.gid_exists(tsgid.x[whichcell][0])) pnm.pc.take("vstel", vstel)
-   if (!pnm.pc.gid_exists(tvgid.x[whichcell][0])) pnm.pc.take("vtv", vtv)
-   //if (!pnm.pc.gid_exists(tsgid.x[3][3])) pnm.pc.take("iclamp", iclamp)
-}
+// proc post_record() {
+//    if (pnm.gid_exists(dsgid.x[whichcell][0])) pnm.pc.post("dsvec", dsvec)
+//    if (pnm.gid_exists(tsgid.x[whichcell][0])) pnm.pc.post("vstel", vstel)
+//    if (pnm.gid_exists(tvgid.x[whichcell][0])) pnm.pc.post("vtv", vtv)
+//    //if (pnm.gid_exists(tsgid.x[3][3])) pnm.pc.post("iclamp", iclamp)
+// }
+// proc take_record() {
+//    pnm.pc.context("post_record()")
+//    if (!pnm.pc.gid_exists(dsgid.x[whichcell][0])) pnm.pc.take("dsvec", dsvec)
+//    if (!pnm.pc.gid_exists(tsgid.x[whichcell][0])) pnm.pc.take("vstel", vstel)
+//    if (!pnm.pc.gid_exists(tvgid.x[whichcell][0])) pnm.pc.take("vtv", vtv)
+//    //if (!pnm.pc.gid_exists(tsgid.x[3][3])) pnm.pc.take("iclamp", iclamp)
+// }
 
 // *** Process data and print out results
-xopen("par_calcisilag.hoc") // everybody needs this for the post_results
+xopen("calcisilag.hoc") // everybody needs this for the post_results
 
 proc print_results() {
   print_raster(fileroot)
@@ -536,13 +536,13 @@ proc RateLevelDS(){
 
 
 
-if (!object_id(pnm)) {
+
 xpanel("Click Recovery")
 xbutton("Click Recovery", "ClickRecovery()")
 xbutton("Plot FSL mean", "ClickRecoveryPlot()")
 xbutton("Run RL", "RateLevelDS()")
 xpanel()
-}
+
 
 
 ClickRecovery()

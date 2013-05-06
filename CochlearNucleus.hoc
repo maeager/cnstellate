@@ -160,7 +160,7 @@ func wrap() {
 
 
 // When refering to "channel" in the following code
-// I mean Auditory isofrequency laminae in the VCN
+// I mean isofrequency laminae in the VCN
 
 proc connect_cells() {local i,p,target,source,low,high,range,channel,sourcechannel
 

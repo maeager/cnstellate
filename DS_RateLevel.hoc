@@ -1,27 +1,27 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
 /*
-*   DS_RateLevel.hoc
-*   This file optimises the DS cell model using rate-level reponses to tones
-*   and noise from experimental data.
-*
-*    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
-*
-*    This file is part of cnstellate.
-* 
-*    This is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU General Public License as published by
-*    the Free Software Foundation, either version 3 of the License, or
-*    (at your option) any later version.
-*
-*    This is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU General Public License for more details.
-*
-*    You should have received a copy of the GNU General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.  
-*/
+ *   DS_RateLevel.hoc
+ *   This file optimises the DS cell model using rate-level reponses to tones
+ *   and noise from experimental data.
+ *
+ *     Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
+ *
+ *    This file is part of cnstellate.
+ * 
+ *    This is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation, either version 3 of the License, or
+ *    (at your option) any later version.
+ *
+ *    This is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+ */
 
 
 
@@ -128,6 +128,14 @@ set_pvec()
 runprax()
 */
 
+reps=25
+NPARAMS=3
+init_params(NPARAMS)
+append_weight_lsrds()
+append_weight_glgds()
+append_weight_hsrds()
+
+
 //Simulation 1: LSR->DS
 param.w.x[lsr][ds]= 0.01103
 param.n.x[lsr][ds]= 84
@@ -137,3 +145,7 @@ param.n.x[glg][ds] = 5
 //Simulation 3: HSR-> DS
 param.n.x[hsr][ds] = 125
 param.w.x[hsr][ds] = 0.000167221
+param.bw.x[hsr][ds]=40
+param.bw.x[lsr][ds]=40
+
+set_pvec()

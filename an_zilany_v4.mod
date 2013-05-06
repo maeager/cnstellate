@@ -190,9 +190,9 @@ static double an_zilany_v4_1(void *vv)
     }
 
   /*Species*/
-  species = (int)(*getarg(8));
+  species = (int)round(*getarg(8));
   if (species != 1){
-    hoc_execerror("an_zilany_v4: species other than cat (1) are not implemented");
+    printf("an_zilany_v4: species other than cat (1) are not implemented.  Continuing with untested model.");
   }
   /*Reps*/
   nrep = (int)(*getarg(9));
