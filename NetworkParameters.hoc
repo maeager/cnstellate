@@ -33,7 +33,7 @@ public w               //synaptic weight  (maximum conductance in PSP)
 public delay           //additional delay in ms: Pre-cell AP time to post-cell response time
 public ncol,nrow
 //Golgi model parameters
-public golgi_spatial_filter_variance_LSR,golgi_syn_filter_scale_factor,golgi_spon
+public golgi_spatial_filter_variance_LSR,golgi_syn_filter_scale_factor,golgi_spon,golgi_syn_filter_tau
 //DS_ClickRecovery and RateLevel 
 public ds_erev,ds_gkltbar,ds_gaba_decay,ds_gaba_rise,ds_gleak,ds_gnabar,ds_gkhtbar,DS_params
 //TV_Notch and RateLevel
