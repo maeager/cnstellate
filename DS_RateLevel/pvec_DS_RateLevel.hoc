@@ -120,3 +120,7 @@ param.n.x[glg][ds] = 5.25155
 param.w.x[lsr][ds] = 0.00491079
 param.w.x[hsr][ds] = 0.00129371
 param.w.x[glg][ds] = 1.20639e-05
+ // Sun May  5 14:39:38 EST 2013
+  
+param.w.x[lsr][ds] = 0.00882545
+param.n.x[lsr][ds] = 84

@@ -54,7 +54,7 @@
 
 double cochlea_f2x(int , double);
 double cochlea_x2f(int , double);
-double delay_cat(double , int);
+double delay_species(double , int);
 
 double Synapse(double, double, double, double, int);
 //int    SpikeGenerator(double *, double, int, double, double *);
@@ -236,7 +236,7 @@ int an_zilanybruce2007(double binwidth, double cf, double spont, double cihc, do
 
   /* Adjust total path delay to all signals after BM */
 
-  delay      = delay_cat(cf, species);
+  delay      = delay_species(cf, species);
   delaypoint = __max(0, (int) ceil(delay / binwidth));
 
   for (i = 0;i < delaypoint;i++) {

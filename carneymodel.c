@@ -421,7 +421,7 @@ double gain_groupdelay(double binwidth, double centerfreq, double cf, double tau
 /* -------------------------------------------------------------------------------------------- */
 /** Calculate the delay (basilar membrane, synapse, etc. for cat) */
 
-double delay_cat(double cf, int species)
+double delay_species(double cf, int species)
 {
   /* DELAY THE WAVEFORM (delay buf1, tauf, ihc for display purposes)  */
   /* Note: Latency vs. CF for click responses is available for Cat only (not human) */
@@ -433,7 +433,7 @@ double delay_cat(double cf, int species)
   switch (species){
   case 0: /*Human*/
     x = cochlea_f2x(species, cf); /* human mapping */
-    if ((x<5)||(x>35)) printf("delay_cat: x out of range.\n");
+    if ((x<5)||(x>35)) printf("delay_species: x out of range.\n");
     delay = 4.915 + 0.3631*exp(0.11324*x);   /* 5<x<35 m */
     break;
 
