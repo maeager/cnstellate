@@ -721,9 +721,12 @@ proc printprax2(){local pp,ii,pp2,error
 		for pp=0,NPARAMS-1 {
 			file.printf("#%s = %g\t[%g,%g]\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp],pvec_ranges.x[pp][0],pvec_ranges.x[pp][1])
 		}
-		file.printf("# RL Error = %g\n", error1)
-		file.printf("# NRL Error = %g\n", error3)
-		file.printf("# Final error = %g\n",error)
+		file.printf("# Weighted Final error = %g\n",error)
+		UnweightedRMSError()		
+		file.printf("# Unweighted Final error = %g\n",error)
+		file.printf("# RL RMS Error = %g\n", toneerror)
+		file.printf("# NRL RMS Error = %g\n", noiseerror)
+		
 		// file.printf("# Principle axis matrix\n")
 		// for pp=0,NPARAMS-1 {
 		// 	pval[pp] = new Vector(NPARAMS)

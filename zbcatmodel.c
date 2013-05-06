@@ -242,7 +242,7 @@
 extern double pow(double, double);
 extern double cochlea_f2x(int , double);
 extern double cochlea_x2f(int , double);
-extern double delay_cat(double cf, int);
+extern double delay_species(double cf, int species);
 
 //void SingleAN(double *px, double cf, int nrep, double binwidth, int totalstim, double cohc, double cihc, double spont,
 //     double *timeout, double *meout, double *bmout, double *tausp, double *ihcout, double *synout, double *psth)
@@ -436,7 +436,7 @@ int an_zilanybruce2007(double binwidth, double cf, double spont, double cihc, do
 
   /* Adjust total path delay to all signals after BM */
 
-  delay      = delay_cat(cf, species);
+  delay      = delay_species(cf, species);
   delaypoint = __max(0, (int) ceil(delay / binwidth));
 
   for (i = 0;i < delaypoint;i++) {
