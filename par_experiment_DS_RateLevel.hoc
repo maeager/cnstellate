@@ -709,59 +709,59 @@ proc printprax2(){local pp,ii,pp2,error
 	//Output model data with best parameters
 	sprint(cmd,"mkdir -p %s",fileroot)
 	system(cmd)
-	error=DS_RateLevel_err(0,&pvec.x[0])
+//	error=DS_RateLevel_err(0,&pvec.x[0])
 	print error
 	system("date",datestr)
 	print datestr
 	sprint(fname,"%s/%s.Fit.dat",fileroot,origfileroot)
 	file.wopen(fname)
 	if (file.isopen()){
-		file.printf("# %s Optimisation\n",fileroot)
-		file.printf("# %s \n",datestr)
-		for pp=0,NPARAMS-1 {
-			file.printf("#%s = %g\t[%g,%g]\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp],pvec_ranges.x[pp][0],pvec_ranges.x[pp][1])
-		}
-		file.printf("# RL Error = %g\n", error1)
-		file.printf("# NRL Error = %g\n", error3)
-		file.printf("# Final error = %g\n",error)
-		// file.printf("# Principle axis matrix\n")
-		// for pp=0,NPARAMS-1 {
-		// 	pval[pp] = new Vector(NPARAMS)
-		// 	pval_praxis(pp,&pval[pp].x[0])	
-		//	file.printf("#\t")
-		//	if (pval[pp].size == NPARAMS){
-		//for pp2=0,NPARAMS-1 file.printf("%g\t",pval[pp].x[pp2])
-		//	}
-		//	file.printf("\n")
-		// }
-		file.printf("# Level, DS Model, GLG, HSR, LSR (sp/s)\n")
-		for i=0,level.size-1{
-			file.printf("%d\t%g\t%g\t%g\t%g\t%g\n",level.x[i],\
-			target_rate_level[2].x[i],\
-			dsrate[whichcell].x[i],grate[whichcell].x[i],\
-			hsrrate[whichcell].x[i],lsrrate[whichcell].x[i])
-		}
-		file.printf("\n\n",error)
-		for i=0,toneRL[0].size-1{
-			file.printf("%d\t%g\t%g\t%g\t%g\t%g\n",toneRL[0].x[i],\
-			target_rate_level[0].x[i],\
-			toneRL[1].x[i],toneRL[2].x[i],\
-			toneRL[3].x[i],toneRL[4].x[i])
-		}		
-		file.printf("#Other values \n")
-		file.printf("#tonefreq = %g\n",cf.x[whichcell])
-		
-		param.print2file(file,"#") //let Network Parameters print the struct
-		file.close()
-	}
-	//Write parameters to general optimisation file
-	sprint(fname,"%s/pvec_%s.hoc",fileroot,origfileroot)
-	file.aopen(fname)
-	file.printf(" // %s  \n",datestr)
-	for pp=0,NPARAMS-1 {
-		file.printf("%s = %g\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp])
-    }
-	file.close()
+file.printf("# %s Optimisation\n",fileroot)
+file.printf("# %s \n",datestr)
+for pp=0,NPARAMS-1 {
+	file.printf("#%s = %g\t[%g,%g]\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp],pvec_ranges.x[pp][0],pvec_ranges.x[pp][1])
+}
+file.printf("# RL Error = %g\n", error1)
+file.printf("# NRL Error = %g\n", error3)
+file.printf("# Final error = %g\n",error)
+// file.printf("# Principle axis matrix\n")
+// for pp=0,NPARAMS-1 {
+//	pval[pp] = new Vector(NPARAMS)
+//	pval_praxis(pp,&pval[pp].x[0])	
+//	file.printf("#\t")
+//	if (pval[pp].size == NPARAMS){
+//for pp2=0,NPARAMS-1 file.printf("%g\t",pval[pp].x[pp2])
+//	}
+//	file.printf("\n")
+// }
+file.printf("# Level, DS Model, GLG, HSR, LSR (sp/s)\n")
+for i=0,level.size-1{
+file.printf("%d\t%g\t%g\t%g\t%g\t%g\n",level.x[i],\
+target_rate_level[2].x[i],\
+dsrate[whichcell].x[i],grate[whichcell].x[i],\
+hsrrate[whichcell].x[i],lsrrate[whichcell].x[i])
+}
+file.printf("\n\n",error)
+for i=0,toneRL[0].size-1{
+file.printf("%d\t%g\t%g\t%g\t%g\t%g\n",toneRL[0].x[i],\
+target_rate_level[0].x[i],\
+toneRL[1].x[i],toneRL[2].x[i],\
+toneRL[3].x[i],toneRL[4].x[i])
+}		
+file.printf("#Other values \n")
+file.printf("#tonefreq = %g\n",cf.x[whichcell])
+
+param.print2file(file,"#") //let Network Parameters print the struct
+file.close()
+}
+//Write parameters to general optimisation file
+sprint(fname,"%s/pvec_%s.hoc",fileroot,origfileroot)
+file.aopen(fname)
+file.printf(" // %s	 \n",datestr)
+for pp=0,NPARAMS-1 {
+file.printf("%s = %g\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp])
+}
+file.close()
 }
 
 
