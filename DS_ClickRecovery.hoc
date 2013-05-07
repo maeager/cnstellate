@@ -1,0 +1,353 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+/*
+ *   DS_ClickRecovery.hoc
+ * 
+ *   
+ *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
+ *
+ *    This file is part of cnstellate.
+ * 
+ *    This is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation, either version 3 of the License, or
+ *    (at your option) any later version.
+ *
+ *    This is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+ */
+
+
+load_file("nrngui.hoc")
+//load_file("par_netpar.hoc")
+//load_file("par_init.hoc")
+xopen("Params.hoc")
+xopen("Utilities.hoc")
+xopen("NetworkParameters.hoc")
+xopen("AuditoryNerve.hoc")
+xopen("par_CNcell.tem")      // CN cell template
+xopen("parameters_DS_ClickRecovery.hoc")           // model parameters
+xopen("CochlearNucleus.hoc")         // model set-up
+xopen("cngui.hoc")
+
+//previous optimisation parameters
+xopen("pvec_Golgi_RateLevel.hoc")
+
+
+//--- Setup Auditory model
+create_cells()
+//objref dstellate[nchannels][1]
+//dstellate[50][0] = new CNcell(2,cf.x[50],50)
+connect_cells(fileroot)
+tstop=300
+
+objref g, gg
+g = new Graph()
+gg = new Graph()
+
+xopen("experiment_DS_ClickRecovery.hoc")
+
+
+//--- Setup Auditory model
+//RefreshParameters()
+//ANFilterBankRun()   //Build the filterbank
+//CheckFilterbank()
+//SetInputRates()      //Allocate filterbanks to ANFs and Golgi units
+//ShowInputGraphs()
+//ShowGolgiGraphs()
+
+
+pvec.printf
+error_fn="DS_ClickRecovery_err"
+
+/*
+bstar=0
+bb=1e9
+for iprax=0,10 {
+	runprax()
+	if (b < bb){
+		bb=b
+		mypvec = pvec.c
+		bstar = iprax
+	}
+	// Default Output Plot
+	sprint(grlbl, "DS_ClickRecovery/DS_ClickRecovery_Example%d.eps",iprax)
+	gr.printfile(grlbl)
+	g.printfile("DS_ClickRecovery/DS_ClickRecovery_DSpsth.eps")
+	gg.printfile("DS_ClickRecovery/DS_ClickRecovery_Gpsth.eps")
+	g.erase_all()
+	gg.erase_all()
+}
+print bstar, "was the best"
+*/
+//runprax()
+//runprax()
+//runprax2()
+
+
+
+/*  Notes: 17/9/09
+* when more emphasis is on the 8ms and 2ms (weight 10 and 8 vs 1 or 2) the optimisation tend to favour higher LSR weight and lower HSR/lower GABA inputs.
+* emphasis still present when init favoured LSR and weight normalised
+* better improvement when initialised at default - still having trouble with 8ms
+*/
+
+
+/* Notes 27/11
+Trying various parameters
+gkltbar
+erev_rm
+gleak_rm
+* 29/11 GleakDiv10 was the best
+
+objref initpvec,mypvec
+initpvec = pvec.c
+runprax()
+bstar = 0
+bb=b
+mypvec = pvec.c
+dstellate[50][0].soma.gleak_rm/=10
+pvec = initpvec.c
+runprax()
+sprint(grlbl, "DS_ClickRecovery/DS_ClickRecovery_GleakDiv10.eps")
+gr.printfile(grlbl)
+if (b < bb){
+	bb=b
+	mypvec = pvec.c
+	bstar = 1
+}
+dstellate[50][0].soma.gleak_rm*=10
+dstellate[50][0].soma.gleak_rm*=10
+pvec = initpvec.c
+runprax()
+sprint(grlbl, "DS_ClickRecovery/DS_ClickRecovery_GleakMul10.eps")
+gr.printfile(grlbl)
+if (b < bb){
+	bb=b
+	mypvec = pvec.c
+	bstar=2
+}
+dstellate[50][0].soma.gleak_rm/=10
+dstellate[50][0].soma.erev_rm=-70
+pvec = initpvec.c
+runprax()
+sprint(grlbl, "DS_ClickRecovery/DS_ClickRecovery_Erev-70.eps")
+gr.printfile(grlbl)
+if (b < bb){
+	bb=b
+	mypvec = pvec.c
+	bstar=3
+}
+dstellate[50][0].soma.erev_rm=-65
+pvec = initpvec.c
+runprax()
+
+dstellate[50][0].soma.erev_rm=-70
+dstellate[50][0].soma.gleak_rm=0.0008
+pvec = initpvec.c
+runprax()
+sprint(grlbl, "DS_ClickRecovery/DS_ClickRecovery_Erev-70_Gleakx2.eps")
+gr.printfile(grlbl)
+if (b < bb){
+	bb=b
+	mypvec = pvec.c
+	bstar=4
+}
+print bstar, "was the best ", bb
+mypvec.printf
+
+bstar=0
+bb=1e9
+dstellate[50][0].soma.gleak_rm= param.ds_gleak
+pvec = initpvec.c
+for iprax=0,10 {
+	runprax()
+	if (b < bb){
+		bb=b
+		mypvec = pvec.c
+		bstar = iprax
+	}
+	// Default Output Plot
+	sprint(grlbl, "DS_ClickRecovery/DS_ClickRecovery_Example%d.eps",iprax)
+	gr.printfile(grlbl)
+	g.printfile("DS_ClickRecovery/DS_ClickRecovery_DSpsth.eps")
+	gg.printfile("DS_ClickRecovery/DS_ClickRecovery_Gpsth.eps")
+	g.erase_all()
+	gg.erase_all()
+}
+print bstar, "was the best"
+*/
+
+/* 30/11/09
+running with 7 parameters
+1/12/09
+Running opt with reps=50
+Cleaned up pvec_factor.x[3]
+
+reps=50
+bstar=0
+objref aapvec,mypvec
+astar=0
+bb=1e9
+aa=1e9
+for iprax=0,20 {
+	Rand.uniform(pvec_ranges.x[0][0]*2,pvec_ranges.x[0][1]/10)
+	pvec.setrand(Rand)
+	runprax()
+	runprax2()
+	sprint(cmd, "cp %s/%s.Fit.dat %s/%s.Fit%d.dat",fileroot,fileroot,fileroot,fileroot,iprax)
+	system(cmd)
+	
+	
+	if (b < bb){
+		bb=b
+		mypvec = pvec.c
+		bstar = iprax
+	}
+	if (a < aa){
+		aa=a
+		aapvec = pvec.c
+		astar = iprax
+	}
+	// Default Output Plot
+	//sprint(grlbl, "DS_ClickRecovery/DS_ClickRecovery_ExampleB%d.eps",iprax)
+	//gr.printfile(grlbl)
+	//g.printfile("DS_ClickRecovery/DS_ClickRecovery_DSpsth.eps")
+	//gg.printfile("DS_ClickRecovery/DS_ClickRecovery_Gpsth.eps")
+	g.erase_all()
+	gg.erase_all()
+}
+reps=100
+print bstar, "was the best unweighted optimisation"
+sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery.Fit%d.dat ~/work/thesis/SimpleResponsesChapter/gfx/DS_ClickRecovery_best_unweighted.Fit%d.dat",bstar,bstar)
+system(cmd)
+pvec = mypvec.c
+runprax2()
+sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery_result.eps ~/work/thesis/SimpleResponsesChapter/gfx/DS_ClickRecovery_result_unweighted_%d.eps",bstar)
+system(cmd)
+print astar, "was the best weighted optimisation"
+sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery.Fit%d.dat ~/work/thesis/SimpleResponsesChapter/gfx/DS_ClickRecovery_best_weighted.Fit%d.dat",astar,astar)
+system(cmd)
+pvec = aapvec.c
+runprax2()
+sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery_result.eps ~/work/thesis/SimpleResponsesChapter/gfx/DS_ClickRecovery_result_weighted_%d.eps",astar)
+system(cmd)
+*/
+
+
+/* 4/12/09
+
+*/
+
+objref wclick,initpvec
+initpvec = pvec.c
+wclick = new Vector(14,1)
+//wclick.x[3]=5
+//  wclick.x[5]=10
+//  wclick.x[7]=1
+//  wclick.x[9]=10
+//  wclick.x[10]=0.1
+//  wclick.x[11]=0.1
+//  wclick.x[12]=0.1
+//  wclick.x[13]=0.1
+reps=50
+//bstar=0
+objref aapvec,mypvec
+//astar=0
+//bb=1e9
+//aa=1e9
+proc April12(){
+	for iprax=21,40 {
+		Rand.uniform(pvec_ranges.x[0][0]*2,pvec_ranges.x[0][1]/10)
+		pvec.setrand(Rand)
+		//pvec = initpvec.c
+		runprax()
+		runprax2()
+		sprint(cmd, "cp %s/%s.Fit.dat %s/%s.Fit.%d.dat",fileroot,fileroot,fileroot,fileroot,iprax)
+		system(cmd)
+		sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery_result.eps DS_ClickRecovery/DS_ClickRecovery_result.%d.eps",iprax)
+		system(cmd)
+		
+		if (b < bb){
+			bb=b
+			mypvec = pvec.c
+			bstar = iprax
+		}
+		if (a < aa){
+			aa=a
+			aapvec = pvec.c
+			astar = iprax
+		}
+		// Default Output Plot
+		sprint(grlbl, "DS_ClickRecovery/DS_ClickRecovery_Example.%d.eps",iprax)
+		gr.printfile(grlbl)
+		//g.printfile("DS_ClickRecovery/DS_ClickRecovery_DSpsth.eps")
+		//gg.printfile("DS_ClickRecovery/DS_ClickRecovery_Gpsth.eps")
+		g.erase_all()
+		gg.erase_all()
+	}
+	reps=100
+	print bstar, "was the best unweighted optimisation"
+	sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery.Fit.%d.dat ~/Work/thesis/SimpleResponsesChapter/gfx/DS_ClickRecovery_best_unweighted.Fit.%d.dat",bstar,bstar)
+	system(cmd)
+	pvec = mypvec.c
+	runprax2()
+	sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery_result.eps ~/Work/thesis/SimpleResponsesChapter/gfx/DS_ClickRecovery_result_unweighted.%d.eps",bstar)
+	system(cmd)
+	print astar, "was the best weighted optimisation"
+	sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery.Fit.%d.dat ~/Work/thesis/SimpleResponsesChapter/gfx/DS_ClickRecovery_best_weighted.Fit.%d.dat",astar,astar)
+	system(cmd)
+	pvec = aapvec.c
+	runprax2()
+	sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery_result.eps ~/Work/thesis/SimpleResponsesChapter/gfx/DS_ClickRecovery_result_weighted.%d.eps",astar)
+	system(cmd)
+	
+	
+	lineno=344
+	for iprax=0,20 {
+		sprint(cmd, "head -%d pvec_DS_ClickRecovery.hoc | tail -7 > /tmp/params.hoc",lineno)
+		system(cmd)
+		xopen("/tmp/params.hoc")
+		set_pvec()
+		pvec.printf
+		runprax2()
+		sprint(cmd, "cp DS_ClickRecovery/DS_ClickRecovery_result.eps DS_ClickRecovery/DS_ClickRecovery_result.%d.eps",iprax)
+		system(cmd)
+		lineno+=9
+	}
+}//April12
+
+
+
+
+NPARAMS=2
+init_params(NPARAMS)
+append_ds_gaba_decay()
+append_ds_gleak()
+
+xopen("pvec_DS_ClickRecovery.hoc")
+
+//Simulation 1: LSR->DS
+param.w.x[lsr][ds]= 0.01103
+param.n.x[lsr][ds]= 84
+//Simulation 2: GLG->DS
+param.w.x[glg][ds] = 0.000531549
+param.n.x[glg][ds] = 5
+//Simulation 3: HSR-> DS
+param.n.x[hsr][ds] = 125
+param.w.x[hsr][ds] = 0.000167221
+param.bw.x[hsr][ds]=40
+param.bw.x[lsr][ds]=40
+
+//append_num_lsrds_connections()
+//param.w.x[glg][ds]=0.0000
+//param.w.x[hsr][ds]=0.0000
+reps=25
+//runprax()
+
+ANsoundspath="../sounds"
+

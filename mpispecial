@@ -1,0 +1,9 @@
+#!/bin/bash
+
+NRNHOME="${HOME}/src/neuron/nrnmpi"
+NRNBIN="${NRNHOME}/${ARCH}/bin"
+NRNIV="${NRNBIN}/nrniv"
+LNRNMECH="${PWDDIR}/mpi/.libs/libnrnmech.so"
+MPIRUN=`which mpirun`
+
+"${MPIRUN}" -np "$1" "${NRNIV}" -dll "${LNRNMECH}" "$@" 

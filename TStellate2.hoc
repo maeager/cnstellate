@@ -1,0 +1,297 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+/*
+ *   TStellate2.hoc
+ *   Optimise parameters controlling TS cells. Second routine 
+ *   with three tones.
+ * 
+ *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
+ *
+ *    This file is part of cnstellate.
+ * 
+ *    This is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation, either version 3 of the License, or
+ *    (at your option) any later version.
+ *
+ *    This is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+ */
+
+
+load_file("nrngui.hoc")
+//load_file("par_netpar.hoc")
+//load_file("par_init.hoc")
+
+xopen("Params.hoc")
+xopen("Utilities.hoc")
+xopen("NetworkParameters.hoc")
+xopen("AuditoryNerve.hoc")
+xopen("par_CNcell.tem")      // CN cell template
+
+//Previous optimisation parameters
+xopen("pvec_Golgi_RateLevel.hoc")
+xopen("pvec_DS_ClickRecovery.hoc")
+xopen("pvec_DS_RateLevel.hoc")
+xopen("pvec_TV_RateLevel.hoc")
+xopen("pvec_TV_Notch.hoc")
+
+//Parameters for this optimisation
+xopen("parameters_TStellate.hoc")
+
+//--- Setup CN Stellate Network model
+xopen("CochlearNucleus.hoc")         // model set-up
+// xopen("par_CochlearNucleus.hoc")   // parallel model set-up
+ xopen("calcisilag.hoc")
+
+ 
+// use_ball_stick=1
+ 
+// reset_DS_ClickRecovery()
+// param.w.x[hsr][ds]*	=10
+// param.w.x[ds][tv]/	=10
+// reset_weights()
+// usesavedfilterbanks	=1
+
+
+//Initial values
+param.w.x[hsr][ts]		= 0.001
+param.w.x[lsr][ts]		= 0.001
+param.w.x[ds][ts]		= 0.0001
+param.w.x[tv][ts]		= 0.0002
+param.w.x[glg][ts]		= 0.0005
+
+ param.delay.x[hsr][ts]  = 0
+ param.delay.x[lsr][ts]  = 0
+ param.delay.x[hsr][ds]  = 0
+ param.delay.x[lsr][ds]  = 0
+ param.delay.x[hsr][tv]  = 0.5
+ param.delay.x[lsr][tv]  = 0.5
+ param.delay.x[lsr][glg] = 1
+
+param.n.x[hsr][ts]		= 10
+param.n.x[lsr][ts]		= 10
+param.n.x[ds][ts]		= 5
+param.n.x[tv][ts]		= 5
+param.n.x[glg][ts]		= 5
+param.ts_jitter_sd = 0.5 //ms
+create_cells()
+objref nil
+// Comment out next line to kill all TS cells not covered by experimental data
+// subtypes' CFs. It reduces processing time by a fraction - enough when
+// simulating multiple times
+//for i=0,99 if(i != 20 || i !=38 || i != 51) tstellate[i][0] = nil
+
+
+connect_cells(fileroot)
+connect_CNcells(fileroot)
+xopen("cngui.hoc")
+
+xopen("spike_stats.hoc")
+xopen("par_experiment_TStellate2.hoc")
+
+
+ RefreshCF()
+ RefreshCNcellsCF()
+ RefreshCellParams()
+ 
+ CS_data()
+ SetupChopperCV()
+ SetupChopperMP()
+ 
+ RefreshParameters()
+ ANFilterBankRun()
+ SetInputRates()
+
+ 
+
+//tstop=300
+proc QuickRun(){
+  set_pvec()
+  pvec.printf
+  print TStellate2_err(0,&pvec.x[0])  
+}
+
+tolerance = 0.0001
+maxstepsize = 0.001
+printmode = 3
+strdef error_fn
+error_fn = "TStellate2_err"
+
+proc runprax(){
+	attr_praxis(tolerance, maxstepsize, printmode)
+	fit_praxis(NPARAMS,error_fn,&pvec.x[0])
+}
+
+
+
+//objref pval[NPARAMS]
+
+objref nil
+access tstellate[whichcell][0].soma
+xopen("reset_weights.hoc")
+xopen("voltage.ses")
+xopen("jitter.hoc")
+
+
+// param.w.x[lsr][ts]	= 0.000774459
+// param.w.x[hsr][ts]	= 0.000817015
+// param.w.x[ds][ts]	= 0.0000138011
+// param.w.x[tv][ts]	= 0.0000146063
+// param.w.x[glg][ts]	= 9.3936e-05
+// param.ts_gleak	= 0.000494097
+// param.ts_erev	=-65
+// set_pvec()
+
+
+// CT1_data()
+// RefreshParameters()
+// ANFilterBankRun()  //Generate new AN instant. rates
+// SetInputRates()
+
+// param.ts_erev	=-58
+// param.w.x[ds][tv]/	=10
+// param.w.x[hsr][tv]	=0.0006
+// runprax()
+// printprax()
+// print "CT1 Done"
+
+
+
+
+// //jitterdelay(0,0.5)
+
+// //param.w.x[lsr][ts] = 0.000901216
+// //param.w.x[hsr][ts] = 0.000914421
+// //param.w.x[ds][ts]	= 0.00146354
+// //param.w.x[tv][ts]	= 0.00132918
+// //param.w.x[glg][ts] = 3.94981e-05
+// //param.ts_gleak = 0.00297771
+
+
+// //param.w.x[lsr][ts] = 0.000774459
+// //param.w.x[hsr][ts] = 0.000817015
+// //param.w.x[ds][ts]	= 0.0000138011
+// //param.w.x[tv][ts]	= 0.0000146063
+// //param.w.x[glg][ts] = 9.3936e-05
+// //param.ts_gleak = 0.000294097
+// //param.ts_erev	=-65
+// //reps				=50
+
+param.n.x[hsr][ts]=8
+param.n.x[lsr][ts]=15
+param.n.x[ds][ts]=4
+param.n.x[tv][ts]=7
+param.n.x[glg][ts]=5
+
+param.w.x[lsr][ts]	= 0.0038
+param.w.x[hsr][ts]	= 0.0009
+param.w.x[ds][ts]	= 0.0000138011
+param.w.x[tv][ts]	= 0.0000146063
+param.w.x[glg][ts]	= 5.3936e-05
+// param.ts_gleak	= 0.000494097
+param.ts_erev	=-60.9
+set_pvec()
+
+
+proc optimise_CS(){
+	CS_data()	
+	for ii=0,CV_weight.count()-1 {
+		CV_weight.object(ii).mul(100)
+		CV_weight.object(ii).mul(100)
+
+	}	
+	param.n.x[hsr][ts]=16
+param.n.x[lsr][ts]=15
+param.n.x[ds][ts]=3
+param.n.x[tv][ts]=3
+param.n.x[glg][ts]=3
+param.ts_erev=-60.9  
+
+RefreshParameters()
+ANFilterBankRun()  //Generate new AN instant. rates
+SetInputRates()
+xopen("TStellate_CS/pvec_TStellate.hoc")
+set_pvec()
+//QuickRun()
+runprax()
+printprax()
+//runprax()
+//printprax()
+//runprax()
+//printprax()
+//runprax()
+//printprax()
+print "CS Done"
+PSTHcell(tstellate_spikes,10,2)
+PSTHcell(tstellate_spikes,0.25,2)
+}
+
+
+proc optimise_CT1(){
+	CT1_data()	
+xopen("TStellate2_CT1/pvec_TStellate.hoc")	
+	for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100)
+
+param.ts_erev=-62.9
+param.n.x[hsr][ts]=12
+param.n.x[lsr][ts]=15
+param.n.x[ds][ts]=5
+param.n.x[tv][ts]=10
+param.n.x[glg][ts]=5
+set_pvec()	
+
+RefreshParameters()
+ANFilterBankRun()  //Generate new AN instant. rates
+SetInputRates()
+
+//QuickRun()
+runprax()
+printprax()
+//runprax()
+//printprax()
+//runprax()
+//printprax()
+//runprax()
+//printprax()
+print "CT1 Done"
+PSTHcell(tstellate_spikes,10,2)
+PSTHcell(tstellate_spikes,0.25,2)
+}
+
+proc optimise_CT2(){ 
+	xopen("TStellate2_CT2/pvec_TStellate.hoc")
+	CT2_data()
+	for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100)
+
+	param.ts_erev=-62.9
+	param.n.x[hsr][ts]=12
+	param.n.x[lsr][ts]=15
+	param.n.x[ds][ts]=10
+	param.n.x[tv][ts]=10
+	param.n.x[glg][ts]=10	
+	set_pvec()
+	RefreshParameters()
+	ANFilterBankRun()  
+	SetInputRates()
+	
+	//QuickRun()
+	//runprax()
+	//printprax()
+	//runprax()
+	//printprax()
+	//runprax()
+	//printprax()
+	runprax()
+	printprax()
+	print "CT2 Done"
+	PSTHcell(tstellate_spikes,10,2)
+	PSTHcell(tstellate_spikes,0.25,2)
+}
+
+TSexemplar_SPL_thresh=10
