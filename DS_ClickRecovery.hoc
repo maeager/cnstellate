@@ -53,10 +53,10 @@ xopen("experiment_DS_ClickRecovery.hoc")
 
 
 //--- Setup Auditory model
-RefreshParameters()
-ANFilterBankRun()   //Build the filterbank
+//RefreshParameters()
+//ANFilterBankRun()   //Build the filterbank
 //CheckFilterbank()
-SetInputRates()      //Allocate filterbanks to ANFs and Golgi units
+//SetInputRates()      //Allocate filterbanks to ANFs and Golgi units
 //ShowInputGraphs()
 //ShowGolgiGraphs()
 
@@ -349,5 +349,5 @@ param.bw.x[lsr][ds]=40
 reps=25
 //runprax()
 
-
+ANsoundspath="../sounds"
 

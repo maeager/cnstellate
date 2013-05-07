@@ -169,7 +169,7 @@ proc append_ds_gkltbar(){
 }
 proc append_ds_gleak(){
 	//Leak conductance effects Input resistance and Membrane time constant
-	add_opt_param(NPARAMS,0.274146,"param.ds_gleak",1e-3,5e-2,5)
+	add_opt_param(NPARAMS,0.408307,"param.ds_gleak",1e-3,5e-2,50)
 }
 
 proc append_ds_gaba_rise(){
@@ -186,10 +186,10 @@ proc append_ds_erev(){
 } 
 
 
-NPARAMS=1
+NPARAMS=2
 init_params(NPARAMS)
  append_ds_gaba_decay()
 // append_ds_gkltbar()
-// append_ds_gleak()
+append_ds_gleak()
 // append_ds_erev()
 // append_ds_ghbar()

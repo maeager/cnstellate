@@ -58,7 +58,7 @@ proc print_results() {
 
 // Replacement of connect_cells in Cochlear Nucleus.hoc
 
-proc connect_cells(){local i,p,target,source,low,high,range,channel,sourcechannel
+proc connect_cells_DS(){local i,p,target,source,low,high,range,channel,sourcechannel
 	
     print "Connecting cells"
     sprint(filename,"%s.connect",$s1)
@@ -313,10 +313,11 @@ func DS_ClickRecovery_err() {local ii,jj,pp
 	//Check for bad values
 	for pp=0,NPARAMS-1 {
 		if ($&2[pp] <= pvec_ranges.x[pp][0] || $&2[pp] > pvec_ranges.x[pp][1]){
+			print "param out of range: ", pp, $&2[pp], pvec_ranges.x[pp][0], pvec_ranges.x[pp][1]
 			return 1e9
 		}
 	}
-	if ($&2[4]*pvec_factor.x[4] < $&2[5]*pvec_factor.x[5]) return 1e8
+	//if ($&2[4]*pvec_factor.x[4] < $&2[5]*pvec_factor.x[5]) return 1e8
 	//Update parameters
 	for pp=0,NPARAMS-1 {
 		sprint(cmd,"%s = %g\n",pvec_name.object(pp).s,$&2[pp]*pvec_factor.x[pp])
@@ -324,6 +325,7 @@ func DS_ClickRecovery_err() {local ii,jj,pp
 	}
 	
 	//Update model
+	connect_cells_DS(fileroot)
 	reset_weights()
 	reset_DS()
 	
@@ -356,9 +358,7 @@ func DS_ClickRecovery_err() {local ii,jj,pp
 		errorvec.append(DShist.sum(clicktimes.x[i]*10000/srate + 4/binwidth , \
 		clicktimes.x[i]*10000/srate + 6/binwidth))
 	}
-	
 	//Measure idle times between spikes
-	
 	errorvec.append(DShist.sum(clicktimes.x[1]*10000/srate + 6/binwidth, \
  	  clicktimes.x[2]*10000/srate + 4/binwidth))
 	errorvec.append(DShist.sum(clicktimes.x[3]*10000/srate + 6/binwidth, \
@@ -388,11 +388,8 @@ func DS_ClickRecovery_err() {local ii,jj,pp
 	for pp=0,NPARAMS-1 file.printf("%g\t",$&2[pp])
 	file.printf("%g\n",a)
 	file.close()
-	
 	errorvec.printf
-	
 	return a
-	
 }
 
 
@@ -545,5 +542,5 @@ xpanel()
 
 
 
-ClickRecovery()
+
 
