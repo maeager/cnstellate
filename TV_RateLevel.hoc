@@ -45,8 +45,6 @@ xopen("pvec_Golgi_RateLevel.hoc")
 xopen("pvec_DS_ClickRecovery.hoc")
 xopen("pvec_DS_RateLevel.hoc")
 
-reset_weights()
-reset_DS_ClickRecovery()
 
 //Setup this experiment
 xopen("par_experiment_TV_RateLevel.hoc")

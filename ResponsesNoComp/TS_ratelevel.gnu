@@ -150,11 +150,11 @@ c=15
 d=3
 f(x)=a*atan((x-c)/b)+d
 fit f(x) 'TS_ratelevel_5810.dat' using 1:2 via a,b,c,d
-set label  "MR = %.2f sp/s", (a*(pi/2))+d at graph 0.6, graph 0.32
-set label  "1/2 max = %.2f dBSPL", c at graph 0.6, graph 0.28
-set label  "THR = %.1f dBSPL", -((pi/2)*0.95*b)+c at graph 0.6, graph 0.24
-set label  "DR = %.1f ", pi*0.95*b at graph 0.6, graph 0.2
-set label  "spon = %.2f (sp/s)", d-f(c) at graph 0.6, graph 0.16
+set label  sprintf("MR = %.2f sp/s", (a*(pi/2))+d) at graph 0.6, graph 0.32
+set label  sprintf("1/2 max = %.2f dBSPL", c) at graph 0.6, graph 0.28
+set label  sprintf("THR = %.1f dBSPL", -((pi/2)*0.95*b)+c) at graph 0.6, graph 0.24
+set label  sprintf("DR = %.1f dB", pi*0.95*b) at graph 0.6, graph 0.2
+set label  sprintf("SR = %.2f (sp/s)", d-f(c)) at graph 0.6, graph 0.16
 plot  f(x), 'TS_ratelevel_5810.dat'  using 1:2  notitle with linespoints ls 3
 #    EOF
 

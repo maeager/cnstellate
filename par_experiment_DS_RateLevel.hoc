@@ -709,7 +709,7 @@ proc printprax2(){local pp,ii,pp2,error
 	//Output model data with best parameters
 	sprint(cmd,"mkdir -p %s",fileroot)
 	system(cmd)
-	error=DS_RateLevel_err(0,&pvec.x[0])
+//	error=DS_RateLevel_err(0,&pvec.x[0])
 	print error
 	system("date",datestr)
 	print datestr

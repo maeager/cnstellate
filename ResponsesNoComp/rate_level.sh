@@ -46,10 +46,10 @@ gnuplot G_ratelevel.gnu
 
 # gnuplot TS_response_area.gnu
 
-display TS_ratelevel.eps &
-display DS_ratelevel.eps &
-display TV_ratelevel.eps &
-display G_ratelevel.eps &
+#display TS_ratelevel.eps &
+#display DS_ratelevel.eps &
+#display TV_ratelevel.eps &
+#display G_ratelevel.eps &
 
 # rm -f raster.0.dat
 # {
@@ -109,10 +109,10 @@ done
 }>> psth.3.dat
 gnuplot psth.gnu
 
-display psthVlevel.0.eps &
-display psthVlevel.1.eps &
-display psthVlevel.2.eps &
-display psthVlevel.3.eps &
+#display psthVlevel.0.eps &
+#display psthVlevel.1.eps &
+#display psthVlevel.2.eps &
+#display psthVlevel.3.eps &
 
 #gnuplot rasters.gnu
 #display rasters.eps &
