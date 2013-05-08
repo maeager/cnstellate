@@ -45,10 +45,10 @@ SpirouFig8B_wStr_Tone = new Matrix()
 SpirouFig8B_wStr_Noise  = new Matrix()
 
 file.ropen("TV_RateLevel/Spirou-Fig8B-RL-withStry-Control-Tone-Noise.png.dat")
-SpirouFig8B_wStr_Tone.scanf(file,32,2)
-SpirouFig8B_Control_Tone.scanf(file,22,2)
-SpirouFig8B_wStr_Noise.scanf(file,24,2)
-SpirouFig8B_Control_Noise.scanf(file,18,2) 
+SpirouFig8B_wStr_Tone.scanf(file,31,2)
+SpirouFig8B_Control_Tone.scanf(file,21,2)
+SpirouFig8B_wStr_Noise.scanf(file,23,2)
+SpirouFig8B_Control_Noise.scanf(file,17,2) 
 file.close()
 
 objref SpirouFig8A_wStr_Tone, SpirouFig8A_Control_Tone, SpirouFig8A_Control_Noise,SpirouFig8A_wStr_Tone, SpirouFig8A_wStr_Noise, SpirouFig8A_wBic_Tone, SpirouFig8A_wBic_Noise
@@ -139,6 +139,8 @@ SaveGolgiFilterBank2File()
 }
 }
 
+//Require 2 TV units with CF = f(position 50)
+objref tuberculoventral[1][2]
 
 
 
@@ -278,132 +280,32 @@ proc create_connect_TV() {local i,p,target,source,low,high,range,channel,sourcec
 
 
 
-//overload SaveSpikes from CochlearNucleus.hoc
-proc SaveSpikes(){local i,j 
-	an.SaveSpikes()
-	i=0	
-	for j=0,1{
-		sprint(cmd, "tuberculoventral[%d][%d].SaveSpikes()",i,j)
-		execute1(cmd)
-	}
-	for i=0,nchannels-1 {
-        sprint(cmd, "dstellate[%d][0].SaveSpikes()",i)
-	    execute1(cmd)
-	}
-	for i=0,nchannels-1 {
-        sprint(cmd, "golgi[%d][0].SaveSpikes()",i)
-	    execute1(cmd)
-	}
-	
+//
+// Fitness/error function
+//
+objref fitgr
+proc plot_fitgr(){
+    objref fitgr
+    fitgr = new Graph()
+//    expected_notch[1].plot(fitgr,freq1_notch,4,1)
+//    CNrate[tv].plot(fitgr,cf,3,1)
+//    type2_1oct_sweep[1].plot(fitgr,freq_1oct,5,1)
+//    fitgr.exec_menu("View = plot")
 }
 
-//overload ClearSpikes from CochlearNucleus.hoc
-proc ClearSpikes(){local ii,jj
-    ClearInputSpikes()
-       for jj=0,1{
-			sprint(cmd, "tuberculoventral[0][%d].spikes.resize(0)",jj)
-            execute1(cmd)
-        }
- 	
-	for ii=0,nchannels-1{
-        for jj=0,nDSperchannel-1{
-			sprint(cmd, "dstellate[%d][%d].spikes.resize(0)",ii,jj)
-            execute1(cmd)
-        }
-        for jj=0,nGperchannel-1{
-			sprint(cmd, "golgi[%d][%d].spikes.resize(0)",ii,jj)
-            execute1(cmd)
-        }
-    }
- print "Cleared CN cell Spikes"
-}
+objref templevel,indlevel,errorvec,refvec
+
+reps=20
+strdef origfileroot
+origfileroot = fileroot
+
+error=0
+strdef datestr,grlbl
+objref ivec //,pval[NPARAMS]
+ivec= new Vector()
+ivec.append(3,9,7,5,1,2,8,6,4,0,10,11,12,13)
 
 
-proc multi_run(){local irep,xtime
-    xtime = startsw()
-    ClearSpikes()
-    for irep=0,reps-1{
-		GenInputSpikes()
-		print irep
-		//run()
-		stdinit()
-		continuerun(tstop)
-        SaveSpikes()
-    }
-    print "Multi_run time:", startsw() - xtime
-}
-
-
-
-
-// Sound level in dB attenuation refers to noise spectrum level at 0 dB equal to \~40 dB re 20 $\mu$Pa/Hz$^{1/2}$.
-
-//////////Default Parameters for TV_RateLevel///////////////
-
-ANsoundspath			= "../../sounds"
-cfhi				= 48000
-cflo				= 200
-RefreshCF()
-ramplngth			= 0.002
-stimdelay			= 0.02   //sec, 20 msec
-dutycycle           = 0.2 //don't have quiet at the end, usually 0.2
-reps				= 25     //
-ANmodel				= 6      // Zilany Bruce model version 3
-species				= 1      // Cat
-ANFBgr					= new Graph()
-usesavedfilterbanks		= 1
-srate					= 500000
-stimtdres				= 1/srate
-sg_rate					= 50000
-sg_tdres				= 1/sg_rate
-RefreshCF()
-GetAudiogramData()
-RefreshParameters()
-//  ANFilterBankRun()
-//  CheckFilterbank()
-//  SetInputRates()
-
-
-proc TV_2tone(){
-	stimtype			= 9     //TwoTone
-	dur				    = 0.049  // duration of stim (seconds)
-	tstop				= 70    // ms
-	spl				    = 20     //dB SPL
-	tonefreq            = 6600 //Hz, unit 1 CF
-	tone2freq           = 9350 //Hz ,unit 2 
-	tone2spl            = spl // set the second tone's sound level to the same as the first
-	GetAudiogramData()
-	RefreshParameters()
-	ANFilterBankRun()
-//  CheckFilterbank()
-//  SetInputRates()
-}
-
-proc TV_BFtone(){
-	stimtype			= 1     // Pure Tone
-	dur				    = 0.049  // duration of stim (seconds)
-	tstop				= 70    // ms
-	spl				    = 20     //dB SPL
-	tonefreq            = cf.x[50] //Hz, unit 1 CF
-	GetAudiogramData()
-	RefreshParameters()
-	ANFilterBankRun()
-//  CheckFilterbank()
-//  SetInputRates()
-}
-
-proc TV_Noise(){
-	stimtype			= 6     //BBN 
-	dur				    = 0.049  // duration of stim (seconds)
-	tstop				= 70    // ms
-	spl				    = 20     //dB SPL
-	tonefreq            = cf.x[50] //Hz, unit 1 CF
-	GetAudiogramData()
-	RefreshParameters()
-	ANFilterBankRun()
-//  CheckFilterbank()
-//  SetInputRates()
-}
 
 
 
@@ -420,7 +322,7 @@ proc RedefineTVmodel(){local i_chan,j_cell,ii
 	lsr2dsAMPAlist = new List()
 	glg2dsGABAlist = new List()
 	ds2tvGLYlist = new List()
-	connect_TV(origfileroot)
+	create_connect_TV(origfileroot)
 	for ii=0,1 tuberculoventral[0][ii].soma.erev_rm = param.tv_erev
 }
 
@@ -534,8 +436,9 @@ func TV_RateLevel_err(){local jj,pp,xtime
 		execute1(cmd)
     }
 	//Rearrange synapses is using weight parameters
-	reset_weights()
+	create_connect_TV(fileroot)
 	RefreshCellParams()
+	//reset_weights()
 	for i = 0, ds2tvGLYlist.count-1 if(ds2tvGLYlist.object(i).postcell() == tuberculoventral[0][1]) print ds2tvGLYlist.object(i).weight=0
 	TV_BFtone()
 	level=new Vector(10)
@@ -625,6 +528,7 @@ func TV_RateLevel_err2(){local jj,pp,xtime
 	//Rearrange synapses is using weight parameters
 	create_connect_TV(fileroot)
 	RefreshCellParams()
+	//reset_weights()
     // Special case for TV unit 2 - no DS inhibition	
 	for i = 0, ds2tvGLYlist.count-1{ 
 	  if(ds2tvGLYlist.object(i).postcell() == tuberculoventral[0][1]) {
@@ -797,3 +701,15 @@ proc printprax2(){local pp,ii,pp2,error
 	file.close()
 }
 
+
+proc Rerun_ANmodel(){
+	stimtype=6
+	for (spl=50;spl<=100;spl+=5){
+RefreshParameters() 
+RefreshParameters()
+ANFilterBankRun()
+SaveANFilterBank2File()
+for i=0,nchannels-1 golgi[i][0].SetRate2()
+SaveGolgiFilterBank2File()
+}
+}
