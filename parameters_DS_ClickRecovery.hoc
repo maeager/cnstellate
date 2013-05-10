@@ -177,7 +177,7 @@ proc append_ds_gaba_rise(){
 }
 
 proc append_ds_gaba_decay(){
-	add_opt_param(NPARAMS,0.009,"param.ds_gaba_decay",1000,2e-3,0.05)//2 to 50 ms
+	add_opt_param(NPARAMS,0.009	,"param.ds_gaba_decay",1000,2e-3,0.05)//2 to 50 ms
 }
 
 proc append_ds_erev(){

@@ -49,8 +49,11 @@ objref g, gg
 g = new Graph()
 gg = new Graph()
 
-xopen("experiment_DS_ClickRecovery.hoc")
 
+
+whichcell=50
+ANsoundspath="../sounds"	//path specific to this system
+xopen("experiment_DS_ClickRecovery.hoc")
 
 //--- Setup Auditory model
 RefreshParameters()
@@ -323,6 +326,7 @@ proc April12(){
 
 
 
+ANsoundspath="../sounds"	
 
 NPARAMS=2
 init_params(NPARAMS)
