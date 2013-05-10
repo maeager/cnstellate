@@ -1,0 +1,175 @@
+# -*- mode: org; -*-
+
+* Compile NEURON for gui or mpi 
+
+I generally setup two versions of NEURON one for testing with a GUI
+and the other with MPI. PVM may also be used to generate parallel
+simulations, but mpich2 or open-mpi is preferred.
+
+Firstly, unpack iv then jump into the iv folder. 
+
+: cd ~
+: mkdir -p src/neuron
+: cd src/neuron
+: tar zxvf ../iv-17.tar.gz
+: mv iv-17 iv
+: cd iv
+
+Default installation (/usr/local) requires root privileges. I prefer to install IV into its source directory.
+
+: ./configure --prefix=`pwd` 
+: make && make install
+
+
+Next unpack nrn and auto-configure but do not compile.
+
+: cd ..
+: tar zxvf nrn-X.X.tar.gz
+: mv nrn-X.X nrn
+: cd nrn
+
+Now make your separate builds for the gui
+
+: cd ~/src/neuron
+: mkdir nrngui
+: cd nrngui
+: ../configure --prefix=`pwd` --with-iv=$HOME/src/neuron/iv --without-paranrn
+: nice make -j3 && make install
+
+and for MPI
+
+: cd ..
+: mkdir mpi
+: ../configure --prefix=`pwd` --without-iv --with-paranrn
+: nice make -j3 && make install
+
+** Developmental NEURON 
+
+The up to date NEURON package can be pulled from the NEURON mercurial repository
+(http://www.neuron.yale.edu/hg/neuron/iv and 
+ http://www.neuron.yale.edu/hg/neuron/nrn)
+Each of the source packages need to run some autotools scripts in ./build.sh in their directories.
+
+: cd ~
+: mkdir -p src/neuron
+: cd src/neuron
+: hg clone http://www.neuron.yale.edu/hg/neuron/iv
+: hg clone http://www.neuron.yale.edu/hg/neuron/nrn
+: cd iv
+: ./build.sh
+: cd ../nrn
+: ./build.sh
+
+Use the configure/make/install steps above on the developmental source code.
+
+
+* CNSTELLATE configuration
+
+In the working cnstellate directory, setup two linkable libraries against the
+two nrn builds.
+
+See the Makefile for instructions to make either the gui or mpi version,
+otherwise use "make all".  This calls the appropriate 'nrnivmodl' script to
+convert the *.mod files to a dynamic library.
+
+: make gui
+
+or
+
+: make mpi
+
+
+* Enabling FFGN in the Zilany et al. 2009 AN model
+
+Uncomment the variables below in an_zilany_v4.mod
+
+:  /* #define DEBUG   */
+:  /* #define _FFGN_  */
+
+
+* Running CNSTELLATE
+
+To run a script in gui mode:
+
+:  ./gui/special par_golgi_test.hoc -
+
+The dash on the end allows the user to enter the interactive mode after loading the HOC file.
+
+To run the script in non-gui mode, use the mpi version:
+
+:  ./mpi/special par_golgi_test.hoc -
+
+When the MPI version is run without mpiexec or mpirun, the program run identical to the gui version without any visual windows. 
+For parallel cnstellate to work, the MPI version should be run in the background from the mpispecial script or in batch mode:
+
+: ./mpispecial np par_batch.hoc > /tmp/batch.log 2>&1 &
+
+"np" is the number of processors requested.  See mpispecial for how the parallel mode is implemented.
+
+To run a test on different numbers of processors, see the example script test1.sh or run it using
+
+: ./test1.sh
+
+Submit the script to a PBS engine using
+
+: qsub -q medium.q -b y -V -cwd `pwd`/mpispecial 5 par_batch.hoc 
+
+
+
+* Running and analysing full network to AM stimuli
+
+Chapter 4 of my thesis shows the responses of the CNSM model to AM stimuli.
+
+=ResponseRoutines.hoc= includes the methods to simulate various battery tests for auditory neurons.
+
+ - /RateLevelFunction()/
+     short tone bursts at fixed frequency and incrementing intensity
+ - /NoiseRateLevelFunction()/
+     short noise bursts with incrementing intensity 
+ - /MaskedRateLevelFunction()/
+     short tone+ noise bursts, fixed noise at intensity with 50% rate in NRL, tone with fixed frequency and incrementing intensity 
+ - /MaskedResponseCurve()/
+     masking noise at fixed intensity plus short tone bursts at fixed frequency and increasing intensity 
+ - /ResponseArea()/
+     short tone bursts: 2D map of frequency and intensity restricted to the receptive field of the unit
+ - /F0_Response()/
+     long AM tones at fixed carrier and modulation frequencies, with short increments in intensity 
+ - /ModulationTransferFunction()/ 
+     long duration, sinusoidal amplitude modulation
+     stimuli at fixed carrier frequency.  Modulation frequency ranges from 50 to
+     1200 Hz.  Stimulus intensity was varied from 20 to 80 dB SPL in 20 dB steps.
+
+
+The output of these methods is saved in subdirectories depending on the method
+name and in an ordered arrangement of independent variables.
+
+For example, the /ModulationTransferFunction()/ outputs to:
+ <fileroot>\/ModulationTransferFunction\/<intensity SPL>\/<modulation frequency>\/
+
+The contents of a MTF simulation
+
+: $ ls TStellate2_CS/ModulationTransferFunction/80/100
+: an.HSR.hist       psth.2.dat       spctFULL.1.dat  vs.1.dat
+: anHSR_raster.dat  psth.3.dat       spctFULL.2.dat  vs.2.dat
+: anLSR_raster.dat  rateplace.0.dat  spctFULL.3.dat  vs.3.dat
+: ds_raster.dat     rateplace.1.dat  spctFULL.4.dat  vs.4.dat
+: glg_raster.dat    rateplace.2.dat  spctFULL.5.dat  vs.5.dat
+: periodhist.0.dat  rateplace.3.dat  spctVS.0.dat    vsSPIKES.0.dat
+: periodhist.1.dat  smhist.dat       spctVS.1.dat    vsSPIKES.1.dat
+: periodhist.2.dat  spct.0.dat       spctVS.2.dat    vsSPIKES.2.dat
+: periodhist.3.dat  spct.1.dat       spctVS.3.dat    vsSPIKES.3.dat
+: periodhist.4.dat  spct.2.dat       spctVS.4.dat    vsSPIKES.4.dat
+: periodhist.5.dat  spct.3.dat       spctVS.5.dat    vsSPIKES.5.dat
+: pow.dat           spct.4.dat       ts_raster.dat
+: psth.0.dat        spct.5.dat       tv_raster.dat
+: psth.1.dat        spctFULL.0.dat   vs.0.dat
+
+ - rateplace.*.dat: mean firing rate from t_start to t_stop (ms)
+ - vs.*.dat: period histogram method (default calcisi.hoc)
+ - vsSPIKES.*.dat: raw spike method with spikes from t_start+10 to t_stop (ms)
+
+** Preparation of output data for plotting
+
+
+
+

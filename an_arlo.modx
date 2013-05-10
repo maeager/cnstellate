@@ -1,0 +1,72 @@
+NEURON {
+	SUFFIX nothing
+}
+
+VERBATIM
+extern double* hoc_pgetarg();
+extern int vector_instance_px();
+extern void* vector_arg();
+extern char *gargstr();
+
+ENDVERBATIM
+
+:* anmodel Vector Method - sout.an4( stim/*wavdatafile*/, tdres,  cf, spontrate, model, species, ifspike)
+VERBATIM
+#include "./HeinzARLO/anmodel.h"
+
+
+//sout.an4(tdres,cf,spont,model, species,ifspike,wavdatafile)
+
+static double an4(void *vv)
+{
+         	
+	double *stim;		//Input stimulus vector in pascals
+ 	double *sout;   //Output vector containing inst. rate for channel 
+      	double tdres,cf,spont;
+      	int model;
+      	int species;
+      	int ifspike;
+	int nsout, nstim;
+
+	
+//Get Instance Sout vector for synapse data 
+	nsout = vector_instance_px(vv, &sout);
+	nstim = vector_arg_px(1, &stim);
+
+//Get Input arguments
+	if(ifarg(7)!=1){  //Must be changed if more input arguments added
+		hoc_execerror("ERROR: input syntax must be sout.an4( stim, tdres,  cf, spontrate, model, species, ifspike)", 0);
+		return 0;
+	}
+	//TDRES  resolution of stim vector
+  	tdres = (double)(*getarg(2));
+	//cf of fiber
+	cf = (double)(*getarg(3));
+	//Spontaneous rate of ANF
+	spont = (double)(*getarg(4));
+	//Model 
+	model = (double)(*getarg(5));
+	//Species
+	species = (double)(*getarg(6));
+	//Spike generator on =1
+	ifspike = (double)(*getarg(7));	
+
+
+	return an_arlo(tdres,cf,spont,model,species,ifspike,stim,sout,nstim);
+     
+}
+
+ENDVERBATIM
+
+
+PROCEDURE install_anmodel()
+{
+VERBATIM
+
+	install_vector_method("an4", an4);
+
+ENDVERBATIM
+}
+
+	
+

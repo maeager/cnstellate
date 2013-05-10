@@ -1,0 +1,44 @@
+
+/* 
+ *   
+ *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
+ *
+ *    This file is part of cnstellate.
+ * 
+ *    This is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation, either version 3 of the License, or
+ *    (at your option) any later version.
+ *
+ *    This is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+ */
+
+
+proc jitterdelay() { local i // 1 arg - weight
+//jitter ANF->TS connections
+Rand.normal($1,$2)
+for i = 0,hsr2tsAMPAlist.count()-1 {
+    hsr2tsAMPAlist.object(i).delay += abs(Rand.repick()) 
+}
+for i = 0,lsr2tsAMPAlist.count()-1 {
+    lsr2tsAMPAlist.object(i).delay += abs(Rand.repick()) 
+}
+}
+
+
+proc jitterdelay_DS() { local i // 1 arg - weight
+//jitter ANF->TS connections
+Rand.normal($1,$2)
+for i = 0,hsr2dsAMPAlist.count()-1 {
+    hsr2dsAMPAlist.object(i).delay += abs(Rand.repick()) 
+}
+for i = 0,lsr2dsAMPAlist.count()-1 {
+    lsr2dsAMPAlist.object(i).delay += abs(Rand.repick()) 
+}
+}

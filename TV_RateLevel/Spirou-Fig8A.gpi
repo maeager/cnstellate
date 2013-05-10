@@ -1,0 +1,51 @@
+
+set terminal postscript eps size 7,5 enhanced defaultplex \
+   leveldefault color \
+   solid dashlength 1.0 linewidth 2.0 butt noclip \
+   palfuncparam 2000,0.003 \
+   "Helvetica" 18 
+set output 'Spirou-Fig8A.eps'
+#load '../DS_ClickRecovery/default.gpi'
+
+set key outside right top vertical Left noreverse enhanced autotitles nobox
+#set key
+# set xtics border in scale 1,0.5 nomirror norotate  offset character 0, 0, 0
+# set xtics autofreq  norangelimit
+# set ytics border in scale 1,0.5 nomirror norotate  offset character 0, 0, 0
+# set ytics autofreq  norangelimit
+set xlabel "Sound Level (dB SPL)" 
+set xlabel  offset character 0, 0, 0 font "Helvetica,22" textcolor lt -1 norotate
+set x2label  offset character 0, 0, 0 font "" textcolor lt -1 norotate
+set xrange [ * : * ] noreverse nowriteback  # (currently [0.00000:100.000] )
+set x2range [ * : * ] noreverse nowriteback  # (currently [0.00000:97.0000] )
+set ylabel "Discharge Rate (sp/s)" 
+set ylabel  offset character +1, 0, 0 font "Helvetica,22" textcolor lt -1 rotate by -270
+#set locale "en_AU.UTF-8"
+
+ set style line 1 lc rgb '#0060ad' lt 1 lw 2 pt 5 ps 2   # blue
+ set style line 2 lc rgb '#dd181f' lt 1 lw 2 pt 7 ps 2   # red
+ set style line 3 lc rgb '#00ad06' lt 1 lw 2 pt 9 ps 2   # green
+ set style line 7 lc rgb '#0060ad' lt 3 lw 2 pt 4 ps 2   # blue
+ set style line 8 lc rgb '#dd181f' lt 3 lw 2 pt 6 ps 2   # red
+ set style line 9 lc rgb '#00ad06' lt 3 lw 2 pt 8 ps 2   # green
+
+# #set style line 11 lc rgb '#ff928f' lw slw lt 1 # light red
+# #set style line 12 lc rgb '#ff534f' lw slw lt 1 # red
+# #set style line 13 lc rgb '#ff231e' lw slw lt 1 # dark red
+# set style line 4 lc rgb '#F5C200' lt 1 lw 2 pt 5 ps 1   # yellow
+# #set style line 5 lc rgb '#FFCC00' lt 1 lw 2 pt 7 ps 1   # yellowish
+# set style line 5 lc rgb "orange-red" lt 1 lw 2 pt 7 ps 2 
+
+# set style line 6 lc rgb "dark-orange" lt 1 lw 2 pt 9 ps 2  #orange
+# '#ff9900' 
+
+set label 1 at -95,350 "BF Tone"
+set label 2 "Noise" at -35,50 
+
+
+plot 'Spirou-Fig8A-RL-Control-BFTone.png.dat' u 1:2 t "Control-BFTone" w lp ls 1, \
+   'Spirou-Fig8A-RL-withStrych-BFTone.png.dat' u 1:2 t "withStrych-BFTone" w lp ls 2, \
+   'Spirou-Fig8A-RL-withBic-BFTone.png.dat' u 1:2 t "withBic-BFTone" w lp ls 3, \
+   'Spirou-Fig8A-RL-Control-Noise.png.dat' u 1:2 t "Control-Noise" w lp ls 7, \
+   'Spirou-Fig8A-RL-withStrych-Noise.png.dat' u 1:2 t "withStrych-Noise" w lp ls 8, \
+   'Spirou-Fig8A-RL-withBic-Noise.png.dat' u 1:2 t "withBic-Noise" w lp ls 9
