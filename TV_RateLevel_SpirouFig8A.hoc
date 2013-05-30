@@ -167,7 +167,7 @@ proc create_connect_TV() {local i,p,target,source,low,high,range,channel,sourcec
 		printf("GLG->TV=== done ===\n")
 	}
 	outfile.close()
-	}
+}
 
 param.tv_erev=-65
 param.offset=0

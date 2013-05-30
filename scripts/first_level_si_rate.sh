@@ -6,6 +6,6 @@ ResponsesMPath=${HOME}/Work/cnstellate/mfiles
 
    ${ResponsesScriptsPath}/response_area.sh; 
    ${ResponsesScriptsPath}/vsspikes.sh; 
-   nice octave -f -q --no-gui --eval "tic;addpath('"$ResponsesMPath"');make_an_response_area(200,40000);toc;" 
+   nice octave -f -q  --eval "tic;addpath('"$ResponsesMPath"');make_an_response_area(200,40000);toc;" 
    
 
