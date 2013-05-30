@@ -1,10 +1,10 @@
 
 
-NRNHOME="/home/eagerm/src/neuron/"
+NRNHOME=/home/eagerm/src/neuron/
 ARCH=$(shell arch)
 NRNMODL=$(ARCH)/bin/nrnivmodl
 MPIMODL=$(NRNHOME)/nrnmpi/$(NRNMODL)
-GUIMODL=$(NRNHOME)/nrngui/$(NRNMODL)
+GUIMODL=/usr/local/nrn/$(NRNMODL)
 
 MODLFLAGS=-loadflags "$(shell pwd)/libresample-0.1.3/libresample.a"
 #MODLFLAGS=''

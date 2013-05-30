@@ -97,7 +97,7 @@ proc show_pvec(){local pp
     //    pvec.printf
     for pp =0,NPARAMS-1 {
 	print pvec_name.object(pp).s
-	sprint(cmd,"print \"pvec:\", %g / %g  ",pvec.x[pp], pvec_factor.x[pp])
+	sprint(cmd,"print \"pvec:\", %g * %g  ",pvec.x[pp], pvec_factor.x[pp])
 	execute1(cmd)
 	sprint(cmd,"print \"actual:\", %s  ",pvec_name.object(pp).s)
 	execute1(cmd)		

@@ -152,10 +152,10 @@ d=1
 REPS=20
 f(x)=a*atan((x-c)/b)+d
 fit f(x) 'G_ratelevel_5810.dat' using 1:($2*REPS) via a,b,c,d
-set label  "MR = %.2f sp/s", (a*(pi/2))+d at graph 0.1, graph 0.9
-set label  "1/2 max = %.2f dBSPL", c at graph 0.1, graph 0.86
-set label  "THR = %.1f dBSPL", -((pi/2)*0.95*b)+c at graph 0.1, graph 0.82
-set label  "DR = %.1f ", pi*0.95*b at graph 0.1, graph 0.78
-set label  "spon = %.2f (sp/s)", d-f(c) at graph 0.1, graph 0.74
+set label  sprintf("MR = %.2f sp/s", (a*(pi/2))+d) at graph 0.1, graph 0.9 font ",18"
+set label  sprintf("1/2 max = %.2f dBSPL", c) at graph 0.1, graph 0.86
+set label  sprintf("THR = %.1f dB SPL", -((pi/2)*0.95*b)+c) at graph 0.1, graph 0.82
+set label  sprintf("DR = %.1f dB", pi*0.95*b) at graph 0.1, graph 0.78
+set label  sprintf("SR = %.2f sp/s", d-f(c)) at graph 0.1, graph 0.74
 plot  f(x), 'G_ratelevel_5810.dat'  using 1:($2*REPS)  notitle with linespoints ls 3
 #    EOF
