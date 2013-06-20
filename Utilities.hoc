@@ -27,11 +27,11 @@
 
 
 
-/*****************************************************
-** Calculate Input Resistance using NEURON's Impedence class
-** Code from optimization tutorial 1. Copyright  2004 by N.T.
-** Carnevale and M.L. Hines
-*****************************************************/
+/*
+ * Calculate Input Resistance using NEURON's Impedence class
+ * Code from optimization tutorial 1. Copyright  2004 by N.T.
+ * Carnevale and M.L. Hines
+ */
 objref zz
 zz = new Impedance()
 //ensure currently accessed section is at the soma before calling this function
@@ -43,22 +43,22 @@ func rn() { local rn
     return rn
 }
 
-/****************************************
-** Temperature  Scaling
-** Rothman and Manis (2003) & Manis Neuron implementation
-** uses 22C as the base model temperature
-****************************************/
+/*
+ * Temperature  Scaling
+ * Rothman and Manis (2003) & Manis Neuron implementation
+ * uses 22C as the base model temperature
+ */
 func Q10(){
     return 3^((celsius-22)/10)
 }
 tempfactor = Q10()
 
-/********************************************************************
-** BM Functions adapted from CMPA.C of Heinz et al. 1999
-**     Implemented in hoc by Michael Eager 21/7/2004
-**     Rat model added 2007
-** Calculate the location on Basilar Membrane from best frequency
-*******************************************************************/
+/*
+ * BM Functions adapted from CMPA.C of Heinz et al. 1999
+ *     Implemented in hoc by Michael Eager 21/7/2004
+ *     Rat model added 2007
+ * Calculate the location on Basilar Membrane from best frequency
+ */
 func cochlea_f2x() { local species, f, dist
     
     species = $1
@@ -101,9 +101,9 @@ func cochlea_x2f() { local species, f, dist
 	return f
 }
 
-/********************************************************
-** Random Number generator
-*******************************************************/
+/*
+ * Random Number generator
+ */
 objref Rand
 strdef seedstr
 
@@ -128,9 +128,20 @@ proc InitRandom() {
 InitRandom()
 
 
-/********************************************************
+/*************************************
+** Date functions: useful for sessions
+**************************************/
+
+strdef datestr,timestr
+
+proc set_datestr(){
+		system("date +%Y%m%d+%H:%M:%S", datestr)
+		system("date +%H:%M:%S", timestr)
+}
+
+/***************************************
 ** Loudness functions
-*******************************************************/
+****************************************/
 
 func Decibels(){local raw_ampl localobj tmpv
     tmpv = $o1.c
@@ -167,7 +178,7 @@ func mycos(){
 
 
 
-/********************************************************
+/*************************************
 ** Stimulus Generation procedures
 **   SPLtone
 **   AMtone
@@ -178,7 +189,7 @@ func mycos(){
 **   Ramptone
 **   GetWavfile - functions to retreive stim from file
 **   NotchNoise - pregenerated in MATLAB
-*******************************************************/
+**************************************/
 objref stim,file,modulation,bbnoise,clicktimes
 objref rampx, offramp, onramp, middle, quiet, envelope, inputsound,initquiet
 
@@ -1183,7 +1194,7 @@ proc NotchNoise() {local stimtdres, rampts, rstep, totalpts, steadypts, tonefreq
 }
 
 
-/************************************************************
+/**************************
 * Stimulus and filterbank generation  and refresh functions
 *   RefreshParameters()
 *    RefreshCF()
@@ -1194,7 +1205,7 @@ proc NotchNoise() {local stimtdres, rampts, rstep, totalpts, steadypts, tonefreq
 *    SaveANFilterBank2File()
 *    RetrieveANFilterBank()
 *    GenerateFilterbank()
-**********************************************************/
+****************************/
 objref stim, file, tvec, cf
 
 objref  LSRout[nchannels], HSRout[nchannels],cf, ANfile, MSRout[nchannels]
@@ -1219,9 +1230,9 @@ scale = 1
 objref tobj
 
 
-/********************************************************************
-*  Find Index in Filterbank with nearest CF
-********************************************************************/
+/*
+ *  Find Index in Filterbank with nearest CF
+ */
 
 func FindInd() {local value, index, diff
     value = $1
@@ -1249,9 +1260,9 @@ func FindInd() {local value, index, diff
 	return index    
 }
 
-/*******************************************************************
-*  Find the channel index (bandwidth) away in octaves
-*******************************************************************/
+/*
+ *  Find the channel index (bandwidth) away in octaves
+ */
 func MaxBWChannel() { local curind, curcf, maxcf, bw,maxind
 	curind = $1
 	bw = $2     //in octaves
@@ -1570,6 +1581,9 @@ func GetANfileString() {local i
 	}
 }
 
+/** SaveANFilterBank2File
+* Save LSR and HSR profiles to file with metadata headers
+*/
 proc SaveANFilterBank2File(){local nchan
 	objref ANfile
 	
@@ -1595,7 +1609,11 @@ proc SaveANFilterBank2File(){local nchan
 	
 }
 
-
+/** RetrieveANFilterBank
+ * Pre-saved ANF profiles are located in <ANsoundspath>/<ANmodel>/<Species>
+ * Scope out the metadata for differences in stimulus properties, 
+ *  if ok, load data to HSRout and LSRout vectors. 
+ */
 say_once = 0
 func RetrieveANFilterBank(){local nsize, nchan, temp
 	objref ANfile
@@ -1652,6 +1670,10 @@ func RetrieveANFilterBank(){local nsize, nchan, temp
 	}
 }
 
+/** GetAudiogramData
+ * Get the species' audiogram and populate OHC and IHC compression vectors
+ */
+
 objref audiogram,cohc,cihc
 proc GetAudiogramData(){
 	objref audiogram,file
@@ -1703,7 +1725,10 @@ func CheckANvector(){local vsize,iserror
 }
 
 
-
+/** GenerateFilterbank
+* Generate the ANF profiles in LSR and HSR vector lists
+*
+*/
 
 objref IHC[nchannels]
 proc GenerateFilterbank(){ local ii,out,icf, mycf, myohc,myihc,ZilanyImplmnt_orig localobj ihc
@@ -1800,8 +1825,8 @@ proc CheckANFilterbanks(){local icf
 }
 
 /* 
-* Check for errors in version 4_1 (Zilany et al, 2009) of AN model
-*/
+ * Check for errors in version 4_1 (Zilany et al, 2009) of AN model
+ */
 proc FixAN4Filterbanks(){local icf,redo,vsize,srate_old,stimtdres_old
 	redo=0
 	vsize=HSRout[0].size
@@ -1848,14 +1873,14 @@ proc FixAN4Filterbanks(){local icf,redo,vsize,srate_old,stimtdres_old
 
 
 
-
+/* 
+ * Generate Filterbank of ANF Instantaneous rate profiles 
+ */ 
 proc ANFilterBankRun() {local x
 	objref  LSRout[nchannels], HSRout[nchannels] , MSRout[nchannels]
 	
 	RefreshCF()
 	GetAudiogramData()
-	
-	/********Generate Filterbank of ANF Instantaneous rate profiles*******/
 	
 	if (usesavedfilterbanks) {
 		if (!RetrieveANFilterBank()) {
