@@ -164,7 +164,9 @@ proc append_tv_erev(){
 NPARAMS=6
 init_params(NPARAMS)
 
+//append_num_lsrtv_connections()
 append_weight_lsrtv()
+//append_num_hsrtv_connections()
 append_weight_hsrtv()
 append_weight_dstv()
 append_num_dstv_connections()

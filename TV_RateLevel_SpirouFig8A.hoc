@@ -739,7 +739,7 @@ proc printprax2(){local pp,ii,pp2,error
     system(cmd)
    	    
 	print error=TV_RateLevel_err(0,&pvec.x[0])
-	system("date",datestr)
+	set_datestr()
     sprint(fname,"%s/%s.Fit.dat",fileroot,origfileroot)
 	file.wopen(fname)
 	if (file.isopen()){
@@ -802,6 +802,7 @@ proc printprax2(){local pp,ii,pp2,error
 	for pp=0,NPARAMS-1 {
 		file.printf("%s = %g\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp])
     }
+  file.printf("\n")
 	file.close()
 }
 

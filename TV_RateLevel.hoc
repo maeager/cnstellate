@@ -93,47 +93,6 @@ RefreshParameters()
 //  SetInputRates()
 
 
-proc TV_2tone(){
-	stimtype			= 9     //TwoTone
-	dur				    = 0.049  // duration of stim (seconds)
-	tstop				= 70    // ms
-	spl				    = 20     //dB SPL
-	tonefreq            = 6600 //Hz, unit 1 CF
-	tone2freq           = 9350 //Hz ,unit 2 
-	tone2spl            = spl // set the second tone's sound level to the same as the first
-	GetAudiogramData()
-	RefreshParameters()
-	ANFilterBankRun()
-//  CheckFilterbank()
-//  SetInputRates()
-}
-
-proc TV_BFtone(){
-	stimtype			= 1     // Pure Tone
-	dur				    = 0.049  // duration of stim (seconds)
-	tstop				= 70    // ms
-	spl				    = 20     //dB SPL
-	tonefreq            = cf.x[50] //Hz, unit 1 CF
-	GetAudiogramData()
-	RefreshParameters()
-	ANFilterBankRun()
-//  CheckFilterbank()
-//  SetInputRates()
-}
-
-proc TV_Noise(){
-	stimtype			= 6     //BBN 
-	dur				    = 0.049  // duration of stim (seconds)
-	tstop				= 70    // ms
-	spl				    = 20     //dB SPL
-	tonefreq            = cf.x[50] //Hz, unit 1 CF
-	GetAudiogramData()
-	RefreshParameters()
-	ANFilterBankRun()
-//  CheckFilterbank()
-//  SetInputRates()
-}
-
 
 
 
@@ -144,10 +103,6 @@ objref fitgr,gg
 objref gr,target_ratelevel, dslist, fvec,dvec,ivec,weighting,errorvec
 objref anrate[nchannels],rate_level_graph
 gr = new Graph()
-
-
-
-
 
 
 level_offset=25
@@ -211,23 +166,28 @@ objref target_rate_level[4],fitgr, tmpRL[8]
 fitgr = new Graph()
 
 
+ xopen("TV_RateLevel/pvec_TV_RateLevel.hoc")
+ set_pvec()
+ ANsoundspath="../sounds"
 
+NPARAMS=3
+init_params(NPARAMS)
+append_weight_lsrtv()
+append_weight_hsrtv()
+append_weight_dstv()
 
+param.w.x[lsr][tv] = 0.0041716
+param.w.x[hsr][tv] = 0.000645083
+param.w.x[ds][tv] = 0.00258648
+param.n.x[lsr][tv] = 30
+param.n.x[hsr][tv] = 30
+param.n.x[ds][tv] = 30
+param.bw.x[ds][tv] = 30
 
-dt=0.1
-//QuickRun()
-
-
-//xopen("TV_RateLevel/pvec_TV_RateLevel.hoc")
-
-//set_pvec()
-//reps=10
-//runprax()
-//runprax()
-//reps=5
-//runprax2()
-
-//reps=50
-//printprax2()
-
-
+proc run_optimisation(){
+ reps=10
+ //runprax()
+ runprax2()
+ reps=50
+ printprax2()
+}
