@@ -290,6 +290,7 @@ proc PSTHcell() {local i, j, sp1, sp2, index, intv,first, cvmean, count,sizebins
 
 objref ind,isi
 isistdev =0
+_meanrate=0
 func meanrate(){ local i localobj spikes
     objref ind,isi
     spikes = new Vector()
@@ -303,43 +304,49 @@ func meanrate(){ local i localobj spikes
     isi = new Vector()
     ind.indvwhere(spikes,"<",stimdelay*1000)
     if (spikes.size - ind.size <= 5) {
-	isistdev = 10
-	return spikes.size()/(reps*(dur+ramplngth/2))
+      isistdev = 10
+      return spikes.size()/(reps*(dur+ramplngth/2))
     }
-    if (ind.size > 0) for i=0, ind.size-1 { spikes.remove(ind.x[i]-i) }
+
+    if (ind.size > 0) {
+      for i=0, ind.size-1 { spikes.remove(ind.x[i]-i) }
+    }
     //print "print spikes.size ", spikes.size
     for i=1,spikes.size-1 {
 	isi.append( spikes.x[i]-spikes.x[i-1])
     }
     //print "print isi.size ", isi.size
     
+    //Remove the negative intervals 
     ind.indvwhere(isi,"<=",0)
-    if (isi.size -ind.size <= 10) {
-	isistdev = 10
-	return spikes.size()/(reps*(dur+ramplngth/2))
+    if (isi.size -ind.size <= 3) {
+	   print "meanrate:  not enough spike intervals, ISI size ", isi.size
+	   isistdev = 0
+	   return spikes.size()/(reps*(dur+ramplngth/2))
     }
-    if (ind.size > 0) for i=0, ind.size-1 { 
-	isi.remove(ind.x[i]-i)
+    if (ind.size > 0) {
+       for i=0, ind.size-1 { 
+       isi.remove(ind.x[i]-i)
 	//		print "removing ", ind.x[i] 
+      }
     }
+
+	// Remove intervals greater than the length of the stimulus
     ind.indvwhere(isi,">", (dur+ramplngth/2)*1000)
     if (ind.size >= 1) {
-	if (isi.size - ind.size <= 3) {
-	    isistdev = 15
-	    return spikes.size()/(reps*(dur+ramplngth/2))
-	}
-	for i=0, ind.size-1 { 
+	  for i=0, ind.size-1 { 
 	    isi.remove(ind.x[i]-i)
 	    //			print "removing ", ind.x[i] 
-	}
-    }
-    //	print "print isi.size", isi.size
-    
-    if (isi.size < 3) {
-	isistdev = 1e6
-	return spikes.size()/(reps*(dur+ramplngth/2))
+	  }
+      if (isi.size < 3) {
+	    print "meanrate:  not enough spike intervals in stimulus region,  ISI size ", isi.size
+
+	    isistdev = 0
+	    return spikes.size()/(reps*(dur+ramplngth/2))
+      }
     }
     
     isistdev = isi.stdev()
+    _meanrate =1000/isi.mean()
     return 1000/isi.mean()
 }
