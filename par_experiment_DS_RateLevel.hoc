@@ -764,6 +764,7 @@ proc printprax2(){local pp,ii,pp2,error
 	for pp=0,NPARAMS-1 {
 		file.printf("%s = %g\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp])
     }
+  file.printf("\n")
 	file.close()
 }
 
