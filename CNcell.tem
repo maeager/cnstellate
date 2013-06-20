@@ -1,0 +1,550 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+/** Neural model templates of the Cochlear Nucleus Stellate network model: 
+ * Templates originated from Paul Manis' NEURON implemenation of the paper
+ * Rothman and Manis (2003).  CNcell is the compartment neural model for 
+ * TS, DS and TV cells and Golgicell the filter-based Poisson neural model 
+ * for the Golgi cell.
+ *
+ *
+ *    cnstellate was written as part of my PhD at The University of Melbourne
+ *   
+ *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
+ *
+ *    This file is part of cnstellate.
+ * 
+ *    This is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation, either version 3 of the License, or
+ *    (at your option) any later version.
+ *
+ *    This is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+ */
+
+
+
+// Must convert from nanosiemens to mho/cm2 for the conductances
+// and change temperature conditions
+
+
+
+
+begintemplate CNcell
+public soma, dend              //NEURON sections
+public AMPA, GlyR, GABAA       //synapse objects
+public spikes,spiketimes       //storage vectors
+public connect2target, synlist //synapse connection function and list
+public cf,model,channel        //identifying parameters ...
+public set_tstellate, set_dstellate,set_tuberc,set_golgi //Cell member functions
+public nstomho                //Nano-siemens to Mho per cm^3 (conductance converter)
+public qt                     //Temperature quotient (Q10) factor
+public SaveSpikes,ClearSpikes
+
+external thresh,Erest,param
+external ampa_decay,ampa_erev,gly_decay,gly_erev,gly_rise
+external gaba_decay, gaba_erev,gaba_rise
+
+create soma
+objref AMPA, GlyR, GABAA, spikecount, spiketimes, synlist,spikes
+somaarea=1E-4
+cf=1E3
+channel=0
+model=0
+
+proc init() { local length,RM, p, q, r, Atotal
+    //Initialise sections and objects
+    create soma 
+    synlist = new List()
+    spiketimes = new Vector()
+    spikes = new Vector()
+    lastspikecount = 0
+	
+    model = $1
+    cf = $2
+    channel=$3
+    //Set cell type currents and variables
+    if(model == 0) set_tstellate()  //T stellate cell default (Type 1 transient)
+    if(model == 1) set_tuberc()     //Tuberculoventral cell  (Type 1 classic)
+    if(model == 2) set_dstellate()  //D stellate cell (Type 1-2)
+    if(model == 3) set_golgi()      //Golgi cell  (Type 1 classic)
+	
+    soma {
+        //Add spike recorder
+        spikecount = new APCount(0.5)
+        spikecount.thresh = thresh
+        spikecount.record(spiketimes)
+		
+        //Insert synapses
+        AMPA = new ExpSyn(0.5)
+        synlist.append(AMPA)
+        AMPA.tau      = ampa_decay
+        AMPA.e                  = ampa_erev
+		
+        //   if (model==1 || model ==2){
+        GlyR = new Exp2Syn(0.5)
+        synlist.append(GlyR)
+        GlyR.tau2       = gly_decay
+        GlyR.tau1	= gly_rise
+        GlyR.e                  = gly_erev
+		
+        GABAA = new Exp2Syn(0.5)
+        synlist.append(GABAA)
+        GABAA.tau2      = gaba_decay
+        GABAA.tau1      = gaba_rise
+        GABAA.e         = gaba_erev
+        //     }
+    }
+	
+	
+    forall if (ismembrane("na_ion")) {
+        ena = 50		// mV
+    }
+    forall if (ismembrane("k_ion")) {
+        ek  = -70		//  mV
+    }
+	
+}	// end init()
+
+proc connect2target() {
+    soma $o2 = new NetCon(&v(0.5), $o1)
+    $o2.threshold = thresh
+}
+
+///Convert whole cell conductance to conductance per unit cell-body area, nanoSeimens to Mho per cm^2
+// arg 1 total conductance (nS)
+// arg 2 soma area (cm^2)
+func nstomho() {
+    return (1E-9*$1/$2)
+}
+
+// Temperature quotient
+func qt(){
+    return 2^((celsius-22)/10)
+}
+
+func qt_h(){
+	//quality, temperature coefficient for Ih conductance
+    return 1.3^((celsius-22)/10)
+}
+
+proc set_tstellate() {
+    model    = 0
+    soma {
+        insert rm
+        insert ka
+        eh_rm    = -43        //mV, Ih reversla potential
+        Ra       = 150        //axial resistance per cm
+        cm       = 0.9        //micro farad per cm^2, membrance capacitance
+        erev_rm  = Erest      //mV, Leak reversal potential mV
+        RM       = 96         //MOhms, expected membrane resistance
+        L        = 19.5       //length of cell body
+        diam     = L          //diameter of cell body
+        somaarea = PI*(L/1E4)^2 //cm^2
+		
+        //Set maximum conductance for each current
+        gnabar_rm = nstomho(1000,somaarea)*qt()
+        gkhtbar_rm = nstomho(80,somaarea)*qt()
+        gkabar_ka =  nstomho(65,somaarea)*qt()
+        ghbar_rm = nstomho(0.5,somaarea)*qt_h()
+        gleak_rm = nstomho(2,somaarea)*qt()
+    }
+}
+
+proc set_tuberc() {
+    model = 1
+	
+    soma {
+        insert rm
+        ek_rm      = -70
+        ena_rm     = 50
+        eh_rm      = -43
+        Ra         = 150
+        cm         = 0.9
+        erev_rm    = Erest	// reversal potential mV
+        //RM = 170  //Expected membrane resistance in MOhms
+        L          = 19
+        diam       = L
+        somaarea = PI*(L/1E4)^2   //um to cm2
+		
+        gnabar_rm = nstomho(1000,somaarea)*qt()
+        gkhtbar_rm = nstomho(150,somaarea)*qt()
+        ghbar_rm = nstomho(0.5,somaarea)*qt_h()
+        gleak_rm = nstomho(2,somaarea)*qt()
+    }
+}
+
+proc set_dstellate() {
+    model = 2
+    soma {
+        insert rm
+        insert klt
+        ek_rm    = -70
+        ena_rm   = 50
+        eh_rm    =-43
+        Ra       = 150 
+		cm       = 0.9
+        erev_rm  =  Erest  // reversal potential mV
+        //RM =  //MOhms
+        L	     = 21
+        diam     = L
+        somaarea = PI*(L/1E4)^2   //um to cm2
+        gnabar_rm = nstomho(1000,somaarea)*qt()
+        gkhtbar_rm = nstomho(150,somaarea)*qt()
+        gkltbar_rm = nstomho(20,somaarea)*qt()
+        ghbar_rm = nstomho(2,somaarea)*qt_h()
+        gleak_rm = nstomho(2,somaarea)*qt()
+    }
+}
+
+proc set_golgi() {
+    model = 3	
+    soma {
+        insert rm
+        ek_rm    = -70
+        ena_rm   = 50
+        eh_rm    = -43
+        Ra       = 150
+        cm       = 0.9
+        erev_rm  = Erest    // reversal potential mV
+        RM       = 130   //MOhms
+        L	     = 14
+        diam     = L
+        somaarea = PI*(L/1E4)^2   //um to cm2
+        gnabar_rm= nstomho(1000,somaarea)*qt()
+        gkhtbar_rm = nstomho(150,somaarea)*qt()
+        ghbar_rm = nstomho(0.5,somaarea)*qt_h()
+        gleak_rm = nstomho(2,somaarea)*qt()
+    }
+}
+
+proc SaveSpikes(){
+    if (object_id(spikes)==0) spikes = new Vector()
+    spikes.append(spiketimes)
+}
+
+proc ClearSpikes(){
+if (object_id(spikes)==0) spikes = new Vector()
+    spikes.resize(0)
+    spiketimes.resize(0)
+	
+}
+
+endtemplate CNcell
+
+
+
+//Default parameters for Golgi cell filter model
+weight_sum = 1
+golgi_spon = 1
+golgi_spatial_filter_variance = 4  //channel
+golgi_syn_filter_tau = 0.0005  //sec
+golgi_syn_filter_scale_factor = 1
+// Adding MSR and HSR to golgi
+param.w.x[lsr][glg] = 0.5
+golgi_spatial_filter_variance_LSR = 1
+weight_sum_MSR = 0.5
+golgi_spatial_filter_variance_MSR = 1
+param.w.x[hsr][glg] = 0.5
+golgi_spatial_filter_variance_HSR = 1
+
+gaussian_mean=0
+gaussian_variance=1
+func gaussian(){local mean,var
+    if (numarg()==1){
+        mean=gaussian_mean
+        var=gaussian_variance
+    }
+    if (numarg()==3){
+        mean=$2
+        var=$3
+    }
+    return (1/sqrt(2*PI*var))*exp(-(($1-mean)^2)/(2*var))
+}
+
+
+// Dendro-synaptic smoothing filter for GLG cell model
+objref golgi_synfilter
+
+func alpha(){//Alpha function synaptic/membrane filter
+    return $1*sg_tdres*exp(-($1*sg_tdres)/golgi_syn_filter_tau)
+}
+proc CreateGolgiSynFilter(){
+    golgi_synfilter = new Vector(sg_rate*10*golgi_syn_filter_tau)
+    //create alpha function
+    golgi_synfilter.indgen().apply("alpha")
+    //scale and normalise
+    golgi_synfilter.mul(golgi_syn_filter_scale_factor/golgi_synfilter.sum())
+}
+CreateGolgiSynFilter()
+
+proc convolve(){local x1,x2,wsize
+    for x1=0,$o1.size -1 {
+        wsize = $o2.size
+        if(x1 < wsize) wsize=x1+1
+        for x2=0,wsize-1 $o3.x[x1]+=$o1.x[x1-x2]*$o2.x[x2]
+    }
+    //correct for initial response
+    //SGfast does not like first element to be zero
+    for x1 = 0,$o2.size $o3.x[x1] = $o3.x[$o2.size]
+}
+
+begintemplate Golgicell
+public sg  //spike-generator, Jackson & Carney (2005) model 
+public spiketimes,spikes,sout //internal vectors
+public SetRate,GenSpikes,SetRate2,GenSpikes2,SaveSpikes,ClearSpikes //functions
+public connect2target //connect function
+public w, spikecount,synlist,cf,model,channel // general variables
+public wLSR,wHSR,wMSR   //weight vectors of ANF inputs
+external thresh,LSRout,nchannels,sg_tdres,weight_sum, golgi_spon,golgi_spatial_filter_variance
+external gaussian,gaussian_mean,gaussian_variance,golgi_synfilter,convolve, MSRsperchannel, Lowspont,Highspont,Medspont
+external param,hsr,lsr,glg,sg_rate,HSRout, MSRout, golgi_spatial_filter_variance_LSR, weight_sum_MSR, golgi_spatial_filter_variance_MSR, golgi_spatial_filter_variance_HSR
+objref sg,w, spiketimes, spikecount,sout,synlist,spikes
+objref wLSR,wHSR,wMSR
+channel=0
+inputchannelvariance=1
+
+proc init() {localobj r, data, hist, x, g
+    sout = new Vector()
+    spiketimes = new Vector()
+    spikes=new Vector()
+    lastspikecount = 0
+    model = $1
+    cf = $2
+    channel=$3
+    golgi_spatial_filter_variance=$4
+    sg = new SGC_fast(0.5)
+    sg.cf = cf
+	
+}
+objref tempsout
+/* Obsolete - replaced with SetRate2*/
+/*
+proc SetRate() {local i,j,spon_factor
+    w = new Vector(nchannels)
+    w.indgen()
+    gaussian_mean = channel
+    gaussian_variance = golgi_spatial_filter_variance
+    w.apply("gaussian").mul(weight_sum)
+    tempsout = new Vector(LSRout[0].size)
+    sout = new Vector(LSRout[0].size)
+    for i=0,nchannels-1  {
+		tempsout.add(LSRout[i].c.mul(w.x[i]))
+    }
+    spon_factor = LSRout[0].x[0]/tempsout.x[0]
+    tempsout.mul(spon_factor).add(golgi_spon)
+    convolve(tempsout,golgi_synfilter,sout)
+    sg.SetFibreRate(sout,spiketimes,sg_tdres)
+    //print "golgi[",i,"][",j,"]: Process ",pnm.myid," mean ", sout.mean()
+    objref tempsout
+}
+*/
+proc SetRate2() {local i,j,spon_factor
+    printf("golgi %d", channel)
+    tempsout = new Vector(LSRout[0].size)
+    sout = new Vector(LSRout[0].size)
+    wLSR = new Vector(nchannels)
+    wLSR.indgen()
+    wHSR = wLSR.c
+	//Set global variables for gaussian method
+    gaussian_mean = channel
+    gaussian_variance = golgi_spatial_filter_variance_LSR
+    wLSR.apply("gaussian").mul(param.w.x[lsr][glg])
+    if(MSRsperchannel>0){
+        gaussian_variance = golgi_spatial_filter_variance_MSR
+        wMSR.apply("gaussian").mul(weight_sum_MSR)
+    }
+    gaussian_variance = golgi_spatial_filter_variance_HSR
+    wHSR.apply("gaussian").mul(param.w.x[hsr][glg])
+	
+	
+    for i=0,nchannels-1  {
+        //     if (wLSR.x[i]>0.01) tempsout.add(LSRout[i].c.add(-Lowspont).mul(wLSR.x[i]))
+        //    if(MSRsperchannel>0) tempsout.add(MSRout[i].c.add(-Medspont).mul(wMSR.x[i]))
+        //if (wHSR.x[i]>0.01)tempsout.add(HSRout[i].c.add(-Highspont).mul(wHSR.x[i]))
+        if (wLSR.x[i] > 0.01){
+            //  for j=0,LSRout[0].size()-1 {
+            //        tempsout.x[j] = (LSRout[i].x[j])*wLSR.x[i] + (HSRout[i].x[j])*wHSR.x[i]
+            //	}
+            tempsout.add(LSRout[i].c.mul(wLSR.x[i]))
+            tempsout.add(LSRout[i].c.mul(wHSR.x[i]))
+        }
+        if ((i%10) == 0) printf(".")
+    }
+    spon_factor = tempsout.x[0]-golgi_spon
+    for j=0,LSRout[0].size()-1 {
+        tempsout.x[j]-=spon_factor
+        if (tempsout.x[j]<0) tempsout.x[j]=0.0
+		
+    }
+	
+    //Smooth AN input with alpha-function to simulate dendritic filtering
+    convolve(tempsout,golgi_synfilter,sout)
+	
+    //Add conduction delay to inst. rate profile to ensure accurate FSL
+    for i = 0, param.delay.x[lsr][glg]*sg_rate/1000{
+        sout.insrt(0,golgi_spon)
+    }
+    sout.resize(LSRout[0].size)
+    //Set the Spike generator
+    sg.SetFibreRate(sout,spiketimes,sg_tdres)
+    //print "golgi[",i,"][",j,"]: Process ",pnm.myid," mean ", sout.mean()
+    objref tempsout
+    printf(" done\r")
+}
+
+proc GenSpikes(){local i,j
+    print "Obsolete spike generator, use GenSpikes2()"
+    sg.SGfast(1)
+}
+proc GenSpikes2(){local i,j
+    sg.SGfast2(1)
+}
+
+proc SaveSpikes(){
+    if (object_id(spikes)==0) spikes = new Vector()
+    spikes.append(spiketimes.c)
+}
+proc ClearSpikes(){
+    spiketimes.resize(0)
+    spikes.resize(0)
+}
+
+proc connect2target() {
+    $o2 = new NetCon(sg, $o1)
+    $o2.threshold = thresh
+}
+
+
+endtemplate Golgicell
+
+objref golgi[nchannels][1]
+
+/*
+* Save Golgi Filters to File
+*/
+proc SaveGolgiFilterBank2File(){local nchan
+    objref ANfile
+	
+    GetANfileString()
+    sprint(tmpANstr,"[ -d %s ] && mkdir -p %s/golgi",ANpath,ANpath)
+    system(tmpANstr)
+    ANfile = new File()
+    sprint(tmpANstr,"%s/golgi/%s",ANpath,ANstr)
+    ANfile.wopen(tmpANstr)
+    if (ANfile.isopen()){
+        ANfile.printf("%d\n%d\n%d\n%d\n%d\n%d\n", sg_rate, LSRout[0].size, nchannels,cflo,cfhi,species)
+        ANfile.printf("%g\n%g\n%g\n%g\n%g\n%g\n",golgi_spon,golgi_spatial_filter_variance_LSR,golgi_syn_filter_tau,golgi_syn_filter_scale_factor,param.w.x[lsr][glg],param.w.x[hsr][glg])
+		
+        for icf = 0, nchannels-1 {
+            ANfile.printf("%d\n%d\n", icf, cf.x[icf])
+            golgi[icf][0].sout.printf(ANfile,"%.3f\t")
+            ANfile.printf("\n")
+        }
+		
+        ANfile.close()
+    } else print "Unable to Save golgi file ", tmpANstr
+	
+}
+
+/*
+* Retrieve Golgi Filters from File
+*/
+func RetrieveGolgiFilterBank(){local nsize,nchan,temp
+    objref ANfile
+    CreateGolgiSynFilter()
+    GetANfileString()
+    ANfile = new File()
+    sprint(tmpANstr,"%s/golgi/%s",ANpath,ANstr)
+    ANfile.ropen(tmpANstr)
+    if (ANfile.isopen()){
+        if (name_declared("pnm") == 0) {print "Retrieving Golgi Filterbank: ", ANstr}
+        if ((temp = ANfile.scanvar()) != sg_rate){
+            print "sg_rate not the same in ", tmpANstr
+            return 0
+        }
+        if ((temp = ANfile.scanvar()) != LSRout[0].size){
+            print "nsize not the same in ", tmpANstr
+            return 0
+        }
+        nsize= LSRout[0].size
+        if ((temp = ANfile.scanvar()) != nchannels){
+            print "nchannels not the same in ", tmpANstr
+            return 0
+        }
+        if ((temp = ANfile.scanvar()) != cflo){
+            print "cflo not the same in ", tmpANstr
+            return 0
+        }
+        if ((temp = ANfile.scanvar()) != cfhi){
+            print "cfhi not the same in ", tmpANstr
+            return 0
+        }
+        if ((temp = ANfile.scanvar()) != species){
+            print "species not the same in ", tmpANstr
+            return 0
+        }
+        if ((temp = ANfile.scanvar()) != golgi_spon){
+            print "golgi_spon not the same in ", tmpANstr
+            return 0
+        }
+        if ((temp = ANfile.scanvar()) != golgi_spatial_filter_variance_LSR){
+            print "golgi_spatial_filter_variance not the same in ", tmpANstr
+            return 0
+        }
+        if ((temp = ANfile.scanvar()) != golgi_syn_filter_tau){
+            print "golgi_syn_filter_tau not the same in ", tmpANstr
+            return 0
+        }
+        if ((temp = ANfile.scanvar()) != golgi_syn_filter_scale_factor){
+            print "golgi_syn_filter_scale_factor not the same in ", tmpANstr
+            return 0
+        }
+        if ((temp = ANfile.scanvar()) != param.w.x[lsr][glg]){
+            print "param.w.x[lsr][glg] not the same in ", tmpANstr
+            return 0
+        }
+        if ((temp = ANfile.scanvar()) != param.w.x[hsr][glg]){
+            print "param.w.x[hsr][glg] not the same in ", tmpANstr
+            return 0
+        }
+        for icf = 0, nchannels-1 {
+            if (ANfile.scanvar() == icf){
+                cf.x[icf] = ANfile.scanvar()
+                golgi[icf][0].sout.scanf(ANfile,nsize)
+            }
+        }
+        sg_tdres = 1/sg_rate
+        ANfile.close()
+        //Setting rate in spike generator object
+        for icf = 0,nchannels-1{
+            golgi[icf][0].sg.SetFibreRate(golgi[icf][0].sout,golgi[icf][0].spiketimes,sg_tdres)
+        }
+        return 1
+    } else {
+        print "Unable to load golgi file ", tmpANstr
+        return 0
+    }
+}
+
+
+/*
+objref x
+x = new Vector()
+x.resize(100).indgen()
+x.printf
+x.apply("gaussian")
+x.printf
+objref g
+g = new Graph()
+g.size(0,100,0,0.5)
+x.plot(g)
+
+g.printfile("x.eps")
+quit()
+*/

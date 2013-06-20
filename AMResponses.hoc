@@ -1,0 +1,124 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+/* Simulate reponses for chapter 4 of my thesis
+*  AM Responses.hoc
+*  Generate RL,NRL,RA, MTF
+*/
+
+load_file("nrngui.hoc")
+
+xopen("Params.hoc")
+ xopen("Utilities.hoc")
+xopen("NetworkParameters.hoc")
+xopen("AuditoryNerve.hoc")
+xopen("par_CNcell.tem")      // CN cell template
+
+//Previous optimisation parameters
+xopen("pvec_Golgi_RateLevel.hoc")
+xopen("pvec_DS_ClickRecovery.hoc") 
+xopen("pvec_DS_RateLevel.hoc")
+
+xopen("pvec_TV_Notch.hoc")
+xopen("pvec_TV_RateLevel.hoc")
+xopen("parameters_Responses.hoc")
+
+//--- Setup CN Stellate Network model
+xopen("CochlearNucleus.hoc")         // model set-up
+xopen("calcisilag.hoc")
+xopen("spike_stats.hoc")
+xopen("jitter.hoc")
+//Parameters for this optimisation
+xopen("parameters_TStellate.hoc")
+
+use_ball_stick=1
+fileroot="AMResponses2"
+create_cells()
+connect_cells(fileroot)
+connect_CNcells(fileroot)
+
+//xopen("par_experiment_TV_RateLevel.hoc")
+xopen("par_experiment_TStellate2.hoc")
+
+create_cells()
+RefreshCellParams()
+connect_cells(fileroot)
+connect_CNcells(fileroot)
+RefreshCellParams()
+
+
+
+
+strdef targetcell
+targetcell="cn.tstellate[whichcell]"
+
+
+// channel position -> tonefreq
+
+xopen("cngui.hoc")
+xopen("ResponsesRoutines.hoc")
+
+
+
+/*********Default Parameters *************/
+ANmodel					= 7 //Zilany Bruce model (Zilany et al, 2009)
+species					= 1 //Cat
+audiogram_file			= "cat_audiogram.txt"
+usesavedfilterbanks     = 1
+ANsoundspath = "/media/data/sounds"  //local sounds path
+nrep         = 1               //nrep is number of reps of stimulus
+cfhi         = 40000
+cflo         = 200
+srate        = 100000.0
+stimtdres    = 1/srate
+sg_rate      = 50000
+sg_tdres     = 1/sg_rate
+RefreshCF()
+/****************************************/
+
+
+
+
+proc AMresponse_CS(){
+CS_data()
+RefreshParameters()
+ANFilterBankRun()  //Generate new AN instant. rates
+SetInputRates()
+xopen("TStellate2_CS/pvec_TStellate.hoc")
+RefreshCellParams()
+connect_cells(fileroot)
+connect_CNcells(fileroot)
+ModulationTransferFunction(tonefreq)
+F0_Response(tonefreq)
+
+}
+
+
+proc AMresponse_CT1(){
+CT1_data()
+RefreshParameters()
+ANFilterBankRun()  //Generate new AN instant. rates
+SetInputRates()
+xopen("TStellate2_CT1/pvec_TStellate.hoc")
+RefreshCellParams()
+connect_cells(fileroot)
+connect_CNcells(fileroot)
+F0_Response(tonefreq)
+ModulationTransferFunction(tonefreq)
+
+}
+
+proc AMresponse_CT2(){
+CT2_data()
+RefreshParameters()
+ANFilterBankRun()  //Generate new AN instant. rates
+SetInputRates()
+xopen("TStellate2_CT2/pvec_TStellate.hoc")
+RefreshCellParams()
+connect_cells(fileroot)
+connect_CNcells(fileroot)
+ModulationTransferFunction(tonefreq)
+F0_Response(tonefreq)
+}
+
+
+
