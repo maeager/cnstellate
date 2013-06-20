@@ -47,7 +47,7 @@ xopen("parameters_TStellate.hoc")
 //--- Setup CN Stellate Network model
 xopen("CochlearNucleus.hoc")         // model set-up
 // xopen("par_CochlearNucleus.hoc")   // parallel model set-up
- xopen("calcisilag.hoc")
+xopen("calcisilag.hoc")
 
  
 // use_ball_stick=1
@@ -200,26 +200,29 @@ set_pvec()
 
 
 proc optimise_CS(){
-	CS_data()	
-	for ii=0,CV_weight.count()-1 {
-		CV_weight.object(ii).mul(100)
-		CV_weight.object(ii).mul(100)
-
-	}	
-	param.n.x[hsr][ts]=16
-param.n.x[lsr][ts]=15
-param.n.x[ds][ts]=3
-param.n.x[tv][ts]=3
-param.n.x[glg][ts]=3
+xopen("TStellate_CS/pvec_TStellate.hoc")	
+CS_data()	
+for ii=0,CV_weight.count()-1 {
+CV_weight.object(ii).mul(50)
+CV_weight.object(ii).mul(50)
+}	
+param.ts_ghbar=6.20392e-05 
+param.n.x[hsr][ts]=30
+param.n.x[lsr][ts]=30
+param.n.x[ds][ts]=20
+param.n.x[tv][ts]=20
+param.n.x[glg][ts]=20
 param.ts_erev=-60.9  
-
+set_pvec()
 RefreshParameters()
 ANFilterBankRun()  //Generate new AN instant. rates
 SetInputRates()
-xopen("TStellate_CS/pvec_TStellate.hoc")
+
 set_pvec()
 //QuickRun()
+reps=25
 runprax()
+reps=50
 printprax()
 //runprax()
 //printprax()
@@ -239,11 +242,11 @@ xopen("TStellate2_CT1/pvec_TStellate.hoc")
 	for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100)
 
 param.ts_erev=-62.9
-param.n.x[hsr][ts]=12
-param.n.x[lsr][ts]=15
-param.n.x[ds][ts]=5
-param.n.x[tv][ts]=10
-param.n.x[glg][ts]=5
+param.n.x[hsr][ts]=25
+param.n.x[lsr][ts]=25
+param.n.x[ds][ts]=25
+param.n.x[tv][ts]=20
+param.n.x[glg][ts]=20
 set_pvec()	
 
 RefreshParameters()
@@ -270,11 +273,11 @@ proc optimise_CT2(){
 	for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100)
 
 	param.ts_erev=-62.9
-	param.n.x[hsr][ts]=12
-	param.n.x[lsr][ts]=15
-	param.n.x[ds][ts]=10
-	param.n.x[tv][ts]=10
-	param.n.x[glg][ts]=10	
+	param.n.x[hsr][ts]=25
+	param.n.x[lsr][ts]=25
+	param.n.x[ds][ts]=20
+	param.n.x[tv][ts]=20
+	param.n.x[glg][ts]=20	
 	set_pvec()
 	RefreshParameters()
 	ANFilterBankRun()  
@@ -295,3 +298,4 @@ proc optimise_CT2(){
 }
 
 TSexemplar_SPL_thresh=10
+ANsoundspath="../sounds"
