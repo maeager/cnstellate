@@ -54,3 +54,79 @@ param.w.x[hsr][tv] = 0.0006168
 param.w.x[ds][tv] = 0.0018
 param.n.x[ds][tv] = 20
 param.tv_erev = -65
+
+ // Wed Jun 12 10:18:03 EST 2013
+  
+param.w.x[lsr][tv] = 0.00476495
+param.w.x[hsr][tv] = 0.000982828
+param.w.x[ds][tv] = 0.00115233
+param.n.x[ds][tv] = 29.4917
+param.tv_erev = -68.2485
+
+ // Wed Jun 12 12:31:12 EST 2013
+  
+param.w.x[lsr][tv] = 0.00476495
+param.w.x[hsr][tv] = 0.000982828
+param.w.x[ds][tv] = 0.00115233
+param.n.x[ds][tv] = 29.4917
+param.tv_erev = -68.2485
+ // Wed Jun 19 14:52:35 EST 2013
+  
+param.w.x[lsr][tv] = 0.0041716
+param.w.x[hsr][tv] = 0.000645083
+param.w.x[ds][tv] = 0.00258648
+
+ // Wed Jun 19 15:08:20 EST 2013
+  
+param.w.x[lsr][tv] = 0.0041716
+param.w.x[hsr][tv] = 0.000645083
+param.w.x[ds][tv] = 0.00258648
+
+ // Wed Jun 19 15:44:36 EST 2013
+  
+param.w.x[lsr][tv] = 0.003
+param.w.x[hsr][tv] = 0.0025
+param.w.x[ds][tv] = 0.00013
+
+ // Wed Jun 19 16:02:06 EST 2013
+  
+param.w.x[lsr][tv] = 0.003
+param.w.x[hsr][tv] = 0.0025
+param.w.x[ds][tv] = 0.00013
+
+ // Wed Jun 19 16:06:00 EST 2013
+  
+param.w.x[lsr][tv] = 0.003
+param.w.x[hsr][tv] = 0.0025
+param.w.x[ds][tv] = 0.00013
+
+ // Wed Jun 19 16:09:39 EST 2013
+  
+param.w.x[lsr][tv] = 0.003
+param.w.x[hsr][tv] = 0.0025
+param.w.x[ds][tv] = 0.00013
+
+ // Wed Jun 19 16:15:50 EST 2013
+  
+param.w.x[lsr][tv] = 0.003
+param.w.x[hsr][tv] = 0.0025
+param.w.x[ds][tv] = 0.00013
+
+ // Wed Jun 19 16:23:16 EST 2013
+  
+param.w.x[lsr][tv] = 0.003
+param.w.x[hsr][tv] = 0.0025
+param.w.x[ds][tv] = 0.00013
+
+ // Thu Jun 20 11:12:27 EST 2013
+  
+param.w.x[lsr][tv] = 0.003
+param.w.x[hsr][tv] = 0.0025
+param.w.x[ds][tv] = 0.00013
+
+ // Thu Jun 20 11:32:04 EST 2013
+  
+param.w.x[lsr][tv] = 0.003
+param.w.x[hsr][tv] = 0.0025
+param.w.x[ds][tv] = 0.0013
+

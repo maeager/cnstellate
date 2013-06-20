@@ -71,17 +71,17 @@ set multiplot layout 2,2
 #       '' i 2 u ($1+100):2 notitle  w lp ls 22
 
 
-# set title "Tone Rate Level" font "Helvetica,24"
-# plot [0:60][0:300] 'TV_RateLevel.Fit.dat' i 1  using 1:4  title "DS (Model)" with linespoints ls 3, \
-#      '' i 1 u 1:5 title "GLG (Model)" w lp ls 4, \
-#      '' i 1 u 1:6 title "HSR (Model)" w lp ls 5, \
-#       '' i 1 u 1:7 title "LSR (Model)" w lp ls 6
+ set title "Tone Rate Level" font "Helvetica,24"
+ plot [0:60][0:300] 'TV_RateLevel.Fit.dat' i 1  using 1:6  title "DS (Model)" with linespoints ls 3, \
+      '' i 1 u 1:7 title "GLG (Model)" w lp ls 4, \
+      '' i 1 u 1:8 title "HSR (Model)" w lp ls 5, \
+       '' i 1 u 1:9 title "LSR (Model)" w lp ls 6
 
-# set title "Noise Rate Level" font "Helvetica,24"
-# plot [40:100][0:300] 'TV_RateLevel.Fit.dat' i 0  using 1:4  notitle  with linespoints ls 3, \
-#      '' i 0 u 1:5 notitle w lp ls 4, \
-#      '' i 0 u 1:6 notitle  w lp ls 5, \
-#       '' i 0 u 1:7 notitle  w lp ls 6
+ set title "Noise Rate Level" font "Helvetica,24"
+ plot [40:100][0:300] 'TV_RateLevel.Fit.dat' i 0  using 1:6  notitle  with linespoints ls 3, \
+      '' i 0 u 1:7 notitle w lp ls 4, \
+      '' i 0 u 1:8 notitle  w lp ls 5, \
+       '' i 0 u 1:9 notitle  w lp ls 6
 
 # unset title
 # plot  [0:60][0:400] 'TV_RateLevel.Fit.dat' i 1  using 1:2 title "TV (Model)"  with linespoints ls 1, \
@@ -107,5 +107,5 @@ plot [40:100][0:400] 'TV_RateLevel.Fit.dat' i 0  using 1:2 notitle   with linesp
       
 unset multiplot
 
-!fixbb TV_RateLevel_result.eps
+# !fixbb TV_RateLevel_result.eps
 
