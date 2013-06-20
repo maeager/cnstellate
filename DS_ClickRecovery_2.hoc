@@ -437,7 +437,7 @@ proc runprax2(){local pp,pp2
 	//fit_praxis(NPARAMS,"err",&pvec.x[0])
 	//Output
 	print error=DS_ClickRecovery_err2(0,&pvec.x[0])
-	system("date",datestr)
+	set_datestr()
 	sprint(fname,"%s/%s.Fit.dat",fileroot,fileroot)
 	file.wopen(fname)
 	if (file.isopen()){
