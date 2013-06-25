@@ -33,8 +33,8 @@ public w               //synaptic weight  (maximum conductance in PSP)
 public delay           //additional delay in ms: Pre-cell AP time to post-cell response time
 public ncol,nrow
 //Golgi model parameters
-public golgi_spatial_filter_variance_LSR,golgi_syn_filter_scale_factor,golgi_spon,golgi_syn_filter_tau
-public golgi_spatial_filter_variance_HSR,golgi_spatial_filter_variance_MSR,golgi_MSR_weight_sum
+public golgi_syn_filter_scale_factor,golgi_spon,golgi_syn_filter_tau
+public golgi_spatial_filter_variance_MSR,golgi_MSR_weight_sum
 //DS_ClickRecovery and RateLevel 
 public ds_erev,ds_gkltbar,ds_gaba_decay,ds_gaba_rise,ds_gleak,ds_gnabar,ds_gkhtbar,DS_params
 //TV_Notch and RateLevel
@@ -52,13 +52,13 @@ objref bw, n, w,delay
 offset      = 0
 
 //GLG variables
-golgi_spatial_filter_variance_LSR = 2  //channel units when N=100, cfhi=48k, cflo=200	
+//bw.x[lsr][glg] = 2  //channel units when N=100, cfhi=48k, cflo=200	
 golgi_syn_filter_scale_factor	  = 1								
 golgi_spon		= 3	
 golgi_syn_filter_tau = 0.0005  //sec
 golgi_MSR_weight_sum = 0.5
 golgi_spatial_filter_variance_MSR = 1
-golgi_spatial_filter_variance_HSR = 1
+//bw.x[hsr][glg] = 1
 
 
 ds_gaba_decay	 = 9         //See Param.hoc
@@ -96,13 +96,13 @@ proc init(){
     
     //Default values
     //GLG variables
-    golgi_spatial_filter_variance_LSR = 2  //channel units when N=100, cfhi=48k, cflo=200	
+    bw.x[lsr][glg] = 2  //channel units when N=100, cfhi=48k, cflo=200	
     golgi_syn_filter_scale_factor     = 1	
     golgi_spon	                      = 3	
     golgi_syn_filter_tau              = 0.0005  //sec
     golgi_MSR_weight_sum              = 0.5
     golgi_spatial_filter_variance_MSR = 1
-    golgi_spatial_filter_variance_HSR = 1
+    bw.x[hsr][glg] = 1
     
     
     ds_gaba_decay= 9   //see Params.hoc
@@ -199,7 +199,7 @@ proc print2file(){local irow,jcol
 	    file.printf("\n")
 	}
 	file.printf("%s offset  %g\n",$s2, offset)
-	file.printf("%s golgi_spatial_filter_variance_LSR	 %g\n",$s2,golgi_spatial_filter_variance_LSR	)
+
 	file.printf("%s golgi_syn_filter_scale_factor %g\n",$s2,golgi_syn_filter_scale_factor	)
 	file.printf("%s golgi_spon %g\n",$s2,golgi_spon)
 	file.printf("%s ds_gaba_decay			 %g\n",$s2,ds_gaba_decay)
@@ -255,7 +255,7 @@ proc save2hocfile(){local irow,jcol localobj file
 	    for jcol=0,ncol-1 file.printf("param.delay.x[%d][%d] = %.4f\n",irow,jcol,delay.getval(irow,jcol))
 	}
 	file.printf("param.offset  = %g\n", offset)
-	file.printf("param.golgi_spatial_filter_variance_LSR	 = %g\n",golgi_spatial_filter_variance_LSR	)
+
 	file.printf("param.golgi_syn_filter_scale_factor = %g\n",golgi_syn_filter_scale_factor	)
 	file.printf("param.golgi_spon = %g\n",golgi_spon)
 	file.printf("param.ds_gaba_decay			 = %g\n",ds_gaba_decay)
@@ -309,7 +309,7 @@ proc show(){local irow,jcol
 	printf("\n")	
     }
     printf("\n// offset	 %g\n",offset)
-    printf("// golgi_spatial_filter_variance_LSR	 %g\n",golgi_spatial_filter_variance_LSR	)
+   
     printf("// golgi_syn_filter_scale_factor %g\n",golgi_syn_filter_scale_factor	)
     printf("// golgi_spon %g\n",golgi_spon)
     printf("// ds_gaba_decay			 %g\n",ds_gaba_decay)
@@ -339,48 +339,11 @@ proc show(){local irow,jcol
 
 endtemplate NetworkParameters
 
-//default values from Golgi rate-level optimisation
-// proc golgi_params(){
-// param.golgi_spatial_filter_variance_LSR		= 2.4837  //channel units when N=100, cfhi=64k, cflo=200
-// param.golgi_syn_filter_scale_factor			= 1.00
-// param.w.x[lsr][glg]							= 0.5166
-// param.w.x[hsr][glg]							= 0.0487
-// param.golgi_spon								= 3.7271
-// }
 
-// //default values
-// proc DS_params(){
-// param.w.x[glg][ds]							= 0.000531549
-// param.w.x[hsr][ds]							= 0.000167221
-// param.w.x[lsr][ds]							= 0.013091
-// param.ds_gkltbar					= 0.0163897
-// param.ds_gaba_decay								= 5.43235
-// param.ds_gaba_rise								= 0.261939
-// param.ds_gleak				= 0.00274146
-// param.ds_gnabar               = 0.408307
-// }
-
-
-// proc golgi_params(){
-// xopen("pvec_Golgi_RateLevel.hoc")
-// param.golgi_spatial_filter_variance_LSR = golgi_spatial_filter_variance_LSR
-// param.golgi_syn_filter_scale_factor		= golgi_syn_filter_scale_factor
-// param.golgi_spon						= golgi_spon
-// }
-
-
-// proc DS_params(){
-// 	xopen("pvec_DS_ClickRecovery.hoc")
-// 	xopen("pvec_DS_RateLevel.hoc")
-// param.ds_gkltbar					= ds_gkltbar
-// param.ds_gaba_decay						= gaba_decay
-// param.ds_gaba_rise							= gaba_rise
-// param.ds_gleak_rm				= ds_gleak_rm
-// }
 
 strdef paramfilename
 param = new NetworkParameters(6,4)
 sprint(paramfilename,"%s/defaultrecurrentparams.dat",cnstellate_dir)
 param.getnetparameters(paramfilename)
-//    golgi_params()
-//    DS_params()
+
+

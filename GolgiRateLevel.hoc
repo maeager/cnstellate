@@ -183,7 +183,7 @@ func fun() {local f,mspikerate
 	spl									=$1
 	//weight_sum						=$2
 	param.golgi_spon							=$2
-	param.golgi_spatial_filter_variance_LSR			=$3
+	param.bw.x[lsr][glg]			=$3
 	param.golgi_syn_filter_scale_factor		=$4
 	runtime								= startsw()
 	golgi[76][0].ClearSpikes()
@@ -250,7 +250,7 @@ proc PrintRatelevel(){ local i
     file.wopen("GolgiRateLevel.dat")
     file.printf("# Golgi model rate-level data\n")
 	file.printf("# %s \n",datestr)    
-	file.printf("# Spatial filter: Stdev of LSR input channels=%.4f\n",param.golgi_spatial_filter_variance_LSR)
+	file.printf("# Spatial filter: Stdev of LSR input channels=%.4f\n",param.bw.x[lsr][glg])
     file.printf("# Synaptic Filter: Tau = 5ms, Scale_factor=%.2f\n",param.golgi_syn_filter_scale_factor)
     file.printf("# Weighted sum of LSR = %.4f \n",param.w.x[lsr][glg])
     file.printf("# Weighted sum of HSR = %.4f \n",param.w.x[hsr][glg])
@@ -261,7 +261,7 @@ proc PrintRatelevel(){ local i
 	
 	file.wopen("pvec_Golgi_RateLevel.hoc")
 	file.printf("# %s \n",datestr)
-	file.printf("param.golgi_spatial_filter_variance_LSR=%.4f\n",param.golgi_spatial_filter_variance_LSR)
+	file.printf("param.bw.x[lsr][glg]=%.4f\n",param.bw.x[lsr][glg])
     file.printf("param.golgi_syn_filter_scale_factor=%.2f\n",param.golgi_syn_filter_scale_factor)
     file.printf("param.w.x[lsr][glg]= %.4f \n",param.w.x[lsr][glg])
     file.printf("param.w.x[hsr][glg]= %.4f \n",param.w.x[hsr][glg])

@@ -244,16 +244,16 @@ endtemplate CNcell
 //Default parameters for Golgi filter model
 
 param.golgi_spon = 1
-param.golgi_spatial_filter_variance = 4  //channel
+
 param.golgi_syn_filter_tau = 0.0005  //sec
 param.golgi_syn_filter_scale_factor = 1
 // Weight and spread of LSR, MSR and HSR to golgi
 param.w.x[lsr][glg] = 0.5
-golgi_spatial_filter_variance_LSR = 1
+param.bw.x[lsr][glg] = 1
 param.golgi_MSR_weight_sum = 0.5
 param.golgi_spatial_filter_variance_MSR = 1
 param.w.x[hsr][glg] = 0.5
-param.golgi_spatial_filter_variance_HSR = 1
+param.bw.x[hsr][glg] = 1
 
 
 gaussian_mean=0
@@ -307,7 +307,7 @@ public wLSR,wHSR,wMSR   //weight vectors of ANF inputs
 external thresh,LSRout,nchannels,sg_tdres
 external gaussian,gaussian_mean,gaussian_variance,golgi_synfilter,convolve, MSRsperchannel, Lowspont,Highspont,Medspont
 external hsr,lsr,glg,sg_rate,HSRout, MSRout
-external param //parameter stucture with golgi variables:  golgi_spatial_filter_variance_LSR, weight_sum_MSR, golgi_spatial_filter_variance_MSR, golgi_spatial_filter_variance_HSR, golgi_spon,golgi_spatial_filter_variance
+external param //parameter stucture with golgi variables:   weight_sum_MSR, golgi_spatial_filter_variance_MSR, golgi_spon
 objref sg,w, spiketimes, spikecount,sout,synlist,spikes
 objref wLSR,wHSR,wMSR
 channel=0
@@ -321,7 +321,7 @@ proc init() {localobj r, data, hist, x, g
     model = $1
     cf = $2
     channel=$3
-    golgi_spatial_filter_variance=$4
+    param.bw.x[lsr][glg]=$4
     sg = new SGC_fast(0.5)
     sg.cf = cf
 	
@@ -357,13 +357,13 @@ proc SetRate2() {local i,j,spon_factor
     wHSR = wLSR.c
 	//Set global variables for gaussian method
     gaussian_mean = channel
-    gaussian_variance = param.golgi_spatial_filter_variance_LSR
+    gaussian_variance = param.bw.x[lsr][glg]
     wLSR.apply("gaussian").mul(param.w.x[lsr][glg])
     if(MSRsperchannel>0){
         gaussian_variance = param.golgi_spatial_filter_variance_MSR
         wMSR.apply("gaussian").mul(param.golgi_MSR_weight_sum)
     }
-    gaussian_variance = param.golgi_spatial_filter_variance_HSR
+    gaussian_variance = param.bw.x[hsr][glg]
     wHSR.apply("gaussian").mul(param.w.x[hsr][glg])	
 	
     for i=0,nchannels-1  {
@@ -442,7 +442,7 @@ proc SaveGolgiFilterBank2File(){local nchan
     ANfile.wopen(tmpANstr)
     if (ANfile.isopen()){
         ANfile.printf("%d\n%d\n%d\n%d\n%d\n%d\n", sg_rate, LSRout[0].size, nchannels,cflo,cfhi,species)
-        ANfile.printf("%g\n%g\n%g\n%g\n%g\n%g\n",param.golgi_spon,param.golgi_spatial_filter_variance_LSR,param.golgi_syn_filter_tau,param.golgi_syn_filter_scale_factor,param.w.x[lsr][glg],param.w.x[hsr][glg])
+        ANfile.printf("%g\n%g\n%g\n%g\n%g\n%g\n",param.golgi_spon,param.bw.x[lsr][glg],param.golgi_syn_filter_tau,param.golgi_syn_filter_scale_factor,param.w.x[lsr][glg],param.w.x[hsr][glg])
 		
         for icf = 0, nchannels-1 {
             ANfile.printf("%d\n%d\n", icf, cf.x[icf])
@@ -496,8 +496,8 @@ func RetrieveGolgiFilterBank(){local nsize,nchan,temp
             print "golgi_spon not the same in ", tmpANstr
             return 0
         }
-        if ((temp = ANfile.scanvar()) != param.golgi_spatial_filter_variance_LSR){
-            print "golgi_spatial_filter_variance not the same in ", tmpANstr
+        if ((temp = ANfile.scanvar()) != param.bw.x[lsr][glg]){
+            print "bw.x[lsr][glg] not the same in ", tmpANstr
             return 0
         }
         if ((temp = ANfile.scanvar()) != param.golgi_syn_filter_tau){
