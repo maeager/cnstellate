@@ -107,5 +107,73 @@ proc show_pvec(){local pp
       for pp=0,NPARAMS-1 {
 	  sprint(cmd,"print %s ",pvec_name.object(pp).s)
 	  execute1(cmd)
-      }
-    }
+  }
+}
+
+
+
+//Optimisation parameters
+print "Optimisation parameters for TV RateLevel"
+xopen("pvec.hoc")
+
+ 
+proc append_num_lsrtv_connections(){
+	add_opt_param(NPARAMS,0.045,"param.n.x[lsr][tv]",1000,0.001,0.4)	
+}
+
+proc append_num_hsrtv_connections(){
+	add_opt_param(NPARAMS,0.080,"param.n.x[hsr][tv]",1000,0.001,0.4)
+}
+
+proc append_num_tvds_connections(){
+	add_opt_param(NPARAMS,0.015,"param.n.x[tv][ds]",1000,0.001,0.1)
+}
+
+proc append_num_dstv_connections(){
+	add_opt_param(NPARAMS,0.005,"param.n.x[ds][tv]",1000,0.001,0.1)
+}
+
+proc append_weight_lsrtv(){
+    add_opt_param(NPARAMS,0.003,"param.w.x[lsr][tv]",1,0.000001,0.2)
+}
+proc append_weight_hsrtv(){
+    add_opt_param(NPARAMS,0.0025,"param.w.x[hsr][tv]",1,0.000001,0.2)
+}
+proc append_weight_tvds(){
+    add_opt_param(NPARAMS,0.000130,"param.w.x[tv][ds]",1,0.000001,0.2)
+}
+
+proc append_weight_dstv(){
+    add_opt_param(NPARAMS,0.000130,"param.w.x[ds][tv]",1,0.0000001,0.1)
+}
+
+proc append_dstv_offset(){ 
+	add_opt_param(NPARAMS,0.4,"param.offset",1,0.015,50)
+}
+
+
+//TV Cell params
+//Initial values for default TV model diam=19 um
+proc append_tv_ghbar(){ 
+	add_opt_param(NPARAMS,0.213972,"param.tv_ghbar",1e-3, 2e-3 ,2)
+}
+proc append_tv_gnabar(){ 
+	add_opt_param(NPARAMS,0.408307,"param.tv_gnabar",1,0.15,0.6)
+}
+
+proc append_tv_gleak(){
+	//Leak conductance effects Input resistance and Membrane time constant
+	add_opt_param(NPARAMS,0.274146,"param.tv_gleak",1e-3,5e-2,5)
+}
+
+proc append_tv_erev(){
+	// Reversal potential in dendrite
+    add_opt_param(NPARAMS,0.065 ,"param.tv_erev",-1000,0.040,0.080)//
+} 
+
+
+NPARAMS=1
+init_params(NPARAMS)
+
+//append_num_lsrtv_connections()
+append_dstv_offset()

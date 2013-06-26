@@ -120,6 +120,12 @@ proc QuickRun2(){
     print TV_Notch_err2(0,&pvec.x[0])
 }
 
+proc runprax(){
+	attr_praxis(0.0001, 0.01, 3)
+    fit_praxis(NPARAMS,"TV_Notch_err",&pvec.x[0])
+}
+
+
 
 proc printprax2(){local pp,ii,pp2
 	//Output model data with best parameters
@@ -177,6 +183,7 @@ proc printprax2(){local pp,ii,pp2
 	for pp=0,NPARAMS-1 {
 		file.printf("%s = %g*%g\n",pvec_name.object(pp).s,pvec.x[pp],pvec_factor.x[pp])
     }
+  file.printf("\n")
 	file.close()
 }
 
