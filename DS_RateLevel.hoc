@@ -85,7 +85,7 @@ Ratelevel()
 
 whichcell=ArnottFig12_CFpos
 error_fn = "DS_RateLevel_err"
-param.ds_gnabar  = (0.408307/2) * 1.5
+param.ds_gnabar  = (0.408307/2) * 1.5 //0.30623025
 param.ds_gkltbar = 0.0163897
 
 param.ds_gkhtbar = 0.030623 

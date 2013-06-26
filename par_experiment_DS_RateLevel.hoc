@@ -687,14 +687,22 @@ proc runprax2(){
     system(cmd)
     sprint(cmd,"touch %s/error_out.dat",fileroot)
     system(cmd)
-    attr_praxis(0.01, 0.01, 3)
+    attr_praxis(tolerance, maxstepsize, 3)
     fit_praxis(NPARAMS,error_fn,&pvec.x[0])
 }
 
+
+tolerance = 0.0001
+maxstepsize = 0.0001
 proc runprax(){
-	attr_praxis(0.001, 0.001, 3)
-	fit_praxis(NPARAMS,error_fn,&pvec.x[0])
+//Set the attributes of the praxis method
+// tolerance : find f(x) that minimises norm(x-x0)<tolerance
+// maxstepsize: max distance between initial guess and minimum
+// printmode: verbosity of debugging output
+   attr_praxis(tolerance, maxstepsize, printmode)
+   fit_praxis(NPARAMS,error_fn,&pvec.x[0])
 }
+
 
 strdef origfileroot
 origfileroot=fileroot
@@ -764,6 +772,7 @@ proc printprax2(){local pp,ii,pp2,error
 	for pp=0,NPARAMS-1 {
 		file.printf("%s = %g\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp])
     }
+  file.printf("\n")
 	file.close()
 }
 
