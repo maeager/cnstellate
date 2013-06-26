@@ -166,12 +166,6 @@ proc connect_cells() {local i,target,source,low,high,range,channel,sourcechannel
 	lsr2dsAMPAvec.resize(0)
 	hsr2glgAMPAvec.resize(0)
 	lsr2glgAMPAvec.resize(0)
-	glg2dsGABAvec.resize(0)
-	glg2tsGABAvec.resize(0)
-	ds2tsGLYvec.resize(0)
-	ds2tvGLYvec.resize(0)
-	tv2tsGLYvec.resize(0)
-	ts2tsAMPAvec.resize(0)
 	
 	if (pnm.myid == 0) print "HSR->TS"
 	if( ( param.n.getval(hsr,ts) > 0 ) && ( nTSperchannel != 0 ) ){
@@ -369,6 +363,13 @@ proc connect_cells() {local i,target,source,low,high,range,channel,sourcechannel
 
 proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechannel
 	if (pnm.myid == 0)   print "Connecting CN network cells"
+	
+	glg2dsGABAvec.resize(0)
+	glg2tsGABAvec.resize(0)
+	ds2tsGLYvec.resize(0)
+	ds2tvGLYvec.resize(0)
+	tv2tsGLYvec.resize(0)
+	ts2tsAMPAvec.resize(0)
 
 	
 	if( ( param.n.getval(ts,ts) > 0 ) && ( nTSperchannel > 1 ) ){
@@ -830,4 +831,4 @@ proc RefreshCellParams(){local i,j
 
 //create_cells()
 //connect_cells(fileroot)
-//connect_CNcells()
+//connect_CNcells(fileroot)
