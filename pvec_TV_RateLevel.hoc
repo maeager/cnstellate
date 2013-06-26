@@ -1,9 +1,24 @@
 
 // Wed Sep 28 16:22:50 UTC 2011
+
+param.w.x[lsr][tv] = 30
+param.w.x[hsr][tv] = 30
   
 param.w.x[lsr][tv] = 0.00476495
 param.w.x[hsr][tv] = 0.000982828
 param.w.x[ds][tv] = 0.00115233
+
 param.n.x[ds][tv] = 29.4917
 param.tv_erev = -68.2485
+
+// Thu Jun 13
+
+param.w.x[lsr][tv] = 30
+param.w.x[hsr][tv] = 30
+param.w.x[lsr][tv] = 0.00472638
+param.w.x[hsr][tv] = 0.00478703
+param.w.x[ds][tv] = 0.00172859
+
+param.n.x[ds][tv] = 4.37
+param.tv_erev = -64.7219
 

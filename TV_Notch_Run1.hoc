@@ -56,7 +56,7 @@ CheckFilterbank()
 SetInputRates()
 
 
-func TV_Notch_err( ) {local jj,pp,xtime
+func TV_Notch_err() {local jj,pp,xtime
     
     //check for bad values
     for pp=0,NPARAMS-1 {
@@ -120,7 +120,25 @@ func TV_Notch_err( ) {local jj,pp,xtime
 		gr.label(0.65,0.75-0.05*jj,grlbl)
     }
 	doNotify()
+	
+    sprint(fname,"%s/error_out.dat",fileroot)
+	file.aopen(fname)
+	for pp=0,NPARAMS-1 {
+		file.printf("%g\t",$&2[pp]*pvec_factor.x[pp])
+    }
+	file.printf("%g\n",a)
+	file.close()
     return a
+}
+
+
+proc runprax2(){
+    sprint(cmd,"mkdir -p %s",fileroot)
+    system(cmd)
+    sprint(cmd,"touch %s/error_out.dat",fileroot)
+    system(cmd)
+    attr_praxis(0.01, 0.1, 3)
+    fit_praxis(NPARAMS,"TV_Notch_err",&pvec.x[0])
 }
 
 //tstop=300
@@ -162,7 +180,9 @@ proc printprax(){local pp,ii,pp2
 			pval[pp] = new Vector(NPARAMS)
 			pval_praxis(pp,&pval[pp].x[0])
 			file.printf("#\t")
-			for pp2=0,NPARAMS-1 file.printf("%g\t",pval[pp].x[pp2])
+			if (pval[pp].size == NPARAMS){
+				for pp2=0,NPARAMS-1 file.printf("%g\t",pval[pp].x[pp2])
+			}
 			file.printf("\n")
 		}
 		file.printf("# Frequency\tError Vec\t Reference Vec (rate sp/s)\n")
@@ -189,6 +209,7 @@ proc printprax(){local pp,ii,pp2
 	for pp=0,NPARAMS-1 {
 		file.printf("%s = %g*%g\n",pvec_name.object(pp).s,pvec.x[pp],pvec_factor.x[pp])
     }
+  file.printf("\n")
 	file.close()
 }
 

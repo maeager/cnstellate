@@ -1,24 +1,24 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
 /* 
- *   
- *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
- *
- *    This file is part of cnstellate.
- * 
- *    This is free software: you can redistribute it and/or modify
- *    it under the terms of the GNU General Public License as published by
- *    the Free Software Foundation, either version 3 of the License, or
- *    (at your option) any later version.
- *
- *    This is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU General Public License for more details.
- *
- *    You should have received a copy of the GNU General Public License
- *    along with this program.  If not, see <http://www.gnu.org/licenses/>.  
- */
+*   
+*    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
+*
+*    This file is part of cnstellate.
+* 
+*    This is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU General Public License as published by
+*    the Free Software Foundation, either version 3 of the License, or
+*    (at your option) any later version.
+*
+*    This is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU General Public License for more details.
+*
+*    You should have received a copy of the GNU General Public License
+*    along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+*/
 
 
 
@@ -26,71 +26,71 @@
 
 // Reiss and Young Type 2 units
 // CF=12.5kHz, spon rate is zero
-  objref tempmat
-  objref type2_1oct_sweep[2],type2_halfoct_sweep[2]
-  
-  //"TV_Notch/Reiss_Fig9_E_1oct.png.dat" //22dB notch, falling edge 1 oct
-  //"TV_Notch/Reiss_Fig9_C_halfoct.png.dat" //rising edge 1/2 oct
-  //"TV_Notch/Reiss_Fig10_Bii_HalfOctMax.png.dat"
-  //"TV_Notch/Reiss_Fig10_Bi_Max1oct.png.dat"
+objref tempmat
+objref type2_1oct_sweep[2],type2_halfoct_sweep[2]
 
-  //Mean data for one octaveand half octave sweeps (22dB re
-  file.ropen("TV_Notch/Reiss_Fig10_Bii_HalfOctMean.png.dat")
-  tempmat = new Matrix()
-  tempmat.scanf(file) //data is 24 rows
-  type2_halfoct_sweep[0] = tempmat.getcol(0)
-  type2_halfoct_sweep[1] = tempmat.getcol(1)
-  file.close()
-  file.ropen("TV_Notch/Reiss_Fig10_Bi_Mean1oct.png.dat")
-  tempmat = new Matrix()
-  tempmat.scanf(file) //data is 29 rows
-  // centre point is at 25th row
-  type2_1oct_sweep[0] = tempmat.getcol(0)
-  type2_1oct_sweep[1] = tempmat.getcol(1)
-  file.close()
+//"TV_Notch/Reiss_Fig9_E_1oct.png.dat" //22dB notch, falling edge 1 oct
+//"TV_Notch/Reiss_Fig9_C_halfoct.png.dat" //rising edge 1/2 oct
+//"TV_Notch/Reiss_Fig10_Bii_HalfOctMax.png.dat"
+//"TV_Notch/Reiss_Fig10_Bi_Max1oct.png.dat"
 
-  // Convert type2_1oct_sweep and type2_halfoct_sweep to EXPECTED population response to notch 
-  objref expected_notch[2]
-  halfoct_compress=1
-  halfoct_shift = 1
-  oct_compress=1
-  oct_shift = 1
+//Mean data for one octaveand half octave sweeps (22dB re
+file.ropen("TV_Notch/Reiss_Fig10_Bii_HalfOctMean.png.dat")
+tempmat = new Matrix()
+tempmat.scanf(file) //data is 24 rows
+type2_halfoct_sweep[0] = tempmat.getcol(0)
+type2_halfoct_sweep[1] = tempmat.getcol(1)
+file.close()
+file.ropen("TV_Notch/Reiss_Fig10_Bi_Mean1oct.png.dat")
+tempmat = new Matrix()
+tempmat.scanf(file) //data is 29 rows
+// centre point is at 25th row
+type2_1oct_sweep[0] = tempmat.getcol(0)
+type2_1oct_sweep[1] = tempmat.getcol(1)
+file.close()
+
+// Convert type2_1oct_sweep and type2_halfoct_sweep to EXPECTED population response to notch 
+objref expected_notch[2]
+halfoct_compress=1
+halfoct_shift = 1
+oct_compress=1
+oct_shift = 1
 centrepoint = 6000
-  proc overlapsweeps(){local ii,ifreq //convert single unit notch sweep to population response (tested in Octave)
-      objref expected_notch[2]
-      for ii=0,1  {expected_notch[ii] = new Vector()    }
-      //x1 =dlmread("./TV_Notch/Reiss_Fig10_Bii_HalfOctMean.png.dat"," ",2,0)
-      //x2 =dlmread("./TV_Notch/Reiss_Fig10_Bi_Mean1oct.png.dat"," ",2,0)
-      // plot([0.5-x1(1:9,1)' 1-x2(15:end,1)' ],[x1(1:9,3)' x2(15:end,3)'],'g+-') // 2nd element is empty
-      
-      // Upper section
-      for ii=0,type2_halfoct_sweep[0].size()-1{
-      	  //x-axis (best frequency)
-	  ifreq =  (halfoct_shift - type2_halfoct_sweep[0].x[ii])/halfoct_compress
-	  if (ifreq < 0.8) break
-	  expected_notch[0].append(ifreq)    //flip around rising edge
-	  //y-axis rate (sp/s)
-	  expected_notch[1].append(type2_halfoct_sweep[1].x[ii])
-      }
-       //MIDPOINT
-      expected_notch[0].append(0.5) expected_notch[1].append(0.0)
-		       //Lower Section
-      for ii=0, type2_1oct_sweep[0].size()-1 {
-	  ifreq =(oct_shift - type2_1oct_sweep[0].x[ii])/oct_compress
-	  if (ifreq > 0.6) continue
-	  expected_notch[0].append(ifreq)    //flip around falling edge
-	  expected_notch[1].append(type2_1oct_sweep[1].x[ii])
-      }
-      
-  }
-    overlapsweeps()
+proc overlapsweeps(){local ii,ifreq //convert single unit notch sweep to population response (tested in Octave)
+    objref expected_notch[2]
+    for ii=0,1  {expected_notch[ii] = new Vector()    }
+    //x1 =dlmread("./TV_Notch/Reiss_Fig10_Bii_HalfOctMean.png.dat"," ",2,0)
+    //x2 =dlmread("./TV_Notch/Reiss_Fig10_Bi_Mean1oct.png.dat"," ",2,0)
+    // plot([0.5-x1(1:9,1)' 1-x2(15:end,1)' ],[x1(1:9,3)' x2(15:end,3)'],'g+-') // 2nd element is empty
+    
+    // Upper section
+    for ii=0,type2_halfoct_sweep[0].size()-1{
+      	//x-axis (best frequency)
+	ifreq =  (halfoct_shift - type2_halfoct_sweep[0].x[ii])/halfoct_compress
+	if (ifreq < 0.8) break
+	expected_notch[0].append(ifreq)    //flip around rising edge
+	//y-axis rate (sp/s)
+	expected_notch[1].append(type2_halfoct_sweep[1].x[ii])
+    }
+    //MIDPOINT
+    expected_notch[0].append(0.5) expected_notch[1].append(0.0)
+    //Lower Section
+    for ii=0, type2_1oct_sweep[0].size()-1 {
+	ifreq =(oct_shift - type2_1oct_sweep[0].x[ii])/oct_compress
+	if (ifreq > 0.6) continue
+	expected_notch[0].append(ifreq)    //flip around falling edge
+	expected_notch[1].append(type2_1oct_sweep[1].x[ii])
+    }
+    
+}
+overlapsweeps()
 
 
 //Convert Octaves to Frequency (Depends on centre point)
 func oct2freq1(){local ratio //Standard Musical Octave Calculation,  $1 centre freq, $2 octave factor
-	ratio = 2.0^($2)
-	return $1*ratio
-	}
+    ratio = 2.0^($2)
+    return $1*ratio
+}
 
 func oct2freq2(){local ratio //Standard Acoutic Octave Calculation,  $1 centre freq, $2 octave factor
     ratio = 10.0^( 0.3*$2 )
@@ -98,68 +98,70 @@ func oct2freq2(){local ratio //Standard Acoutic Octave Calculation,  $1 centre f
 }
 //Convert Frequency Difference to Octaves  (Depends on reference freq)
 func freq2oct(){local ratio //Standard Musical Octave Calculation,  $1 centre freq, $2 octave factor
-	ratio = 2.0^($2)
-	return $1*ratio
+    ratio = 2.0^($2)
+    return $1*ratio
 }
 
 
 objref freq1_notch, freq2_notch,freq_1oct
-  proc GenFreqNotch(){
-  freq1_notch = new Vector() 
-  freq2_notch = new Vector()
+proc GenFreqNotch(){
+    freq1_notch = new Vector() 
+    freq2_notch = new Vector()
     freq_1oct = new Vector()
-  if (centrepoint < 20) {
-  print "Centrepoint is too low"
-  return
-  }
-
-  for ii = 0,expected_notch[0].size()-1 {
-     freq1_notch.append(oct2freq1(centrepoint,expected_notch[0].x[ii]))
-      freq2_notch.append(oct2freq2(centrepoint,expected_notch[0].x[ii]))
+    if (centrepoint < 20) {
+	print "Centrepoint is too low"
+	return
     }
-  for ii=0,type2_1oct_sweep[0].size-1  freq_1oct.append(oct2freq1(centrepoint,oct_shift - type2_1oct_sweep[0].x[ii]))
-
-
+    
+    for ii = 0,expected_notch[0].size()-1 {
+	freq1_notch.append(oct2freq1(centrepoint,expected_notch[0].x[ii]))
+	freq2_notch.append(oct2freq2(centrepoint,expected_notch[0].x[ii]))
+    }
+    for ii=0,type2_1oct_sweep[0].size-1  freq_1oct.append(oct2freq1(centrepoint,oct_shift - type2_1oct_sweep[0].x[ii]))
+    
 }
-  objref g[2]
-  proc GenNotchResponsePlots(){
+
+objref g[2]
+proc GenNotchResponsePlots(){
     overlapsweeps()
     GenFreqNotch()
-      objref g[2]
-      g[0] = new Graph()
-
-      expected_notch[1].plot(g[0],expected_notch[0])
-      type2_halfoct_sweep[1].plot(g[0],type2_halfoct_sweep[0],2,2) 
-      type2_1oct_sweep[1].plot(g[0],type2_1oct_sweep[0],3,2)
-      g[0].exec_menu("View = plot")
-      g[1] = new Graph()
-      expected_notch[1].plot(g[1],freq1_notch)
-      expected_notch[1].plot(g[1],freq2_notch)
-      g[1].exec_menu("View = plot")
-      expected_notch[1].reverse()
-      freq1_notch.reverse()
-      type2_1oct_sweep[1].reverse()
+    objref g[2]
+    g[0] = new Graph()
+    
+    expected_notch[1].plot(g[0],expected_notch[0])
+    type2_halfoct_sweep[1].plot(g[0],type2_halfoct_sweep[0],2,2) 
+    type2_1oct_sweep[1].plot(g[0],type2_1oct_sweep[0],3,2)
+    g[0].exec_menu("View = plot")
+    g[1] = new Graph()
+    expected_notch[1].plot(g[1],freq1_notch)
+    expected_notch[1].plot(g[1],freq2_notch)
+    g[1].exec_menu("View = plot")
+    expected_notch[1].reverse()
+    freq1_notch.reverse()
+    type2_1oct_sweep[1].reverse()
     freq_1oct.reverse()
-
-  }
-  
-proc ShowTVPanel(){  
-xpanel("TV_Notch")
- xvalue("halfoct_compress")
- xvalue("halfoct_shift")
- xvalue("oct_compress")
- xvalue("oct_shift")
- xvalue("centrepoint")
- xbutton("Plot Notches","GenNotchResponsePlots()")
-xpanel()
+    
 }
- GenNotchResponsePlots()
+
+proc ShowTVPanel(){  
+    xpanel("TV_Notch")
+    xvalue("halfoct_compress")
+    xvalue("halfoct_shift")
+    xvalue("oct_compress")
+    xvalue("oct_shift")
+    xvalue("centrepoint")
+    xbutton("Plot Notches","GenNotchResponsePlots()")
+    xpanel()
+}
+GenNotchResponsePlots()
 
 
 /* Original notch sweep
-   half octave 10 kHz centre
-   start rising edge one octave below -> 2.5kHz notch (2.5-5k)
-   half oct below-> (5k-7.5k)
-   on BF -> (7.5-10k)
-   1/2 oct above -> 
+half octave 10 kHz centre
+start rising edge one octave below -> 2.5kHz notch (2.5-5k)
+half oct below-> (5k-7.5k)
+on BF -> (7.5-10k)
+1/2 oct above -> 
 */
+
+
