@@ -176,15 +176,6 @@ hsr2dsAMPAlist.remove_all()
 lsr2dsAMPAlist.remove_all()
 hsr2glgAMPAlist.remove_all()
 lsr2glgAMPAlist.remove_all()
-glg2dsGABAlist.remove_all()
-glg2tsGABAlist.remove_all()
-ds2tsGLYlist.remove_all()
-ds2tvGLYlist.remove_all()
-tv2tsGLYlist.remove_all()
-tv2dsGLYlist.remove_all()
-ts2tsAMPAlist.remove_all()
-ts2tvAMPAlist.remove_all()
-ts2dsAMPAlist.remove_all()
 
 
 if( ( param.n.getval(hsr,ts) > 0 ) && ( nTSperchannel != 0 ) ){
@@ -424,7 +415,20 @@ outfile.close()
 proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechannel,conn_count
   sprint(filename,"%s.connect",$s1)
   outfile.aopen(filename)
+  
+glg2dsGABAlist.remove_all()
+glg2tsGABAlist.remove_all()
+ds2tsGLYlist.remove_all()
+ds2tvGLYlist.remove_all()
+tv2tsGLYlist.remove_all()
+tv2dsGLYlist.remove_all()
+ts2tsAMPAlist.remove_all()
+ts2tvAMPAlist.remove_all()
+ts2dsAMPAlist.remove_all()
 
+  
+  
+  
  print "Connecting CN network cells"
  
  if( ( param.n.getval(ts,ts) > 0 ) && ( nTSperchannel > 1 ) ){
