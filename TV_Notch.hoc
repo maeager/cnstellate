@@ -287,6 +287,7 @@ proc printprax2(){local pp,ii,pp2
 			file.printf("\n")
 		}
 		*/
+		
 		file.printf("# Frequency\tError Vec\t Reference Vec (rate sp/s)\n")
 		for ii=0,tempcf.size()-1 file.printf("%.1f\t%.6f\t%.15f\n",tempcf.x[ii],errorvec.x[ii],refvec.x[ii]) 
 	}
