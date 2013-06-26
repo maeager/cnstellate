@@ -47,6 +47,10 @@ public ts_jitter_sd     // standard deviation in delay of ANF inputs from simila
 
 //functions
 public getnetparameters, saveparameters,print2file,show,save2hocfile
+
+// Cell index values ts=0, tv=1, ds=2, glg=3, hsr=4, lsr=5
+external lsr,hsr,ts,ds,tv,glg
+
 objref bw, n, w,delay
 //Default values
 offset      = 0

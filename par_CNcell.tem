@@ -383,7 +383,7 @@ public w, spikecount,synlist,cf,model,channel // general variables
 public wLSR,wHSR,wMSR  //weight vectors of ANF inputs
 external thresh,LSRout,nchannels,sg_tdres
 external gaussian,gaussian_mean,gaussian_variance,golgi_synfilter,convolve, MSRsperchannel, Lowspont,Highspont,Medspont
-external ,hsr,lsr,glg,sg_rate,HSRout, MSRout
+external hsr,lsr,glg,sg_rate,HSRout, MSRout
 external param //parameter stucture with golgi variables:  weight_sum_MSR, golgi_spatial_filter_variance_MSR, golgi_spon
 objref sg,w, spiketimes, spikecount,sout,synlist,spikes
 objref wLSR,wHSR,wMSR
