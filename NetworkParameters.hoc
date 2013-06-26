@@ -44,9 +44,8 @@ public ts_gleak,ts_erev,ts_ghbar,ts_gkabar,ts_gnabar,ts_gkhtbar
 public ts_dend_g,ts_dend_e
 public ts_jitter_sd     // standard deviation in delay of ANF inputs from similar fibres
 
-
 //functions
-public getnetparameters, saveparameters,print2file,show
+public getnetparameters, saveparameters,print2file,show,save2hocfile
 objref bw, n, w,delay
 //Default values
 offset      = 0
@@ -222,7 +221,7 @@ proc save2hocfile(){local irow,jcol localobj file
 	file.wopen($s1)
     if (file.isopen()) {
 		file.printf("// This file is autoamtically generated from NetworkParameters.hoc\n")
-		system("date",datestr)
+		set_datestr()
 		file.printf("// Created on %s \n",datestr)
 		file.printf("objref param \n")
 		file.printf("param = new NetworkParameters(6,4)\n")
