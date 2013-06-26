@@ -245,7 +245,7 @@ strdef datestr
 proc PrintRatelevel(){ local i
 	RatelevelGolgi1()
 	if (file.isopen()) file.close()
-	system("date",datestr)
+	set_datestr()
 	
     file.wopen("GolgiRateLevel.dat")
     file.printf("# Golgi model rate-level data\n")
