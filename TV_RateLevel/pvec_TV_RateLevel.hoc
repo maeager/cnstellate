@@ -130,3 +130,9 @@ param.w.x[lsr][tv] = 0.003
 param.w.x[hsr][tv] = 0.0025
 param.w.x[ds][tv] = 0.0013
 
+ // 20130624+19:16:18
+  
+param.w.x[lsr][tv] = 0.00309285
+param.w.x[hsr][tv] = 0.0005
+param.w.x[ds][tv] = 0.00787058
+
