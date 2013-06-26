@@ -38,6 +38,8 @@ xopen("par_CNcell.tem")      // CN cell template
 xopen("pvec_Golgi_RateLevel.hoc")
 xopen("pvec_DS_ClickRecovery.hoc")
 xopen("pvec_TV_Notch.hoc")
+xopen("pvec_TV_RateLevel.hoc")
+
 xopen("parameters_Responses.hoc")
 
 //--- Setup CN Stellate Network model
@@ -46,11 +48,11 @@ xopen("calcisilag.hoc")
 create_cells()
 connect_cells(fileroot)
 connect_CNcells(fileroot)
-
-reset_DS_ClickRecovery()
-param.w.x[hsr][ds]*=10
-param.w.x[ds][tv]/=10
-reset_weights()
+RefreshCellParams()
+//reset_DS_ClickRecovery()
+//param.w.x[hsr][ds]*=10
+//param.w.x[ds][tv]/=10
+//reset_weights()
 usesavedfilterbanks=1
 
 
