@@ -3,7 +3,6 @@
 /* 
  *   
  *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
- *    cnstellate was written as part of my PhD at The University of Melbourne
  *
  *    This file is part of cnstellate.
  * 
@@ -34,14 +33,15 @@ total_time=0
 proc CREATEFILTERBANKS(){
     RefreshParameters()
     ANFilterBankRun()
+    SetInputRates()
     print "num_stim ",num_stim=num_stim+1," total_time ",total_time=total_time+(stim.size/srate)
 }
 
 proc MULTIRUN(){local nreps
     RefreshParameters()
     ANFilterBankRun()
-    SetRates()
-    multi_run()   //needs cngui.hoc
+    SetInputRates()
+    multi_run2()   
 }
 
 load_file("calcisilag.hoc")
