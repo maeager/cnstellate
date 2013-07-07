@@ -68,11 +68,12 @@ ampa_erev										= 0
 gly_decay										= 2.5
 gly_rise										= 0.4      //half width of glyc mIPSCs in MNTB is 2.3msec, rise time 0.4msec,
 //normal decay time constant 5.47+/-0.19, deaf 8.01 msec  (P12-14)
-//Awatramani J Neurophysiol (2005)
+//Awatramani,Tureck, Trussell J Neurophysiol (2005) Gly and GABA
+//Awatramani,Tureck, Trussell J Neurosci (2004) Gly only
 //MNTB rat P30 gly decay constant 2.0,
 gly_erev										= -72      //see Paolini 1999
 
-gaba_decay			= 9      //probably a combination of two time constants see Awatramani gabaA fast 5-10 slow 20-60
+gaba_decay			= 9      //probably a combination of two time constants see AwatramaniEtAl:2005 gabaA fast 5-10 slow 20-60
 gaba_rise			= 0.7
 gaba_erev					=-72      // in T stellates this is more likely to be closer to RMP as
 //Ferragamo et al. 1998 found no GABAergic IPSPs but the cells were still
