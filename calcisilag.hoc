@@ -514,7 +514,7 @@ proc calc_smooth_hist() { // 1 arg - variance
   work.resize(0)
   for i = 0, nchannels-1 {
     for j = 0, nTSperchannel-1 {
-      work.append(tstellate[i][j].spiketimes)
+      work.append(tstellate[i][j].spikes)
     }
   }
   hist = work.sumgauss(0,tstop,1,$1)
@@ -598,7 +598,7 @@ proc print_spiketimes() { // 3 args - indices of Tstellate cell plus filename ro
     sprint(filename,"%s/spikes_%d_%d.isi",$s3,$1,$2)
     outfile.wopen(filename)
     outfile.printf("# Spiketimes for Tstellate cell [%d][%d]",$1,$2)
-    tstellate[$1][$2].spiketimes.printf(outfile,"%10.3f")
+    tstellate[$1][$2].spikes.printf(outfile,"%10.3f")
   }
   if (numarg() == 1) {
     sprint(filename,"%s/spikes.ts.isi",$s1)
@@ -606,7 +606,7 @@ proc print_spiketimes() { // 3 args - indices of Tstellate cell plus filename ro
     for i = 0, nchannels-1 {
       for j = 0, nTSperchannel-1 {
         outfile.printf("[%d][%d]",i,j)
-        tstellate[i][j].spiketimes.printf(outfile,"%10.3f")
+        tstellate[i][j].spikes.printf(outfile,"%10.3f")
       }
     }
     sprint(filename,"%s/spikes.ds.isi",$s1)
@@ -614,7 +614,7 @@ proc print_spiketimes() { // 3 args - indices of Tstellate cell plus filename ro
     for i = 0, nchannels-1 {
       for j = 0, nDSperchannel-1 {
         outfile.printf("[%d][%d]",i,j)
-        dstellate[i][j].spiketimes.printf(outfile,"%10.3f")
+        dstellate[i][j].spikes.printf(outfile,"%10.3f")
       }
     }
   }
