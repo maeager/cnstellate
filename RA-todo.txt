@@ -254,8 +254,9 @@ reps=100
 RateLevelFunction()
 reps=25
 NoiseRateLevelFunction()
-
-//MaskedResponseCurve()
+binwidth=0.1
+F0Response(fileroot)
+MaskedResponseCurve()
 //ResponseArea()
 //
 //RateLevelFunction()
