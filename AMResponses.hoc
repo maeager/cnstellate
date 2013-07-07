@@ -17,7 +17,6 @@ xopen("par_CNcell.tem")      // CN cell template
 xopen("pvec_Golgi_RateLevel.hoc")
 xopen("pvec_DS_ClickRecovery.hoc") 
 xopen("pvec_DS_RateLevel.hoc")
-
 xopen("pvec_TV_Notch.hoc")
 xopen("pvec_TV_RateLevel.hoc")
 xopen("parameters_Responses.hoc")
@@ -40,7 +39,7 @@ connect_CNcells(fileroot)
 xopen("par_experiment_TStellate2.hoc")
 
 create_cells()
-RefreshCellParams()
+
 connect_cells(fileroot)
 connect_CNcells(fileroot)
 RefreshCellParams()
@@ -64,7 +63,7 @@ ANmodel					= 7 //Zilany Bruce model (Zilany et al, 2009)
 species					= 1 //Cat
 audiogram_file			= "cat_audiogram.txt"
 usesavedfilterbanks     = 1
-ANsoundspath = "/media/data/sounds"  //local sounds path
+ANsoundspath = "../sounds"  //local sounds path
 nrep         = 1               //nrep is number of reps of stimulus
 cfhi         = 40000
 cflo         = 200
@@ -112,12 +111,47 @@ CT2_data()
 RefreshParameters()
 ANFilterBankRun()  //Generate new AN instant. rates
 SetInputRates()
-xopen("TStellate2_CT2/pvec_TStellate.hoc")
+xopen("TStellate2_pvec_TStellate.hoc")
 RefreshCellParams()
 connect_cells(fileroot)
 connect_CNcells(fileroot)
 ModulationTransferFunction(tonefreq)
 F0_Response(tonefreq)
+}
+
+
+
+proc SimpleResponses_CS(){
+CS_data()
+xopen("pvec_TStellate2_CS.hoc")
+connect_cells(fileroot)
+connect_CNcells(fileroot)
+RefreshCellParams()
+RateLevelFunction()
+NoiseRateLevelFunction()
+MaskedRateLevelFunction()
+}
+proc SimpleResponses_CT1(){
+CT1_data()
+xopen("pvec_TStellate2_CT1.hoc")
+connect_cells(fileroot)
+connect_CNcells(fileroot)
+RefreshCellParams()
+RateLevelFunction()
+NoiseRateLevelFunction()
+MaskedRateLevelFunction()
+}
+
+
+proc SimpleResponses_CT2(){
+CT2_data()
+xopen("pvec_TStellate2_CT2.hoc")
+connect_cells(fileroot)
+connect_CNcells(fileroot)
+RefreshCellParams()
+RateLevelFunction()
+NoiseRateLevelFunction()
+MaskedRateLevelFunction()
 }
 
 
