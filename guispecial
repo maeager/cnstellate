@@ -1,0 +1,11 @@
+#!/bin/sh
+
+PWD=`pwd`
+ARCH`arch`
+NRNHOME="${HOME}/neuron/nrngui"
+NRNBIN="${NRNHOME}/${ARCH}/bin"
+NRNIV="${NRNBIN}/nrniv"
+LNRNMECH="${PWD}/gui/.libs/libnrnmech.so"
+
+"${NRNIV}" -dll "${LNRNMECH}" "$@"
+

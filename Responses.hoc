@@ -1,0 +1,140 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+/*   Responses.hoc
+ *  Generate RL,NRL,RA, MTF
+ * 
+ *   
+ *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
+ *
+ *    This file is part of cnstellate.
+ * 
+ *    This is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation, either version 3 of the License, or
+ *    (at your option) any later version.
+ *
+ *    This is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+ */
+ 
+ 
+ 
+load_file("nrngui.hoc")
+//load_file("par_netpar.hoc")
+//load_file("par_init.hoc")
+
+xopen("Params.hoc")
+xopen("Utilities.hoc")
+xopen("NetworkParameters.hoc")
+xopen("AuditoryNerve.hoc")
+xopen("par_CNcell.tem")      // CN cell template
+
+//Previous optimisation parameters
+xopen("pvec_Golgi_RateLevel.hoc")
+xopen("pvec_DS_ClickRecovery.hoc")
+xopen("pvec_TV_Notch.hoc")
+xopen("parameters_Responses.hoc")
+
+//--- Setup CN Stellate Network model
+xopen("CochlearNucleus.hoc")         // model set-up
+xopen("calcisilag.hoc")
+create_cells()
+connect_cells(fileroot)
+connect_CNcells(fileroot)
+
+reset_DS_ClickRecovery()
+param.w.x[hsr][ds]*=10
+param.w.x[ds][tv]/=10
+reset_weights()
+usesavedfilterbanks=1
+
+
+
+objref MRAv,MRAgr, mrafreq,psth
+MRAv = new Vector(31)
+
+proc ResponseArea(){local i,j,count,sum, channel, hi, lo,runtime, incr, startf, stopf localobj pst1,pst2
+    //	objref MRAgr, mrafreq,psth
+	//objref mratimes
+	pst1				= new Vector(1001) 
+    pst2				= new Vector(1001)
+	mrafreq				= new Vector()
+	runtime				= startsw()
+	
+	//Basic Stimulus Properties
+	AdditiveNoise		= 0
+	count				= 0
+	reps				= 10
+	stimtype			= 1
+	dur					= 0.095 	//duration of tone segment (seconds)
+	dutycycle			= 0		//quiet duration = dutycycle*dur
+	ramplngth			= 0.005
+	srate				= 50000.0  
+	stimtdres			= 1/srate
+	sg_rate				= 10000		
+	sg_tdres			= 1/sg_rate
+	nrep				= 1  		//nrep is number of reps in one stimulus
+	stimdelay			= 0.02		//sec
+	
+	//Input variables
+	if ($1==0) { 
+		tonefreq 	= cf.x[icentre]	//Hz
+	} else {
+		tonefreq = $1
+	}	
+	
+	//Setup		
+	RefreshParameters()	
+	ANFilterBankRun()	//Generate new AN instant. rates
+	ClearSpikes() 	//Erase old spikes
+	
+	//Set all ANFs to New rates
+	an.reset()
+	startf = startsw()-runtime
+	// Perform multiple runs
+	
+	for j=0, reps-1{ 
+		print j
+		run3() 
+		SaveSpikes() 
+	}	
+	
+	runtime = startsw()-runtime
+	print "MRA at ",tonefreq,"  took ",runtime, " secs "
+	//Calculate mean 
+	//MeanRate()
+	/*	for (i=0;i<31;i+=1){ 
+		print i
+		sum=0
+		pst1 = Mspikes[i*2].histogram(0, 100,0.1)
+		pst2 = Mspikes[i*2+1].histogram(0, 100,0.1)
+		if (object_id(pst1, 1) >= 0) sum+=pst1.sum(500,1000)/(reps*0.05)
+		if (object_id(pst2,1)>=0) sum+=pst2.sum(500,1000)/(reps*0.05)
+		MRAv.x[i]=(sum/2)
+		
+	}*/
+	
+	//Mspikes could be used to find PSTH, FSL etc info here
+	
+	
+	//Disable some parameters
+	AdditiveNoise = 0
+	
+}
+
+strdef targetcell
+targetcell="cn.tstellate[whichcell]"
+
+
+// channel position -> tonefreq
+
+xopen("cngui.hoc")
+
+
+//load_file("RA-todo.txt")
+

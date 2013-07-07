@@ -1,0 +1,238 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+/** Cochlear Nucleus network model: Auditory Nerve template
+ * Auditory filterbank is setup within the AuditoryNerve
+ * generally for hist and low SR units (medium SR units could be added if needed) 
+ *
+ * 
+ *   
+ *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
+ *
+ *    This file is part of cnstellate.
+ * 
+ *    This is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation, either version 3 of the License, or
+ *    (at your option) any later version.
+ *
+ *    This is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+ */
+
+ 
+ 
+begintemplate AuditoryNerve
+public HSR,LSR, reorder,HSRspiketimes,LSRspiketimes,LSRspikes,HSRspikes
+public flag,channel,tdres,spont,nspks,ncells,reorder
+public SetRates,GenSpikes,GenSpikes2, PrintSpikes,ClearSpikes,SaveSpikes//,SetSpikes,Printspks,ReorderSpikes,
+external HSRout,LSRout,sg_tdres,nchannels,HSRsperchannel,LSRsperchannel,cf
+external Lowspont,Highspont
+
+objref HSR[1][1],LSR[1][1],HSRspiketimes[1][1],LSRspiketimes[1][1],\
+HSRspikes[1][1],LSRspikes[1][1]
+
+
+proc init(){
+	objref HSR[nchannels][HSRsperchannel], \
+	LSR[nchannels][LSRsperchannel], \
+	HSRspiketimes[nchannels][HSRsperchannel],\
+	LSRspiketimes[nchannels][LSRsperchannel],\
+	HSRspikes[nchannels][HSRsperchannel],\
+	LSRspikes[nchannels][LSRsperchannel]
+	
+	for i=0,nchannels-1  {
+		for j=0,HSRsperchannel-1 {
+			HSRspiketimes[i][j] = new Vector()
+			HSRspikes[i][j] = new Vector()
+		}
+		for j=0,LSRsperchannel-1 {
+			LSRspiketimes[i][j] = new Vector()
+			LSRspikes[i][j] = new Vector()  //vector for storing spiketimes over repeated presentations
+		}
+	}
+}
+
+proc SetRates() {local i,j
+	print "Setting AN rates"
+	for i=0,nchannels-1  {
+		for j=0,HSRsperchannel-1 {
+			HSR[i][j].channel = i
+			HSR[i][j].cf = cf.x[i]
+			HSR[i][j].spont = Highspont
+			HSR[i][j].SetFibreRate(HSRout[i],HSRspiketimes[i][j],sg_tdres)			
+		}
+		for j=0,LSRsperchannel-1 {
+			LSR[i][j].channel = i
+			LSR[i][j].cf = cf.x[i]
+			LSR[i][j].spont = Lowspont
+			LSR[i][j].SetFibreRate(LSRout[i],LSRspiketimes[i][j],sg_tdres)
+		}
+    }
+}
+
+//! Very basic spike generation
+proc GenSpikes() {local i,j
+	for i=0,nchannels-1  {
+		for j=0,HSRsperchannel-1 {
+ 			HSR[i][j].SGfast(1)
+		}
+		//system("sleep 0.1")
+		for j=0,LSRsperchannel-1 {
+			LSR[i][j].SGfast(1)
+		}
+	}
+	
+}
+
+
+
+proc PrintSpikes() {local i,j
+	
+	for i=0,nchannels-1  {
+		for j=0,HSRsperchannel-1 {
+			if (HSRspiketimes[i][j].size !=0) HSRspiketimes[i][j].printf
+		}
+		for j=0,LSRsperchannel-1 {
+			if (LSRspiketimes[i][j].size !=0)   LSRspiketimes[i][j].printf
+		}
+	}
+	
+}
+
+objref tobj,spikes
+proc GenSpikes2(){local i,j,k
+	
+	for i=0,nchannels-1  {
+		spikes = new Vector()
+		HSRout[i].ANFSpikeGenerator(spikes,HSRsperchannel,sg_tdres)
+		tobj = new Vector()
+		//tobj.append(spikes.get(k))
+		j=0
+		for(k=1;k < spikes.size();k+=1){
+			if (spikes.get(k) != 0 ){
+				tobj.append(spikes.get(k))
+			} \
+			else {
+				//tobj.printf
+				HSRspiketimes[i][j] = tobj.c
+				j+=1
+				tobj = new Vector()
+			}
+		}
+		HSRspiketimes[i][j] = tobj.c
+		print "HSR ", i, j
+		for j=0,HSRsperchannel-1 {
+			HSR[i][j].SetSpikes(HSRspiketimes[i][j])
+		}
+		spikes = new Vector()
+		LSRout[i].ANFSpikeGenerator(spikes,LSRsperchannel,sg_tdres)
+		tobj = new Vector()
+		j=0
+		for(k=1;k < spikes.size();k+=1){
+			if (spikes.get(k) != 0 ){
+				tobj.append(spikes.get(k))
+			} \
+			else {
+				LSRspiketimes[i][j] = tobj.c
+				j+=1
+				tobj = new Vector()
+			}
+		}
+		LSRspiketimes[i][j] = tobj.c
+		print "LSR ", i, j
+		for j=0,LSRsperchannel-1 {
+			LSR[i][j].SetSpikes(LSRspiketimes[i][j])
+		}
+		
+		
+	}
+}
+proc GenSpikes4(){local i,j,k
+		
+	for i=0,nchannels-1  {
+		spikes = new Vector()
+		HSRout[i].ANFSpikeGenerator(spikes,HSRsperchannel,sg_tdres)
+		tobj = new Vector()
+		//tobj.append(spikes.get(k))
+		j=0
+		for(k=1;k < spikes.size();k+=1){
+			if (spikes.get(k) != 0 ){
+				tobj.append(spikes.get(k))
+			} \
+			else {
+				//tobj.printf
+				HSRspiketimes[i][j] = tobj.c
+				j+=1
+				tobj = new Vector()
+			}
+		}
+		HSRspiketimes[i][j] = tobj.c
+		print "HSR ", i, j
+		for j=0,HSRsperchannel-1 {
+			HSR[i][j].SetSpikes(HSRspiketimes[i][j])
+		}
+		spikes = new Vector()
+		LSRout[i].ANFSpikeGenerator(spikes,LSRsperchannel,sg_tdres)
+		tobj = new Vector()
+		j=0
+		for(k=1;k < spikes.size();k+=1){
+			if (spikes.get(k) != 0 ){
+				tobj.append(spikes.get(k))
+			} \
+			else {
+				LSRspiketimes[i][j] = tobj.c
+				j+=1
+				tobj = new Vector()
+			}
+		}
+		LSRspiketimes[i][j] = tobj.c
+		print "LSR ", i, j
+		for j=0,LSRsperchannel-1 {
+			LSR[i][j].SetSpikes(LSRspiketimes[i][j])
+		}
+		
+		
+	}
+}
+
+
+
+proc ClearSpikes() {local i,j
+	print "Clearing AN Spikes"	
+	for i=0,nchannels-1  {
+		for j=0,HSRsperchannel-1 {
+			if (HSRspiketimes[i][j].size !=0) HSRspiketimes[i][j].resize(0)
+			if (HSRspikes[i][j].size !=0) HSRspikes[i][j].resize(0)
+		}
+		for j=0,LSRsperchannel-1 {
+			if (LSRspiketimes[i][j].size !=0)   LSRspiketimes[i][j].resize(0)
+			if (LSRspikes[i][j].size !=0)   LSRspikes[i][j].resize(0)
+		}
+    }
+}
+
+proc SaveSpikes() {local i,j
+    print "Saving AN Spikes"
+	for i=0,nchannels-1  {
+		for j=0,HSRsperchannel-1 {
+			if (HSRspiketimes[i][j].size !=0) HSRspikes[i][j].append(HSRspiketimes[i][j].c)
+		}
+		for j=0,LSRsperchannel-1 {
+			if (LSRspiketimes[i][j].size !=0)   LSRspikes[i][j].append(LSRspiketimes[i][j].c)
+        }
+    }
+	
+}
+
+endtemplate AuditoryNerve
+
+
+// Create Auditory Nerve object
+objref an
+an = new AuditoryNerve()
+
