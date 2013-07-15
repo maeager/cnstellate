@@ -1,0 +1,173 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+/* 
+ *   
+ *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
+ *
+ *    This file is part of cnstellate.
+ * 
+ *    This is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation, either version 3 of the License, or
+ *    (at your option) any later version.
+ *
+ *    This is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+ */
+
+
+// parameters_TV_Notch.hoc
+// Cochlear Nucleus network model: parameters file
+// based on parameters_odour_baseline.hoc by Andrew Davison
+// Michael Eager, University of Melbourne
+
+  nchannels				= 100	   // Total number of frequency channels
+  nTSperchannel			= 0	  // number of TS cells in each freq channel
+  numTS					= nchannels*nTSperchannel	// total number of TS cells
+  nTVperchannel			= 0	  // number of TV cells in each freq channel
+  numTV					= nchannels*nTVperchannel	// total number of TV cells
+  nDSperchannel			= 1	  // number of DS cells in each freq channel
+  numDS					= nchannels*nDSperchannel	// total number of DS cells
+  nGperchannel			= 1	  // number of Golgi cells in each freq channel
+  numG					= nchannels*nGperchannel   // total number of Golgi cells
+  HSRsperchannel		= 50
+  MSRsperchannel		= 0
+  LSRsperchannel		= 30
+  seed					= 0			// seed for random number generator
+  thresh				= -20		// mV	// threshold for detecting spikes
+
+
+  strdef fileroot
+  sprint(fileroot,"TV_RateLevel") // root for output filenames
+
+  
+  
+  tstop				= 120	   // ms   total simulation time
+  ttrans			= 20	   // ms,  when calculating statistics, ignore spikes occuring before this time
+  cvode.active(0)
+  dt				= 0.05		//ms  cannot be any higher than 0.1
+  steps_per_ms		= 10
+  setdt()
+  celsius			= 37
+  secondorder		= 2		//Crank-Nicholson Integration method 
+  param.tv_erev = -65
+  
+  
+  
+  
+  
+  
+  
+  
+  //Optimisation parameters
+  print "Optimisation parameters for TV Notch"
+  xopen("pvec.hoc")
+  NPARAMS		= 5
+  objref pvec,fvec,pvec_ranges,pvec_name,pvec_factor
+  pvec			= new Vector()//NPARAMS) //contains the parameters to be fitted
+  pvec_ranges	= new Matrix(NPARAMS,2) // (min,max) pairs for each parameter
+  pvec_name		= new List() //names of parameters in String list
+  pvec_factor	= new Vector() //NPARAMS,1)
+  //mul factor
+  //for i																=0,NPARAMS-1 pvec_factor.x[i] = 1	
+  //min
+  for i	=0,NPARAMS-1 pvec_ranges.x[i][0]= 0.00001
+  //max
+  for i	=0,NPARAMS-1 pvec_ranges.x[i][1]= 0.03
+  //Names                                               //Initial values	//Param Factor
+  pvec_name.append(new String("param.w.x[lsr][tv]"))	pvec.append(0.00190)	pvec_factor.append(1)
+  pvec_name.append(new String("param.w.x[hsr][tv]"))	pvec.append(0.00130)	pvec_factor.append(1)
+  pvec_name.append(new String("param.w.x[ds][tv]"))	    pvec.append(0.00170)	pvec_factor.append(1) 
+  pvec_name.append(new String("param.n.x[ds][tv]"))	    pvec.append(0.020 )     pvec_factor.append(1000)	
+  
+  pvec_ranges.x[3][1]=0.2  
+  pvec_ranges.x[3][0]=0.001
+pvec_name.append(new String("param.tv_erev"))	pvec.append(-0.065)	pvec_factor.append(1000) pvec_ranges.x[4][0] =-0.08
+  pvec_ranges.x[4][1]=-0.05 
+
+//  pvec_name.append(new String("param.bw.x[ds][tv]"))	pvec.append(0.0008)	pvec_factor.append(1000)
+//  pvec_name.append(new String("param.offset"))	pvec.append(0.0021)	pvec_factor.append(1000)
+//  pvec_name.append(new String("param.n.x[ds][tv]"))	pvec.x[5]		= 20		
+//  pvec_name.append(new String("param.n.x[hsr][tv]"))	pvec.x[6]		= 8		
+//  pvec_name.append(new String("param.n.x[lsr][tv]"))	pvec.x[7]		= 12		
+//  pvec_name.append(new String("param.w.x[tv][ds]"))	pvec.x[8]		= 0.00090	 
+
+
+// add_opt_param( 0, 0.0019, "param.w.x[lsr][tv]", 1,    0.000001, 0.03)
+// add_opt_param( 1, 0.0013, "param.w.x[hsr][tv]", 1,    0.000001, 0.03)
+// add_opt_param( 2, 0.0017, "param.w.x[ds][tv]", 1,    0.000001, 0.03)
+// add_opt_param( 2, 0.020, "param.n.x[ds][tv]", 1000,    0.001, 0.2)
+// add_opt_param( 3, -0.065,"param.tv_erev",1000,   -0.08, -0.05)
+
+
+//Optimisation parameters
+print "Optimisation parameters for TV RateLevel"
+xopen("pvec.hoc")
+
+ 
+proc append_num_lsrtv_connections(){
+	add_opt_param(NPARAMS,0.045,"param.n.x[lsr][tv]",1000,0.001,0.4)	
+}
+
+proc append_num_hsrtv_connections(){
+	add_opt_param(NPARAMS,0.080,"param.n.x[hsr][tv]",1000,0.001,0.4)
+}
+
+proc append_num_tvds_connections(){
+	add_opt_param(NPARAMS,0.015,"param.n.x[tv][ds]",1000,0.001,0.1)
+}
+
+proc append_num_dstv_connections(){
+	add_opt_param(NPARAMS,0.005,"param.n.x[ds][tv]",1000,0.001,0.1)
+}
+
+proc append_weight_lsrtv(){
+    add_opt_param(NPARAMS,0.003,"param.w.x[lsr][tv]",1,0.000001,0.2)
+}
+proc append_weight_hsrtv(){
+    add_opt_param(NPARAMS,0.0025,"param.w.x[hsr][tv]",1,0.000001,0.2)
+}
+proc append_weight_tvds(){
+    add_opt_param(NPARAMS,0.000130,"param.w.x[tv][ds]",1,0.000001,0.2)
+}
+
+proc append_weight_dstv(){
+    add_opt_param(NPARAMS,0.000130,"param.w.x[ds][tv]",1,0.0000001,0.1)
+}
+
+
+//TV Cell params
+//Initial values for default TV model diam=19 um
+proc append_tv_ghbar(){ 
+	add_opt_param(NPARAMS,0.213972,"param.tv_ghbar",1e-3, 2e-3 ,2)
+}
+proc append_tv_gnabar(){ 
+	add_opt_param(NPARAMS,0.408307,"param.tv_gnabar",1,0.15,0.6)
+}
+
+proc append_tv_gleak(){
+	//Leak conductance effects Input resistance and Membrane time constant
+	add_opt_param(NPARAMS,0.274146,"param.tv_gleak",1e-3,5e-2,5)
+}
+
+proc append_tv_erev(){
+	// Reversal potential in dendrite
+    add_opt_param(NPARAMS,0.065 ,"param.tv_erev",-1000,0.040,0.080)//
+} 
+
+
+NPARAMS=6
+init_params(NPARAMS)
+
+//append_num_lsrtv_connections()
+append_weight_lsrtv()
+//append_num_hsrtv_connections()
+append_weight_hsrtv()
+append_weight_dstv()
+append_num_dstv_connections()
+append_tv_erev()

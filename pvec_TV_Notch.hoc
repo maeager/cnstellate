@@ -1,0 +1,7 @@
+ // Mon Oct 11 22:22:46 AUSEDT 2010
+  
+param.bw.x[ds][tv] = 0.0139873*1000
+param.tv_erev = -0.065894*1000
+param.offset = 0.0021*1000
+param.n.x[ds][tv] = 0.0171187*1000
+param.w.x[ds][tv] = 0.0017*1

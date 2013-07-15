@@ -1,0 +1,197 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+/*
+ *   TV_Notch.hoc
+ *   
+ *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
+ *
+ *    This file is part of cnstellate.
+ * 
+ *    This is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation, either version 3 of the License, or
+ *    (at your option) any later version.
+ *
+ *    This is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+ */
+
+
+load_file("nrngui.hoc")
+//load_file("par_netpar.hoc")
+//load_file("par_init.hoc")
+
+xopen("Params.hoc")           // default parameters
+xopen("Utilities.hoc")
+xopen("NetworkParameters.hoc")
+xopen("AuditoryNerve.hoc")
+xopen("par_CNcell.tem")      // CN cell template
+xopen("parameters_TV_RateLevel.hoc")     //This model's parameters
+xopen("CochlearNucleus.hoc")         // model set-up
+xopen("spike_stats.hoc")  // PSTHcell and meanrate procedures
+
+
+//--- Setup Auditory and CN Stellate model
+create_cells()
+connect_cells(fileroot)
+connect_CNcells(fileroot)
+//Previous optimisation parameters
+xopen("pvec_Golgi_RateLevel.hoc")
+xopen("pvec_DS_ClickRecovery.hoc")
+xopen("pvec_DS_RateLevel.hoc")
+
+
+//Setup this experiment
+xopen("par_experiment_TV_RateLevel.hoc")
+xopen("cngui.hoc")
+
+whichcell = 50
+param.tv_erev=-65
+param.offset=0
+param.n.x[ds][tv] = 20
+param.bw.x[ds][tv] = 15
+
+create_connect_TV(fileroot)
+
+
+
+
+
+
+// Sound level in dB attenuation refers to noise spectrum level at 0 dB equal to \~40 dB re 20 $\mu$Pa/Hz$^{1/2}$.
+
+
+//////////Default Parameters for TV_RateLevel///////////////
+
+ANsoundspath			= "../../sounds"
+cfhi				= 48000
+cflo				= 200
+RefreshCF()
+ramplngth			= 0.002
+stimdelay			= 0.02   //sec, 20 msec
+dutycycle           = 0.2 //don't have quiet at the end, usually 0.2
+reps				= 25     //
+ANmodel				= 6      // Zilany Bruce model version 3
+species				= 1      // Cat
+ANFBgr					= new Graph()
+usesavedfilterbanks		= 1
+srate					= 500000
+stimtdres				= 1/srate
+sg_rate					= 50000
+sg_tdres				= 1/sg_rate
+RefreshCF()
+GetAudiogramData()
+RefreshParameters()
+//  ANFilterBankRun()
+//  CheckFilterbank()
+//  SetInputRates()
+
+
+
+
+
+//xopen("TV_Notch.ses")
+
+objref fitgr,gg
+//TV Optimisation
+objref gr,target_ratelevel, dslist, fvec,dvec,ivec,weighting,errorvec
+objref anrate[nchannels],rate_level_graph
+gr = new Graph()
+
+
+level_offset=25
+
+
+/*
+TV_BFtone()
+level=new Vector(20)
+level.indgen().mul(3).add(20) //20:3:60
+Ratelevel()
+TV_Noise()
+level=new Vector(20)
+level.indgen().mul(2).add(50)
+Ratelevel()
+*/
+
+
+//for i = 0, nchannels-1 {
+//	dstellate[i][0].soma.gnabar_rm=0.408307 
+//	dstellate[i][0].soma.gkhtbar_rm=0.030623 
+//	dstellate[i][0].soma.gleak_rm=0.000274146 
+//	dstellate[i][0].soma.erev_rm=-65 
+//	dstellate[i][0].soma.ghbar_rm=0.000427944
+//	dstellate[i][0].soma.gkltbar_klt=0.0163897
+//}
+
+// param.w.x[lsr][tv] = 0.0021707
+// param.w.x[hsr][tv] = 0.0006168
+
+// param.w.x[glg][ds]	= 0.000532	
+// param.w.x[hsr][ds]	= 0.00127  
+// param.w.x[lsr][ds]	= 0.00309  
+// param.w.x[tv][ds]	= 0.00  
+// param.w.x[ds][tv]	= 0.0018  
+// reset_weights()
+
+
+
+//QuickRun()
+//spl=50
+//sprint(fileroot,"%s_spl50",origfileroot)
+//param.w.x[hsr][tv]=-0.0002
+//param.w.x[lsr][tv]*=2
+objref origpvec
+//set_pvec()
+//origpvec = pvec.c
+
+
+
+//TV_BFtone()
+//level=new Vector(20)
+//level.indgen().mul(3).add(20) //20:3:60
+//Ratelevel()
+//TV_Noise()
+//level=new Vector(20)
+//level.indgen().mul(2).add(50) //50:2:88
+//Ratelevel()
+
+// Target RL data
+objref target_rate_level[4],fitgr, tmpRL[8]
+fitgr = new Graph()
+
+
+ xopen("TV_RateLevel/pvec_TV_RateLevel.hoc")
+ set_pvec()
+ ANsoundspath="../sounds"
+
+NPARAMS=4
+init_params(NPARAMS)
+append_weight_lsrtv()
+append_weight_hsrtv()
+append_weight_dstv()
+append_tv_gleak()
+//append_tv_erev()
+//append_tv_ghbar()
+
+param.w.x[lsr][tv] = 0.0041716
+param.w.x[hsr][tv] = 0.000645083
+param.w.x[ds][tv] = 0.00258648
+param.n.x[lsr][tv] = 30
+param.n.x[hsr][tv] = 30
+param.n.x[ds][tv] = 30
+param.bw.x[ds][tv] = 30
+set_pvec()
+//level_offset=0
+
+proc run_optimisation(){
+ reps=10
+ //runprax()
+ runprax2()
+ reps=50
+ printprax2()
+}

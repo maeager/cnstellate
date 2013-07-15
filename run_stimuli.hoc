@@ -1,0 +1,15 @@
+
+cd ~/dmf/work/netmod/cnstellate
+
+for i in `ls ../PVSyllables/*.dat'
+do
+    nrniv load_vowels.hoc -c"wavdatafile=""$i"" RunVowels() quit()"
+done
+
+
+proc RunVowel(){
+
+    for (spl=40;spl<=80;spl+=10){
+        LoadVowel(spl)
+        }
+}
