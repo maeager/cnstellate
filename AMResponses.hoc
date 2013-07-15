@@ -19,7 +19,6 @@ xopen("pvec_DS_ClickRecovery.hoc")
 xopen("pvec_DS_RateLevel.hoc")
 xopen("pvec_TV_Notch.hoc")
 xopen("pvec_TV_RateLevel.hoc")
-
 xopen("parameters_Responses.hoc")
 
 //--- Setup CN Stellate Network model
@@ -83,7 +82,7 @@ CS_data()
 RefreshParameters()
 ANFilterBankRun()  //Generate new AN instant. rates
 SetInputRates()
-xopen("TStellate2_CS/pvec_TStellate.hoc")
+xopen("pvec_TStellate2_CS.hoc")
 RefreshCellParams()
 connect_cells(fileroot)
 connect_CNcells(fileroot)
@@ -98,7 +97,7 @@ CT1_data()
 RefreshParameters()
 ANFilterBankRun()  //Generate new AN instant. rates
 SetInputRates()
-xopen("TStellate2_CT1/pvec_TStellate.hoc")
+xopen("pvec_TStellate2_CT1.hoc")
 RefreshCellParams()
 connect_cells(fileroot)
 connect_CNcells(fileroot)
@@ -112,7 +111,7 @@ CT2_data()
 RefreshParameters()
 ANFilterBankRun()  //Generate new AN instant. rates
 SetInputRates()
-xopen("TStellate2_pvec_TStellate.hoc")
+xopen("pvec_TStellate2_CT2.hoc")
 RefreshCellParams()
 connect_cells(fileroot)
 connect_CNcells(fileroot)
@@ -131,6 +130,7 @@ RefreshCellParams()
 RateLevelFunction()
 NoiseRateLevelFunction()
 MaskedRateLevelFunction()
+MaskedResponseCurve()
 }
 proc SimpleResponses_CT1(){
 CT1_data()
@@ -141,6 +141,7 @@ RefreshCellParams()
 RateLevelFunction()
 NoiseRateLevelFunction()
 MaskedRateLevelFunction()
+MaskedResponseCurve()
 }
 
 
@@ -153,6 +154,7 @@ RefreshCellParams()
 RateLevelFunction()
 NoiseRateLevelFunction()
 MaskedRateLevelFunction()
+MaskedResponseCurve()
 }
 
 
