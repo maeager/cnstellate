@@ -1,7 +1,7 @@
 #!/bin/bash
 # vsspikes.sh: Reorganise VS information 
 #
-# Michael Eager
+#  - (C) Michael Eager (mick.eager@gmail.com)
 
 set -eu
 
