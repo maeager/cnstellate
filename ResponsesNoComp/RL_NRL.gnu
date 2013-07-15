@@ -144,15 +144,15 @@ set colorbox vertical origin screen 0.9, 0.2, 0 size screen 0.05, 0.6, 0 front b
 set loadpath 
 set fontpath 
 
-REPS=20
+DUR=0.05
 set style line 1 lc rgb "#0060ad" lt 1 lw 2 pt 7 ps 1.5  # --beautiful blue line and filled circle
 set style line 2 lc rgb "#dd181f" lt 1 lw 2 pt 5 ps 1.5  # --beautiful red line and square
 set style line 3 lc rgb "#00ad06" lt 1 lw 2 pt 9 ps 1.5  # green triangle
 
 set xrange [0:100]
-plot  'RateLevel/CELL_ratelevel_5810.dat'  using 1:($2*REPS)  title "Tone RL" with linespoints ls 1, \
- 'NoiseRateLevel/CELL_ratelevel_5810.dat'  using 1:($2*REPS)  title "Noise RL" with linespoints ls 2, \
- 'MaskedRateLevel/30/CELL_ratelevel_5810.dat'  using 1:($2*REPS)  title "Tone RL + 30dB Noise" with linespoints ls 3
+plot  'RateLevel/CELL_ratelevel_5810.dat'  using 1:($2/DUR)  title "Tone RL" with linespoints ls 1, \
+ 'NoiseRateLevel/CELL_ratelevel_5810.dat'  using 1:($2/DUR)  title "Noise RL" with linespoints ls 2, \
+ 'MaskedRateLevel/30/CELL_ratelevel_5810.dat'  using 1:($2/DUR)  title "Tone RL + 30dB Noise" with linespoints ls 3
  
 #    EOF
 
