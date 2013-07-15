@@ -1,16 +1,16 @@
 #!/usr/bin/gnuplot -persist
 
 set terminal postscript eps enhanced defaultplex \
-   leveldefault mono solid\
-   dashlength 1.0 linewidth 2.0 butt noclip \
+    mono solid \
+   dashlength 1.0 linewidth 2.0 butt \
    palfuncparam 2000,0.003 \
    "Helvetica" 18
-#color solid
+#color solid leveldefault noclip
 set output "multiplotIVCV4.eps"
 
 #set size 0.49,0.5
 set multiplot layout 2,2 scale 1.1, 0.9
-set style line 1 lc rgb "#0060ad" lt 1 lw 2 pt 7 ps 1.5 # --beautiful blue line and filled circle
+set style line 1 lc rgb "#006ful blue line and filled circle
 set style line 2 lc rgb '#dd181f' lt 1 lw 2 pt 5 ps 1.5 # --beautiful red line and square
 set style line 3 lc rgb '#00ad06' lt 1 lw 2 pt 9 ps 1.5 # --green line and triangle
 
@@ -42,7 +42,7 @@ set label 1 "{/Sans-Bold B}" at screen 0.55, screen 1 font "Arial,32"
 plot [-0.5:3.5] '< grep -A4 -e ''CV reference'' TStellate.Fit.dat | tr ''#'' '' '' | tr ''-'' ''\n''| grep -v -e ''CV'' ' i 1 u 1:2 t "Model" w lp ls 1 lc 'black', \
      '' i 0 u 1:2 not "20 dB" w lp lt 3 lc rgb '#090909', \
      '' u 1:3 t "Ref" w lp lc rgb '#0060ad' lt 1 lw 2 pt 5 ps 1.5, \
-     '' i 2 u 1:2 not "40 dB" w lp lt 2 lc rgb '#090909', \
+     '' i 2 u 1:2 not "40 dB" w lp lt 2 lc rgb '#090909'
           
 unset key
 #load '../Responses/default.gnu'
@@ -109,7 +109,7 @@ plot '< awk ''/IVOnset/ {if ($3!=0) print $3,$4; end}'' TStellate.Fit.dat'  u 1 
 #      '< tail -6 TStellate.Fit.dat | head -2 | awk ''{print $2}'' ' u ($0+1):1 axes x2y2 notitle w p ls 1 pt 5 ps 1.5
 
 unset multiplot
-!fixbb multiplotIVCV4.eps
+# !fixbb multiplotIVCV4.eps
 
 # set output "psthcv.eps"
 

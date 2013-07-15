@@ -195,10 +195,10 @@ proc append_ts_jitter_sd(){
 
 
 
-NPARAMS=12
+NPARAMS=5
 init_params(NPARAMS)
-append_gleak() 
-append_num_connections() 
+
+//append_num_connections() 
 //append_ts_dend_g()
 //append_hsrts_weights()
 //append_lsrts_weights()
@@ -206,7 +206,8 @@ append_num_connections()
 //  append_ghbar() 
 //  append_gkabar()
   append_weights()
-  append_ts_soma_erev()
+  //append_gleak()   
+  //append_ts_soma_erev()
 
 
 
