@@ -156,13 +156,14 @@ f1(x)=a1*atan((x-c1)/b1)+d1
 f2(x)=a2*atan((x-c2)/b2)+d2
 f3(x)=a3*atan((x-c3)/b3)+d3
 
-!(cd RateLevel;ls -- */rateplace.CELL.dat | sort -n | xargs -n1 awk '/^50/ {print $3/0.05}'  > /tmp/cnstellate_ratelevel_oncf.dat)
-!(cd NoiseRateLevel;ls -- */rateplace.CELL.dat | sort -n | xargs -n1 awk '/^50/ {print $3/0.05}'  > /tmp/cnstellate_noiseratelevel_oncf.dat)
-!(cd MaskedRateLevel;ls -- */rateplace.CELL.dat | sort -n | xargs -n1 awk '/^50/ {print $3/0.05}'  > /tmp/cnstellate_maskedratelevel_oncf.dat)
+!(cd RateLevel;ls -- */rateplace.CELL.dat | sort -n | xargs -n1 awk '/^50/ {print $3/0.05}'  > cnstellate_ratelevel_oncf.dat)
+!(cd NoiseRateLevel;ls -- */rateplace.CELL.dat | sort -n | xargs -n1 awk '/^50/ {print $3/0.05}'  > cnstellate_noiseratelevel_oncf.dat)
+!(cd MaskedRateLevel;ls -- */rateplace.CELL.dat | sort -n | xargs -n1 awk '/^50/ {print $3/0.05}'  > cnstellate_maskedratelevel_oncf.dat)
+!ls -- [-0-9]* | grep : |sed 's/://' | sort -n > level.dat
 
-fit f1(x) '< paste level.dat /tmp/cnstellate_ratelevel_oncf.dat' using 1:2 via a1,b1,c1,d1
- fit f2(x) '< paste level.dat /tmp/cnstellate_noiseratelevel_oncf.dat' using 1:2 via a2,b2,c2,d2
- fit f3(x) '< paste level.dat /tmp/cnstellate_maskedratelevel_oncf.dat' using 1:2 via a3,b3,c3,d3
+fit f1(x) '< paste level.dat cnstellate_ratelevel_oncf.dat' using 1:2 via a1,b1,c1,d1
+ fit f2(x) '< paste level.dat cnstellate_noiseratelevel_oncf.dat' using 1:2 via a2,b2,c2,d2
+ fit f3(x) '< paste level.dat cnstellate_maskedratelevel_oncf.dat' using 1:2 via a3,b3,c3,d3
 
 
 set label  sprintf("MR = %.2f sp/s", (a1*(pi/2))+d1) at graph 0.1, graph 0.9
@@ -171,8 +172,8 @@ set label  sprintf("THR = %.1f dBSPL", -((pi/2)*0.95*b1)+c1) at graph 0.1, graph
 set label  sprintf("DR = %.1f ", pi*0.95*b1) at graph 0.1, graph 0.78
 set label  sprintf("spon = %.2f (sp/s)", d1-f1(c1)) at graph 0.1, graph 0.74
 
-plot  f1(x), '< paste level.dat /tmp/cnstellate_ratelevel_oncf.dat'  using 1:2  notitle with linespoints ls 3, \
-  f2(x),'< paste level.dat /tmp/cnstellate_noiseratelevel_oncf.dat'  using 1:2  notitle with linespoints ls 3, \
-  f3(x),'< paste level.dat /tmp/cnstellate_maskedratelevel_oncf.dat'  using 1:2  notitle with linespoints ls 3
-# !rm -f /tmp/cnstellate_*ratelevel_oncf.dat
+plot  f1(x), '< paste level.dat cnstellate_ratelevel_oncf.dat'  using 1:2  notitle with linespoints ls 3, \
+  f2(x),'< paste level.dat cnstellate_noiseratelevel_oncf.dat'  using 1:2  notitle with linespoints ls 3, \
+  f3(x),'< paste level.dat cnstellate_maskedratelevel_oncf.dat'  using 1:2  notitle with linespoints ls 3
+!rm -f cnstellate_*ratelevel_oncf.dat
 #    EOF
