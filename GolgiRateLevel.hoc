@@ -182,9 +182,9 @@ func fun() {local f,mspikerate
 	}
 	spl									=$1
 	//weight_sum						=$2
-	golgi_spon							=$2
-	golgi_spatial_filter_stdev			=$3
-	golgi_syn_filter_scale_factor		=$4
+	param.golgi_spon							=$2
+	param.bw.x[lsr][glg]			=$3
+	param.golgi_syn_filter_scale_factor		=$4
 	runtime								= startsw()
 	golgi[76][0].ClearSpikes()
 	tonefreq							= cf.x[76]
@@ -250,22 +250,22 @@ proc PrintRatelevel(){ local i
     file.wopen("GolgiRateLevel.dat")
     file.printf("# Golgi model rate-level data\n")
 	file.printf("# %s \n",datestr)    
-	file.printf("# Spatial filter: Stdev of LSR input channels=%.4f\n",golgi_spatial_filter_variance_LSR)
-    file.printf("# Synaptic Filter: Tau = 5ms, Scale_factor=%.2f\n",golgi_syn_filter_scale_factor)
+	file.printf("# Spatial filter: Stdev of LSR input channels=%.4f\n",param.bw.x[lsr][glg])
+    file.printf("# Synaptic Filter: Tau = 5ms, Scale_factor=%.2f\n",param.golgi_syn_filter_scale_factor)
     file.printf("# Weighted sum of LSR = %.4f \n",param.w.x[lsr][glg])
     file.printf("# Weighted sum of HSR = %.4f \n",param.w.x[hsr][glg])
-    file.printf("# Golgi Spontaneous rate = %.4f\n",golgi_spon)
+    file.printf("# Golgi Spontaneous rate = %.4f\n",param.golgi_spon)
     file.printf("# SPL\tRate (sp/sec)\t Stdev\n")
     for i=0,grate[76].size() -1 { file.printf("%d\t%.3f\t%.3f\t%.3f\n",i*5-20,grate[76].x[i],gstdev[76].x[i], targetrl.x[i]) }
     file.close()
 	
 	file.wopen("pvec_Golgi_RateLevel.hoc")
 	file.printf("# %s \n",datestr)
-	file.printf("golgi_spatial_filter_variance_LSR=%.4f\n",golgi_spatial_filter_variance_LSR)
-    file.printf("golgi_syn_filter_scale_factor=%.2f\n",golgi_syn_filter_scale_factor)
+	file.printf("param.bw.x[lsr][glg]=%.4f\n",param.bw.x[lsr][glg])
+    file.printf("param.golgi_syn_filter_scale_factor=%.2f\n",param.golgi_syn_filter_scale_factor)
     file.printf("param.w.x[lsr][glg]= %.4f \n",param.w.x[lsr][glg])
     file.printf("param.w.x[hsr][glg]= %.4f \n",param.w.x[hsr][glg])
-    file.printf("# Golgi Spontaneous rate = %.4f\n",golgi_spon)
+    file.printf("# Golgi Spontaneous rate = %.4f\n",param.golgi_spon)
 	
 }
 
