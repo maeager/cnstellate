@@ -731,8 +731,8 @@ param.ts_gkabar                  = 0.01539
 param.ts_dend_g    = 0.001
 param.ts_dend_e    = -65
 param.ts_jitter_sd = 0.2
-param.ds_gleak/=10
-param.ds_gnabar/=2
+//param.ds_gleak/=10
+//param.ds_gnabar/=2
 
 
 proc reset_TStellate(){local ii
