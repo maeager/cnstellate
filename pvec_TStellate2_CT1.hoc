@@ -1,0 +1,17 @@
+
+param.ts_erev=-62.9
+param.n.x[hsr][ts]=25
+param.n.x[lsr][ts]=25
+param.n.x[ds][ts]=25
+param.n.x[tv][ts]=20
+param.n.x[glg][ts]=20
+ // Tue Jun 18 18:34:29 EST 2013
+  
+param.w.x[lsr][ts] = 0.00115814*1
+param.w.x[hsr][ts] = 0.00107759*1
+param.w.x[ds][ts] = 0.000420567*1
+param.w.x[tv][ts] = 3.25372e-05*1
+param.w.x[glg][ts] = 0.000311879*1
+param.ts_gleak = 0.000465893*1
+param.ts_erev = 0.0629368*-1000
+

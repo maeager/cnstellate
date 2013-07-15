@@ -27,7 +27,9 @@ $pfebk/*
 *.ps
 *.pdf
 AMResponses*/*
-Responses*/*
+MASSIVE/*
+*/*RateLevel/*/*
+#Responses*/*
 */F0Response/*
 */ModulationTransferFunction/*
 #Responses*/*.dat
