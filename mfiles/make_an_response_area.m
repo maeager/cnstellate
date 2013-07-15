@@ -2,7 +2,7 @@ function make_an_response_area(cflo,cfhi)
 %% make_an_response_area 2
 % Make response area data for ANFs
 %
-% Michael Eager 
+% Michael Eager  (Mick.Eager@gmail.com)
 
 if nargin == 0
   cflo = 200;
@@ -26,7 +26,7 @@ for ii = 1:num_freqmod
   num_fibres = hsrras(end,2)+1;
   tstop = 162; % ceil(max(hsrras(:,4)));  % good chance the HSR units occur in last timestep
   duration = 140;%tstop - onset; % in ms 
-   freqmod
+  freqmod
       for jj=0:99
          %% Rate 
       xh = hist(hsrras(find(hsrras(:,1)==jj),4),1:tstop);    

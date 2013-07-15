@@ -58,7 +58,14 @@ proc print_results() {
 
 // Replacement of connect_cells in Cochlear Nucleus.hoc
 
-proc connect_cells(){local i,p,target,source,low,high,range,channel,sourcechannel
+proc create_connect_DS(){local i,p,target,source,low,high,range,channel,sourcechannel
+	
+	print "Require 2 DS units with CF = f(position 50)"
+    objref dstellate[1][2]
+    dstellate[0][0] = new CNcell(1,cf.x[50],50)
+    dstellate[0][1] = new CNcell(1,cf.x[50],50)
+
+	
 	
     print "Connecting cells"
     sprint(filename,"%s.connect",$s1)
@@ -72,7 +79,7 @@ proc connect_cells(){local i,p,target,source,low,high,range,channel,sourcechanne
 	if( ( param.n.getval(hsr,ds) > 0 ) && ( nDSperchannel != 0 ) ){
 		outfile.printf("\n%d %d\n",hsr,ds)
 		channel = 50
-		target = 0
+		for target = 0,1{
 		for i=0, param.n.getval(hsr,ds)-1{
 			//Choose source channel
 			sourcechannel = random.normal(channel,param.bw.getval(hsr,ds)/2)
@@ -86,25 +93,25 @@ proc connect_cells(){local i,p,target,source,low,high,range,channel,sourcechanne
 			//Choose random source from available cells
 			source = random.discunif(0,HSRsperchannel-1)
 			//print "HSR[",sourcechannel,"][",source,"] connected to DS[",channel,"][",target,"]"
-			sprint(cmd, "dstellate[%d][%d].soma hsr2dsAMPAlist.append( new NetCon( an.HSR[%d][%d],  dstellate[%d][%d].AMPA,thresh,param.delay.getval(hsr,ds), param.w.getval(hsr,ds)))",channel,target,sourcechannel,source,channel,target)
+			sprint(cmd, "dstellate[%d][%d].soma hsr2dsAMPAlist.append( new NetCon( an.HSR[%d][%d],  dstellate[%d][%d].AMPA,thresh,param.delay.getval(hsr,ds), param.w.getval(hsr,ds)))",0,target,sourcechannel,source,0,target)
 			execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
 			outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
 			
 		}
 		
-		p = 100*(channel)/(nchannels)
+		p = 100*(target+1)/(2)
 		printf("\r=== %3d%% ===",p)
 		flushf()
 		doNotify() // Although this slows down cell creation, the
         // process is so long that we have to allow the
         // user to quit during the creation.
-		
+		}
 	}
 	print "LSR->DS"
 	if( ( param.n.getval(lsr,ds) > 0 ) && ( nDSperchannel != 0 ) ){
 		outfile.printf("\n%d %d\n",lsr,ds)
 		channel = 50
-		target = 0
+		for target = 0,1{}
 		for i=0, param.n.getval(lsr,ts)-1{
 			//Choose source channel
 			sourcechannel = random.normal(channel,param.bw.getval(lsr,ds)/2)
@@ -118,22 +125,24 @@ proc connect_cells(){local i,p,target,source,low,high,range,channel,sourcechanne
 			//Choose random source from available cells
 			source = random.discunif(0,LSRsperchannel-1)
 			//print "LSR[",sourcechannel,"][",source,"] connected to DS[",channel,"][",target,"]"
-			sprint(cmd, "dstellate[%d][%d].soma lsr2dsAMPAlist.append( new NetCon( an.LSR[%d][%d],  dstellate[%d][%d].AMPA, thresh,param.delay.getval(lsr,ds), param.w.getval(lsr,ds)))",channel,target,sourcechannel,source,channel,target)
+			sprint(cmd, "dstellate[%d][%d].soma lsr2dsAMPAlist.append( new NetCon( an.LSR[%d][%d],  dstellate[%d][%d].AMPA, thresh,param.delay.getval(lsr,ds), param.w.getval(lsr,ds)))",0,target,sourcechannel,source,0,target)
 			execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
 			outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
 		}
-		p = 100*(channel)/(nchannels)
+		p = 100*(target+1)/(2)
 		printf("\r=== %3d%% ===",p)
 		flushf()
 		doNotify() // Although this slows down cell creation, the
 		// process is so long that we have to allow the
 		// user to quit during the creation.
+		}
 	}
 	print "GLG->DS"
 	if( ( param.n.getval(glg,ds) > 0 ) && ( nDSperchannel != 0 ) && ( nGperchannel != 0 ) ){
 		outfile.printf("\n%d %d\n",glg,ds)
 		channel = 50
-		target = 0
+		target = 0 
+		print "Only the first DS cell gets GLG inputs"
 		for i=0, param.n.getval(glg,ds)-1{
 			//Choose source channel
 			sourcechannel = random.normal(channel,param.bw.getval(glg,ds)/2)
@@ -148,10 +157,10 @@ proc connect_cells(){local i,p,target,source,low,high,range,channel,sourcechanne
 			source = random.discunif(0,nGperchannel-1)
 			// print "GLG[",sourcechannel,"][",source,"] connected to "DS[",channel,"][",target,"]"
 			if (LSR2GLG ==1 ) {
-				sprint(cmd, "golgi[%d][%d].soma glg2dsGABAlist.append( new NetCon(&v(0.5),dstellate[%d][%d].GABAA,thresh,param.delay.getval(glg,ds), param.w.getval(glg,ds)))",sourcechannel, source, channel, target )
+				sprint(cmd, "golgi[%d][%d].soma glg2dsGABAlist.append( new NetCon(&v(0.5),dstellate[%d][%d].GABAA,thresh,param.delay.getval(glg,ds), param.w.getval(glg,ds)))",sourcechannel, source, 0, target )
 				execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
 			} else {
-				sprint(cmd, "glg2dsGABAlist.append( new NetCon( golgi[%d][%d].sg,dstellate[%d][%d].GABAA, thresh,param.delay.getval(glg,ds), param.w.getval(glg,ds)))",sourcechannel, source ,channel ,target )
+				sprint(cmd, "glg2dsGABAlist.append( new NetCon( golgi[%d][%d].sg,dstellate[%d][%d].GABAA, thresh,param.delay.getval(glg,ds), param.w.getval(glg,ds)))",sourcechannel, source ,0 ,target )
 				execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
 			}
 			outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)

@@ -13,14 +13,17 @@ param.tv_erev = -68.2485
 
 // Thu Jun 13
 
-param.w.x[lsr][tv] = 30
-param.w.x[hsr][tv] = 30
+param.n.x[lsr][tv] = 30
+param.n.x[hsr][tv] = 30
+param.n.x[ds][tv] = 30
+param.bw.x[ds][tv] = 30
+
 param.w.x[lsr][tv] = 0.00472638
 param.w.x[hsr][tv] = 0.00478703
 param.w.x[ds][tv] = 0.00172859
 
-param.n.x[ds][tv] = 4.37
-param.tv_erev = -64.7219
+// param.n.x[ds][tv] = 4.37
+// param.tv_erev = -64.7219
 
 // Jun 24
 

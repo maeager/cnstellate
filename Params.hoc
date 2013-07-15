@@ -52,21 +52,21 @@ blue											= 3
 **********************************************************/
 
 //Resting membrane potential
-Erest											= -65
+Erest				= -65
 
 //Glutamate-AMPA Synaptic time constants
 // from Gardner et al. JNeurophysiol 1999 @ 34 C degrees
 // and Trussell 1998 .4-.5 at room temp
-ampa_decay										= 0.36
-ampa_erev										= 0
+ampa_decay			= 0.36  //ms
+ampa_erev			= 0     //mV
 
-//Glycine Receptor time constants see Leao J Neurophysiol  (2004); MNTB mice neurons
+//Glycine Receptor time constants See Leao J Neurophysiol  (2004); MNTB mice neurons
 // HartyManis:1998 Slice prep 30C; VCN guinea pigs
 //1mM Gly-> activation time constant 0.8 to 4.6 ms, with a mean of 2.0 +/- 1.2 ms
 // deactivation to 1s glycine ; 2 exponentials, tau f was 15.5 ms and tau s was 73.4 ms
 // LimOleskevichEtAl:2003,AwatramaniTurecekEtAl:2005,LeaoOleskevichEtAl:2004
-gly_decay										= 2.5
-gly_rise										= 0.4      //half width of glyc mIPSCs in MNTB is 2.3msec, rise time 0.4msec,
+gly_decay			= 2.5    //ms
+gly_rise			= 0.4    //ms, half width of glyc mIPSCs in MNTB is 2.3msec, rise time 0.4msec,
 //normal decay time constant 5.47+/-0.19, deaf 8.01 msec  (P12-14)
 //Awatramani,Tureck, Trussell J Neurophysiol (2005) Gly and GABA
 //Awatramani,Tureck, Trussell J Neurosci (2004) Gly only

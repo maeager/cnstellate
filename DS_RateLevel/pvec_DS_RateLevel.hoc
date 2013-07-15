@@ -130,3 +130,33 @@ param.n.x[lsr][ds] = 84
 param.w.x[lsr][ds] = 0.00882545
 param.n.x[lsr][ds] = 84
 
+ // Thu Jun 27 19:12:48 EST 2013
+  
+param.w.x[lsr][ds] = 0.01103
+param.w.x[glg][ds] = 0.000531549
+param.w.x[hsr][ds] = 0.000167221
+
+ // Thu Jun 27 19:31:54 EST 2013
+  
+param.w.x[lsr][ds] = 0.01103
+param.w.x[glg][ds] = 0.000531549
+param.w.x[hsr][ds] = 0.000167221
+
+ // Thu Jun 27 19:56:33 EST 2013
+  
+param.w.x[lsr][ds] = 0.01103
+param.w.x[glg][ds] = 0.000531549
+param.w.x[hsr][ds] = 0.000167221
+
+ // Thu Jun 27 20:19:04 EST 2013
+  
+param.w.x[lsr][ds] = 0.01103
+param.w.x[glg][ds] = 0.000531549
+param.w.x[hsr][ds] = 0.000167221
+
+ // Thu Jun 27 20:45:23 EST 2013
+  
+param.w.x[lsr][ds] = 0.01103
+param.w.x[glg][ds] = 0.000531549
+param.w.x[hsr][ds] = 0.000167221
+
