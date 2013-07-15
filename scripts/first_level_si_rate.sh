@@ -1,15 +1,11 @@
 #!/bin/bash
-# first_level_si_rate.sh: Organise SI and Rate data at first level 
-#
-#  - (C) Michael Eager (mick.eager@gmail.com)
-
-set -eu
 
 ResponsesScriptsPath=$(dirname $0)
 ResponsesMPath=${ResponsesScriptsPath}/../mfiles
+# cd  /media/c4bb64a6-7c5f-4dc1-9965-b0f4c1117b36/Work-archive/cnstellate-2.58/TStellate2_CS/ModulationTransferFunction/
 
-${ResponsesScriptsPath}/response_area.sh; 
-${ResponsesScriptsPath}/vsspikes.sh; 
-nice octave -f -q  --eval "tic;addpath('"$ResponsesMPath"');make_an_response_area(200,40000);toc;" 
+   ${ResponsesScriptsPath}/response_area.sh; 
+   ${ResponsesScriptsPath}/vsspikes.sh; 
+   nice octave -f -q  --eval "tic;addpath('"$ResponsesMPath"');make_an_response_area(200,40000);toc;" 
    
 
