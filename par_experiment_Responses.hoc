@@ -2,7 +2,6 @@
 
 // Cochlear Nucleus network model: experiment file
 //   for lateral inhibition.
-// Andrew Davison, The Babraham Institute, 2000.
 
 // *** Set inputs and connections
 // set_no_input()
