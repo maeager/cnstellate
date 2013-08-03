@@ -408,16 +408,24 @@ proc print_psth() { // 2 args - variance, filename root
     outfile.printf("\n")
   }
   outfile.close()
+}
 
+// arg 1 cell index
+// arg 2 fileroot
+// arg 3 text
+proc print_rate(){localobj tmpspikes
 
   sprint(filename,"%s/rateplace.%d.dat",$s2,$1)
   outfile.wopen(filename)
   outfile.printf("# %s cell rate place\n",$s3)
   
   for i=0, nchannels-1{
-    if (t_ignore_after != 0 && t_ignore_after < psth[i].size) psth[i].remove(t_ignore_after,psth[i].size-1)
-    if (t_ignore_before != 0 && t_ignore_before < psth[i].size) psth[i].remove(0,t_ignore_before)
-    outfile.printf("%d\t%.2f\t%8.3f\n",i,cf.x[i],psth[i].sum()/(reps))
+
+    if($1==ts) tmpspikes = tstellate[i][0].spikes.histogram(0,tstop,binwidth)
+    if($1==tv) tmpspikes = tuberculoventral[i][0].spikes.histogram(0,tstop,binwidth)
+    if($1==ds) tmpspikes = dstellate[i][0].spikes.histogram(0,tstop,binwidth)
+    if($1==glg) tmpspikes = golgi[i][0].spikes.histogram(0,tstop,binwidth) 
+    outfile.printf("%d\t%.2f\t%8.3f\n",i,cf.x[i],meanrate(tmpspikes))
   }
   outfile.close()
 
@@ -629,7 +637,7 @@ proc print_ts_raster() { // 1 arg - filename root
   outfile.printf("# Tstellate cell raster plot\n")
   for i = 0, nchannels-1 {
     for j = 0, nTSperchannel-1 {
-      for k = 0, tstellate[i][j].spiketimes.size()-1 {
+      for k = 0, tstellate[i][j].spikes.size()-1 {
         outfile.printf("%d %d %d %10.3f\n",i,j,i*nTSperchannel+j,tstellate[i][j].spiketimes.x[k])
       }
     }

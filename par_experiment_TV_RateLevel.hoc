@@ -458,7 +458,7 @@ func TV_RateLevel_err(){local jj,pp,xtime
     for i = 0, ds2tvGLYlist.count-1 if(ds2tvGLYlist.object(i).postcell() == tuberculoventral[0][1]) print ds2tvGLYlist.object(i).weight=0
     TV_BFtone()
     level=new Vector(20)
-    level.indgen().mul(3).add(20) //20:3:80
+    level.indgen().mul(5).add(0) //20:3:60  0:5:100
     Ratelevel()
     target_rate_level[0] = set_target_rate_level(SpirouFig8B_Control_Tone)
     unw_tone_error = sqrt(tvrate[0].meansqerr(target_rate_level[0]))
@@ -648,7 +648,7 @@ proc QuickRun2(){
 proc runprax2(){
     sprint(cmd,"mkdir -p %s",fileroot)
     system(cmd)
-    sprint(cmd,"touch %s/error_out.dat",fileroot)
+    sprint(cmd,"echo '\n##\n' >> %s/error_out.dat",fileroot)
     system(cmd)
     attr_praxis(0.001, 0.001, 3)
     fit_praxis(NPARAMS,"TV_RateLevel_err",&pvec.x[0])

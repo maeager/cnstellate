@@ -1,6 +1,7 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
-/*    PSTH.hoc contains the PSTHcell function that calculates first 
+/*
+ *    PSTH.hoc contains the PSTHcell function that calculates first 
  *    spike latency, inter-spike interval statistics (histogram, binned 
  *    mean, binned stdev, binned co-efficient of variation) 
  */
@@ -33,7 +34,10 @@ objref bins[1]
 
 cvmean = 0
 
-/******************PlotLine()**********************/
+/*
+ * PlotLine
+ * 
+ */
 objref indvec
 proc PlotLine(){local i,j, lineon, markon//vector,graph, label,  color, binsize
     objref indvec
@@ -280,13 +284,13 @@ proc PSTHcell() {local i, j, sp1, sp2, index, intv,first, cvmean, count,sizebins
     
 }
 
-
-//meanrate (spike list object)
-// Take in a spike vector ( presume an appended vector of n-repetition spike trains)
-// remove values less than the stimulus delay
-// calculate intervals, remove negative intervals,
-// mean rate is the inverse of the isi mean
-
+/*
+ * meanrate (spike list object)
+ * Take in a spike vector ( presume an appended vector of n-repetition spike trains)
+ * remove values less than the stimulus delay
+ * calculate intervals, remove negative intervals,
+ * mean rate is the inverse of the isi mean
+ */
 
 objref ind,isi
 isistdev =0
