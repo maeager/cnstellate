@@ -123,7 +123,10 @@ proc append_num_tvds_connections(){
 }
 
 proc append_num_dstv_connections(){
-	add_opt_param(NPARAMS,0.005,"param.n.x[ds][tv]",1000,0.001,0.1)
+	add_opt_param(NPARAMS,0.025,"param.n.x[ds][tv]",1000,0.001,0.1)
+}
+proc append_num_glgtv_connections(){
+	add_opt_param(NPARAMS,0.005,"param.n.x[glg][tv]",1000,0.001,0.1)
 }
 
 proc append_weight_lsrtv(){
@@ -137,7 +140,10 @@ proc append_weight_tvds(){
 }
 
 proc append_weight_dstv(){
-    add_opt_param(NPARAMS,0.000130,"param.w.x[ds][tv]",1,0.0000001,0.1)
+    add_opt_param(NPARAMS,0.000130,"param.w.x[ds][tv]",1,0.000001,0.1)
+}
+proc append_weight_glgtv(){
+    add_opt_param(NPARAMS,0.000130,"param.w.x[glg][tv]",1,0.000001,0.1)
 }
 
 

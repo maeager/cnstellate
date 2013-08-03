@@ -1,14 +1,16 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
 /* Simulate reponses for chapter 4 of my thesis
-*  AM Responses.hoc
-*  Generate RL,NRL,RA, MTF
-*/
+ *  AM Responses.hoc
+ *  Generate RL,NRL,RA, MTF
+ *
+ *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
+ */
 
 load_file("nrngui.hoc")
 
 xopen("Params.hoc")
- xopen("Utilities.hoc")
+xopen("Utilities.hoc")
 xopen("NetworkParameters.hoc")
 xopen("AuditoryNerve.hoc")
 xopen("par_CNcell.tem")      // CN cell template
@@ -23,8 +25,8 @@ xopen("parameters_Responses.hoc")
 
 //--- Setup CN Stellate Network model
 xopen("CochlearNucleus.hoc")         // model set-up
-xopen("calcisilag.hoc")
 xopen("spike_stats.hoc")
+xopen("calcisilag.hoc")
 xopen("jitter.hoc")
 //Parameters for this optimisation
 xopen("parameters_TStellate.hoc")
@@ -86,6 +88,8 @@ xopen("pvec_TStellate2_CS.hoc")
 RefreshCellParams()
 connect_cells(fileroot)
 connect_CNcells(fileroot)
+binwidth=0.1
+reps=50
 ModulationTransferFunction(tonefreq)
 F0_Response(tonefreq)
 
@@ -101,6 +105,8 @@ xopen("pvec_TStellate2_CT1.hoc")
 RefreshCellParams()
 connect_cells(fileroot)
 connect_CNcells(fileroot)
+binwidth=0.1
+reps=50
 F0_Response(tonefreq)
 ModulationTransferFunction(tonefreq)
 
@@ -115,6 +121,8 @@ xopen("pvec_TStellate2_CT2.hoc")
 RefreshCellParams()
 connect_cells(fileroot)
 connect_CNcells(fileroot)
+binwidth=0.1
+reps=50
 ModulationTransferFunction(tonefreq)
 F0_Response(tonefreq)
 }
@@ -132,6 +140,7 @@ NoiseRateLevelFunction()
 MaskedRateLevelFunction()
 MaskedResponseCurve()
 }
+
 proc SimpleResponses_CT1(){
 CT1_data()
 xopen("pvec_TStellate2_CT1.hoc")
@@ -143,7 +152,6 @@ NoiseRateLevelFunction()
 MaskedRateLevelFunction()
 MaskedResponseCurve()
 }
-
 
 proc SimpleResponses_CT2(){
 CT2_data()

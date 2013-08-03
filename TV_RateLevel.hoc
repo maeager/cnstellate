@@ -31,7 +31,15 @@ xopen("Utilities.hoc")
 xopen("NetworkParameters.hoc")
 xopen("AuditoryNerve.hoc")
 xopen("par_CNcell.tem")      // CN cell template
-xopen("parameters_TV_RateLevel.hoc")     //This model's parameters
+
+//Previous optimisation parameters
+xopen("pvec_Golgi_RateLevel.hoc")
+xopen("pvec_DS_ClickRecovery.hoc") 
+xopen("pvec_DS_RateLevel.hoc")
+
+//This model's parameters
+xopen("parameters_TV_RateLevel.hoc")     
+
 xopen("CochlearNucleus.hoc")         // model set-up
 xopen("spike_stats.hoc")  // PSTHcell and meanrate procedures
 
@@ -40,10 +48,6 @@ xopen("spike_stats.hoc")  // PSTHcell and meanrate procedures
 create_cells()
 connect_cells(fileroot)
 connect_CNcells(fileroot)
-//Previous optimisation parameters
-xopen("pvec_Golgi_RateLevel.hoc")
-xopen("pvec_DS_ClickRecovery.hoc")
-xopen("pvec_DS_RateLevel.hoc")
 
 
 //Setup this experiment
@@ -57,11 +61,6 @@ param.n.x[ds][tv] = 20
 param.bw.x[ds][tv] = 15
 
 create_connect_TV(fileroot)
-
-
-
-
-
 
 // Sound level in dB attenuation refers to noise spectrum level at 0 dB equal to \~40 dB re 20 $\mu$Pa/Hz$^{1/2}$.
 
@@ -172,21 +171,25 @@ fitgr = new Graph()
 NPARAMS=4
 init_params(NPARAMS)
 append_weight_lsrtv()
+append_weight_glgtv()
 append_weight_hsrtv()
 append_weight_dstv()
-append_tv_gleak()
+
+//append_tv_gleak()
 //append_tv_erev()
 //append_tv_ghbar()
 
 param.w.x[lsr][tv] = 0.0041716
 param.w.x[hsr][tv] = 0.000645083
 param.w.x[ds][tv] = 0.00258648
+param.w.x[glg][tv] = 0.00158648
 param.n.x[lsr][tv] = 30
 param.n.x[hsr][tv] = 30
 param.n.x[ds][tv] = 30
+param.n.x[glg][tv] = 30
 param.bw.x[ds][tv] = 30
 set_pvec()
-//level_offset=0
+level_offset=0
 
 proc run_optimisation(){
  reps=10
