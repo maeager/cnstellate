@@ -5,11 +5,11 @@
 
 set -eu
 
-ls [0-9]*| grep :|sed 's/://'| sort -n> /tmp/freq.dat
-top=$(head -1 /tmp/freq.dat)
-awk '! /#/  {print $1,$2}' ${top}/rateplace.0.dat > /tmp/cf.dat
+ls [0-9]*| grep :|sed 's/://'| sort -n> freq.dat
+top=$(head -1 freq.dat)
+awk '! /#/  {print $1,$2}' ${top}/rateplace.0.dat > cf.dat
 [ ! -f response_area.0.dat ] && $(dirname $0)/response_area.sh
-awk '{print $1}' response_area.0.dat > /tmp/fm.dat
+awk '{print $1}' response_area.0.dat > fm.dat
 
 ls [0-9]*| grep :|sed 's/://'| sort -n> freq.dat
 
@@ -19,15 +19,15 @@ for cell in $(seq 0 1 5); do
     > vsSPIKES.$cell.dat;   
     for i in $(ls  */vsSPIKES.$cell.dat|sort -n)
     do 
-	   awk '! /#/ {R=$2*$4;z=0;if ($4>0){z=(R^2)/$4};pval=exp(sqrt(1+(4*$4)+4*(($4)^2-z*$4))-(1+2*$4));print $2,$3,z,pval}' $i > /tmp/vsSPIKES.dat
-	   paste -d ' ' /tmp/cf.dat /tmp/vsSPIKES.dat >> vsSPIKES.$cell.dat
+	   awk '! /#/ {R=$2*$4;z=0;if ($4>0){z=(R^2)/$4};pval=exp(sqrt(1+(4*$4)+4*(($4)^2-z*$4))-(1+2*$4));print $2,$3,z,pval}' $i > vsSPIKES.dat
+	   paste -d ' ' cf.dat vsSPIKES.dat >> vsSPIKES.$cell.dat
            echo "" >> vsSPIKES.$cell.dat
     done 
-    paste -d ' ' /tmp/fm.dat vsSPIKES.$cell.dat > /tmp/vsSPIKES.dat
-    mv /tmp/vsSPIKES.dat vsSPIKES.$cell.dat
+    paste -d ' ' fm.dat vsSPIKES.$cell.dat > vsSPIKES.dat
+    mv vsSPIKES.dat vsSPIKES.$cell.dat
 
 done
-rm -f /tmp/vsSPIKES.dat /tmp/cf.dat /tmp/fm.dat /tmp/freq.dat
+rm -f vsSPIKES.dat cf.dat fm.dat freq.dat
 
 
 
