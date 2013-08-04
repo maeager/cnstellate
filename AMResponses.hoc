@@ -8,7 +8,7 @@
 load_file("nrngui.hoc")
 
 xopen("Params.hoc")
- xopen("Utilities.hoc")
+xopen("Utilities.hoc")
 xopen("NetworkParameters.hoc")
 xopen("AuditoryNerve.hoc")
 xopen("par_CNcell.tem")      // CN cell template
@@ -86,6 +86,8 @@ xopen("pvec_TStellate2_CS.hoc")
 RefreshCellParams()
 connect_cells(fileroot)
 connect_CNcells(fileroot)
+binwidth=0.1
+reps=50
 ModulationTransferFunction(tonefreq)
 F0_Response(tonefreq)
 
@@ -101,6 +103,8 @@ xopen("pvec_TStellate2_CT1.hoc")
 RefreshCellParams()
 connect_cells(fileroot)
 connect_CNcells(fileroot)
+binwidth=0.1
+reps=50
 F0_Response(tonefreq)
 ModulationTransferFunction(tonefreq)
 
@@ -115,6 +119,8 @@ xopen("pvec_TStellate2_CT2.hoc")
 RefreshCellParams()
 connect_cells(fileroot)
 connect_CNcells(fileroot)
+binwidth=0.1
+reps=50
 ModulationTransferFunction(tonefreq)
 F0_Response(tonefreq)
 }
@@ -132,6 +138,7 @@ NoiseRateLevelFunction()
 MaskedRateLevelFunction()
 MaskedResponseCurve()
 }
+
 proc SimpleResponses_CT1(){
 CT1_data()
 xopen("pvec_TStellate2_CT1.hoc")
@@ -143,7 +150,6 @@ NoiseRateLevelFunction()
 MaskedRateLevelFunction()
 MaskedResponseCurve()
 }
-
 
 proc SimpleResponses_CT2(){
 CT2_data()
