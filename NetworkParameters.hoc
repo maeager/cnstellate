@@ -1,0 +1,353 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+/*  NetworkParameters.hoc
+*  Template for all modified parameters in CNSM
+*   
+*   
+*    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
+*
+*    This file is part of cnstellate.
+* 
+*    This is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU General Public License as published by
+*    the Free Software Foundation, either version 3 of the License, or
+*    (at your option) any later version.
+*
+*    This is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU General Public License for more details.
+*
+*    You should have received a copy of the GNU General Public License
+*    along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+*/
+
+
+
+objref param
+
+begintemplate NetworkParameters
+public bw              //bandwidth or spread; distribution variance in unit channels 
+public n               //number of connections between pre-cells to one post-cell
+public w               //synaptic weight  (maximum conductance in PSP)
+public delay           //additional delay in ms: Pre-cell AP time to post-cell response time
+public ncol,nrow
+//Golgi model parameters
+public golgi_syn_filter_scale_factor,golgi_spon,golgi_syn_filter_tau
+public golgi_spatial_filter_variance_MSR,golgi_MSR_weight_sum
+//DS_ClickRecovery and RateLevel 
+public ds_erev,ds_gkltbar,ds_gaba_decay,ds_gaba_rise,ds_gleak,ds_gnabar,ds_gkhtbar,DS_params
+//TV_Notch and RateLevel
+public offset       // offset in channel units of mean distribution of connections between DS and TV cells
+public tv_erev, tv_gleak,tv_gnabar,tv_gkhtbar
+//TS cell parameters
+public ts_gleak,ts_erev,ts_ghbar,ts_gkabar,ts_gnabar,ts_gkhtbar
+public ts_dend_g,ts_dend_e
+public ts_jitter_sd     // standard deviation in delay of ANF inputs from similar fibres
+
+//functions
+public getnetparameters, saveparameters,print2file,show,save2hocfile
+
+// Cell index values ts=0, tv=1, ds=2, glg=3, hsr=4, lsr=5
+external lsr,hsr,ts,ds,tv,glg
+
+objref bw, n, w,delay
+//Default values
+offset      = 0
+
+//GLG variables
+//bw.x[lsr][glg] = 2  //channel units when N=100, cfhi=48k, cflo=200	
+golgi_syn_filter_scale_factor	  = 1								
+golgi_spon		= 3	
+golgi_syn_filter_tau = 0.0005  //sec
+golgi_MSR_weight_sum = 0.5
+golgi_spatial_filter_variance_MSR = 1
+//bw.x[hsr][glg] = 1
+
+
+ds_gaba_decay	 = 9         //See Param.hoc
+ds_gaba_rise	 = 0.7
+ds_erev          = -70
+ds_gnabar        = 0.408307  //2 times default for Type I-II RM model  (25 um diam)	   
+ds_gkhtbar       = 0.030623   //default for Type  I-II RM model (25 um diam)
+ds_gkltbar       = 0.0163897	 //default gleak for Type I-II RM model	 (25 um diam)
+ds_gleak         = 0.000274146 // default gleak	 for  TypeI-II RM model  (25 um diam)
+ds_ghbar         = 0.0004
+
+tv_erev     = -65
+tv_gleak    = 0.0004987
+
+
+ts_jitter_sd = 0.2
+ts_erev      = -55
+ts_gnabar	= 0.23677
+ts_gkhtbar	= 0.0189416	
+ts_gleak    = 0.000473539
+ts_ghbar    = 6.20392e-05
+ts_gkabar   = 0.01539   
+ts_dend_g   = 0.001
+ts_dend_e   =-65
+
+
+
+proc init(){
+    nrow = $1  ncol = $2
+    bw = new Matrix(nrow, ncol)
+    n = new Matrix(nrow, ncol)
+    w = new Matrix(nrow, ncol)
+    delay = new Matrix(nrow,ncol)
+    offset           =  0  //DS to TV oofset
+    
+    //Default values
+    //GLG variables
+    bw.x[lsr][glg] = 2  //channel units when N=100, cfhi=48k, cflo=200	
+    golgi_syn_filter_scale_factor     = 1	
+    golgi_spon	                      = 3	
+    golgi_syn_filter_tau              = 0.0005  //sec
+    golgi_MSR_weight_sum              = 0.5
+    golgi_spatial_filter_variance_MSR = 1
+    bw.x[hsr][glg] = 1
+    
+    
+    ds_gaba_decay= 9   //see Params.hoc
+    ds_gaba_rise = 0.7	
+    
+    ds_erev      = -65
+    ds_gkhtbar	 = 0.030623	   //default I-II RM model
+    ds_gkltbar	 = 0.0163897	//default gleak for Type I-II RM model	 
+    ds_gleak	 = 0.000274146 // default gleak	 
+    ds_gnabar	 = 0.408307	   // 2 times default TypeI-II RM model	   
+    
+    tv_gleak     = 0.0004987
+    tv_erev      = -70
+    
+    ts_jitter_sd= 0.2
+    ts_gnabar	= 0.23677
+    ts_gkhtbar	= 0.0189416	
+    ts_gleak    = 0.000473539
+    ts_erev     = -55
+    ts_ghbar    = 6.20392e-05
+    ts_gkabar   = 0.01539   
+    ts_dend_g   = 0.001
+    ts_dend_e   = -65
+    
+}
+
+objref file
+strdef filename
+
+proc getnetparameters(){
+    objref file
+    filename = $s1
+    file = new File()
+    file.ropen(filename)
+    bw.scanf(file)
+    n.scanf(file)
+    w.scanf(file)
+    delay.scanf(file)
+    offset = file.scanvar()
+    file.close()
+    
+}
+proc getdelay() {
+    objref file
+    filename = "delays.dat"
+    file= new File()
+    file.ropen(filename)
+    delay.scanf(file)
+    file.close()
+}
+
+proc saveparameters(){
+    objref file
+    filename = $s1
+    file = new File()
+    file.wopen(filename)
+    bw.fprint(file)
+    n.fprint(file)
+    w.fprint(file)
+    delay.fprint(file)
+    file.printf("%d\n",offset)
+    file.close()
+    objref file
+}
+
+
+proc print2file(){local irow,jcol
+    //first object is file 
+    //second variable is string
+    file = $o1
+    if (file.isopen()){
+	file.printf("%s bandwidth\n",$s2)
+	for irow=0, nrow-1 {
+	    file.printf("%s",$s2)
+	    for jcol=0,ncol-1 file.printf("\t%.4f",bw.getval(irow,jcol))
+	    file.printf("\n")
+	}
+	file.printf("%s num. connections\n",$s2)
+	for irow=0, nrow-1 {
+	    file.printf("%s",$s2)
+	    for jcol=0,ncol-1 file.printf("\t%d",n.getval(irow,jcol))
+	    file.printf("\n")      
+	}
+	file.printf("%s weights\n",$s2)
+	for irow=0, nrow-1 {
+	    file.printf("%s",$s2)
+	    for jcol=0,ncol-1 file.printf("\t%.8g",w.getval(irow,jcol))
+	    file.printf("\n")
+	}
+	file.printf("%s delay\n",$s2)
+	for irow=0, nrow-1 {
+	    file.printf("%s",$s2)
+	    for jcol=0,ncol-1 file.printf("\t%.4f",delay.getval(irow,jcol))
+	    file.printf("\n")
+	}
+	file.printf("%s offset  %g\n",$s2, offset)
+
+	file.printf("%s golgi_syn_filter_scale_factor %g\n",$s2,golgi_syn_filter_scale_factor	)
+	file.printf("%s golgi_spon %g\n",$s2,golgi_spon)
+	file.printf("%s ds_gaba_decay			 %g\n",$s2,ds_gaba_decay)
+	file.printf("%s ds_gaba_rise			 %g\n",$s2,ds_gaba_rise)
+	file.printf("%s ds_erev  %g\n",$s2, ds_erev)
+	file.printf("%s ds_gkltbar	 %g\n",$s2,ds_gkltbar)
+	file.printf("%s ds_gkhtbar	 %g\n",$s2,ds_gkhtbar)
+	file.printf("%s ds_gleak  %g\n",$s2,ds_gleak)
+	file.printf("%s ds_gnabar  %g\n",$s2, ds_gnabar)
+	file.printf("%s tv_gleak  %g\n",$s2, tv_gleak)
+	file.printf("%s tv_erev  %g\n",$s2, tv_erev)
+	
+	file.printf("%s ts_gkhtbar  %g\n",$s2,ts_gkhtbar)
+	file.printf("%s ts_gnabar  %g\n",$s2, ts_gnabar)
+	file.printf("%s ts_gkabar  %g\n",$s2,ts_gkabar)
+	file.printf("%s ts_ghbar  %g\n",$s2, ts_ghbar)
+	file.printf("%s ts_gleak  %g\n",$s2, ts_gleak)
+	file.printf("%s ts_erev  %g\n",$s2, ts_erev)
+	
+	file.printf("%s ts_dend_g  %g\n",$s2, ts_dend_g)
+	file.printf("%s ts_dend_e  %g\n",$s2, ts_dend_e)
+	file.printf("%s ts_jitter_sd  %g\n",$s2, ts_jitter_sd)
+	
+    }
+    
+}
+strdef datestr
+proc save2hocfile(){local irow,jcol localobj file
+    //first variable is filename
+    //second variable is string
+    file = new File()
+    file.wopen($s1)
+    if (file.isopen()) {
+	file.printf("// This file is autoamtically generated from NetworkParameters.hoc\n")
+	set_datestr()
+	file.printf("// Created on %s \n",datestr)
+	file.printf("objref param \n")
+	file.printf("param = new NetworkParameters(6,4)\n")
+	file.printf("// bandwidth\n")
+	for irow=0, nrow-1 {
+	    for jcol=0,ncol-1 file.printf("param.bw.x[%d][%d] = %.4f\n",irow,jcol,bw.getval(irow,jcol))
+	}
+	file.printf("// number of connections\n")
+	for irow=0, nrow-1 {
+	    for jcol=0,ncol-1 file.printf("param.n.x[%d][%d] = %d\n",irow,jcol,n.getval(irow,jcol))
+	}
+	file.printf("// weights\n")
+	for irow=0, nrow-1 {
+	    for jcol=0,ncol-1 file.printf("param.w.x[%d][%d] = %.8g \n",irow,jcol,w.getval(irow,jcol))
+	}
+	file.printf("// delay\n")
+	for irow=0, nrow-1 {
+	    for jcol=0,ncol-1 file.printf("param.delay.x[%d][%d] = %.4f\n",irow,jcol,delay.getval(irow,jcol))
+	}
+	file.printf("param.offset  = %g\n", offset)
+
+	file.printf("param.golgi_syn_filter_scale_factor = %g\n",golgi_syn_filter_scale_factor	)
+	file.printf("param.golgi_spon = %g\n",golgi_spon)
+	file.printf("param.ds_gaba_decay			 = %g\n",ds_gaba_decay)
+	file.printf("param.ds_gaba_rise			 = %g\n",ds_gaba_rise)
+	file.printf("param.ds_erev  = %g\n", ds_erev)		
+	file.printf("param.ds_gkltbar	 = %g\n",ds_gkltbar)
+	file.printf("param.ds_gkhtbar	 = %g\n",ds_gkhtbar)
+	file.printf("param.ds_gleak  = %g\n",ds_gleak)
+	file.printf("param.ds_gnabar  = %g\n", ds_gnabar)
+	file.printf("param.tv_gleak  = %g\n", tv_gleak)
+	file.printf("param.tv_erev  = %g\n", tv_erev)
+	
+	file.printf("param.ts_gkhtbar  = %g\n",ts_gkhtbar)
+	file.printf("param.ts_gnabar  = %g\n", ts_gnabar)
+	file.printf("param.ts_gkabar  = %g\n",ts_gkabar)
+	file.printf("param.ts_ghbar  = %g\n", ts_ghbar)
+	file.printf("param.ts_gleak  = %g\n", ts_gleak)
+	file.printf("param.ts_erev  = %g\n", ts_erev)
+	
+	file.printf("param.ts_dend_g  = %g\n", ts_dend_g)
+	file.printf("param.ts_dend_e  = %g\n", ts_dend_e)
+	file.printf("param.ts_jitter_sd  = %g\n", ts_jitter_sd)
+	file.close()
+	
+    } else {
+	printf("Unable to open file : %s\n", $s1)
+    }
+    
+}
+
+
+proc show(){local irow,jcol
+    printf("// bandwidth\n")
+    for irow=0, nrow-1 {
+	for jcol=0,ncol-1 printf("\t%.4f",bw.getval(irow,jcol))		
+	printf("\n")	
+    }
+    printf("\n// num. connections\n")
+    for irow=0, nrow-1 {
+	for jcol=0,ncol-1 printf("\t%d",n.getval(irow,jcol))
+	printf("\n")	
+    }
+    printf("\n// weights\n")
+    for irow=0, nrow-1 {
+	for jcol=0,ncol-1 printf("\t%.8g",w.getval(irow,jcol))			
+	printf("\n")	
+    }
+    printf("\n// delay\n")
+    for irow=0, nrow-1 {
+	for jcol=0,ncol-1 printf("\t%.4f",delay.getval(irow,jcol))
+	printf("\n")	
+    }
+    printf("\n// offset	 %g\n",offset)
+   
+    printf("// golgi_syn_filter_scale_factor %g\n",golgi_syn_filter_scale_factor	)
+    printf("// golgi_spon %g\n",golgi_spon)
+    printf("// ds_gaba_decay			 %g\n",ds_gaba_decay)
+    printf("// ds_gaba_rise			 %g\n",ds_gaba_rise)
+    printf("// ds_erev  %g\n", tv_erev)
+    printf("// ds_gkltbar	 %g\n",ds_gkltbar)
+    printf("// ds_gkhtbar	 %g\n",ds_gkhtbar)
+    printf("// ds_gleak_rm  %g\n",ds_gleak)
+    printf("// ds_gnabar_rm  %g\n", ds_gnabar)
+    printf("// tv_gleak  %g\n", tv_gleak)
+    printf("// tv_erev  %g\n", tv_erev)
+    
+    printf("// ts_gkhtbar  %g\n",ts_gkhtbar)
+    printf("// ts_gnabar  %g\n", ts_gnabar)
+    printf("// ts_gkabar  %g\n",ts_gkabar)
+    printf("// ts_ghbar  %g\n", ts_ghbar)
+    printf("// ts_gleak  %g\n", ts_gleak)
+    printf("// ts_erev  %g\n", ts_erev)
+    
+    printf("// ts_dend_g  %g\n", ts_dend_g)
+    printf("// ts_dend_e  %g\n", ts_dend_e)
+    printf("// ts_jitter_sd  %g\n", ts_jitter_sd)
+    
+    
+}
+
+
+endtemplate NetworkParameters
+
+
+
+strdef paramfilename
+param = new NetworkParameters(6,4)
+sprint(paramfilename,"%s/defaultrecurrentparams.dat",cnstellate_dir)
+param.getnetparameters(paramfilename)
+
+
