@@ -1,9 +1,11 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
 /* Simulate reponses for chapter 4 of my thesis
-*  AM Responses.hoc
-*  Generate RL,NRL,RA, MTF
-*/
+ *  AM Responses.hoc
+ *  Generate RL,NRL,RA, MTF
+ *
+ *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
+ */
 
 load_file("nrngui.hoc")
 
@@ -23,8 +25,8 @@ xopen("parameters_Responses.hoc")
 
 //--- Setup CN Stellate Network model
 xopen("CochlearNucleus.hoc")         // model set-up
-xopen("calcisilag.hoc")
 xopen("spike_stats.hoc")
+xopen("calcisilag.hoc")
 xopen("jitter.hoc")
 //Parameters for this optimisation
 xopen("parameters_TStellate.hoc")

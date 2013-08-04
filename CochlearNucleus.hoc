@@ -419,6 +419,7 @@ proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechanne
   
 glg2dsGABAlist.remove_all()
 glg2tsGABAlist.remove_all()
+glg2tvGABAlist.remove_all()
 ds2tsGLYlist.remove_all()
 ds2tvGLYlist.remove_all()
 tv2tsGLYlist.remove_all()

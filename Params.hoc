@@ -104,7 +104,7 @@ totalLSR				= nchannels*LSRsperchannel
 strdef N
 N			= neuronhome()
 stimtype	= 1       //0 for wavdatafile,1 for tone,2 silent stim,
-                     //3 AM tone, 4 WB noise (obsolete)
+         //3 AM tone, 4 WB noise (obsolete)
          //5 AM noise, 6 Gaussian Noise,
          //7 Simult. Tone & Noise,
          //8 Notch, 9 Twotones, 10 Ramptone,
@@ -196,7 +196,7 @@ ANmodel		= 6 //default
 species		= 9		   // 0	 human (as in ARLO paper)
 // 9  cat, all CFs (as in JASA 2001 Zhang et al., paper)
 // 1  cat, remapped to 9, [removed: only low CFs (as in Carney '93 JASA paper - not recommended)]
-// 2  rat,  implemented by Michael Eager in Zilany and Bruce 2007 (6), Zilany et al. 2009 (7) models
+// 2  rat,  implemented by Michael Eager in Zilany and Bruce 2007 (6), Zilany et al. 2009,2010 (7) models
 
 ifspike		= 1
 //sout is adjusted so that instant. rate can be fed to spike generator
@@ -231,8 +231,8 @@ ARLOModel_Params				= 1
  objref audiogram,cohc,ihc
 
 /*
- * Cat model Version 4 Parameters (ANmodel		=7)
- * Zilany, Bruce, Carney, Nelson 2006,2007,2010 
+ * Version 4 Parameters (ANmodel	=7)
+ * Zilany et al, 2009,2010 
  */
 
 HighSponFibre					= 3
@@ -289,6 +289,7 @@ dt				= 0.1	  //repeat is necessary to change integration time step after setdt
 secondorder		= 2		  //Crank-Nickolson integration, correct to second order
 
 
+// Force random seed to RNG by setting this to 1
 using_random_init  = 0
 
 // Use Banks + Sachs model of Tstellate cell, set use_ball_stick to one

@@ -14,7 +14,7 @@ param.n.x[hsr][ds] = 157.798   //[0.001,0.2]
 param.n.x[glg][ds] = 8.90035   //[0.001,0.2]
 
 // Fixed values 
-param.ds_gnabar  = 0.30623025
+param.ds_gnabar  = 0.30623025/2
 param.ds_gkltbar = 0.0163897
 param.ds_gkhtbar = 0.030623 
 param.ds_gleak   = 0.000274146 

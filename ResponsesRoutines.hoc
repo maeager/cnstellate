@@ -46,12 +46,15 @@ proc MULTIRUN(){local nreps
     multi_run2()   
 }
 
+load_file("spike_stats.hoc")
 load_file("calcisilag.hoc")
 strdef fileroot_,cmd
 
-proc print_results() {
-	t_ignore_before=stimdelay*1000/binwidth
-	t_ignore_after=(stimdelay+dur+ramplngth*2)*1000/binwidth
+proc print_results() {local tmpbinwidth
+	// t_ignore_before=stimdelay*1000/binwidth
+	if (t_ignore_before > tstop || t_ignore_before < 0 ) {t_ignore_before = stimdelay*1000/binwidth}
+	// t_ignore_after=(stimdelay+dur+ramplngth*2)*1000/binwidth
+	if (t_ignore_after > tstop) {t_ignore_after = tstop }
 	sprint(cmd,"mkdir -p ./%s",fileroot_)
 	system(cmd)
 	print_an_raster(fileroot_)
@@ -64,12 +67,64 @@ proc print_results() {
 	//   print_isi_stats(fileroot_)
 	//   print_isis(fileroot_)
     //print_si(fileroot_)
-	
+	tmpbinwidth=binwidth
 	binwidth=0.3
 	print_psth(ts,fileroot_,"T stellate")
 	print_psth(tv,fileroot_,"Tuberculoventral")
 	print_psth(ds,fileroot_,"D stellate")
 	print_psth(glg,fileroot_,"Golgi")
+	binwidth=tmpbinwidth
+
+	print_rate(ts,fileroot_,"T stellate")
+	print_rate(tv,fileroot_,"Tuberculoventral")
+	print_rate(ds,fileroot_,"D stellate")
+	print_rate(glg,fileroot_,"Golgi")
+
+	print "Results printed to files"
+}
+
+proc print_AMresults() {local tmpbinwidth
+	// t_ignore_before=stimdelay*1000/binwidth
+	if (t_ignore_before > tstop || t_ignore_before < 0 ) {t_ignore_before = stimdelay*1000/binwidth}
+	// t_ignore_after=(stimdelay+dur+ramplngth*2)*1000/binwidth
+	if (t_ignore_after > tstop) {t_ignore_after = tstop }
+	sprint(cmd,"mkdir -p ./%s",fileroot_)
+	system(cmd)
+	print_an_raster(fileroot_)
+	//print_ts_raster(fileroot_)
+	//print_ds_raster(fileroot_)
+	//print_tv_raster(fileroot_)
+	//print_golgi_raster(fileroot_)
+	//print_an_hist(dt*3,fileroot_)
+	//print_smooth_hist(dt*3, fileroot_)
+	//   print_isi_stats(fileroot_)
+	//   print_isis(fileroot_)
+    //print_si(fileroot_)
+ 	// tmpbinwidth=binwidth
+	// binwidth=0.3
+	// print_psth(ts,fileroot_,"T stellate")
+	// print_psth(tv,fileroot_,"Tuberculoventral")
+	// print_psth(ds,fileroot_,"D stellate")
+	// print_psth(glg,fileroot_,"Golgi")
+	// binwidth=tmpbinwidth
+
+	print_rate(ts,fileroot_,"T stellate")
+	print_rate(tv,fileroot_,"Tuberculoventral")
+	print_rate(ds,fileroot_,"D stellate")
+	print_rate(glg,fileroot_,"Golgi")
+
+	tmpbinwidth=binwidth
+	binwidth=0.05
+
+	    print_periodpsth(ts,fileroot_,"T stellate")
+	    print_periodpsth(tv,fileroot_,"Tuberculoventral")
+	    print_periodpsth(ds,fileroot_,"D stellate")
+	    print_periodpsth(glg,fileroot_,"Golgi")
+	    print_periodpsth(hsr,fileroot_,"HSR ANFs")
+	    print_periodpsth(lsr,fileroot_,"LSR ANFs")	    
+	binwidth=tmpbinwidth
+
+
 	print "Results printed to files"
 }
 
@@ -106,9 +161,9 @@ proc RateLevelFunction(){
 	dur		    = 0.049    //duration of stim (seconds) minus risefall
 	stimdelay	= 0.02      //sec
 	stimtype	= 1      //tone
-	reps		= 25
+	reps		= 100
 	t_ignore_before = stimdelay*1000/binwidth
-	t_ignore_after  = (stimdelay+dur+ramplngth)*1.2*1000/binwidth
+	t_ignore_after  = (stimdelay+dur+ramplngth)*1000/binwidth
 	
 	for (spl=-10;spl<=90;spl=spl+5){
 		//CREATEFILTERBANKS()
@@ -149,8 +204,8 @@ proc NoiseRateLevelFunction(){
 	//fit NRL
 	//Find thresh, Max rate, spon rate, DR
 	
-	sprint(fileroot_,"%s/NoiseRateLevel",fileroot)
-	print_results()
+	// sprint(fileroot_,"%s/NoiseRateLevel",fileroot)
+	// print_results()
 	
 	
 }
@@ -160,6 +215,8 @@ proc MaskedRateLevelFunction(){local ifreq,freq_increment, myCF
 	ramplngth	= 0.005
 	dur		= 0.045    //duration of stim (seconds)
 	stimdelay	= 0.02      //sec
+	t_ignore_before=stimdelay*1000/binwidth
+	t_ignore_after=(stimdelay+dur+ramplngth)*1.2*1000/binwidth
 	
 	tonefreq=cf.x[50]
 	NoiseLevel=50 //(50% mark SPL)
@@ -181,7 +238,9 @@ proc MaskedResponseCurve(){local ifreq,freq_increment, myCF
 	ramplngth	= 0.005
 	dur		= 0.045    //duration of stim (seconds)
 	stimdelay	= 0.02      //sec
-	
+	t_ignore_before=stimdelay*1000/binwidth
+	t_ignore_after=(stimdelay+dur+ramplngth)*1.2*1000/binwidth
+   reps=100
 	tonefreq=cf.x[50]
 	NoiseLevel=50 //(50% mark SPL)
 	dur       = 0.024    //duration of stim (seconds)
@@ -245,8 +304,11 @@ proc ModulationTransferFunction(){
 	stimdelay	= 0.01
 	dutycycle = 0.0
 	tonefreq	= $1
-    reps		= 50
+    reps		= 100
 	tstop		= 160
+	t_ignore_before =(2*stimdelay)*1000/binwidth 
+	t_ignore_after = tstop
+
 	//	  for (AM_modfreq=400;AM_modfreq<=700;AM_modfreq=AM_modfreq+50) {
 for (spl=80; spl >= 20; spl=spl-20){
 for (AM_modfreq=50;AM_modfreq<=1200;AM_modfreq=AM_modfreq+50) {
@@ -279,7 +341,9 @@ proc F0_Response(){
 	stimdelay=0.01
 	tonefreq=$1
 	AM_modfreq=150
-    reps=50
+    reps=100
+	t_ignore_before =(2*stimdelay)*1000/binwidth 
+	t_ignore_after = 160  //tstop
 	for (spl=0; spl <= 90; spl=spl+5){
     	MULTIRUN()
 	    //	SAVEDATA
