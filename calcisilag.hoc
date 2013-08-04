@@ -2,7 +2,8 @@
 
 // Adapted by Michael Eager from  Andrew Davison (The Babraham Institute, 2000) 
 // Original Olfactory bulb network model: calculate inter-spike interval and lag time statistics
-// 
+// see spike_stats for my psth and meanrate methods
+// see CalcVectorStrength for my SI measure
 
 
 
@@ -412,7 +413,7 @@ proc print_psth() { // 2 args - variance, filename root
 
 // arg 1 cell index
 // arg 2 fileroot
-// arg 3 text
+// arg 3 cell type text
 proc print_rate(){localobj tmpspikes
 
   sprint(filename,"%s/rateplace.%d.dat",$s2,$1)
@@ -421,10 +422,10 @@ proc print_rate(){localobj tmpspikes
   
   for i=0, nchannels-1{
 
-    if($1==ts) tmpspikes = tstellate[i][0].spikes.histogram(0,tstop,binwidth)
-    if($1==tv) tmpspikes = tuberculoventral[i][0].spikes.histogram(0,tstop,binwidth)
-    if($1==ds) tmpspikes = dstellate[i][0].spikes.histogram(0,tstop,binwidth)
-    if($1==glg) tmpspikes = golgi[i][0].spikes.histogram(0,tstop,binwidth) 
+    if($1==ts) tmpspikes = tstellate[i][0].spikes.c
+    if($1==tv) tmpspikes = tuberculoventral[i][0].spikes.c
+    if($1==ds) tmpspikes = dstellate[i][0].spikes.c
+    if($1==glg) tmpspikes = golgi[i][0].spikes.c 
     outfile.printf("%d\t%.2f\t%8.3f\n",i,cf.x[i],meanrate(tmpspikes))
   }
   outfile.close()
