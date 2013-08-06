@@ -1,7 +1,7 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
 /*
- *   TV_Notch.hoc
+ *   TV_RateLevel.hoc
  *   
  *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
  *
@@ -67,13 +67,13 @@ create_connect_TV(fileroot)
 
 //////////Default Parameters for TV_RateLevel///////////////
 
-ANsoundspath			= "../../sounds"
-cfhi				= 48000
+ANsoundspath		= "../sounds"
+cfhi				= 40000
 cflo				= 200
 RefreshCF()
 ramplngth			= 0.002
 stimdelay			= 0.02   //sec, 20 msec
-dutycycle           = 0.2 //don't have quiet at the end, usually 0.2
+dutycycle                       = 0.2 //, usually 0.2
 reps				= 25     //
 ANmodel				= 6      // Zilany Bruce model version 3
 species				= 1      // Cat
@@ -116,26 +116,6 @@ level=new Vector(20)
 level.indgen().mul(2).add(50)
 Ratelevel()
 */
-
-
-//for i = 0, nchannels-1 {
-//	dstellate[i][0].soma.gnabar_rm=0.408307 
-//	dstellate[i][0].soma.gkhtbar_rm=0.030623 
-//	dstellate[i][0].soma.gleak_rm=0.000274146 
-//	dstellate[i][0].soma.erev_rm=-65 
-//	dstellate[i][0].soma.ghbar_rm=0.000427944
-//	dstellate[i][0].soma.gkltbar_klt=0.0163897
-//}
-
-// param.w.x[lsr][tv] = 0.0021707
-// param.w.x[hsr][tv] = 0.0006168
-
-// param.w.x[glg][ds]	= 0.000532	
-// param.w.x[hsr][ds]	= 0.00127  
-// param.w.x[lsr][ds]	= 0.00309  
-// param.w.x[tv][ds]	= 0.00  
-// param.w.x[ds][tv]	= 0.0018  
-// reset_weights()
 
 
 
@@ -192,8 +172,8 @@ param.bw.x[glg][tv] = 20
 param.tv_erev =  -70.2485 
 param.tv_gleak = 0.000249321
 set_pvec()
-level_offset=25
-//fileroot="TV_RateLevel0"
+level_offset=0
+fileroot="TV_RateLevel0"
 
 proc run_optimisation(){
  reps=10

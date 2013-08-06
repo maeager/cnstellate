@@ -121,21 +121,21 @@ proc GenFreqNotch(){
     
 }
 
-objref g[2]
+objref gnotch[2]
 proc GenNotchResponsePlots(){
     overlapsweeps()
     GenFreqNotch()
-    objref g[2]
-    g[0] = new Graph()
+    objref gnotch[2]
+    gnotch[0] = new Graph()
     
-    expected_notch[1].plot(g[0],expected_notch[0])
-    type2_halfoct_sweep[1].plot(g[0],type2_halfoct_sweep[0],2,2) 
-    type2_1oct_sweep[1].plot(g[0],type2_1oct_sweep[0],3,2)
-    g[0].exec_menu("View = plot")
-    g[1] = new Graph()
-    expected_notch[1].plot(g[1],freq1_notch)
-    expected_notch[1].plot(g[1],freq2_notch)
-    g[1].exec_menu("View = plot")
+    expected_notch[1].plot(gnotch[0],expected_notch[0])
+    type2_halfoct_sweep[1].plot(gnotch[0],type2_halfoct_sweep[0],2,2) 
+    type2_1oct_sweep[1].plot(gnotch[0],type2_1oct_sweep[0],3,2)
+    gnotch[0].exec_menu("View = plot")
+    gnotch[1] = new Graph()
+    expected_notch[1].plot(gnotch[1],freq1_notch)
+    expected_notch[1].plot(gnotch[1],freq2_notch)
+    gnotch[1].exec_menu("View = plot")
     expected_notch[1].reverse()
     freq1_notch.reverse()
     type2_1oct_sweep[1].reverse()
