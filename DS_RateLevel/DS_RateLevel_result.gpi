@@ -79,12 +79,12 @@ set style line 6 lc rgb "dark-orange" lt 1 lw 2 pt 9 ps 2  #orange
 set multiplot layout 2,2
 set key inside left center vertical Left noreverse enhanced autotitles nobox
 
- set title "{/Sans-Bold=32 A}      Tone Rate Level (Inputs)      " offset 0,+1 font "Helvetica,24"
+ set title "{/Sans-Bold=32 A}      Tone Rate Level (on-CF Inputs)      " offset 0,+1 font "Helvetica,24"
  plot [10:100][0:300] 'DS_RateLevel.Fit.dat' i 1 u 1:5 title "HSR (Model)" w lp ls 5, \
        '' i 1 u 1:6 title "LSR (Model)" w lp ls 6, \
        '' i 1 u 1:4  title "GLG (Model)" with linespoints ls 4
 
- set title "{/Sans-Bold=32 B}     Noise Rate Level (Inputs)      " offset 0,+1 font "Helvetica,24"
+ set title "{/Sans-Bold=32 B}     Noise Rate Level (on-CF Inputs)      " offset 0,+1 font "Helvetica,24"
  plot [30:100][0:300] 'DS_RateLevel.Fit.dat' i 0  using 1:4  notitle  with linespoints ls 4, \
        '' i 0 u 1:5 notitle  w lp ls 5, \
        '' i 0 u 1:6 notitle  w lp ls 6
