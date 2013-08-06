@@ -6,4 +6,4 @@ param.w.x[lsr][ds]	= 0.013091
 param.ds_gkltbar	= 0.0163897
 param.ds_gaba_decay		= 5.43235
 param.ds_gaba_rise		= 0.261939
-param.ds_gleak	= 0.00274146
+// param.ds_gleak	= 0.00274146
