@@ -35,6 +35,8 @@ xopen("AuditoryNerve.hoc")    // template for AN model filterbank and ANFs
 xopen("par_CNcell.tem")       // CN cell templates
 xopen("parameters_DS_RateLevel.hoc") //This model's parameters
 xopen("CochlearNucleus.hoc")         // model set-up
+xopen("jitter.hoc")
+
 xopen("spike_stats.hoc")
 xopen("cngui.hoc")
 
@@ -47,6 +49,9 @@ xopen("pvec_Golgi_RateLevel.hoc")
 create_cells()
 connect_cells(fileroot)
 connect_CNcells(fileroot)
+
+ANsoundspath="../sounds"	// Unique path - change if required
+
 
 //Setup this experiment
 xopen("par_experiment_DS_RateLevel.hoc")
@@ -63,8 +68,8 @@ RefreshCellParams()
 whichcell  = ArnottFig3_CFpos
 RefreshCF()
 DS_BFtone()
-SetInputRates()
-GenInputSpikes()
+//SetInputRates()
+//GenInputSpikes()
 
 //  ANFilterBankRun()
 //  CheckFilterbank()
@@ -100,7 +105,7 @@ reps=5
 //	runprax()
 //	reps=50
 //	printprax2()
-ANsoundspath="../sounds"	
+
 
 NPARAMS=2
 init_params(NPARAMS)
@@ -149,3 +154,23 @@ param.bw.x[hsr][ds]=40
 param.bw.x[lsr][ds]=40
 
 set_pvec()
+
+// 6 Aug opt run
+param.w.x[lsr][ds]=0.00853 
+param.w.x[glg][ds]= 0.00066895      
+param.w.x[hsr][ds] = 0.000397827
+
+proc run_prax(){
+	set_pvec()
+	reps=5
+	runprax2()
+	// printprax2()
+	// reps=10
+	// runprax()
+	// printprax2()
+	// //reps=5
+	// runprax2()
+	reps=50
+	printprax2()
+}
+//run_multipleprax()
