@@ -29,9 +29,17 @@ param.w.x[ds][tv] = 0.00172859
 
 param.n.x[lsr][tv]=30
 param.n.x[hsr][tv]=30
-param.tv_erev = -68.25
-param.n.x[ds][tv] = 30 
-param.tv_gleak =  0.00049879
+
+param.n.x[lsr][tv] = 20
+param.n.x[hsr][tv] = 10
+param.n.x[ds][tv] = 30
+param.n.x[glg][tv] = 10
+param.bw.x[ds][tv] = 30
+param.bw.x[glg][tv] = 20
+param.tv_erev =  -70.2485 
+param.tv_gleak = 0.000249321
+
+//param.tv_gleak =  0.00049879
 param.w.x[ds][tv] = 0.0542967
 param.w.x[hsr][tv]=0.000637145 
 param.w.x[lsr][tv]=0.00107275

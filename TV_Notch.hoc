@@ -165,7 +165,7 @@ proc RedefineCNmodel(){local i_chan,j_cell,ii
 	create_cells()
 	connect_cells(origfileroot)
 	connect_CNcells(origfileroot)
-	for ii=0,99 tuberculoventral[ii][0].soma.erev_rm = param.tv_erev
+	RefreshCellParams()
 }
 
 
