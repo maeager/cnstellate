@@ -55,10 +55,7 @@ xopen("par_experiment_TV_RateLevel.hoc")
 xopen("cngui.hoc")
 
 whichcell = 50
-param.tv_erev=-65
 param.offset=0
-param.n.x[ds][tv] = 20
-param.bw.x[ds][tv] = 15
 
 create_connect_TV(fileroot)
 
@@ -70,10 +67,9 @@ create_connect_TV(fileroot)
 ANsoundspath		= "../sounds"
 cfhi				= 40000
 cflo				= 200
-RefreshCF()
 ramplngth			= 0.002
 stimdelay			= 0.02   //sec, 20 msec
-dutycycle                       = 0.2 //, usually 0.2
+dutycycle           = 0.2 //, ratio of stimulus dur to quite period afterwards
 reps				= 25     //
 ANmodel				= 6      // Zilany Bruce model version 3
 species				= 1      // Cat
@@ -140,7 +136,7 @@ objref origpvec
 //Ratelevel()
 
 // Target RL data
-objref target_rate_level[4],fitgr, tmpRL[8]
+objref fitgr, tmpRL[8]
 fitgr = new Graph()
 
 
@@ -169,14 +165,21 @@ param.n.x[ds][tv] = 30
 param.n.x[glg][tv] = 10
 param.bw.x[ds][tv] = 30
 param.bw.x[glg][tv] = 20
-param.tv_erev =  -70.2485 
+param.delay.x[ds][tv] = 0.5
+
+param.offset = 0
+param.tv_erev =  -72.2485 
 param.tv_gleak = 0.000249321
+
+whichcell = 50  // focus on the centre of the network
+
 set_pvec()
 level_offset=0
+SpirouModelFig8 = 0
 fileroot="TV_RateLevel0"
 
 proc run_optimisation(){
- reps=10
+ reps=5
  //runprax()
  runprax2()
  reps=50
