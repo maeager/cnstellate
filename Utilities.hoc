@@ -1582,8 +1582,8 @@ func GetANfileString() {local i
 }
 
 /** SaveANFilterBank2File
-* Save LSR and HSR profiles to file with metadata headers
-*/
+ * Save LSR and HSR profiles to file with metadata headers
+ */
 proc SaveANFilterBank2File(){local nchan
 	objref ANfile
 	
@@ -1594,7 +1594,7 @@ proc SaveANFilterBank2File(){local nchan
 	sprint(tmpANstr,"%s/%s",ANpath,ANstr)
 	ANfile.wopen(tmpANstr)
 	if (ANfile.isopen()){
-		ANfile.printf("%d\n%d\n%d\n%d\n%d\n%d\n", sg_rate, HSRout[0].size, nchannels,cflo,cfhi,species)
+		ANfile.printf("%d\n%d\n%d\n%d\n%d\n%d\t%f\t%f\n", sg_rate, HSRout[0].size, nchannels,cflo,cfhi,species, Highspont, Lowspont)
 		for icf = 0, nchannels-1 {
 			ANfile.printf("%d\n%d\n", icf, cf.x[icf])
 			LSRout[icf].printf(ANfile,"%.3f\t")
@@ -1647,6 +1647,14 @@ func RetrieveANFilterBank(){local nsize, nchan, temp
 		}
 		if ((temp = ANfile.scanvar()) != species){
 			print "species not the same in ", tmpANstr
+			return 0
+		}
+		if ((temp = ANfile.scanvar()) != Highspont){
+			print "HSR spon not the same in ", tmpANstr
+			return 0
+		}
+		if ((temp = ANfile.scanvar()) != Lowspont){
+			print "LSR spon not the same in ", tmpANstr
 			return 0
 		}
 		
