@@ -57,7 +57,7 @@ celsius      = 37
 secondorder  = 2      // Crank-Nickolson integration method
 
 //Input stimulus
-   cfhi     = 48000
+   cfhi     = 40000
    cflo     = 200
    dur      = 0.049      //duration of stim (seconds)
    spl      = 100
