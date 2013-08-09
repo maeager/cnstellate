@@ -58,10 +58,10 @@ proc print_results() {local tmpbinwidth
 	sprint(cmd,"mkdir -p ./%s",fileroot_)
 	system(cmd)
 	print_an_raster(fileroot_)
-	print_ts_raster(fileroot_)
-	print_ds_raster(fileroot_)
-	print_tv_raster(fileroot_)
-	print_golgi_raster(fileroot_)
+	//print_ts_raster(fileroot_)
+	//print_ds_raster(fileroot_)
+	//print_tv_raster(fileroot_)
+	//print_golgi_raster(fileroot_)
 	print_an_hist(dt*3,fileroot_)
 	print_smooth_hist(dt*3, fileroot_)
 	//   print_isi_stats(fileroot_)
@@ -316,14 +316,14 @@ for (AM_modfreq=50;AM_modfreq<=1200;AM_modfreq=AM_modfreq+50) {
 	MULTIRUN()
 	//	SAVEDATA
 	sprint(fileroot_,"%s/ModulationTransferFunction/%d/%d",fileroot,spl,AM_modfreq)
-	print_results()
-	binwidth=0.1
-	print_periodpsth(ts,fileroot_,"T stellate")
-	print_periodpsth(tv,fileroot_,"Tuberculoventral")
-	print_periodpsth(ds,fileroot_,"D stellate")
-	print_periodpsth(glg,fileroot_,"Golgi")
-	print_periodpsth(hsr,fileroot_,"HSR ANFs")
-	print_periodpsth(lsr,fileroot_,"LSR ANFs")	  
+	print_AMresults()
+	// binwidth=0.1
+	// print_periodpsth(ts,fileroot_,"T stellate")
+	// print_periodpsth(tv,fileroot_,"Tuberculoventral")
+	// print_periodpsth(ds,fileroot_,"D stellate")
+	// print_periodpsth(glg,fileroot_,"Golgi")
+	// print_periodpsth(hsr,fileroot_,"HSR ANFs")
+	// print_periodpsth(lsr,fileroot_,"LSR ANFs")	  
 }
 //plot rMTF
 //plot tMTF
@@ -348,14 +348,14 @@ proc F0_Response(){
     	MULTIRUN()
 	    //	SAVEDATA
 	    sprint(fileroot_,"%s/F0Response/%d",fileroot,spl)
-	    print_results()
-	    binwidth=0.1
-	    print_periodpsth(ts,fileroot_,"T stellate")
-	    print_periodpsth(tv,fileroot_,"Tuberculoventral")
-	    print_periodpsth(ds,fileroot_,"D stellate")
-	    print_periodpsth(glg,fileroot_,"Golgi")
-	    print_periodpsth(hsr,fileroot_,"HSR ANFs")
-	    print_periodpsth(lsr,fileroot_,"LSR ANFs")	    
+	    print_AMresults()
+	    // binwidth=0.1
+	    // print_periodpsth(ts,fileroot_,"T stellate")
+	    // print_periodpsth(tv,fileroot_,"Tuberculoventral")
+	    // print_periodpsth(ds,fileroot_,"D stellate")
+	    // print_periodpsth(glg,fileroot_,"Golgi")
+	    // print_periodpsth(hsr,fileroot_,"HSR ANFs")
+	    // print_periodpsth(lsr,fileroot_,"LSR ANFs")	    
 	} 
 	//plot rMTF
 	//plot tMTF
