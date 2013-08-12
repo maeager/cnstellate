@@ -37,14 +37,10 @@ param.tv_erev =  -70.2485
 param.tv_gleak = 0.000249321
 param.delay.x[ds][tv] = 0.5
 
-param.w.x[ds][tv] = 0.0542967
-param.w.x[hsr][tv]=0.000637145 
-param.w.x[lsr][tv]=0.00107275
 
- // 20130808+23:45:37
-  
-param.w.x[lsr][tv] = 0.00788273
-param.w.x[glg][tv] = 0.00252367
-param.w.x[hsr][tv] = 0.00471513
-param.w.x[ds][tv] = 0.00480304
+
+param.w.x[lsr][tv] = 0.0041716
+param.w.x[glg][tv] = 0.00158648
+param.w.x[hsr][tv] = 0.000645083
+param.w.x[ds][tv] = 0.00358648
 
