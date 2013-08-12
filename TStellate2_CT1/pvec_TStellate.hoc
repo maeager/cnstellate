@@ -224,3 +224,11 @@ param.w.x[glg][ts] = 0.000311879*1
 param.ts_gleak = 0.000465893*1
 param.ts_erev = 0.0629368*-1000
 
+ // 20130812+03:32:54
+  
+param.w.x[lsr][ts] = 0.00118376*1
+param.w.x[hsr][ts] = 0.000883397*1
+param.w.x[ds][ts] = 0.000661479*1
+param.w.x[tv][ts] = 2.00741e-05*1
+param.w.x[glg][ts] = 0.000248028*1
+
