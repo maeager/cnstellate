@@ -29,7 +29,7 @@ $pfebk/*
 AMResponses*/*
 MASSIVE/*
 */*RateLevel/*/*
-#Responses*/*
+Responses_*/*
 */F0Response/*
 */ModulationTransferFunction/*
 #Responses*/*.dat
