@@ -444,3 +444,11 @@ param.w.x[ds][ts] = 0.000834633*1
 param.w.x[tv][ts] = 1.1606e-05*1
 param.w.x[glg][ts] = 3.3936e-05*1
 
+ // 20130812+03:42:33
+  
+param.w.x[lsr][ts] = 0.00174046*1
+param.w.x[hsr][ts] = 0.000505579*1
+param.w.x[ds][ts] = 0.000733722*1
+param.w.x[tv][ts] = 7.31865e-05*1
+param.w.x[glg][ts] = 8.95339e-06*1
+

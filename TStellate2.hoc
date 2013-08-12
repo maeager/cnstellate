@@ -66,13 +66,13 @@ param.w.x[ds][ts]		= 0.0001
 param.w.x[tv][ts]		= 0.0002
 param.w.x[glg][ts]		= 0.0005
 
- param.delay.x[hsr][ts]  = 0
- param.delay.x[lsr][ts]  = 0
- param.delay.x[hsr][ds]  = 0
- param.delay.x[lsr][ds]  = 0
- param.delay.x[hsr][tv]  = 0.5
- param.delay.x[lsr][tv]  = 0.5
- param.delay.x[lsr][glg] = 1
+ // param.delay.x[hsr][ts]  = 0
+ // param.delay.x[lsr][ts]  = 0
+ // param.delay.x[hsr][ds]  = 0
+ // param.delay.x[lsr][ds]  = 0
+ // param.delay.x[hsr][tv]  = 0.5
+ // param.delay.x[lsr][tv]  = 0.5
+ // param.delay.x[lsr][glg] = 1
 
 param.n.x[hsr][ts]		= 10
 param.n.x[lsr][ts]		= 10
@@ -139,140 +139,88 @@ xopen("voltage.ses")
 xopen("jitter.hoc")
 
 
-// param.w.x[lsr][ts]	= 0.000774459
-// param.w.x[hsr][ts]	= 0.000817015
-// param.w.x[ds][ts]	= 0.0000138011
-// param.w.x[tv][ts]	= 0.0000146063
-// param.w.x[glg][ts]	= 9.3936e-05
-// param.ts_gleak	= 0.000494097
-// param.ts_erev	=-65
-// set_pvec()
-
-
-// CT1_data()
-// RefreshParameters()
-// ANFilterBankRun()  //Generate new AN instant. rates
-// SetInputRates()
-
-// param.ts_erev	=-58
-// param.w.x[ds][tv]/	=10
-// param.w.x[hsr][tv]	=0.0006
-// runprax()
-// printprax()
-// print "CT1 Done"
-
-
-
-
-// //jitterdelay(0,0.5)
-
-// //param.w.x[lsr][ts] = 0.000901216
-// //param.w.x[hsr][ts] = 0.000914421
-// //param.w.x[ds][ts]	= 0.00146354
-// //param.w.x[tv][ts]	= 0.00132918
-// //param.w.x[glg][ts] = 3.94981e-05
-// //param.ts_gleak = 0.00297771
-
-
-// //param.w.x[lsr][ts] = 0.000774459
-// //param.w.x[hsr][ts] = 0.000817015
-// //param.w.x[ds][ts]	= 0.0000138011
-// //param.w.x[tv][ts]	= 0.0000146063
-// //param.w.x[glg][ts] = 9.3936e-05
-// //param.ts_gleak = 0.000294097
-// //param.ts_erev	=-65
-// //reps				=50
-
-param.n.x[hsr][ts]=8
-param.n.x[lsr][ts]=15
-param.n.x[ds][ts]=4
-param.n.x[tv][ts]=7
-param.n.x[glg][ts]=5
-
-param.w.x[lsr][ts]	= 0.0038
-param.w.x[hsr][ts]	= 0.0009
-param.w.x[ds][ts]	= 0.0000138011
-param.w.x[tv][ts]	= 0.0000146063
-param.w.x[glg][ts]	= 5.3936e-05
-// param.ts_gleak	= 0.000494097
-param.ts_erev	=-60.9
-set_pvec()
-
 
 proc optimise_CS(){
-xopen("TStellate_CS/pvec_TStellate.hoc")	
-CS_data()	
-//for ii=1,CV_weight.count()-1 {
-ii=1
-CV_weight.object(ii).mul(50)
-//CV_weight.object(ii).mul(50)
-//}	
-param.ts_ghbar=6.20392e-05 
-param.n.x[hsr][ts]=30
-param.n.x[lsr][ts]=30
-param.n.x[ds][ts]=20
-param.n.x[tv][ts]=20
-param.n.x[glg][ts]=20
-param.ts_erev=-60.9  
-set_pvec()
-RefreshParameters()
-ANFilterBankRun()  //Generate new AN instant. rates
-SetInputRates()
-
-set_pvec()
-//QuickRun()
-reps=25
-runprax()
-reps=50
-printprax()
-//runprax()
-//printprax()
-//runprax()
-//printprax()
-//runprax()
-//printprax()
-print "CS Done"
-PSTHcell(tstellate_spikes,10,2)
-PSTHcell(tstellate_spikes,0.25,2)
+	xopen("pvec_TStellate2_CS.hoc")	
+	CS_data()	
+	//for ii=1,CV_weight.count()-1 {
+	ii=1
+	CV_weight.object(ii).mul(50)
+	//CV_weight.object(ii).mul(50)
+	//}	
+	param.ts_ghbar=6.20392e-05 
+	param.n.x[hsr][ts]=30
+	param.n.x[lsr][ts]=30
+	param.n.x[ds][ts]=20
+	param.n.x[tv][ts]=20
+	param.n.x[glg][ts]=20
+	param.ts_erev=-60.9  
+	set_pvec()
+	RefreshParameters()
+	ANFilterBankRun()  //Generate new AN instant. rates
+	SetInputRates()
+	
+	set_pvec()
+	//QuickRun()
+	reps=25
+	runprax()
+	reps=50
+	printprax()
+	//runprax()
+	//printprax()
+	//runprax()
+	//printprax()
+	//runprax()
+	//printprax()
+	print "CS Done"
+	PSTHcell(tstellate_spikes,10,2)
+	PSTHcell(tstellate_spikes,0.25,2)
 }
 
 
 proc optimise_CT1(){
 	CT1_data()	
-xopen("TStellate2_CT1/pvec_TStellate.hoc")	
-	for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100)
-
-param.ts_erev=-62.9
-param.n.x[hsr][ts]=25
-param.n.x[lsr][ts]=25
-param.n.x[ds][ts]=25
-param.n.x[tv][ts]=20
-param.n.x[glg][ts]=20
-set_pvec()	
-
-RefreshParameters()
-ANFilterBankRun()  //Generate new AN instant. rates
-SetInputRates()
-
-//QuickRun()
-runprax()
-printprax()
-//runprax()
-//printprax()
-//runprax()
-//printprax()
-//runprax()
-//printprax()
-print "CT1 Done"
-PSTHcell(tstellate_spikes,10,2)
-PSTHcell(tstellate_spikes,0.25,2)
+    xopen("pvec_TStellate2_CT1.hoc")	
+	//for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100)
+	for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(20*(ii+1))
+	
+	param.ts_erev=-62.9
+	param.n.x[hsr][ts]=25
+	param.n.x[lsr][ts]=25
+	param.n.x[ds][ts]=25
+	param.n.x[tv][ts]=20
+	param.n.x[glg][ts]=20
+	set_pvec()	
+	
+	RefreshParameters()
+	ANFilterBankRun()  //Generate new AN instant. rates
+	SetInputRates()
+	
+	//QuickRun()
+	runprax()
+	printprax()
+	//runprax()
+	//printprax()
+	//runprax()
+	//printprax()
+	//runprax()
+	//printprax()
+	print "CT1 Done"
+	PSTHcell(tstellate_spikes,10,2)
+	PSTHcell(tstellate_spikes,0.25,2)
 }
 
 proc optimise_CT2(){ 
-	xopen("TStellate2_CT2/pvec_TStellate.hoc")
+	
+	//start pvec vaues with previous run
+	xopen("pvec_TStellate2_CT2.hoc")
+	//set the stimulus and target data set 
 	CT2_data()
-	for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100)
-
+	//set the weighting in CV data points 
+    //  should be at least 10 times to match the magnitude of the IV data
+	for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(20*(ii+1))
+	
+	//set default fixed params
 	param.ts_erev=-62.9
 	param.n.x[hsr][ts]=25
 	param.n.x[lsr][ts]=25
@@ -280,6 +228,7 @@ proc optimise_CT2(){
 	param.n.x[tv][ts]=20
 	param.n.x[glg][ts]=20	
 	set_pvec()
+	
 	RefreshParameters()
 	ANFilterBankRun()  
 	SetInputRates()

@@ -41,8 +41,8 @@ Data is in spikes per stimulus for a 50 ms tone/noise burst.  This needs to be c
 //////////Default Parameters for DS_RateLevel///////////////
 
 
-ANsoundspath	    = "../../sounds"
-cfhi				= 48000  //Hz
+ANsoundspath	    = "../sounds"
+cfhi				= 40000  //Hz
 cflo				= 200    //Hz
 dur                 = 0.049  //ms
 ramplngth			= 0.002  //ms
@@ -181,8 +181,6 @@ proc reset_DS_RateLevel(){local i
   }
 }
 
-
-xopen("jitter.hoc")
 //Call:   jitterdelay_DS(param.delay.x[hsr][ds],0.2)
 
 
@@ -599,8 +597,8 @@ func DS_RateLevel_err2(){local jj,pp,xtime
 	
 	save_rate_level()	
 	DS_Noise()
-	level=new Vector(12)
-	level.indgen().mul(5).add(40) //50:10:100
+	level=new Vector(13)
+	level.indgen().mul(5).add(40) //40:5:100
 	Ratelevel()
 	if (whichcell == ArnottFig3_CFpos){
 		target_rate_level[2] =set_target_rate_level(Arnott2004_Fig3_Noise)
@@ -685,7 +683,7 @@ proc QuickRun(){
 proc runprax2(){
     sprint(cmd,"mkdir -p %s",fileroot)
     system(cmd)
-    sprint(cmd,"touch %s/error_out.dat",fileroot)
+    sprint(cmd,"echo '#\n' >>  %s/error_out.dat",fileroot)
     system(cmd)
     attr_praxis(tolerance, maxstepsize, 3)
     fit_praxis(NPARAMS,error_fn,&pvec.x[0])
@@ -717,7 +715,7 @@ proc printprax2(){local pp,ii,pp2,error
 	//Output model data with best parameters
 	sprint(cmd,"mkdir -p %s",fileroot)
 	system(cmd)
-//	error=DS_RateLevel_err(0,&pvec.x[0])
+	error=DS_RateLevel_err(0,&pvec.x[0])
 	print error
 	system("date",datestr)
 	print datestr
@@ -745,7 +743,7 @@ proc printprax2(){local pp,ii,pp2,error
 		//	}
 		//	file.printf("\n")
 		// }
-		file.printf("# Level, DS Model, GLG, HSR, LSR (sp/s)\n")
+		file.printf("# Level, DS target, DS Model, GLG, HSR, LSR (sp/s)\n")
 		for i=0,level.size-1{
 			file.printf("%d\t%g\t%g\t%g\t%g\t%g\n",level.x[i],\
 			target_rate_level[2].x[i],\
@@ -776,22 +774,6 @@ proc printprax2(){local pp,ii,pp2,error
 	file.close()
 }
 
-
-
-proc run_multipleprax(){
-	set_pvec()
-	reps=10
-	runprax()
-	printprax2()
-	reps=10
-	runprax()
-	printprax2()
-	//reps=5
-	runprax2()
-	reps=50
-	printprax2()
-}
-//run_multipleprax()
 
 proc Rerun_ANmodel_tone(){
 	DS_BFtone()
