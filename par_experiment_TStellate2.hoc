@@ -1212,132 +1212,126 @@ proc printprax(){local pp,ii,pp2,cur_reps
    sprint(fname,"%s/%s.Fit.dat",fileroot,origfileroot)
    file.wopen(fname)
    if (file.isopen()){
-file.printf("# %s Optimisation\n",fileroot)
-file.printf("# %s \n",datestr)
-for pp=0,NPARAMS-1 {
-   file.printf("#%s = %g\t[%g,%g]\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp],pvec_ranges.x[pp][0],pvec_ranges.x[pp][1])
-}
-file.printf("# final error=%f\n",error)
-//file.printf("# Principle axis matrix\n")
-//for pp=0,NPARAMS-1 {
-//pval[pp] = new Vector(NPARAMS)
-//pval_praxis(pp,&pval[pp].x[0])
-//file.printf("#\t")
-//for pp2=0,NPARAMS-1 file.printf("%g\t",pval[pp].x[pp2])
-//file.printf("\n")
-//}
-file.printf("# Threshold level %g \n", TSexemplar_SPL_thresh )
-file.printf("# Threshold rate %g \n", threshold_rate)
-file.printf("# TS exemplar RMP %g\n", TSexemplar_RMP )
-file.printf("# TS exemplar CF %g\n",TSexemplar_CF)
-
-file.printf("# Time\t IV @spl=20 (mV)\t IV @spl=30 (mV)\t IV @spl=40 (mV)\n")
-for ii=0,tvec.size()-1 {
-   file.printf("%.2f\t%.6f\t%.6f\t%.6f\n",tvec.x[ii],TSIVList.object(0).x[ii],TSIVList.object(1).x[ii],TSIVList.object(2).x[ii])
-}
-
-
-for ii=0,2 {
-   test_shift = (TSIVList.object(ii).max_ind(stimdelay*1000/dt,(stimdelay*1000 +20)/dt)/10) - 2.5
-   test = new Vector(4)
-   IVMeasures(tvec,TSIVList.object(ii),test,test_shift)
-   
-   file.printf("# IV Measures at spl %d\n",TSexemplar_SPL_thresh+ 20+ ii*10 )
-   file.printf("# RMP \t%g\t%g \n", IV_reference.object(ii).x[3], test.x[3])
-   file.printf("# IVshift\t%g\n", test_shift)
-   file.printf("# IVOnset\t%g\t%g\n", IV_reference.object(ii).x[0], test.x[0])
-   file.printf("# IVAdaptation\t%g\t%g\n", IV_reference.object(ii).x[1], test.x[1])
-   file.printf("# IVOffset\t%g\t%g\n", IV_reference.object(ii).x[2],test.x[2])
-   penalty = sqrt(IV_reference.object(ii).meansqerr(test,IV_weight.object(ii)))   
-   file.printf("# IV Measures RMS error \t%g\n", penalty)
-   
-   //IV comparison 
-   error+=penalty
-      
-   PSTHcell(TSspikeList.object(ii),10,1)
-   file.printf("#PSTH: Time\t Rate (sp/s)\n")
-   for jj=0,psth.size()-1 {
-      file.printf("# %d\t%.6f\n",jj,psth.x[jj])
+       file.printf("# %s Optimisation\n",fileroot)
+       file.printf("# %s \n",datestr)
+       for pp=0,NPARAMS-1 {
+	   file.printf("#%s = %g\t[%g,%g]\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp],pvec_ranges.x[pp][0],pvec_ranges.x[pp][1])
+       }
+       file.printf("# final error=%f\n",error)
+       //file.printf("# Principle axis matrix\n")
+       //for pp=0,NPARAMS-1 {
+       //pval[pp] = new Vector(NPARAMS)
+       //pval_praxis(pp,&pval[pp].x[0])
+       //file.printf("#\t")
+       //for pp2=0,NPARAMS-1 file.printf("%g\t",pval[pp].x[pp2])
+       //file.printf("\n")
+       //}
+       file.printf("# Threshold level %g \n", TSexemplar_SPL_thresh )
+       file.printf("# Threshold rate %g \n", threshold_rate)
+       file.printf("# TS exemplar RMP %g\n", TSexemplar_RMP )
+       file.printf("# TS exemplar CF %g\n",TSexemplar_CF)
+       
+       file.printf("# Time\t IV @spl=20 (mV)\t IV @spl=30 (mV)\t IV @spl=40 (mV)\n")
+       for ii=0,tvec.size()-1 {
+	   file.printf("%.2f\t%.6f\t%.6f\t%.6f\n",tvec.x[ii],TSIVList.object(0).x[ii],TSIVList.object(1).x[ii],TSIVList.object(2).x[ii])
+       }
+       for ii=0,2 {
+	   test_shift = (TSIVList.object(ii).max_ind(stimdelay*1000/dt,(stimdelay*1000 +20)/dt)/10) - 2.5
+	   test = new Vector(4)
+	   IVMeasures(tvec,TSIVList.object(ii),test,test_shift)   
+	   file.printf("# IV Measures at spl %d\n",TSexemplar_SPL_thresh+ 20+ ii*10 )
+	   file.printf("# RMP \t%g\t%g \n", IV_reference.object(ii).x[3], test.x[3])
+	   file.printf("# IVshift\t%g\n", test_shift)
+	   file.printf("# IVOnset\t%g\t%g\n", IV_reference.object(ii).x[0], test.x[0])
+	   file.printf("# IVAdaptation\t%g\t%g\n", IV_reference.object(ii).x[1], test.x[1])
+	   file.printf("# IVOffset\t%g\t%g\n", IV_reference.object(ii).x[2],test.x[2])
+	   penalty = sqrt(IV_reference.object(ii).meansqerr(test,IV_weight.object(ii)))   
+	   file.printf("# IV Measures RMS error \t%g\n", penalty)
+	   //IV comparison 
+	   error+=penalty 
+	   PSTHcell(TSspikeList.object(ii),10,1)
+	   file.printf("#PSTH: Time\t Rate (sp/s)\n")
+	   for jj=0,psth.size()-1 {
+	       file.printf("# %d\t%.6f\n",jj,psth.x[jj])
+	   }
+	   file.printf("#CV: Time\t CV ()\t\t ISI mean (ms)\t\t ISI sd (ms) \n")
+	   for jj=0,4 {
+	       file.printf("# %d\t%.6f\t%.6f\t%.6f\n",jj,cvISI.x[jj], uISI.x[jj],sISI.x[jj])
+	   }
+	   test = new Vector(4)
+	   test.copy(cvISI, 0, 0, 3, 1, 1)
+	   file.printf("#CV: Time\t CV reference\t\t CV test ()\t Weighting \n")
+	   for jj=0,test.size()-1 {
+	       file.printf("# %d\t%.6f\t%.6f\t%.6f\n",jj,test.x[jj], CV_reference.object(ii).x[jj], CV_weight.object(ii).x[jj])
+	   }
+	   //IV comparison 
+	   print error+=sqrt(CV_reference.object(ii).meansqerr(test,CV_weight.object(ii)))      
+	   file.printf("# CV Measures RMS error \t%g\n", penalty)
+	   file.printf("#   FSL Mean %g, Std Dev %g \n",  fslmean,fslstd)
+	   
+	   //Calculate additional penalties
+	   
+	   //Penalty: Number of trials counted in CV 
+	   if(checkedtrials < 0.8*reps) penalty =10
+	   file.printf("# Checked trials \t%g\n", checkedtrials)
+	   file.printf("# Checked trials penalty\t%g\n", penalty)
+	   
+	   //Penalty 1: Sustained rate 
+	   sustainedrate = psth.sum(2,6)/25
+	   file.printf("# Sustained rate \t%g\n", sustainedrate)
+	   
+	   if (ii > 1)   {
+	       //penalty for lack of spikes during tone
+	       if(sustainedrate < 10) penalty = 10 - sustainedrate 
+	       file.printf("# Sustained rate penalty \t%g\n", penalty)
+	   }
+	   //penalty for too many spikes after tone
+	   if(psth.sum(8,12)/25 > 10) penalty = psth.sum(8,12)/25 - 10 
+	   file.printf("# Post stimulus rate penalty \t%g\n", penalty)
+	   
+	   //Penalty 3: CV follows criteria for chopper
+	   //First 10 ms must be strongly regular
+	   penalty=0
+	   if(cvISI.x[0] > 0.2) penalty+= 10
+	   if(cvISI.x[0] > 0.3) penalty+= 100
+	   if (sustained_transient_chopper==0){
+	       //Sustained model   
+	       if(cvISI.x[1] > 0.3 || cvISI.x[1] == 0) penalty+= 10
+	       if(cvISI.x[2] > 0.3 || cvISI.x[2] == 0) penalty+= 10
+	       if(cvISI.x[3] > 0.3 || cvISI.x[3] == 0) penalty+= 10
+	   } else {
+	       //Transient models
+	       if(cvISI.x[1] > 0.5 || cvISI.x[1] == 0) penalty+= 10
+	       if(cvISI.x[2] > 0.5 || cvISI.x[2] == 0) penalty+= 10
+	       if(cvISI.x[3] > 0.5 || cvISI.x[3] == 0) penalty+= 10 
+	   }
+	   
+	   file.printf("#   CV Penalty = %g\n",penalty)
+	   file.printf("\t\t")
+       }//ii  for loop
+       
+       //Penalty 4: Input resistance must be within physiological range
+       access tstellate[whichcell][0].soma 
+       inputresistance = rn() //Calculate input resistance, see Utilities.hoc   
+       if(inputresistance < 30 || inputresistance > 400) penalty = 100
+       file.printf("#  Input Resistance = %g\n",inputresistance)
+       file.printf("#  Input Resistance Penalty = %g\n",penalty)
+       file.printf("#  tonefreq = %g\n",tonefreq)
+       param.print2file(file,"#") //let Network Parameters print the struct
+       
+       file.close()
    }
-   file.printf("#CV: Time\t CV ()\t\t ISI mean (ms)\t\t ISI sd (ms) \n")
-   for jj=0,4 {
-      file.printf("# %d\t%.6f\t%.6f\t%.6f\n",jj,cvISI.x[jj], uISI.x[jj],sISI.x[jj])
-   }
-   test = new Vector(4)
-   test.copy(cvISI, 0, 0, 3, 1, 1)
-   file.printf("#CV: Time\t CV reference\t\t CV test ()\t Weighting \n")
-   for jj=0,test.size()-1 {
-      file.printf("# %d\t%.6f\t%.6f\t%.6f\n",jj,test.x[jj], CV_reference.object(ii).x[jj], CV_weight.object(ii).x[jj])
-   }
-   //IV comparison 
-   print error+=sqrt(CV_reference.object(ii).meansqerr(test,CV_weight.object(ii)))      
-   file.printf("# CV Measures RMS error \t%g\n", penalty)
-   file.printf("#   FSL Mean %g, Std Dev %g \n",  fslmean,fslstd)
-   
-   
-   
-   //Calculate additional penalties
-   
-   //Penalty: Number of trials counted in CV 
-   if(checkedtrials < 0.8*reps) penalty =10
-   file.printf("# Checked trials \t%g\n", checkedtrials)
-   file.printf("# Checked trials penalty\t%g\n", penalty)
-   
-   //Penalty 1: Sustained rate 
-   sustainedrate = psth.sum(2,6)/25
-   file.printf("# Sustained rate \t%g\n", sustainedrate)
-   
-   if (ii > 1)   {
-      //penalty for lack of spikes during tone
-      if(sustainedrate < 10) penalty = 10 - sustainedrate 
-      file.printf("# Sustained rate penalty \t%g\n", penalty)
-   }
-   //penalty for too many spikes after tone
-   if(psth.sum(8,12)/25 > 10) penalty = psth.sum(8,12)/25 - 10 
-      file.printf("# Post stimulus rate penalty \t%g\n", penalty)
-   
-   
-   
-   //Penalty 3: CV follows criteria for chopper
-   //First 10 ms must be strongly regular
-   penalty=0
-   if(cvISI.x[0] > 0.2) penalty+= 10
-   if(cvISI.x[0] > 0.3) penalty+= 100
-   if (sustained_transient_chopper==0){
-      //Sustained model   
-      if(cvISI.x[1] > 0.3 || cvISI.x[1] == 0) penalty+= 10
-      if(cvISI.x[2] > 0.3 || cvISI.x[2] == 0) penalty+= 10
-      if(cvISI.x[3] > 0.3 || cvISI.x[3] == 0) penalty+= 10
-   } else {
-      //Transient models
-      if(cvISI.x[1] > 0.5 || cvISI.x[1] == 0) penalty+= 10
-      if(cvISI.x[2] > 0.5 || cvISI.x[2] == 0) penalty+= 10
-      if(cvISI.x[3] > 0.5 || cvISI.x[3] == 0) penalty+= 10 
-   }
-   
-   file.printf("#   CV Penalty = %g\n",penalty)
-   file.printf("\t\t")
-}//ii  for loop
-
-      //Penalty 4: Input resistance must be within physiological range
-      access tstellate[whichcell][0].soma 
-      inputresistance = rn() //Calculate input resistance, see Utilities.hoc   
-      if(inputresistance < 30 || inputresistance > 400) penalty = 100
-      file.printf("#  Input Resistance = %g\n",inputresistance)
-      file.printf("#  Input Resistance Penalty = %g\n",penalty)
-      file.printf("#  tonefreq = %g\n",tonefreq)
-      param.print2file(file,"#") //let Network Parameters print the struct
-   }
-   file.close()
    //Write parameters to general optimisation file
    sprint(fname,"%s/pvec_%s.hoc",fileroot,origfileroot)
    file.aopen(fname)
-   file.printf(" // %s  \n",datestr)
-   for pp=0,NPARAMS-1 {
-      file.printf("%s = %g*%g\n",pvec_name.object(pp).s,pvec.x[pp],pvec_factor.x[pp])
+   if (file.isopen()){
+       file.printf(" // %s  \n",datestr)
+       for pp=0,NPARAMS-1 {
+	   file.printf("%s = %g*%g\n",pvec_name.object(pp).s,pvec.x[pp],pvec_factor.x[pp])
+       }
+       file.printf("\n")
+       file.close()
    }
-  file.printf("\n")
-   file.close()
    reps = cur_reps
    PSTHcell(TSspikeList.object(1),10,2)
    PSTHcell(TSspikeList.object(1),1,2)

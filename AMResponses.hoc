@@ -5,6 +5,20 @@
  *  Generate RL,NRL,RA, MTF
  *
  *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
+ *    This file is part of cnstellate.
+ * 
+ *    This is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation, either version 3 of the License, or
+ *    (at your option) any later version.
+ *
+ *    This is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.  
  */
 
 load_file("nrngui.hoc")
@@ -41,7 +55,6 @@ connect_CNcells(fileroot)
 xopen("par_experiment_TStellate2.hoc")
 
 create_cells()
-
 connect_cells(fileroot)
 connect_CNcells(fileroot)
 RefreshCellParams()
@@ -61,10 +74,10 @@ xopen("ResponsesRoutines.hoc")
 
 
 /*********Default Parameters *************/
-ANmodel					= 7 //Zilany Bruce model (Zilany et al, 2009)
-species					= 1 //Cat
-audiogram_file			= "cat_audiogram.txt"
-usesavedfilterbanks     = 1
+ANmodel	     = 7 //Zilany Bruce model (Zilany et al, 2009)
+species      = 1 //Cat
+audiogram_file	= "cat_audiogram.txt"
+usesavedfilterbanks = 1
 ANsoundspath = "../sounds"  //local sounds path
 nrep         = 1               //nrep is number of reps of stimulus
 cfhi         = 40000
@@ -80,89 +93,87 @@ RefreshCF()
 
 
 proc AMresponse_CS(){
-CS_data()
-RefreshParameters()
-ANFilterBankRun()  //Generate new AN instant. rates
-SetInputRates()
-xopen("pvec_TStellate2_CS.hoc")
-RefreshCellParams()
-connect_cells(fileroot)
-connect_CNcells(fileroot)
-binwidth=0.1
-reps=50
-ModulationTransferFunction(tonefreq)
-F0_Response(tonefreq)
-
+    CS_data()
+    RefreshParameters()
+    ANFilterBankRun()  //Generate new AN instant. rates
+    SetInputRates()
+    xopen("pvec_TStellate2_CS.hoc")
+    RefreshCellParams()
+    connect_cells(fileroot)
+    connect_CNcells(fileroot)
+    binwidth=0.1
+    reps=50
+    ModulationTransferFunction(tonefreq)
+    F0_Response(tonefreq)
 }
 
 
 proc AMresponse_CT1(){
-CT1_data()
-RefreshParameters()
-ANFilterBankRun()  //Generate new AN instant. rates
-SetInputRates()
-xopen("pvec_TStellate2_CT1.hoc")
-RefreshCellParams()
-connect_cells(fileroot)
-connect_CNcells(fileroot)
-binwidth=0.1
-reps=50
-F0_Response(tonefreq)
-ModulationTransferFunction(tonefreq)
-
+    CT1_data()
+    RefreshParameters()
+    ANFilterBankRun()  //Generate new AN instant. rates
+    SetInputRates()
+    xopen("pvec_TStellate2_CT1.hoc")
+    RefreshCellParams()
+    connect_cells(fileroot)
+    connect_CNcells(fileroot)
+    binwidth=0.1
+    reps=50
+    F0_Response(tonefreq)
+    ModulationTransferFunction(tonefreq)
 }
 
 proc AMresponse_CT2(){
-CT2_data()
-RefreshParameters()
-ANFilterBankRun()  //Generate new AN instant. rates
-SetInputRates()
-xopen("pvec_TStellate2_CT2.hoc")
-RefreshCellParams()
-connect_cells(fileroot)
-connect_CNcells(fileroot)
-binwidth=0.1
-reps=50
-ModulationTransferFunction(tonefreq)
-F0_Response(tonefreq)
+    CT2_data()
+    RefreshParameters()
+    ANFilterBankRun()  //Generate new AN instant. rates
+    SetInputRates()
+    xopen("pvec_TStellate2_CT2.hoc")
+    RefreshCellParams()
+    connect_cells(fileroot)
+    connect_CNcells(fileroot)
+    binwidth=0.1
+    reps=50
+    ModulationTransferFunction(tonefreq)
+    F0_Response(tonefreq)
 }
 
 
 
 proc SimpleResponses_CS(){
-CS_data()
-xopen("pvec_TStellate2_CS.hoc")
-connect_cells(fileroot)
-connect_CNcells(fileroot)
-RefreshCellParams()
-RateLevelFunction()
-NoiseRateLevelFunction()
-MaskedRateLevelFunction()
-MaskedResponseCurve()
+    CS_data()
+    xopen("pvec_TStellate2_CS.hoc")
+    connect_cells(fileroot)
+    connect_CNcells(fileroot)
+    RefreshCellParams()
+    RateLevelFunction()
+    NoiseRateLevelFunction()
+    MaskedRateLevelFunction()
+    MaskedResponseCurve()
 }
 
 proc SimpleResponses_CT1(){
-CT1_data()
-xopen("pvec_TStellate2_CT1.hoc")
-connect_cells(fileroot)
-connect_CNcells(fileroot)
-RefreshCellParams()
-RateLevelFunction()
-NoiseRateLevelFunction()
-MaskedRateLevelFunction()
-MaskedResponseCurve()
+    CT1_data()
+    xopen("pvec_TStellate2_CT1.hoc")
+    connect_cells(fileroot)
+    connect_CNcells(fileroot)
+    RefreshCellParams()
+    RateLevelFunction()
+    NoiseRateLevelFunction()
+    MaskedRateLevelFunction()
+    MaskedResponseCurve()
 }
 
 proc SimpleResponses_CT2(){
-CT2_data()
-xopen("pvec_TStellate2_CT2.hoc")
-connect_cells(fileroot)
-connect_CNcells(fileroot)
-RefreshCellParams()
-RateLevelFunction()
-NoiseRateLevelFunction()
-MaskedRateLevelFunction()
-MaskedResponseCurve()
+    CT2_data()
+    xopen("pvec_TStellate2_CT2.hoc")
+    connect_cells(fileroot)
+    connect_CNcells(fileroot)
+    RefreshCellParams()
+    RateLevelFunction()
+    NoiseRateLevelFunction()
+    MaskedRateLevelFunction()
+    MaskedResponseCurve()
 }
 
 
