@@ -155,6 +155,7 @@ append_weight_dstv()
 //append_tv_erev()
 //append_tv_ghbar()
 
+// DEFAULT SETTINGS for TV_RateLevel optimisation
 param.w.x[lsr][tv] = 0.0041716
 param.w.x[hsr][tv] = 0.000645083
 param.w.x[ds][tv] = 0.00358648
@@ -166,10 +167,14 @@ param.n.x[glg][tv] = 10
 param.bw.x[ds][tv] = 30
 param.bw.x[glg][tv] = 20
 param.delay.x[ds][tv] = 0.5
+param.delay.x[hsr][tv]=3
+param.delay.x[lsr][tv]=3
+
 
 param.offset = 0
-param.tv_erev =  -72.2485 
+param.tv_erev =  -69.2485 
 param.tv_gleak = 0.000249321
+
 
 whichcell = 50  // focus on the centre of the network
 
