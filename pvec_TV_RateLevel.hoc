@@ -39,8 +39,8 @@ param.delay.x[ds][tv] = 0.5
 
 
 
-param.w.x[lsr][tv] = 0.0041716
-param.w.x[glg][tv] = 0.00158648
+param.w.x[lsr][tv] = 0.0051716
+param.w.x[glg][tv] = 0.00258648
 param.w.x[hsr][tv] = 0.000645083
 param.w.x[ds][tv] = 0.00358648
 
