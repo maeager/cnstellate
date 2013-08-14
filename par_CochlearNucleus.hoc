@@ -451,6 +451,35 @@ proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechanne
 			}
 		}
 	}
+
+	if (pnm.myid == 0) print "TV->DS"
+	if( ( param.n.getval(tv,ds) > 0 ) && ( nDSperchannel != 0 ) && ( nTVperchannel != 0 ) ){
+		if (pnm.myid == 0) outfile.printf("\n%d %d\n",tv,ds)
+		for channel = 0, nchannels-1{
+			for target = 0, nDSperchannel-1 {
+				for i=0, param.n.getval(tv,ds)-1{
+					//Choose source channel
+					sourcechannel = random.normal(channel,param.bw.getval(tv,ds)/2)
+					if ((sourcechannel - int(sourcechannel)) > 0.5 ){
+						sourcechannel = 1+int(sourcechannel)
+					} \
+					else { 
+						sourcechannel = int(sourcechannel) 
+					}
+					if (sourcechannel <=0 ) sourcechannel=0
+					if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
+					//Choose random source from available cells
+					source = random.discunif(0,nTVperchannel-1)
+					// print "TV[",sourcechannel,"][",source,"] connected to "DS[",channel,"][",target,"]"
+					tv2dsGLYvec.append( \
+					netpar_connect(tvgid,sourcechannel,source,dsgid,channel,target,\
+					1,param.delay.getval(tv,ds), param.w.getval(tv,ds))) //syn id=0 AMPA, =1 GLY =2 GABAa
+					if (pnm.myid == 0)  outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
+					
+				}
+			}
+		}
+	}
 	if (pnm.myid == 0) print "DS->TS"
 	if( ( param.n.getval(ds,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nDSperchannel != 0 ) ){
 		if (pnm.myid == 0) outfile.printf("\n%d %d\n",ds,ts)
@@ -555,12 +584,41 @@ proc connect_CNcells(){local i,target,source,low,high,range,channel,sourcechanne
 					// print "GLG[",sourcechannel,"][",source,"] connected to "TS[",channel,"][",target,"]"
 					glg2tsGABAvec.append( \
 					netpar_connect(glggid,sourcechannel,source,tsgid,channel,target,\
-					2,param.delay.getval(glg,ds), param.w.getval(glg,ds))) //syn id=0 AMPA, =1 GLY =2 GABAa
+					2,param.delay.getval(glg,ts), param.w.getval(glg,ts))) //syn id=0 AMPA, =1 GLY =2 GABAa
 					if (pnm.myid == 0)  outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
 				}
 			}
 		}
 	}
+	if (pnm.myid == 0) print "GLG->TV"
+	if( ( param.n.getval(glg,tv) > 0 ) && ( nTVperchannel != 0 ) && ( nGperchannel != 0 ) ){
+		if (pnm.myid == 0) outfile.printf("\n%d %d\n",glg,tv)
+		for channel = 0, nchannels-1{
+			for target = 0, nTVperchannel-1 {
+				for i=0, param.n.getval(glg,tv)-1{
+					//Choose source channel
+					sourcechannel = random.normal(channel,param.bw.getval(glg,tv)/2)
+					if ((sourcechannel - int(sourcechannel)) > 0.5 ){
+						sourcechannel = 1+int(sourcechannel)
+					} \
+					else { 
+						sourcechannel = int(sourcechannel) 
+					}
+					if (sourcechannel <=0 ) sourcechannel=0
+					if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
+					
+					//Choose random source from available cells
+					source = random.discunif(0,nGperchannel-1)
+					// print "GLG[",sourcechannel,"][",source,"] connected to "TV[",channel,"][",target,"]"
+					glg2tvGABAvec.append( \
+					netpar_connect(glggid,sourcechannel,source,tvgid,channel,target,\
+					2,param.delay.getval(glg,tv), param.w.getval(glg,tv))) //syn id=0 AMPA, =1 GLY =2 GABAa
+					if (pnm.myid == 0)  outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
+				}
+			}
+		}
+	}
+
 	if (pnm.myid == 0)  outfile.close()
 }//end connect_cells()
 
