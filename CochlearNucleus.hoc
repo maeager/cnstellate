@@ -441,8 +441,12 @@ ts2dsAMPAlist.remove_all()
 		 for target = 0, nTSperchannel-1 {
 			 for i=0, param.n.getval(ts,ts)-1{
 				 //Choose random source from available cells
-				 source = random.discunif(0,nTSperchannel-1)
-				 while( source == target)  source = random.repick()  //Don't connect to self, recurrent connections only with multiple TS units in one channel
+				 if (nTSperchannel == 1) {
+					 source = 0
+				 } else {		
+					 source = random.discunif(0,nTSperchannel-1) 
+					 while( source == target)  source = random.repick()  //Don't connect to self, recurrent connections only with multiple TS units in one channel
+				 }
 				 // print "TS[",channel,"][",source,"] connected to "TS[",channel,"][",target,"]"
 				 // tscells[channel*numTSperchannel+target].connect_pre(tscells[source], 1, param.delay.getval(ts,ts), param.w.getval(ts,ts))
 				 sprint(cmd, "tstellate[%d][%d].soma ts2tsAMPAlist.append( new NetCon(&v(0.5), tstellate[%d][%d].AMPA, thresh,param.delay.getval(ts,ts), param.w.getval(ts,ts)))",sourcechannel,source,channel,target)
@@ -478,7 +482,11 @@ ts2dsAMPAlist.remove_all()
 				 if (sourcechannel <=0 ) sourcechannel=0
 				 if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
 				 //Choose random source from available cells
-				 source = random.discunif(0,nTSperchannel-1)
+				 if (nTSperchannel == 1) {
+					 source = 0
+				 } else {		
+					 source = random.discunif(0,nTSperchannel-1) 
+				 }
 				 // print "TS[",sourcechannel,"][",source,"] connected to "TV[",channel,"][",target,"]"
 				 sprint(cmd, "tstellate[%d][%d].soma ts2tvAMPAlist.append( new NetCon(&v(0.5), tuberculoventral[%d][%d].GlyR, thresh,param.delay.getval(ts,tv), param.w.getval(ts,tv)))",sourcechannel,source,channel,target)
 				 execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
@@ -513,7 +521,12 @@ ts2dsAMPAlist.remove_all()
 				 if (sourcechannel <=0 ) sourcechannel=0
 				 if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
 				 //Choose random source from available cells
-				 source = random.discunif(0,nTVperchannel-1)
+				 if (nTVperchannel == 1) {
+					 source = 0
+				 } else {		
+					 source = random.discunif(0,nTVperchannel-1) 
+				 }
+
 				 // print "TV[",sourcechannel,"][",source,"] connected to "TS[",channel,"][",target,"]"
 				 sprint(cmd, "tuberculoventral[%d][%d].soma tv2tsGLYlist.append( new NetCon(&v(0.5), tstellate[%d][%d].GlyR,  thresh,param.delay.getval(tv,ts), param.w.getval(tv,ts)))",sourcechannel,source,channel,target)
 				 execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
@@ -531,6 +544,46 @@ ts2dsAMPAlist.remove_all()
 	 printf("\rTV->TS=== %d connections ===\n",conn_count)
  }
  
+ if( ( param.n.getval(tv,ds) > 0 ) && ( nDSperchannel != 0 ) && ( nTVperchannel != 0 ) ){
+	 print "TV->DS"
+	 conn_count=0
+	 outfile.printf("\n%d %d\n",tv,ds)
+	 for channel = 0, nchannels-1{
+		 for target = 0, nDSperchannel-1 {
+			 for i=0, param.n.getval(tv,ds)-1{
+				 //Choose source channel
+				 sourcechannel = random.normal(channel,param.bw.getval(tv,ds)/2)
+				 if ((sourcechannel - int(sourcechannel)) > 0.5 ){
+					 sourcechannel = 1+int(sourcechannel)
+				 } \
+				 else { sourcechannel = int(sourcechannel) }
+				 if (sourcechannel <=0 ) sourcechannel=0
+				 if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
+				 //Choose random source from available cells
+				 if (nTVperchannel == 1) {
+					 source = 0
+				 } else {		
+					 source = random.discunif(0,nTVperchannel-1) 
+				 }
+
+				 // print "TV[",sourcechannel,"][",source,"] connected to "TS[",channel,"][",target,"]"
+				 sprint(cmd, "tuberculoventral[%d][%d].soma tv2dsGLYlist.append( new NetCon(&v(0.5), dstellate[%d][%d].GlyR,  thresh,param.delay.getval(tv,ds), param.w.getval(tv,ds)))",sourcechannel,source,channel,target)
+				 execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
+				 outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)				 
+				 conn_count+=1
+			 }
+		 }
+         p = 100*(channel)/(nchannels)
+		 printf("\rTV->DS=== %3d%% ===",p)
+		 flushf()
+		 doNotify() // Although this slows down cell creation, the
+         // process is so long that we have to allow the
+         // user to quit during the creation.
+	 }
+	 printf("\rTV->DS=== %d connections ===\n",conn_count)
+ }
+ 
+
 
  if( ( param.n.getval(ds,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nDSperchannel != 0 ) ){
 	 print "DS->TS"
@@ -548,7 +601,12 @@ ts2dsAMPAlist.remove_all()
 				 if (sourcechannel <=0 ) sourcechannel=0
 				 if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
 				 //Choose random source from available cells
-				 source = random.discunif(0,nDSperchannel-1)
+				 if (nDSperchannel == 1) {
+					 source = 0
+				 } else {		
+					 source = random.discunif(0,nDSperchannel-1) 
+				 }
+
 				 // print "DS[",sourcechannel,"][",source,"] connected to "TS[",channel,"][",target,"]"
 				 sprint(cmd, "dstellate[%d][%d].soma ds2tsGLYlist.append( new NetCon(&v(0.5), tstellate[%d][%d].GlyR, thresh,param.delay.getval(ds,ts), param.w.getval(ds,ts)))",sourcechannel,source,channel,target)
 				 execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
@@ -583,7 +641,12 @@ ts2dsAMPAlist.remove_all()
 				 if (sourcechannel <=0 ) sourcechannel=0
 				 if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
 				 //Choose random source from available cells
-				 source = random.discunif(0,nDSperchannel-1)
+				 if (nDSperchannel == 1) {
+					 source = 0
+				 } else {		
+					 source = random.discunif(0,nDSperchannel-1) 
+				 }
+
 				 // print "DS[",sourcechannel,"][",source,"] connected to "TV[",channel,"][",target,"]"
 				 sprint(cmd, "dstellate[%d][%d].soma ds2tvGLYlist.append( new NetCon(&v(0.5), tuberculoventral[%d][%d].GlyR, thresh,param.delay.getval(ds,tv), param.w.getval(ds,tv)))",sourcechannel,source,channel,target)
 				 execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
@@ -619,7 +682,11 @@ ts2dsAMPAlist.remove_all()
 				 if (sourcechannel <=0 ) sourcechannel=0
 				 if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
 				 //Choose random source from available cells
-				 source = random.discunif(0,nGperchannel-1)
+				 if (nGperchannel == 1) {
+					 source = 0
+				 } else {		
+					 source = random.discunif(0,nGperchannel-1) 
+				 }
 				 //print "Golgi[",sourcechannel,"][",source,"] connected to DStellate[",channel,"][",target,"]"
 				 if (LSR2GLG ==1 ) {
 					 sprint(cmd, "golgi[%d][%d].soma glg2dsGABAlist.append( new NetCon(&v(0.5),dstellate[%d][%d].GABAA,thresh,param.delay.getval(glg,ds), param.w.getval(glg,ds)))",sourcechannel,source,channel,target)
@@ -661,7 +728,12 @@ ts2dsAMPAlist.remove_all()
 				 if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
 				 
 				 //Choose random source from available cells
-				 source = random.discunif(0,nGperchannel-1)
+				 if (nGperchannel == 1) {
+					 source = 0
+				 } else {		
+					 source = random.discunif(0,nGperchannel-1) 
+				 }
+
 				 // print "GLG[",sourcechannel,"][",source,"] connected to "TS[",channel,"][",target,"]"
 				 if (LSR2GLG ==1 ) { //Conductance model of golgi
 					 sprint(cmd, "golgi[%d][%d].soma glg2tsGABAlist.append( new NetCon(&v(0.5),tstellate[%d][%d].GABAA, thresh,param.delay.getval(glg,ts), param.w.getval(glg,ts)))",sourcechannel,source,channel,target)
@@ -703,7 +775,12 @@ ts2dsAMPAlist.remove_all()
 				 if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
 				 
 				 //Choose random source from available cells
-				 source = random.discunif(0,nGperchannel-1)
+				 if (nGperchannel == 1) {
+					 source = 0
+				 } else {		
+					 source = random.discunif(0,nGperchannel-1) 
+				 }
+
 				 // print "GLG[",sourcechannel,"][",source,"] connected to "TV[",channel,"][",target,"]"
 				 if (LSR2GLG ==1 ) { //Conductance model of golgi
 					 sprint(cmd, "golgi[%d][%d].soma glg2tvGABAlist.append( new NetCon(&v(0.5),tuberculoventral[%d][%d].GABAA, thresh,param.delay.getval(glg,tv), param.w.getval(glg,tv)))",sourcechannel,source,channel,target)
