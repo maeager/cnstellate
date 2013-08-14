@@ -38,8 +38,9 @@ xopen("par_CNcell.tem")      // CN cell template
 xopen("pvec_Golgi_RateLevel.hoc")
 xopen("pvec_DS_ClickRecovery.hoc")
 xopen("pvec_DS_RateLevel.hoc")
-xopen("pvec_TV_RateLevel.hoc")
 xopen("pvec_TV_Notch.hoc")
+xopen("pvec_TV_RateLevel.hoc")
+
 
 //Parameters for this optimisation
 xopen("parameters_TStellate.hoc")
@@ -47,7 +48,9 @@ xopen("parameters_TStellate.hoc")
 //--- Setup CN Stellate Network model
 xopen("CochlearNucleus.hoc")         // model set-up
 // xopen("par_CochlearNucleus.hoc")   // parallel model set-up
+xopen("spike_stats.hoc")
 xopen("calcisilag.hoc")
+xopen("jitter.hoc")
 
  
 // use_ball_stick=1
@@ -80,6 +83,8 @@ param.n.x[ds][ts]		= 5
 param.n.x[tv][ts]		= 5
 param.n.x[glg][ts]		= 5
 param.ts_jitter_sd = 0.5 //ms
+
+fileroot="TStellate"
 create_cells()
 objref nil
 // Comment out next line to kill all TS cells not covered by experimental data
@@ -92,9 +97,15 @@ connect_cells(fileroot)
 connect_CNcells(fileroot)
 xopen("cngui.hoc")
 
-xopen("spike_stats.hoc")
+
 xopen("par_experiment_TStellate2.hoc")
 
+
+
+create_cells()
+
+connect_cells(fileroot)
+connect_CNcells(fileroot)
 
  RefreshCF()
  RefreshCNcellsCF()
@@ -106,7 +117,7 @@ xopen("par_experiment_TStellate2.hoc")
  
  RefreshParameters()
  ANFilterBankRun()
- SetInputRates()
+ //SetInputRates()
 
  
 
@@ -143,11 +154,9 @@ xopen("jitter.hoc")
 proc optimise_CS(){
 	xopen("pvec_TStellate2_CS.hoc")	
 	CS_data()	
-	//for ii=1,CV_weight.count()-1 {
-	ii=1
-	CV_weight.object(ii).mul(50)
-	//CV_weight.object(ii).mul(50)
-	//}	
+	
+	for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100+20*(ii))
+
 	param.ts_ghbar=6.20392e-05 
 	param.n.x[hsr][ts]=30
 	param.n.x[lsr][ts]=30
@@ -182,7 +191,7 @@ proc optimise_CT1(){
 	CT1_data()	
     xopen("pvec_TStellate2_CT1.hoc")	
 	//for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100)
-	for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(20*(ii+1))
+	for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100+20*(ii))
 	
 	param.ts_erev=-62.9
 	param.n.x[hsr][ts]=25
@@ -218,7 +227,8 @@ proc optimise_CT2(){
 	CT2_data()
 	//set the weighting in CV data points 
     //  should be at least 10 times to match the magnitude of the IV data
-	for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(20*(ii+1))
+	
+	for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100+20*(ii))
 	
 	//set default fixed params
 	param.ts_erev=-62.9
@@ -247,5 +257,5 @@ proc optimise_CT2(){
 	PSTHcell(tstellate_spikes,0.25,2)
 }
 
-TSexemplar_SPL_thresh=10
+TSexemplar_SPL_thresh=20
 ANsoundspath="../sounds"
