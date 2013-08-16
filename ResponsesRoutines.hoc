@@ -157,13 +157,18 @@ RefreshCF()
 proc RateLevelFunction(){
 	tonefreq=cf.x[50]
 	reps=50
-	ramplngth	= 0.002
-	dur		    = 0.049    //duration of stim (seconds) minus risefall
-	stimdelay	= 0.02      //sec
 	stimtype	= 1      //tone
-	reps		= 100
-	t_ignore_before = stimdelay*1000/binwidth
-	t_ignore_after  = (stimdelay+dur+ramplngth)*1000/binwidth
+	ramplngth	= 0.002
+	stimdelay	= 0.02   //sec, 20 msec
+	dutycycle    = 0.2 //, ratio of stimulus dur to quite period afterwards
+    dur          = 0.049  // duration of stim (seconds)
+	srate        = 100000.0
+	stimtdres    = 1/srate
+	sg_rate      = 50000
+	sg_tdres     = 1/sg_rate
+	RefreshParameters()
+	t_ignore_before=stimdelay*1000/binwidth
+	t_ignore_after=tstop
 	
 	for (spl=-10;spl<=90;spl=spl+5){
 		//CREATEFILTERBANKS()
@@ -186,13 +191,21 @@ proc RateLevelFunction(){
 
 // Run Noise RF
 proc NoiseRateLevelFunction(){
-	ramplngth	= 0.002
-	dur		= 0.049    //duration of stim (seconds)
-	stimdelay	= 0.02      //sec
-	stimtype = 6
-	t_ignore_before=stimdelay*1000/binwidth
-	t_ignore_after=(stimdelay+dur+ramplngth)*1.2*1000/binwidth
+	stimtype = 6 //broadband noise
+
+	ramplngth			= 0.002
+	stimdelay			= 0.02   //sec, 20 msec
+	dutycycle           = 0.2 //, ratio of stimulus dur to quite period afterwards
+    dur          = 0.049  // duration of stim (seconds)
 	
+    srate        = 200000.0
+    stimtdres    = 1/srate
+	sg_rate      = 50000
+	sg_tdres     = 1/sg_rate
+	RefreshParameters()
+	t_ignore_before=stimdelay*1000/binwidth
+	t_ignore_after=tstop
+	reps = 50
 	for (spl=-10;spl<=110;spl=spl+5){
 		MULTIRUN()
 		sprint(fileroot_,"%s/NoiseRateLevel/%g",fileroot,spl)
@@ -211,16 +224,22 @@ proc NoiseRateLevelFunction(){
 }
 
 proc MaskedRateLevelFunction(){local ifreq,freq_increment, myCF
-	stimtype=7 //tone and noise
-	ramplngth	= 0.005
-	dur		= 0.045    //duration of stim (seconds)
-	stimdelay	= 0.02      //sec
+	stimtype = 7 //tone and noise
+	ramplngth			= 0.002
+	stimdelay			= 0.02   //sec, 20 msec
+	dutycycle           = 0.2 //, ratio of stimulus dur to quite period afterwards
+    dur          = 0.049  // duration of stim (seconds)
+
+    srate        = 200000.0
+    stimtdres    = 1/srate
+	sg_rate      = 50000
+	sg_tdres     = 1/sg_rate
+	RefreshParameters()
 	t_ignore_before=stimdelay*1000/binwidth
-	t_ignore_after=(stimdelay+dur+ramplngth)*1.2*1000/binwidth
+	t_ignore_after=tstop
 	
 	tonefreq=cf.x[50]
-	NoiseLevel=50 //(50% mark SPL)
-	dur       = 0.024    //duration of stim (seconds)
+	NoiseLevel=30 //(50% mark SPL)
 	
 	//Masked RL
 	for (spl=20; spl<=90;spl=spl+5){
@@ -234,22 +253,27 @@ proc MaskedRateLevelFunction(){local ifreq,freq_increment, myCF
 
 // Run tone RF with 50%noise
 proc MaskedResponseCurve(){local ifreq,freq_increment, myCF
-	stimtype=7 //tone and noise
+	stimtype = 7 //tone and noise
 	ramplngth	= 0.005
 	dur		= 0.045    //duration of stim (seconds)
 	stimdelay	= 0.02      //sec
+    srate        = 200000.0
+    stimtdres    = 1/srate
+	sg_rate      = 50000
+	sg_tdres     = 1/sg_rate
+	RefreshParameters()
 	t_ignore_before=stimdelay*1000/binwidth
-	t_ignore_after=(stimdelay+dur+ramplngth)*1.2*1000/binwidth
-   reps=100
+	t_ignore_after=tstop
+
+    reps=50
 	tonefreq=cf.x[50]
-	NoiseLevel=50 //(50% mark SPL)
-	dur       = 0.024    //duration of stim (seconds)
+	NoiseLevel=30 //(50% mark SPL)
 	
 	freq_increment=cf.x[50]/8
 	myCF = cf.x[50]
 	
 	//MRC Masked Responses curve
-	spl=80
+	spl=60
 	for (ifreq=20; ifreq<= 70; ifreq= ifreq+1) {
 		tonefreq = cf.x[ifreq]
 		MULTIRUN()
@@ -305,7 +329,9 @@ proc ModulationTransferFunction(){
 	dutycycle = 0.0
 	tonefreq	= $1
     reps		= 100
-	tstop		= 160
+	spl = 80
+	AM_modfreq = 50
+	RefreshParameters()
 	t_ignore_before =(2*stimdelay)*1000/binwidth 
 	t_ignore_after = tstop
 
@@ -335,15 +361,16 @@ for (AM_modfreq=50;AM_modfreq<=1200;AM_modfreq=AM_modfreq+50) {
 
 //Run f0 response
 proc F0_Response(){
-	stimtype=3 	//AM tone
-	dur=0.149
+	stimtype = 3 	//AM tone
+	dur = 0.149
 	ramplngth	= 0.002
 	stimdelay=0.01
-	tonefreq=$1
-	AM_modfreq=150
+	tonefreq = $1
+	AM_modfreq = 150
     reps=100
+	RefreshParameters()
 	t_ignore_before =(2*stimdelay)*1000/binwidth 
-	t_ignore_after = 160  //tstop
+	t_ignore_after = tstop
 	for (spl=0; spl <= 90; spl=spl+5){
     	MULTIRUN()
 	    //	SAVEDATA

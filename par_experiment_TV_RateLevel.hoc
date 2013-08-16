@@ -226,13 +226,13 @@ objref tuberculoventral[1][nTVcells]
 
 
 //mimick connect_CNcells from CochlearNucleus.hoc
-proc create_connect_TV() {local i,ii,p,target,source,low,high,range,channel,sourcechannel
+proc create_connect_TV() {local isyn,icells,p,target,source,low,high,range,channel,sourcechannel
     
     //Require 2 TV units with CF = f(position 50)
     objref tuberculoventral[1][nTVcells]
-	for ii=0,nTVcells-1{
-    sprint(cmd, "tuberculoventral[%d][%d] = new CNcell(1,cf.x[%d],%d)",0,ii,50,50)
-    execute1(cmd)
+	for icells=0,nTVcells-1{
+		sprint(cmd, "tuberculoventral[%d][%d] = new CNcell(1,cf.x[%d],%d)",0,icells,50,50)
+		execute1(cmd)
      }
     
     
@@ -251,7 +251,7 @@ proc create_connect_TV() {local i,ii,p,target,source,low,high,range,channel,sour
 	outfile.printf("\n%d %d\n",hsr,tv)
 	channel = 0
 	for target = 0, nTVcells-1 {
-	    for i=0, param.n.getval(hsr,tv)-1{
+	    for isyn=0, param.n.getval(hsr,tv)-1{
 		//Choose source channel
 		sourcechannel = random.normal(tuberculoventral[channel][target].channel,param.bw.getval(hsr,tv)/2)
 		if ((sourcechannel - int(sourcechannel)) > 0.5 ){
@@ -301,8 +301,8 @@ proc create_connect_TV() {local i,ii,p,target,source,low,high,range,channel,sour
     if( ( param.n.getval(ds,tv) > 0 ) && ( nDSperchannel != 0 ) ){
 	outfile.printf("\n%d %d\n",ds,tv)
 	channel = 0
-	//EXCLUDE TV(2) from receiving DS cells
-	for target = 0,1 {
+	//EXCLUDE TV(1) from receiving DS cells
+	for(target = 0; target <= 2; target+=2)	{
 	    for i=0, param.n.getval(ds,tv)-1{
 		//Choose source channel
 		sourcechannel = random.normal(tuberculoventral[channel][target].channel,param.bw.getval(ds,tv)/2)
@@ -313,7 +313,11 @@ proc create_connect_TV() {local i,ii,p,target,source,low,high,range,channel,sour
 		if (sourcechannel <=0 ) sourcechannel=0
 		if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
 		//Choose random source from available cells
-		source = random.discunif(0,nDSperchannel-1)
+		if (nDSperchannel == 1) {
+			source = 0
+			} else {		
+			source = random.discunif(0,nDSperchannel-1) 
+		}
 		// print "DS[",sourcechannel,"][",source,"] connected to "TV[",channel,"][",target,"]"
 		sprint(cmd, "dstellate[%d][%d].soma ds2tvGLYlist.append( new NetCon(&v(0.5), tuberculoventral[%d][%d].GlyR, thresh,param.delay.getval(ds,tv), param.w.getval(ds,tv)))",sourcechannel,source,0,target)
 		execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
@@ -326,9 +330,11 @@ proc create_connect_TV() {local i,ii,p,target,source,low,high,range,channel,sour
     if( ( param.n.getval(glg,tv) > 0 ) &&  ( nGperchannel != 0 ) ){
 	outfile.printf("\n%d %d\n",glg,tv)
 	channel = 0
-	//EXCLUDE TV(1) frome receiving GLG inputs
-	for(target = 0; target <=2; target+=2)	{
-	    for i=0, param.n.getval(glg,tv)-1{
+	//EXCLUDE TV(1) from receiving GLG inputs
+	//for(target = 0; target <=2; target+=2)	{
+		target=0
+		{	
+		for i=0, param.n.getval(glg,tv)-1{
 		//Choose source channel
 		sourcechannel = random.normal(tuberculoventral[0][target].channel,param.bw.getval(glg,tv)/2)
 		if ((sourcechannel - int(sourcechannel)) > 0.5 ){
@@ -339,7 +345,11 @@ proc create_connect_TV() {local i,ii,p,target,source,low,high,range,channel,sour
 		if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
 		
 		//Choose random source from available cells
-		source = random.discunif(0,nGperchannel-1)
+		if (nGperchannel == 1) {
+			source = 0
+			} else {		
+			source = random.discunif(0,nGperchannel-1) 
+		}
 		// print "GLG[",sourcechannel,"][",source,"] connected to "TV[",channel,"][",target,"]"
 		if (LSR2GLG ==1 ) { //Conductance model of golgi
 		    sprint(cmd, "golgi[%d][%d].soma glg2tvGABAlist.append( new NetCon(&v(0.5),tuberculoventral[%d][%d].GABAA, thresh,param.delay.getval(glg,tv), param.w.getval(glg,tv)))",sourcechannel,source,channel,target)
@@ -356,7 +366,7 @@ proc create_connect_TV() {local i,ii,p,target,source,low,high,range,channel,sour
     }
     outfile.close()
 	
-    for ii=0,2 {
+    for ii=0,nTVcells-1 {
      tuberculoventral[0][ii].soma.erev_rm = param.tv_erev
      tuberculoventral[0][ii].soma.gleak_rm = param.tv_gleak
     }
@@ -370,7 +380,7 @@ objref templevel,indlevel,errorvec,refvec
 
 reps=20
 strdef origfileroot
-origfileroot = fileroot
+origfileroot = "TV_RateLevel"
 
 error=0
 strdef datestr,grlbl
@@ -417,7 +427,7 @@ proc RedefineTVmodel(){local i_chan,j_cell,ii
     glg2dsGABAlist = new List()
     ds2tvGLYlist = new List()
     create_connect_TV(origfileroot)
-    for ii=0,1 tuberculoventral[0][ii].soma.erev_rm = param.tv_erev
+    for ii=0,nTVcells-1 tuberculoventral[0][ii].soma.erev_rm = param.tv_erev
 }
 
 
@@ -533,6 +543,18 @@ func TV_RateLevel_err(){local jj,pp,xtime
     //Rearrange synapses is using weight parameters
     create_connect_TV(fileroot)
     RefreshCellParams()
+	//Double check,Make sure tv(1) has no DS or GLG, and tv(2) has no GLG
+    for i = 0, ds2tvGLYlist.count-1{
+        if(ds2tvGLYlist.object(i).postcell() == tuberculoventral[0][1]) {
+            ds2tvGLYlist.object(i).weight=0
+        }
+    }
+    for i = 0, glg2tvGABAlist.count-1{
+        if(glg2tvGABAlist.object(i).postcell() != tuberculoventral[0][0]) {
+            glg2tvGABAlist.object(i).weight=0
+        }
+    }
+
 
 	
     TV_BFtone()
@@ -756,13 +778,13 @@ proc printprax2(){local pp,ii,pp2,error
     system(cmd)
     
     print error=TV_RateLevel_err(0,&pvec.x[0])
-    printprax()	
+    printprax(error)	
 }
 
 
 proc printprax(){local pp,ii,pp2,error
     //Output model data with best parameters
-    
+    if (numarg()==1) { error=$1 } else {error=0}
     sprint(cmd,"mkdir -p %s",fileroot)
     system(cmd)
         
