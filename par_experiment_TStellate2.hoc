@@ -664,10 +664,8 @@ proc CT2_data() {local points localobj temp
    temp = new Vector(4,default_CV_weight)
    CV_weight.append(temp)
    
-   sustained_transient_chopper=1
-      
+   sustained_transient_chopper=2
 
-   
 }
 
 
@@ -1160,19 +1158,26 @@ func TStellate2_err( ) {local jj,pp,xtime,error,penalty,sustainedrate,inputresis
       //First 10 ms must be strongly regular
       print "CV of test cell"
       cvISI.printf      
-      if(cvISI.x[0] > 0.2)    penalties.append( (cvISI.x[0] - 0.2))
-      
-      if(cvISI.x[0] > 0.3) penalties.append( 10)
-      if (sustained_transient_chopper==0){
+      if(cvISI.x[0] > 0.2)    penalties.append( 10*(cvISI.x[0] - 0.2))
+      if(cvISI.x[0] > 0.3)    penalties.append( 10 + 10*(cvISI.x[0] - 0.3))
+      if (sustained_transient_chopper == 0){
          //Sustained model   
-         if(cvISI.x[1] > 0.3 || cvISI.x[1] == 0) penalties.append( 10)
-         if(cvISI.x[2] > 0.3 || cvISI.x[2] == 0) penalties.append( 10)
-         if(cvISI.x[3] > 0.3 || cvISI.x[3] == 0) penalties.append( 10)
-      } else {
-         //Transient models
-         if(cvISI.x[1] > 0.5 || cvISI.x[1] == 0) penalties.append( 10)
-         if(cvISI.x[2] > 0.5 || cvISI.x[2] == 0) penalties.append( 10)
-         if(cvISI.x[3] > 0.5 || cvISI.x[3] == 0) penalties.append( 10)  
+         if(cvISI.x[1] > 0.2 || cvISI.x[1] == 0) penalties.append( 10*(cvISI.x[1] - 0.2))
+         if(cvISI.x[2] > 0.2 || cvISI.x[2] == 0) penalties.append( 10*(cvISI.x[2] - 0.2))
+         if(cvISI.x[3] > 0.2 || cvISI.x[3] == 0) penalties.append( 10*(cvISI.x[3] - 0.2))
+      } else if (sustained_transient_chopper == 1){
+         //Transient 1 model
+         if(cvISI.x[1] > 0.3 || cvISI.x[1] == 0) penalties.append( 10*(cvISI.x[1] - 0.3))
+         if(cvISI.x[2] > 0.3 || cvISI.x[2] == 0) penalties.append( 10*(cvISI.x[2] - 0.3))
+         if(cvISI.x[3] > 0.3 || cvISI.x[3] == 0) penalties.append( 10*(cvISI.x[3] - 0.3))  
+      } else if (sustained_transient_chopper == 2){
+         //Transient 1 model
+         if(cvISI.x[1] < 0.3) penalties.append( 10*(0.3 - cvISI.x[1]))
+         if(cvISI.x[2] < 0.3) penalties.append( 10*(0.3 - cvISI.x[2]))
+         if(cvISI.x[3] < 0.3) penalties.append( 10*(0.3 - cvISI.x[3]))  
+         if(cvISI.x[1] > 0.5) penalties.append( 10*(cvISI.x[1] - 0.5))
+         if(cvISI.x[2] > 0.5) penalties.append( 10*(cvISI.x[2] - 0.5))
+         if(cvISI.x[3] > 0.5) penalties.append( 10*(cvISI.x[3] - 0.5))  
       }
       
             
@@ -1185,8 +1190,9 @@ func TStellate2_err( ) {local jj,pp,xtime,error,penalty,sustainedrate,inputresis
    
    print "Penalties size ", penalties.size()
    penalties.printf
-   error += penalties.sum()
-   
+   penalty = penalties.sum()
+   error += penalty
+
    sprint(fname,"%s/error_out.dat",fileroot)
    file.aopen(fname)
    for pp=0,NPARAMS-1 {
@@ -1292,8 +1298,8 @@ proc printprax(){local pp,ii,pp2,cur_reps
 	   //Penalty 3: CV follows criteria for chopper
 	   //First 10 ms must be strongly regular
 	   penalty=0
-	   if(cvISI.x[0] > 0.2) penalty+= 10
-	   if(cvISI.x[0] > 0.3) penalty+= 100
+	   if(cvISI.x[0] > 0.2) penalty+= 10 + 100*abs(cvISI.x[0] - 0.2)
+ 	   if(cvISI.x[0] > 0.3) penalty+= 100
 	   if (sustained_transient_chopper==0){
 	       //Sustained model   
 	       if(cvISI.x[1] > 0.3 || cvISI.x[1] == 0) penalty+= 10
