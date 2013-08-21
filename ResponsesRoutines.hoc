@@ -240,7 +240,7 @@ proc MaskedRateLevelFunction(){local ifreq,freq_increment, myCF
 	
 	tonefreq=cf.x[50]
 	NoiseLevel=30 //(50% mark SPL)
-	
+	reps=50
 	//Masked RL
 	for (spl=20; spl<=90;spl=spl+5){
 		MULTIRUN()
@@ -264,11 +264,9 @@ proc MaskedResponseCurve(){local ifreq,freq_increment, myCF
 	RefreshParameters()
 	t_ignore_before=stimdelay*1000/binwidth
 	t_ignore_after=tstop
-
     reps=50
 	tonefreq=cf.x[50]
 	NoiseLevel=30 //(50% mark SPL)
-	
 	freq_increment=cf.x[50]/8
 	myCF = cf.x[50]
 	

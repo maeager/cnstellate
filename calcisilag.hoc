@@ -438,8 +438,10 @@ proc print_rate(){localobj tmpspikes
 
 
 proc print_periodpsth() { // 3 args - celltype, str: filename root, str: name of cell
-     t_ignore_after = int(((stimdelay+dur)*1000)/binwidth)
-       t_ignore_before= int(((stimdelay+ramplngth*2)*1000)/binwidth)
+
+     if (t_ignore_after > tstop)  t_ignore_after = tstop
+     if (t_ignore_before <=0) t_ignore_before= int(((stimdelay+ramplngth*2)*1000)/binwidth)
+
      calc_psth($1)
 
   for i=0, nchannels-1{

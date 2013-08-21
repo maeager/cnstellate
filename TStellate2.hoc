@@ -69,21 +69,17 @@ param.w.x[ds][ts]		= 0.0001
 param.w.x[tv][ts]		= 0.0002
 param.w.x[glg][ts]		= 0.0005
 
- // param.delay.x[hsr][ts]  = 0
- // param.delay.x[lsr][ts]  = 0
- // param.delay.x[hsr][ds]  = 0
- // param.delay.x[lsr][ds]  = 0
- // param.delay.x[hsr][tv]  = 0.5
- // param.delay.x[lsr][tv]  = 0.5
- // param.delay.x[lsr][glg] = 1
 
-param.n.x[hsr][ts]		= 10
-param.n.x[lsr][ts]		= 10
-param.n.x[ds][ts]		= 5
-param.n.x[tv][ts]		= 5
-param.n.x[glg][ts]		= 5
+param.delay.x[glg][ts] = 0.5
+
+param.n.x[hsr][ts]		= 30
+param.n.x[lsr][ts]		= 30
+param.n.x[ds][ts]		= 20
+param.n.x[tv][ts]		= 20
+param.n.x[glg][ts]		= 20
 param.ts_jitter_sd = 0.5 //ms
 
+ANsoundspath="../sounds"        //system dependent 
 fileroot="TStellate"
 create_cells()
 objref nil
@@ -194,9 +190,9 @@ proc optimise_CT1(){
 	for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100+20*(ii))
 	
 	param.ts_erev=-62.9
-	param.n.x[hsr][ts]=25
-	param.n.x[lsr][ts]=25
-	param.n.x[ds][ts]=25
+	param.n.x[hsr][ts]=30
+	param.n.x[lsr][ts]=30
+	param.n.x[ds][ts]=20
 	param.n.x[tv][ts]=20
 	param.n.x[glg][ts]=20
 	set_pvec()	
@@ -232,8 +228,8 @@ proc optimise_CT2(){
 	
 	//set default fixed params
 	param.ts_erev=-62.9
-	param.n.x[hsr][ts]=25
-	param.n.x[lsr][ts]=25
+	param.n.x[hsr][ts]=30
+	param.n.x[lsr][ts]=30
 	param.n.x[ds][ts]=20
 	param.n.x[tv][ts]=20
 	param.n.x[glg][ts]=20	
@@ -258,4 +254,3 @@ proc optimise_CT2(){
 }
 
 TSexemplar_SPL_thresh=20
-ANsoundspath="../sounds"

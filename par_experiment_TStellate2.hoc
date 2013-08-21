@@ -197,7 +197,8 @@ SetupChopperCV()
 //  in this study was distinct from that of bushy cells (Paolini et al., 1997;
 //  Paolini & Clark, 1999).
 
-
+// Modifications to the AIV statistics -- Michael Eager
+// sampling periods increased from 1 msec to 5 msec
 
 //Membrane potential adaptation and hyperpolarisation
 // data from Figure 6 in Paolini et al. 2005
@@ -446,7 +447,7 @@ proc Test_IVCV_reference_data(){local ii
 
 proc CT1_data() {local points localobj temp
    
-   // chopper transient 1
+   // chopper transient 1 CF 8.2 KHz
    // unit 01-857-007 \citep{PaoliniClareyEtAl:2005}
    // CV first 10ms <0.2, then moves above 0.2
    // this unit's depolarisation threshold  55 dB
@@ -562,10 +563,10 @@ proc CT2_data() {local points localobj temp
    // unit 01-305-014 \citep{PaoliniClareyEtAl:2005}
    //CV (10ms segs) first 10m below 0.2, then rises above 0.3
    // rate saturation at 5 dB
-   //spl      = 35   //30 dB above depolarisation threshold
-   //tonefreq = 12400 //Hz
- spl = TSexemplar_SPL_thresh
- tonefreq = TSexemplar_CF
+   // spl      = 35   //30 dB above depolarisation threshold
+   // tonefreq = 12400 //Hz
+   spl = TSexemplar_SPL_thresh
+   tonefreq = TSexemplar_CF
    
    whichcell = FindInd(tonefreq)  //get CF index close to 12.4kHz
    file.ropen("TStellate/CT2-01-305-014.png.dat")
