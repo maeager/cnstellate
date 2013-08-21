@@ -1,0 +1,89 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+// init.hoc
+// Olfactory bulb network model: initialisation file
+// Andrew Davison, The Babraham Institute, 2000.
+
+//nrn_load_dll("/home/eagerm/soma/modfiles/nrnmech.dll")
+
+if (!name_declared("thresh")) {
+   thresh = 0 // just need to declare, see parameters*.hoc for real value
+}
+
+objref exptBox, ctrlBox
+strdef filename
+quitmodel = 0
+
+exptBox = new VBox()
+exptBox.intercept(1)
+  xpanel("Experiments")
+    xlabel("Choose an experiment:")
+ //   xradiobutton("AN Response Area Simulation", "run_experiment(\"an_responsearea\")")
+    xradiobutton("Click Delay response and optimisation", "run_experiment(\"ClickDelay\")")
+ //   xradiobutton("Rate Level Optimisation of Golgi cell", "run_experiment(\"golgi_ratelevel\")")
+//   xradiobutton("Optimisation of DS cells to increasing notch", "run_experiment(\"DS_notch\")")
+//   xradiobutton("Optimisation of DS cells to MTF", "run_experiment(\"DS_MTF\")")
+
+    xradiobutton("Response to vowel /eh/ as in bet ", "run_experiment(\"vowel_baseline\")")  //xpanel()
+  //xpanel("Controls",1)
+    xbutton("Quit","quit()")
+  xpanel()
+exptBox.intercept(0)
+exptBox.map("Cochlear Nucleus stellate network model",0,80,-1,-1)
+
+proc run_experiment() {
+   exptBox.unmap()
+   ctrlBox = new VBox()
+   ctrlBox.intercept(1)
+   xpanel("Progress")
+      xlabel("The network is being created. This may take some time.")
+      xpanel()
+      ctrlBox.intercept(0)
+      ctrlBox.map("Cochlear Nucleus stellate network model",0,80,-1,-1)
+      xopen("Params.hoc")
+      xopen("Utilities.hoc")
+      xopen("NetworkParameters.hoc")
+      xopen("AuditoryNerve.hoc")
+      //  print "Reading channel tables"
+      //  xopen("tabchannels.hoc")      // channel tables
+       print "Reading cell template"
+      xopen("CNcell.tem")      // CN cell template
+
+      print "Reading parameters"
+      sprint(filename,"parameters_%s.hoc",$s1)
+      xopen(filename)                       // model parameters
+
+       print "Creating network"
+      xopen("CochlearNucleus.hoc")         // model set-up
+   //  print "Reading input procedures"
+//      xopen("par_input.hoc")      // define procedures to set-up input
+    print "Setting-up experiment"
+      sprint(filename,"experiment_%s.hoc",$s1)
+      xopen(filename)                       // which parameters to record
+      ctrlBox.unmap()
+      ctrlBox = new VBox()
+      ctrlBox.intercept(1)
+      xpanel("Instructions")
+      xlabel("* To run the simulation, click on [Init & Run].")
+      xlabel("* When the simulation is complete, click on [Save Results].")
+      xlabel("* If you wish to run a different experiment, you will have")
+      xlabel("   to quit NEURON and restart.")
+      xpanel()
+      xpanel("Controls",1)
+      xbutton("Quit","quit()")
+      xlabel(" ")
+      xbutton("Save results","print_results()")
+   xpanel()
+   ctrlBox.intercept(0)
+   ctrlBox.map("Cochlear Nucleus stellate network model",0,80,-1,-1)
+
+
+  print "Initialisation complete"
+  print ""
+  print "To run the simulation, click on [Init & Run]."
+  print "When the simulation is complete, click on [Save Results]."
+  print "If you have gnuplot (http://www.gnuplot.info) installed"
+  print "on your computer, you can produce a figure by running"
+  print "gnuplot with the file ", $s1, ".gnu"
+
+}

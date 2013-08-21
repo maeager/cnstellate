@@ -1,0 +1,20 @@
+
+
+//Fixed params
+   param.ts_gleak = 0.000473539
+	param.ts_erev=-62.9
+	param.n.x[hsr][ts]=25
+	param.n.x[lsr][ts]=25
+	param.n.x[ds][ts]=20
+	param.n.x[tv][ts]=20
+	param.n.x[glg][ts]=20	
+
+
+ // 20130812+13:24:44
+  
+param.w.x[lsr][ts] = 0.00114944*1
+param.w.x[hsr][ts] = 0.00104469*1
+param.w.x[ds][ts] = 0.000434838*1
+param.w.x[tv][ts] = 6.71923e-05*1
+param.w.x[glg][ts] = 0.000321159*1
+

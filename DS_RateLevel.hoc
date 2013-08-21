@@ -1,0 +1,177 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+/*
+ *   DS_RateLevel.hoc
+ *   This file optimises the DS cell model using rate-level reponses to tones
+ *   and noise from experimental data.
+ *
+ *     Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
+ *
+ *    This file is part of cnstellate.
+ * 
+ *    This is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation, either version 3 of the License, or
+ *    (at your option) any later version.
+ *
+ *    This is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+ */
+
+
+
+load_file("nrngui.hoc")
+//load_file("par_netpar.hoc")
+//load_file("par_init.hoc")
+xopen("Params.hoc")           // default parameters of cnstellate
+xopen("Utilities.hoc")        // tools and methods
+xopen("NetworkParameters.hoc")// template for network params
+xopen("AuditoryNerve.hoc")    // template for AN model filterbank and ANFs
+xopen("par_CNcell.tem")       // CN cell templates
+xopen("parameters_DS_RateLevel.hoc") //This model's parameters
+xopen("CochlearNucleus.hoc")         // model set-up
+xopen("jitter.hoc")
+
+xopen("spike_stats.hoc")
+xopen("cngui.hoc")
+
+//Previous optimisation parameters
+xopen("pvec_Golgi_RateLevel.hoc")
+//xopen("pvec_DS_ClickRecovery.hoc")
+
+
+//--- Setup Auditory and CN Stellate model
+create_cells()
+connect_cells(fileroot)
+connect_CNcells(fileroot)
+
+ANsoundspath="../sounds"	// Unique path - change if required
+
+
+//Setup this experiment
+xopen("par_experiment_DS_RateLevel.hoc")
+
+
+//--- Modify settings 
+//create_cells()
+//objref dstellate[nchannels][1]
+//dstellate[ArnottFig3_CFpos][0] = new CNcell(2,cf.x[ArnottFig3_CFpos],ArnottFig3_CFpos)
+//dstellate[ArnottFig12_CFpos][0] = new CNcell(2,cf.x[ArnottFig12_CFpos],ArnottFig12_CFpos)
+
+//connect_cells_DS(fileroot)
+RefreshCellParams()
+whichcell  = ArnottFig3_CFpos
+RefreshCF()
+DS_BFtone()
+//SetInputRates()
+//GenInputSpikes()
+
+//  ANFilterBankRun()
+//  CheckFilterbank()
+//  SetInputRates()
+
+
+/* 
+DS_BFtone()
+level=new Vector(20)
+level.indgen().mul(20).add(20) //20:20:100
+Ratelevel()
+DS_Noise()
+level=new Vector(20)
+level.indgen().mul(10).add(50) //50:10:100
+Ratelevel()
+*/
+
+
+whichcell=ArnottFig12_CFpos
+error_fn = "DS_RateLevel_err"
+param.ds_gnabar  = (0.408307/2) * 1.5 //0.30623025
+param.ds_gkltbar = 0.0163897
+
+param.ds_gkhtbar = 0.030623 
+param.ds_gleak   = 0.000274146 
+param.ds_erev    = -70 
+param.w.x[glg][ds]=0.00001
+reps=5
+
+//xopen("DS_RateLevel/pvec_DS_RateLevel.hoc")	
+//QuickRun()	
+//	run_multipleprax()
+//	runprax()
+//	reps=50
+//	printprax2()
+
+
+NPARAMS=2
+init_params(NPARAMS)
+append_weight_lsrds()
+append_num_lsrds_connections()
+param.w.x[glg][ds]=0.0000
+param.w.x[hsr][ds]=0.0000
+reps=10
+//runprax()
+print "g,hsr->ds = 0"
+
+/*
+NPARAMS=2
+init_params(NPARAMS)
+append_weight_hsrds()
+append_num_hsrds_connections()
+runprax()
+
+NPARAMS=2
+init_params(NPARAMS)
+append_weight_glgds()
+append_num_glgds_connections()
+param.w.x[glg][ds]=0.00001
+set_pvec()
+runprax()
+*/
+
+reps=25
+NPARAMS=3
+init_params(NPARAMS)
+append_weight_lsrds()
+append_weight_glgds()
+append_weight_hsrds()
+
+
+//Simulation 1: LSR->DS
+param.w.x[lsr][ds]= 0.01103
+param.n.x[lsr][ds]= 84
+//Simulation 2: GLG->DS
+param.w.x[glg][ds] = 0.000531549
+param.n.x[glg][ds] = 5
+//Simulation 3: HSR-> DS
+param.n.x[hsr][ds] = 125
+param.w.x[hsr][ds] = 0.000167221
+param.bw.x[hsr][ds]=40
+param.bw.x[lsr][ds]=40
+
+
+// 6 Aug opt run
+param.w.x[lsr][ds] = 0.00853 
+param.w.x[glg][ds] = 0.00066895      
+param.w.x[hsr][ds] = 0.000397827
+
+set_pvec()
+
+proc run_prax(){
+	set_pvec()
+	reps=5
+	runprax2()
+	// printprax2()
+	// reps=10
+	// runprax()
+	// printprax2()
+	// //reps=5
+	// runprax2()
+	reps=50
+	printprax2()
+}
+//run_multipleprax()

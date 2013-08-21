@@ -1,0 +1,75 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+/*
+ *   zilany_brucev2_test.hoc
+ * 
+ *   
+ *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
+ *
+ *    This file is part of cnstellate.
+ * 
+ *    This is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation, either version 3 of the License, or
+ *    (at your option) any later version.
+ *
+ *    This is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+ */
+
+
+load_file("nrngui.hoc")
+
+xopen("Params.hoc")
+xopen("Utilities.hoc")
+xopen("NetworkParameters.hoc")
+xopen("AuditoryNerve.hoc")
+xopen("parameters_vowel_baseline.hoc")           // model parameters
+
+//Setup Auditory model
+cfhi = 64000
+cflo = 200
+
+dur  = 0.08  //duration of stim (seconds)
+srate     = 500000.0   //
+stimtdres = 1/srate
+sg_rate   = 50000
+sg_tdres  = 1/sg_rate
+stimdelay = 0.01      //sec
+stimtype  = 2      //Silence
+reps      = 25
+ANmodel   = 6      //Zilany Bruce model
+species   = 2      //Rat
+nrep      = 1        //nrep is number of reps of stimulus
+
+stimtype  = 0  //read stim from file
+path      = "../PVSyllables/"
+wavdatafile  = "../PVSyllables/be.dat"
+
+usesavedfilterbanks = 1
+sg_rate   = 10000
+sg_tdres  = 1/sg_rate
+
+
+proc LoadVowel(){
+	RefreshParameters()   //Generate or get stim from file
+	stim.resample(stim,3)
+	srate       = 44100*3
+	stimtdres    = 1/srate
+	spl=$1
+	RescaleStim(spl,stim.size/5,stim.size*4/5)      //Scale the vowel
+	ANFilterBankRun()   //Build the filterbank
+	//an.SetRates()      //Allocate filterbanks to ANFs
+	//DummyGraphs()
+}
+
+
+LoadVowel(45)
+LoadVowel(55)
+LoadVowel(65)
+LoadVowel(75)
+LoadVowel(85)

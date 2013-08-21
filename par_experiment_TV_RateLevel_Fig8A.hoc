@@ -1,0 +1,778 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+/*  par_experiment_TV_RateLevel
+*   
+*    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
+*
+*    This file is part of cnstellate.
+* 
+*    This is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU General Public License as published by
+*    the Free Software Foundation, either version 3 of the License, or
+*    (at your option) any later version.
+*
+*    This is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU General Public License for more details.
+*
+*    You should have received a copy of the GNU General Public License
+*    along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+*/
+
+
+objref file
+file = new File()
+
+//Spirou et al 1999
+//Figure 8: Effects of strychnine and bicuculline iontophoresis on rate-level
+// curves. Legend in B identifies the conditions for each rate-level plot. A: type
+// II unit studied before and during strychnine and bicuculline. Leftmost 3
+// rate-level curves: BF tones, rightmost 3: for noise. Note the control noise
+// response is essentially 0. B: type I/III unit studied before and during
+// strychnine. Sponta- neous activity did not develop in either unit during
+// iontophoresis. C: plot of relative noise response before (abscissa) versus
+// during (ordinate) application of inhibitory antagonist. Antagonist is identified
+// by the symbols, defined in the legend. Diagonal line shows equality of relative
+// noise responses and the vertical dashed line separates type II from type I/III
+// units at a relative noise response of 0.35.
+
+// objref SpirouFig8B_wStr_Tone, SpirouFig8B_Control_Tone, SpirouFig8B_Control_Noise,SpirouFig8B_wStr_Tone, SpirouFig8B_wStr_Noise
+// SpirouFig8B_Control_Tone = new Matrix()
+// SpirouFig8B_Control_Noise = new Matrix()
+// SpirouFig8B_wStr_Tone = new Matrix()
+// SpirouFig8B_wStr_Noise  = new Matrix()
+
+// file.ropen("TV_RateLevel/Spirou-Fig8B-RL-withStry-Control-Tone-Noise.png.dat")
+// SpirouFig8B_wStr_Tone.scanf(file,32,2)
+// SpirouFig8B_Control_Tone.scanf(file,22,2)
+// SpirouFig8B_wStr_Noise.scanf(file,24,2)
+// SpirouFig8B_Control_Noise.scanf(file,18,2) 
+// file.close()
+
+objref SpirouFig8A_wStr_Tone, SpirouFig8A_Control_Tone, SpirouFig8A_Control_Noise,SpirouFig8A_wStr_Tone, SpirouFig8A_wStr_Noise, SpirouFig8A_wBic_Tone, SpirouFig8A_wBic_Noise
+SpirouFig8A_Control_Tone = new Matrix()
+SpirouFig8A_Control_Noise = new Matrix()
+SpirouFig8A_wStr_Tone = new Matrix()
+SpirouFig8A_wStr_Noise  = new Matrix()
+SpirouFig8A_wBic_Tone = new Matrix()
+SpirouFig8A_wBic_Noise  = new Matrix()
+
+
+   //$ wc -l TV_RateLevel/Spirou-Fig8A*.dat
+   // 30 TV_RateLevel/Spirou-Fig8A-RL-Control-BFTone.png.dat
+   // 19 TV_RateLevel/Spirou-Fig8A-RL-Control-Noise.png.dat
+   // 48 TV_RateLevel/Spirou-Fig8A-RL-withBic-BFTone.png.dat
+   // 20 TV_RateLevel/Spirou-Fig8A-RL-withBic-Noise.png.dat
+   // 39 TV_RateLevel/Spirou-Fig8A-RL-withStrych-BFTone.png.dat
+   // 18 TV_RateLevel/Spirou-Fig8A-RL-withStrych-Noise.png.dat
+
+
+file.ropen("TV_RateLevel/Spirou-Fig8A-RL-withStrych-BFTone.png.dat")
+if (file.isopen()) SpirouFig8A_wStr_Tone.scanf(file,39,2)
+file.close()
+file.ropen("TV_RateLevel/Spirou-Fig8A-RL-Control-BFTone.png.dat")
+if (file.isopen()) SpirouFig8A_Control_Tone.scanf(file,30,2)
+file.close()
+file.ropen("TV_RateLevel/Spirou-Fig8A-RL-withStrych-Noise.png.dat")
+if (file.isopen()) SpirouFig8A_wStr_Noise.scanf(file,18,2)
+file.close()
+file.ropen("TV_RateLevel/Spirou-Fig8A-RL-Control-Noise.png.dat")
+if (file.isopen()) SpirouFig8A_Control_Noise.scanf(file,19,2) 
+file.close()
+file.ropen("TV_RateLevel/Spirou-Fig8A-RL-withBic-BFTone.png.dat")
+if (file.isopen()) SpirouFig8A_wBic_Tone.scanf(file,48,2)
+file.close()
+file.ropen("TV_RateLevel/Spirou-Fig8A-RL-withBic-Noise.png.dat")
+if (file.isopen()) SpirouFig8A_wBic_Noise.scanf(file,20,2)
+file.close()
+
+
+//
+// Fitness/error function
+//
+objref fitgr
+proc plot_fitgr(){
+    objref fitgr
+    fitgr = new Graph()
+    //    expected_notch[1].plot(fitgr,freq1_notch,4,1)
+    //    CNrate[tv].plot(fitgr,cf,3,1)
+    //    type2_1oct_sweep[1].plot(fitgr,freq_1oct,5,1)
+    //    fitgr.exec_menu("View = plot")
+}
+plot_fitgr()
+
+
+// Target RL data
+objref fitgr,tmp_rate_level, level, tvrate[nchannels], tvrate[nchannels], \
+dsrate[nchannels],grate[nchannels], hsrrate[nchannels],lsrrate[nchannels]
+
+
+//Note the level vector must be set prior to calling this function 
+obfunc set_target_rate_level(){localobj xdata,ydata,ldata
+    if (level.size == 0) {
+	print "Error setting data"
+	return tmp_rate_level
+    }
+    if ( object_id($o1) && $o1.nrow >= 2 && $o1.ncol >= 2){
+	xdata = $o1.getcol(0).add(100)  //0dBA in data ~ 100dB SPL
+	ydata = $o1.getcol(1)
+	ldata = level.c.sub(100)
+	tmp_rate_level = new Vector()
+	tmp_rate_level.interpolate(level,xdata,ydata)
+    } else {
+	print "Error interpolating data"
+    }
+    return tmp_rate_level
+    
+}
+
+proc Rerun_ANmodel(){
+    stimtype=6
+    for (spl=50;spl<=100;spl+=5){
+	RefreshParameters() 
+	RefreshParameters()
+	ANFilterBankRun()
+	SaveANFilterBank2File()
+	for i=0,nchannels-1 golgi[i][0].SetRate2()
+	SaveGolgiFilterBank2File()
+}
+}
+
+proc Rerun_ANmodel_tone(){
+	TV_BFtone()
+		create_cells()
+	for i=0,99 {
+		dsrate[i] = new Vector()
+		lsrrate[i] = new Vector()
+		hsrrate[i] = new Vector()
+		grate[i] = new Vector()
+	}	
+	for (spl=20;spl<=100;spl+=10){
+    RefreshParameters()
+    ANFilterBankRun()
+    //SaveANFilterBank2File()
+    //for i=0,nchannels-1 golgi[i][0].SetRate2()
+    //SaveGolgiFilterBank2File()
+    SetInputRates()	
+
+    ClearSpikes()
+    for irep=0,reps-1{
+		GenInputSpikes()
+        SaveSpikes()
+    }	
+	ANSpikes()
+	for j=0,nchannels-1 {
+			meanrate(golgi[j][0].spikes)
+			grate[j].append(golgi[j][0].spikes.size / (reps * 0.05))
+			for i=1,HSRsperchannel-1 an.HSRspikes[j][0].append(an.HSRspikes[j][i])
+			for i=1,LSRsperchannel-1 an.LSRspikes[j][0].append(an.LSRspikes[j][i])
+			meanrate(an.HSRspikes[j][0])
+			meanrate(an.LSRspikes[j][0])
+			hsrrate[j].append(an.HSRspikes[j][0].size / (HSRsperchannel * reps * 0.05))
+			lsrrate[j].append(an.LSRspikes[j][0].size / (LSRsperchannel * reps * 0.05))
+		}
+	} 
+    fitgr.erase_all()
+    hsrrate[whichcell].plot(fitgr,20,1,1)
+    lsrrate[whichcell].plot(fitgr,20,2,1)
+    grate[whichcell].plot(fitgr,20,3,1)
+}
+
+proc Rerun_ANmodel_noise(){
+
+	TV_Noise()
+	create_cells()
+	for i=0,99 {
+		dsrate[i] = new Vector()
+		lsrrate[i] = new Vector()
+		hsrrate[i] = new Vector()
+		grate[i] = new Vector()
+	}	
+	for (spl=40;spl<=100;spl+=5){
+    RefreshParameters()
+    ANFilterBankRun()
+    //SaveANFilterBank2File()
+    //for i=0,nchannels-1 golgi[i][0].SetRate2()
+    //SaveGolgiFilterBank2File()
+    SetInputRates()	
+    ClearSpikes()
+    for irep=0,reps-1{
+		GenInputSpikes()
+        SaveSpikes()
+    }	
+	ANSpikes()
+	for j=0,nchannels-1 {
+			meanrate(golgi[j][0].spikes)
+			grate[j].append(golgi[j][0].spikes.size / (reps * 0.05))
+			for i=1,HSRsperchannel-1 an.HSRspikes[j][0].append(an.HSRspikes[j][i])
+			for i=1,LSRsperchannel-1 an.LSRspikes[j][0].append(an.LSRspikes[j][i])
+			meanrate(an.HSRspikes[j][0])
+			meanrate(an.LSRspikes[j][0])
+			hsrrate[j].append(an.HSRspikes[j][0].size / (HSRsperchannel * reps * 0.05))
+			lsrrate[j].append(an.LSRspikes[j][0].size / (LSRsperchannel * reps * 0.05))
+		}
+	} 
+    fitgr.erase_all()
+    hsrrate[whichcell].plot(fitgr,10,1,1)
+    lsrrate[whichcell].plot(fitgr,10,2,1)
+    grate[whichcell].plot(fitgr,10,3,1)
+}
+
+//Require 3 TV units with CF = f(position 50)
+nTVcells=3
+objref tuberculoventral[1][nTVcells]
+
+
+
+//mimick connect_CNcells from CochlearNucleus.hoc
+proc create_connect_TV() {local i,ii,p,target,source,low,high,range,channel,sourcechannel
+    
+    //Require 2 TV units with CF = f(position 50)
+    objref tuberculoventral[1][nTVcells]
+	for ii=0,nTVcells-1{
+    sprint(cmd, "tuberculoventral[%d][%d] = new CNcell(1,cf.x[%d],%d)",0,ii,50,50)
+    execute1(cmd)
+     }
+    
+    
+    print "Connecting cells."
+    sprint(filename,"%s.connect",$s1)
+    outfile.wopen(filename)
+    
+    hsr2tvAMPAlist.remove_all()
+    lsr2tvAMPAlist.remove_all()
+    glg2tvGABAlist.remove_all()
+    ds2tvGLYlist.remove_all()
+    ts2tvAMPAlist.remove_all()
+    
+    
+    if( param.n.getval(hsr,tv) > 0  ){
+	outfile.printf("\n%d %d\n",hsr,tv)
+	channel = 0
+	for target = 0, nTVcells-1 {
+	    for i=0, param.n.getval(hsr,tv)-1{
+		//Choose source channel
+		sourcechannel = random.normal(tuberculoventral[channel][target].channel,param.bw.getval(hsr,tv)/2)
+		if ((sourcechannel - int(sourcechannel)) > 0.5 ){
+		    sourcechannel = 1+int(sourcechannel)
+		} \
+		else { sourcechannel = int(sourcechannel) }
+		if (sourcechannel <=0 ) sourcechannel=0
+		if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
+		//Choose random source from available cells
+		source = random.discunif(0,HSRsperchannel-1)
+		//print "HSR[",sourcechannel,"][",source,"] connected to TV[",channel,"][",target,"]"
+		sprint(cmd, " tuberculoventral[%d][%d].soma hsr2tvAMPAlist.append( new NetCon( an.HSR[%d][%d],tuberculoventral[%d][%d].AMPA,thresh,param.delay.getval(hsr,tv), param.w.getval(hsr,tv)))",0,target,sourcechannel,source,0,target)
+		execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
+		outfile.printf("%d %d %d %d\n",sourcechannel,source,50,target)
+		
+	    }
+	}
+	printf("HSR->TV=== done ===\n")
+    }
+    
+    if( param.n.getval(lsr,tv) > 0  ){
+	outfile.printf("\n%d %d\n",lsr,tv)
+	channel = 0
+	for target = 0, nTVcells-1 {
+	    for i=0, param.n.getval(lsr,tv)-1{
+		//Choose source channel
+		sourcechannel = random.normal(tuberculoventral[channel][target].channel,param.bw.getval(lsr,tv)/2)
+		if ((sourcechannel - int(sourcechannel)) > 0.5 ){
+		    sourcechannel = 1+int(sourcechannel)
+		} \
+		else    { sourcechannel = int(sourcechannel) }
+		if (sourcechannel <=0 ) sourcechannel=0
+		if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
+		//Choose random source from available cells
+		source = random.discunif(0,LSRsperchannel-1)
+		sprint(cmd, "tuberculoventral[%d][%d].soma lsr2tvAMPAlist.append( new NetCon( an.LSR[%d][%d],   tuberculoventral[%d][%d].AMPA,thresh,param.delay.getval(lsr,tv), param.w.getval(lsr,tv)))",0,target,sourcechannel,source,0,target)
+		execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
+		outfile.printf("%d %d %d %d\n",sourcechannel,source,50,target)
+		
+	    }
+	}
+	printf("LSR->TV=== done ===\n")
+    }
+    
+    print "Connecting CN network cells"
+    
+    if( ( param.n.getval(ds,tv) > 0 ) && ( nDSperchannel != 0 ) ){
+	outfile.printf("\n%d %d\n",ds,tv)
+	channel = 0
+	//EXCLUDE TV(2) from receiving DS cells
+	for target = 0,1 {
+	    for i=0, param.n.getval(ds,tv)-1{
+		//Choose source channel
+		sourcechannel = random.normal(tuberculoventral[channel][target].channel,param.bw.getval(ds,tv)/2)
+		if ((sourcechannel - int(sourcechannel)) > 0.5 ){
+		    sourcechannel = 1+int(sourcechannel)
+		} \
+		else { sourcechannel = int(sourcechannel) }
+		if (sourcechannel <=0 ) sourcechannel=0
+		if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
+		//Choose random source from available cells
+		source = random.discunif(0,nDSperchannel-1)
+		// print "DS[",sourcechannel,"][",source,"] connected to "TV[",channel,"][",target,"]"
+		sprint(cmd, "dstellate[%d][%d].soma ds2tvGLYlist.append( new NetCon(&v(0.5), tuberculoventral[%d][%d].GlyR, thresh,param.delay.getval(ds,tv), param.w.getval(ds,tv)))",sourcechannel,source,0,target)
+		execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
+		outfile.printf("%d %d %d %d\n",sourcechannel,source,0,target)
+	    }
+	}
+	printf("DS->TV=== done ===\n")
+    }
+    
+    if( ( param.n.getval(glg,tv) > 0 ) &&  ( nGperchannel != 0 ) ){
+	outfile.printf("\n%d %d\n",glg,tv)
+	channel = 0
+	//EXCLUDE TV(1) frome receiving GLG inputs
+	for(target = 0; target <=2; target+=2)	{
+	    for i=0, param.n.getval(glg,tv)-1{
+		//Choose source channel
+		sourcechannel = random.normal(tuberculoventral[0][target].channel,param.bw.getval(glg,tv)/2)
+		if ((sourcechannel - int(sourcechannel)) > 0.5 ){
+		    sourcechannel = 1+int(sourcechannel)
+		} \
+		else { sourcechannel = int(sourcechannel) }
+		if (sourcechannel <=0 ) sourcechannel=0
+		if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
+		
+		//Choose random source from available cells
+		source = random.discunif(0,nGperchannel-1)
+		// print "GLG[",sourcechannel,"][",source,"] connected to "TV[",channel,"][",target,"]"
+		if (LSR2GLG ==1 ) { //Conductance model of golgi
+		    sprint(cmd, "golgi[%d][%d].soma glg2tvGABAlist.append( new NetCon(&v(0.5),tuberculoventral[%d][%d].GABAA, thresh,param.delay.getval(glg,tv), param.w.getval(glg,tv)))",sourcechannel,source,channel,target)
+		    execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
+		} \
+		else { //filter based model of golgi
+		    sprint(cmd, "glg2tvGABAlist.append( new NetCon( golgi[%d][%d].sg, tuberculoventral[%d][%d].GABAA, thresh,param.delay.getval(glg,tv), param.w.getval(glg,tv)))",sourcechannel,source,0,target)
+		    execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
+		}
+		outfile.printf("%d %d %d %d\n",sourcechannel,source,0,target)
+	    }
+	}
+	printf("GLG->TV=== done ===\n")
+    }
+    outfile.close()
+	
+    for ii=0,2 {
+     tuberculoventral[0][ii].soma.erev_rm = param.tv_erev
+     tuberculoventral[0][ii].soma.gleak_rm = param.tv_gleak
+    }
+}
+
+
+
+
+
+objref templevel,indlevel,errorvec,refvec
+
+reps=20
+strdef origfileroot
+origfileroot = fileroot
+
+error=0
+strdef datestr,grlbl
+objref ivec //,pval[NPARAMS]
+ivec= new Vector()
+ivec.append(3,9,7,5,1,2,8,6,4,0,10,11,12,13)
+
+
+// override SaveSpikes in CochlearNucleus - TV cells independent
+proc SaveSpikes(){local i,j
+    an.SaveSpikes()   
+    print "Saved AN spikes"
+    for i=0,nchannels-1{
+        for j=0,nDSperchannel-1{
+            sprint(cmd, "dstellate[%d][%d].SaveSpikes()",i,j)
+            execute1(cmd)
+        }
+        for j=0,nGperchannel-1{
+            sprint(cmd, "golgi[%d][%d].SaveSpikes()",i,j)
+            execute1(cmd)
+        }
+    }
+    for j=0,nTVcells-1{
+        sprint(cmd, "tuberculoventral[0][%d].SaveSpikes()",j)
+	    execute1(cmd)
+    }
+    
+    print "Saved CN spikes"
+    
+}
+
+
+
+proc RedefineTVmodel(){local i_chan,j_cell,ii
+    //define the cell objects
+    
+    objref tuberculoventral[nchannels][2]
+    objref hsr2tvAMPAlist, lsr2tvAMPAlist, ds2tvGLYlist
+    
+    hsr2tvAMPAlist = new List()
+    lsr2tvAMPAlist = new List()
+    hsr2dsAMPAlist = new List()
+    lsr2dsAMPAlist = new List()
+    glg2dsGABAlist = new List()
+    ds2tvGLYlist = new List()
+    create_connect_TV(origfileroot)
+    for ii=0,1 tuberculoventral[0][ii].soma.erev_rm = param.tv_erev
+}
+
+
+level_offset=25
+objref tvpstlist, grate[nchannels],dsrate[nchannels],tvrate[nchannels],hsrrate[nchannels],lsrrate[nchannels],rate_level_graph, tvstdev[nchannels],level,fvec
+proc Ratelevel(){local ispl,ii,jj,count,sum,runtime,cell,xtime localobj tmp   
+    objref tvpstlist,grate[nchannels],dsrate[nchannels],tvrate[nchannels],hsrrate[nchannels],lsrrate[nchannels],tvstdev[nchannels],fvec
+    count = 0
+    tvpstlist = new List()
+    for ii=0,nchannels-1 {
+		tvrate[ii] = new Vector()
+		dsrate[ii] = new Vector()
+		lsrrate[ii] = new Vector()
+		hsrrate[ii] = new Vector()
+		tvstdev[ii] = new Vector()
+		grate[ii] = new Vector()
+    }
+    fvec = new Vector()
+    //RefreshParameters()
+    //ANFilterBankRun()
+    for ispl=0,level.size-1 {
+	spl = level.x[ispl] - level_offset
+	runtime = startsw()
+	ClearSpikes()
+        for jj=0,nTVcells-1 tuberculoventral[0][jj].spikes = new Vector()
+	RefreshParameters()
+	ANFilterBankRun()
+	SetInputRates()
+	multi_run()
+	
+	for jj=0,nTVcells-1 {
+	    //   sum=0
+	    tvrate[jj].append(meanrate(tuberculoventral[0][jj].spikes))
+	    tvstdev[jj].append(isistdev)
+	}
+	
+	ANSpikes()
+	for jj=0,nchannels-1 {
+	    grate[jj].append(meanrate(golgi[jj][0].spikes))
+	    dsrate[jj].append(meanrate(dstellate[jj][0].spikes))
+	    for ii=1,HSRsperchannel-1 an.HSRspikes[jj][0].append(an.HSRspikes[jj][ii])
+	    for ii=1,LSRsperchannel-1 an.LSRspikes[jj][0].append(an.LSRspikes[jj][ii])
+	    hsrrate[jj].append(meanrate(an.HSRspikes[jj][0]))
+	    lsrrate[jj].append(meanrate(an.LSRspikes[jj][0]))
+	}
+	
+	
+	count+=1
+	runtime = startsw()-runtime
+	print "Simulation took ",runtime, " secs "
+    }
+    
+    rate_level_graph = new Graph()
+    //   fvec.plot(rate_level_graph,2,2)
+    for jj=0,nTVcells -1{
+       tvrate[jj].plot(rate_level_graph,level ,jj,1)
+    }
+    grate[50].plot(rate_level_graph,level,5,1)   
+    dsrate[50].plot(rate_level_graph,level,3,1)   
+    hsrrate[50].plot(rate_level_graph,level,4,1)
+    lsrrate[50].plot(rate_level_graph,level,5,1)
+    rate_level_graph.exec_menu("View = plot")
+    
+}//Ratelevel
+
+proc save_rate_level(){local ispl,jj
+    sprint(fname,"%s/rate_level.dat",fileroot)
+    file.aopen(fname)
+    for ispl=0,level.size-1{
+		file.printf("%d\t",level.x[ispl])
+		for jj=0,nTVcells-1{
+			file.printf("%g\t",tvrate[jj].x[ispl])
+		}
+		file.printf("%g\t%g\t%g\t%g\n",\
+		dsrate[50].x[ispl],grate[50].x[ispl], \
+		hsrrate[50].x[ispl],lsrrate[50].x[ispl])	
+	}
+    file.close()
+}   
+
+
+
+// Target RL data
+objref target_rate_level[6],fitgr, toneRL[9], noiseRL[9]
+fitgr = new Graph()
+
+
+unw_tone_error=0
+unw_noise_error=0
+unw_tone_nods_error=0
+unw_noise_nods_error=0
+unw_tone_noglg_error=0
+unw_noise_noglg_error=0
+
+
+func TV_RateLevel_err(){local jj,pp,xtime
+    xtime=startsw()
+    //check for bad values
+    for pp=0,NPARAMS-1 {
+	if (($&2[pp] <= pvec_ranges.x[pp][0]) || ($&2[pp] > pvec_ranges.x[pp][1])) {
+	    return 1e9
+	}
+    }
+    //print variables
+    print "TV_RateLevel_err ", $1 
+    for pp=0,NPARAMS-1 { printf("%s = %g * %g",pvec_name.object(pp).s,$&2[pp],pvec_factor.x[pp]) }
+    //Set the parameters (see parameters_TV_Notch.hoc)
+    for pp=0,NPARAMS-1 {
+	sprint(cmd,"%s = %g * %g ",pvec_name.object(pp).s,$&2[pp],pvec_factor.x[pp])
+	execute1(cmd)
+    }
+    //Rearrange synapses is using weight parameters
+    create_connect_TV(fileroot)
+    RefreshCellParams()
+    //reset_weights()
+    //for i = 0, ds2tvGLYlist.count-1 if(ds2tvGLYlist.object(i).postcell() == tuberculoventral[0][1]) print ds2tvGLYlist.object(i).weight=0
+    //for i = 0, glg2tvGABAlist.count-1 if(glg2tvGABAlist.object(i).postcell() == tuberculoventral[0][1]) print glg2tvGABAlist.object(i).weight=0
+	
+    TV_BFtone()
+    level=new Vector(16)
+    level.indgen().mul(5).add(20) //20:3:60  0:5:100
+    Ratelevel()
+    target_rate_level[0] = set_target_rate_level(SpirouFig8A_Control_Tone)
+    unw_tone_error = sqrt(tvrate[0].meansqerr(target_rate_level[0]))
+     target_rate_level[1] = set_target_rate_level(SpirouFig8A_wStr_Tone)
+    unw_tone_nods_error = sqrt(tvrate[1].meansqerr(target_rate_level[1]))
+     target_rate_level[4] = set_target_rate_level(SpirouFig8A_wBic_Tone)
+    unw_tone_noglg_error = sqrt(tvrate[2].meansqerr(target_rate_level[4]))
+    toneRL[0] = tvrate[0].c
+    toneRL[1] = tvrate[1].c
+    toneRL[2] = level.c
+    toneRL[3] =  dsrate[50].c
+    toneRL[4] =  grate[50].c
+    toneRL[5] =  hsrrate[50].c
+    toneRL[6] =  lsrrate[50].c
+	toneRL[7] = tvrate[2].c
+    
+    save_rate_level()   
+    
+    TV_Noise()
+    level=new Vector(13)
+    level.indgen().mul(5).add(40)
+    Ratelevel()
+    target_rate_level[2] =set_target_rate_level(SpirouFig8A_Control_Noise)
+    unw_noise_error = sqrt(tvrate[0].meansqerr(target_rate_level[2]))
+    target_rate_level[3] =set_target_rate_level(SpirouFig8A_wStr_Noise)
+    unw_noise_nods_error = sqrt(tvrate[1].meansqerr(target_rate_level[3]))
+    target_rate_level[5] =set_target_rate_level(SpirouFig8A_wBic_Noise)
+    unw_noise_noglg_error = sqrt(tvrate[2].meansqerr(target_rate_level[5]))
+	
+    noiseRL[0] = tvrate[0].c
+    noiseRL[1] = tvrate[1].c
+    noiseRL[2] = level.c
+    noiseRL[3] =  dsrate[50].c
+    noiseRL[4] =  grate[50].c
+    noiseRL[5] =  hsrrate[50].c
+    noiseRL[6] =  lsrrate[50].c
+	noiseRL[7] = tvrate[2].c
+    
+    save_rate_level()   
+    //Plot the results
+    if(object_id(fitgr)==0) fitgr = new Graph()
+    fitgr.erase_all()
+    toneRL[0].plot(fitgr,toneRL[2],1,2)
+    toneRL[1].plot(fitgr,toneRL[2],2,2)
+    tvrate[0].plot(fitgr,level,1,2)
+    tvrate[1].plot(fitgr,level,2,2)
+    target_rate_level[0].plot(fitgr,toneRL[2],1,1)
+    target_rate_level[1].plot(fitgr,toneRL[2],2,1)
+    target_rate_level[2].plot(fitgr,level,1,1)
+    target_rate_level[3].plot(fitgr,level,2,1)
+    
+    sprint(grlbl,"Unw_Tone_Error = %g", unw_tone_error)
+    fitgr.label(0.05,0.85,grlbl)
+    sprint(grlbl,"Unw_Tone_Nods_Error = %g", unw_tone_nods_error)
+    fitgr.label(0.05,0.75,grlbl)
+    sprint(grlbl,"Unw_Noise_Error = %g", unw_noise_error)
+    fitgr.label(0.05,0.65,grlbl)
+    sprint(grlbl,"Unw_Noise_Nods_Error = %g", unw_noise_nods_error)
+    fitgr.label(0.05,0.55,grlbl)
+    
+    for jj=0,NPARAMS-1{
+	sprint(grlbl,"%s = %g", pvec_name.object(jj).s,pvec.x[jj])
+	fitgr.label(0.65,0.45-0.05*jj,grlbl)
+    }
+    fitgr.exec_menu("View = plot")   
+    doNotify()
+    
+    sprint(fname,"%s/error_out.dat",fileroot)
+    file.aopen(fname)
+    for pp=0,NPARAMS-1 {
+	file.printf("%g\t",$&2[pp]*pvec_factor.x[pp])
+    }
+    file.printf("%g\n",unw_tone_error+unw_tone_nods_error+unw_noise_error+unw_noise_nods_error+unw_tone_noglg_error+unw_noise_noglg_error)
+    file.close()
+    
+    print "TV_RateLevel_err complete. Error ", unw_tone_error+unw_tone_nods_error+unw_noise_error+unw_noise_nods_error  + unw_tone_noglg_error + unw_noise_noglg_error, " time (sec)", startsw() - xtime
+    
+    return unw_tone_error + unw_tone_nods_error + \
+    unw_noise_error + unw_noise_nods_error + unw_tone_noglg_error + unw_noise_noglg_error
+}
+
+
+
+proc QuickRun(){
+    set_pvec()
+    pvec.printf
+    print TV_RateLevel_err(0,&pvec.x[0])
+}
+
+
+
+proc runprax2(){
+    sprint(cmd,"mkdir -p %s",fileroot)
+    system(cmd)
+    sprint(cmd,"echo '\n##\n' >> %s/error_out.dat",fileroot)
+    system(cmd)
+    attr_praxis(0.001, 0.001, 3)
+    fit_praxis(NPARAMS,"TV_RateLevel_err",&pvec.x[0])
+}
+
+
+proc printprax2(){local pp,ii,pp2,error
+    //Output model data with best parameters
+    
+    sprint(cmd,"mkdir -p %s",fileroot)
+    system(cmd)
+    
+    print error=TV_RateLevel_err(0,&pvec.x[0])
+    
+    set_datestr()
+    sprint(fname,"%s/%s.Fit.dat",fileroot,origfileroot)
+    file.wopen(fname)
+    if (file.isopen()){
+   file.printf("# %s Optimisation\n",fileroot)
+   file.printf("# %s \n",datestr)
+   for pp=0,NPARAMS-1 {
+       file.printf("#%s = %g\t[%g,%g]\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp],pvec_ranges.x[pp][0],pvec_ranges.x[pp][1])
+   }
+   file.printf("# RL Error = %g\n", unw_tone_error)
+   file.printf("# RL without DS Error   = %g\n", unw_tone_nods_error)
+   file.printf("# NRL Error = %g\n", unw_noise_error)
+   file.printf("# NRL without DS Error = %g\n", unw_noise_nods_error)
+   file.printf("# Final error = %g\n",error)
+   
+   /*
+   file.printf("# Principle axis matrix\n")
+   for pp=0,NPARAMS-1 {
+       pval[pp] = new Vector(NPARAMS)
+       pval_praxis(pp,&pval[pp].x[0])
+       
+       file.printf("#\t")
+       if (pval[pp].size == NPARAMS){
+      for pp2=0,NPARAMS-1 file.printf("%g\t",pval[pp].x[pp2])
+       }
+       file.printf("\n")
+   }
+   */
+   file.printf("# Noise Rate Level\n# Level, TV Model, TV Model without DS, DS, GLG, HSR, LSR (sp/s)\n")
+   for ii=0,noiseRL[2].size-1{
+       file.printf("%d\t%g\t%g\t%g\t%g\t%g\t%g\t%g\t%g\t%g\t%g\n",noiseRL[2].x[ii],\
+       noiseRL[0].x[ii],noiseRL[1].x[ii],\
+       target_rate_level[2].x[ii],target_rate_level[3].x[ii], \
+       noiseRL[3].x[ii],noiseRL[4].x[ii],\
+       noiseRL[5].x[ii],noiseRL[6].x[ii],\
+	   noiseRL[7].x[ii],\
+       target_rate_level[5].x[ii])
+   }
+   file.printf("\n\n",error)
+   file.printf("# Tone Rate Level\n# Level, TV Model, TV Model without DS, DS, GLG, HSR, LSR (sp/s)\n")   
+   for ii=0,toneRL[2].size-1 {
+       file.printf("%d\t%g\t%g\t%g\t%g\t%g\t%g\t%g\t%g\t%g\t%g\n",toneRL[2].x[ii],\
+       toneRL[0].x[ii],toneRL[1].x[ii],\
+       target_rate_level[0].x[ii],target_rate_level[1].x[ii], \
+       toneRL[3].x[ii],toneRL[4].x[ii],\
+       toneRL[5].x[ii],toneRL[6].x[ii],\
+	   toneRL[7].x[ii],\
+       target_rate_level[4].x[ii])
+   }    
+   file.printf("#Other values \n")
+   file.printf("#level_offset = %g\n",level_offset)
+   // file.printf("#  halfoct_compress = %g\n",  halfoct_compress)
+   // file.printf("#  halfoct_shift = %g\n",  halfoct_shift)
+   // file.printf("# oct_compress = %g\n", oct_compress)
+   // file.printf("# oct_shift  = %g\n", oct_shift )
+   // file.printf("# centrepoint = %g\n",centrepoint)
+   file.printf("# TV erev = %g\n",tuberculoventral[0][0].soma.erev_rm)
+   file.printf("# TV erev = %g\n",tuberculoventral[0][0].soma.gleak_rm)
+   param.print2file(file,"#") //let Network Parameters print the struct
+   file.close()
+   
+    }
+    
+    //Write parameters to general optimisation file
+    sprint(fname,"%s/pvec_%s.hoc",fileroot,origfileroot)
+    file.aopen(fname)
+    file.printf(" // %s  \n",datestr)
+    for pp=0,NPARAMS-1 {
+   file.printf("%s = %g\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp])
+    }
+    file.printf("\n")
+    file.close()
+}
+
+
+proc Rerun_ANmodel(){
+    stimtype=6
+    for (spl=50;spl<=100;spl+=5){
+   RefreshParameters() 
+   RefreshParameters()
+   ANFilterBankRun()
+   SaveANFilterBank2File()
+   for i=0,nchannels-1 golgi[i][0].SetRate2()
+   SaveGolgiFilterBank2File()
+    }
+}
+
+
+proc TV_2tone(){
+    stimtype    = 9     //TwoTone
+    dur         = 0.049  // duration of stim (seconds)
+    tstop       = 70    // ms
+    spl         = 20     //dB SPL
+    tonefreq    = 6600 //Hz, unit 1 CF
+    tone2freq   = 9350 //Hz ,unit 2 
+    tone2spl    = spl // set the second tone's sound level to the same as the first
+    GetAudiogramData()
+    RefreshParameters()
+    ANFilterBankRun()
+    //  CheckFilterbank()
+    //  SetInputRates()
+}
+
+proc TV_BFtone(){
+    stimtype     = 1     // Pure Tone
+    dur          = 0.049  // duration of stim (seconds)
+    tstop        = 70    // ms
+    spl          = 20     //dB SPL
+    tonefreq     = cf.x[50] //Hz, unit 1 CF
+    GetAudiogramData()
+    RefreshParameters()
+    ANFilterBankRun()
+    //  CheckFilterbank()
+    //  SetInputRates()
+}
+
+proc TV_Noise(){
+    stimtype  = 6     //BBN 
+    dur       = 0.049  // duration of stim (seconds)
+    tstop     = 70    // ms
+    spl       = 20     //dB SPL
+    tonefreq  = cf.x[50] //Hz, unit 1 CF
+    GetAudiogramData()
+    RefreshParameters()
+    ANFilterBankRun()
+    //  CheckFilterbank()
+    //  SetInputRates()
+}

@@ -1,0 +1,12 @@
+# Output Data Golgi model rate-level:  Ghoshal and Kim 1996 
+# Spatial filter: Stdev of LSR input channels=4.75 
+# Synaptic Filter: Tau = 5ms, Scale_factor=0.95 
+#	 weight_sum: a = 1.357200 
+#    golgi_spon: b = 4.551400   	
+# SPL	Experimental	 Fitted 
+0.000000	 6.240000	   8.400000	
+15.000000	10.730000	  8.000000	    
+55.000000	57.420000	  33.600000	   
+75.000000	68.750000	  63.600000	   
+85.000000	92.380000   84.000000	   
+
