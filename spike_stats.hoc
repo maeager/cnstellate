@@ -1,29 +1,29 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
 /*
- *    spike_stats.hoc contains:
- *    1. PSTHcell function that calculates first 
- *    spike latency, inter-spike interval statistics (histogram, binned 
- *    mean, binned stdev, binned co-efficient of variation)
- *    2. meanrate() takes in a spike list and calculates the mean firing rate between 
- * 
- *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
- *
- *    This file is part of cnstellate.
- *  
- *    This is free software: you can redistribute it and/or modify
- *    it under the terms of the GNU General Public License as published by
- *    the Free Software Foundation, either version 3 of the License, or
- *    (at your option) any later version.
- *
- *    This is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU General Public License for more details.
- *
- *    You should have received a copy of the GNU General Public License
- *    along with this program.  If not, see <http://www.gnu.org/licenses/>.  
- */
+*    spike_stats.hoc contains:
+*    1. PSTHcell function that calculates first 
+*    spike latency, inter-spike interval statistics (histogram, binned 
+*    mean, binned stdev, binned co-efficient of variation)
+*    2. meanrate() takes in a spike list and calculates the mean firing rate between 
+* 
+*    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
+*
+*    This file is part of cnstellate.
+*  
+*    This is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU General Public License as published by
+*    the Free Software Foundation, either version 3 of the License, or
+*    (at your option) any later version.
+*
+*    This is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU General Public License for more details.
+*
+*    You should have received a copy of the GNU General Public License
+*    along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+*/
 
 
 strdef pstlbl
@@ -206,6 +206,8 @@ proc PSTHcell() {local i, j, sp1, sp2, index, intv,first, cvmean, count,sizebins
         fsl = new Vector()
     }
     print "FSL mean ", fslmean, " std ", fslstd 
+   doNotify()
+   flushf()
 	
     if (($3 >= 1) &&  (pstv[0].size >= 1)) {
         print "PSTHcell: plotting data, ISIH"
@@ -258,39 +260,43 @@ proc PSTHcell() {local i, j, sp1, sp2, index, intv,first, cvmean, count,sizebins
         pstg.label(0.1, 0.95, pstlbl)
         pstg.label(0.1,0.92,grlbl)
 		
-		
-        if ($3 == 2){
-			print "PSTHcell: printing data"        
-            sprint(pstlbl, "%s/psth_%.2g.dat",fileroot, $2)
-			print "Writing psth,isi stats and isih/fsl to file ", pstlbl
-			file.wopen(pstlbl)
-			if(file.isopen()){
-				file.printf("# PSTH analysis in T stellate %d, CF %dHz\n", whichcell, cf.x[whichcell])
-				file.printf("# Stimulus %g Hz, %d dB, %d reps\n",tonefreq, spl, reps)
-				file.printf("# Binwidth %g\n",$2)
-				file.printf("# %s\n",seedstr)
-				file.printf("# CV mean %g\n",cvmean)
-				file.printf("# Time (ms), Rate (sp/s), mISI (ms), sISI (ms), CV ()\n")
-				for i=0,psth.size()-1 {
-					file.printf("%8.2f\t%8.4f\n",i*$2, psth.x[i])
-				}				
-				file.printf("\n\n# CV mean %g\n",cvmean)
-				file.printf("# Time (ms), Rate (sp/s), mISI (ms), sISI (ms), CV ()\n")
-				for i=0, sizebins - 1  {
-					file.printf("%8.2f\t%8.4f\t%8.4f\t%8.4f\n",i, cvISI.x[i],uISI.x[i],sISI.x[i])
-				}		
-    			file.printf("\n\n# Time (ms), ISIH (sp/s), FSL (ms)\n")
-				file.printf("# ISI Mean %g, Std Dev %g Median %g\n",ISIH.mean(),ISIH.stdev(), ISIH.median())
-				file.printf("# FSL Mean %g, Std Dev %g Median %g\n",  fs.mean(),fs.stdev(), fs.median())
-				for i=0,ISIH.size()-1 {
-					file.printf("%8.2f\t%8.4f\t%8.4f\n",i*dt, ISIH.x[i],fsl.x[i])
-				}	
-				file.close()
-			}
+	}	
+	doNotify()
+	flushf()
+
+    if (($3 == 2) &&  (pstv[0].size >= 1)){
+		print "PSTHcell: printing data"        
+        sprint(pstlbl, "%s/psth_%.2g.dat",fileroot, $2)
+		print "Writing psth,isi stats and isih/fsl to file ", pstlbl
+		file.wopen(pstlbl)
+		if(file.isopen()){
+			file.printf("# PSTH analysis in T stellate %d, CF %dHz\n", whichcell, cf.x[whichcell])
+			file.printf("# Stimulus %g Hz, %d dB, %d reps\n",tonefreq, spl, reps)
+			file.printf("# Binwidth %g\n",$2)
+			file.printf("# %s\n",seedstr)
+			file.printf("# CV mean %g\n",cvmean)
+			file.printf("# Time (ms), Rate (sp/s), mISI (ms), sISI (ms), CV ()\n")
+
+			for i=0,psth.size()-1 {
+				file.printf("%8.2f\t%8.4f\n",i*$2, psth.x[i])
+			}				
+			file.printf("\n\n# CV mean %g\n",cvmean)
+			file.printf("# Time (ms), Rate (sp/s), mISI (ms), sISI (ms), CV ()\n")
+			for i=0, sizebins - 1  {
+				file.printf("%8.2f\t%8.4f\t%8.4f\t%8.4f\n",i, cvISI.x[i],uISI.x[i],sISI.x[i])
+			}		
+    		file.printf("\n\n# Time (ms), ISIH (sp/s), FSL (ms)\n")
+			file.printf("# ISI Mean %g, Std Dev %g Median %g\n",ISIH.mean(),ISIH.stdev(), ISIH.median())
+			file.printf("# FSL Mean %g, Std Dev %g Median %g\n",  fs.mean(),fs.stdev(), fs.median())
+			for i=0,ISIH.size()-1 {
+				file.printf("%8.2f\t%8.4f\t%8.4f\n",i*dt, ISIH.x[i],fsl.x[i])
+			}	
+			file.close()
 		}
+		
     }
 	
-    objref bins[1],pstv
+    //objref bins[1],pstv
 }
 
 /*
