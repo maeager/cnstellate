@@ -1340,6 +1340,8 @@ proc printprax(){local pp,ii,pp2,cur_reps
        file.close()
    }
    reps = cur_reps
+  doNotify()
+  flushf()
    PSTHcell(TSspikeList.object(1),10,2)
    PSTHcell(TSspikeList.object(1),1,2)
    PSTHcell(TSspikeList.object(1),0.25,2)
