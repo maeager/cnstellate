@@ -98,9 +98,10 @@ proc AMresponse_CS(){
     ANFilterBankRun()  //Generate new AN instant. rates
     SetInputRates()
     xopen("pvec_TStellate2_CS.hoc")
-    RefreshCellParams()
+
     connect_cells(fileroot)
     connect_CNcells(fileroot)
+    RefreshCellParams()
     binwidth=0.1
     reps=50
     ModulationTransferFunction(tonefreq)
@@ -114,9 +115,10 @@ proc AMresponse_CT1(){
     ANFilterBankRun()  //Generate new AN instant. rates
     SetInputRates()
     xopen("pvec_TStellate2_CT1.hoc")
-    RefreshCellParams()
+
     connect_cells(fileroot)
     connect_CNcells(fileroot)
+    RefreshCellParams()
     binwidth=0.1
     reps=50
     F0_Response(tonefreq)
@@ -129,9 +131,9 @@ proc AMresponse_CT2(){
     ANFilterBankRun()  //Generate new AN instant. rates
     SetInputRates()
     xopen("pvec_TStellate2_CT2.hoc")
-    RefreshCellParams()
     connect_cells(fileroot)
     connect_CNcells(fileroot)
+    RefreshCellParams()
     binwidth=0.1
     reps=50
     ModulationTransferFunction(tonefreq)
@@ -148,8 +150,8 @@ proc SimpleResponses_CS(){
     RefreshCellParams()
     RateLevelFunction()
     NoiseRateLevelFunction()
-    MaskedRateLevelFunction()
-    MaskedResponseCurve()
+//    MaskedRateLevelFunction()
+//   MaskedResponseCurve()
 }
 
 proc SimpleResponses_CT1(){

@@ -52,8 +52,8 @@ strdef fileroot_,cmd
 
 proc print_results() {local tmpbinwidth
 	// t_ignore_before=stimdelay*1000/binwidth
-	if (t_ignore_before > tstop || t_ignore_before < 0 ) {t_ignore_before = stimdelay*1000/binwidth}
-	// t_ignore_after=(stimdelay+dur+ramplngth*2)*1000/binwidth
+	if (t_ignore_before > tstop || t_ignore_before < 0 ) {t_ignore_before = stimdelay*1000}
+	// t_ignore_after=(stimdelay+dur+ramplngth*2)*1000
 	if (t_ignore_after > tstop) {t_ignore_after = tstop }
 	sprint(cmd,"mkdir -p ./%s",fileroot_)
 	system(cmd)
@@ -84,9 +84,8 @@ proc print_results() {local tmpbinwidth
 }
 
 proc print_AMresults() {local tmpbinwidth
-	// t_ignore_before=stimdelay*1000/binwidth
-	if (t_ignore_before > tstop || t_ignore_before < 0 ) {t_ignore_before = stimdelay*1000/binwidth}
-	// t_ignore_after=(stimdelay+dur+ramplngth*2)*1000/binwidth
+	
+	if (t_ignore_before > tstop || t_ignore_before < 0 ) {t_ignore_before = 2*stimdelay*1000}
 	if (t_ignore_after > tstop) {t_ignore_after = tstop }
 	sprint(cmd,"mkdir -p ./%s",fileroot_)
 	system(cmd)
@@ -115,24 +114,18 @@ proc print_AMresults() {local tmpbinwidth
 
 	tmpbinwidth=binwidth
 	binwidth=0.05
-
-	    print_periodpsth(ts,fileroot_,"T stellate")
-	    print_periodpsth(tv,fileroot_,"Tuberculoventral")
-	    print_periodpsth(ds,fileroot_,"D stellate")
-	    print_periodpsth(glg,fileroot_,"Golgi")
-	    print_periodpsth(hsr,fileroot_,"HSR ANFs")
-	    print_periodpsth(lsr,fileroot_,"LSR ANFs")	    
+	
+	print_periodpsth(ts,fileroot_,"T stellate")
+	print_periodpsth(tv,fileroot_,"Tuberculoventral")
+	print_periodpsth(ds,fileroot_,"D stellate")
+	print_periodpsth(glg,fileroot_,"Golgi")
+	print_periodpsth(hsr,fileroot_,"HSR ANFs")
+	print_periodpsth(lsr,fileroot_,"LSR ANFs")	    
 	binwidth=tmpbinwidth
 
 
 	print "Results printed to files"
 }
-
-
-
-
-
-
 
 
 /*********Default Parameters *************/
@@ -327,35 +320,25 @@ proc ModulationTransferFunction(){
 	dutycycle = 0.0
 	tonefreq	= $1
     reps		= 100
-	spl = 80
+	spl        = 80
 	AM_modfreq = 50
 	RefreshParameters()
-	t_ignore_before =(2*stimdelay)*1000/binwidth 
-	t_ignore_after = tstop
+	t_ignore_before =(2*stimdelay)*1000  //20 ms 
+	t_ignore_after = tstop   // 161 ms
+
 
 	//	  for (AM_modfreq=400;AM_modfreq<=700;AM_modfreq=AM_modfreq+50) {
-for (spl=80; spl >= 20; spl=spl-20){
-for (AM_modfreq=50;AM_modfreq<=1200;AM_modfreq=AM_modfreq+50) {
-	//CREATEFILTERBANKS()  //uncomment this to generate new AN and GLG inputs 	
-	MULTIRUN()
-	//	SAVEDATA
-	sprint(fileroot_,"%s/ModulationTransferFunction/%d/%d",fileroot,spl,AM_modfreq)
-	print_AMresults()
-	// binwidth=0.1
-	// print_periodpsth(ts,fileroot_,"T stellate")
-	// print_periodpsth(tv,fileroot_,"Tuberculoventral")
-	// print_periodpsth(ds,fileroot_,"D stellate")
-	// print_periodpsth(glg,fileroot_,"Golgi")
-	// print_periodpsth(hsr,fileroot_,"HSR ANFs")
-	// print_periodpsth(lsr,fileroot_,"LSR ANFs")	  
+	for (spl=80; spl >= 20; spl=spl-20){
+		for (AM_modfreq=50;AM_modfreq<=1200;AM_modfreq=AM_modfreq+50) {
+			//CREATEFILTERBANKS()  //uncomment this to generate new AN and GLG inputs 	
+			MULTIRUN()
+			sprint(fileroot_,"%s/ModulationTransferFunction/%d/%d",fileroot,spl,AM_modfreq)
+			//	SAVEDATA
+			print_AMresults()
+		}
+	}
+	
 }
-//plot rMTF
-//plot tMTF
-
-}
-//}
-}
-
 
 //Run f0 response
 proc F0_Response(){
@@ -367,20 +350,12 @@ proc F0_Response(){
 	AM_modfreq = 150
     reps=100
 	RefreshParameters()
-	t_ignore_before =(2*stimdelay)*1000/binwidth 
+	t_ignore_before =(2*stimdelay)*1000/binwidth   //20
 	t_ignore_after = tstop
 	for (spl=0; spl <= 90; spl=spl+5){
     	MULTIRUN()
-	    //	SAVEDATA
 	    sprint(fileroot_,"%s/F0Response/%d",fileroot,spl)
 	    print_AMresults()
-	    // binwidth=0.1
-	    // print_periodpsth(ts,fileroot_,"T stellate")
-	    // print_periodpsth(tv,fileroot_,"Tuberculoventral")
-	    // print_periodpsth(ds,fileroot_,"D stellate")
-	    // print_periodpsth(glg,fileroot_,"Golgi")
-	    // print_periodpsth(hsr,fileroot_,"HSR ANFs")
-	    // print_periodpsth(lsr,fileroot_,"LSR ANFs")	    
 	} 
 	//plot rMTF
 	//plot tMTF
