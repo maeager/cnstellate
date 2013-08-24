@@ -68,18 +68,26 @@ proc CalcVectorStrength() {local i,j,k,sumxi,sumyi,n,period,thetai,binwidth
 }
 
 
+    VectorStrength_pval=0
+    VectorStrength_Nsize=0
 
-proc CalcVectorStrengthSpikes() {local i,sumxi,sumyi,n,period,thetai,t_start, t_end localobj spikes
-
-	// $1 cell type
-        //$2 cell number
-	//$3 period length T in ms (i.e. 1000/AM_modfreq)
-        //$4 start time, ignore spikes before this
-        //$5 end time
-// From Kajikawa and Hackett: J Neurosci meth
-// Also Chang et al. 10.1073/pnas.0508239102
-//The Rayleigh statistic is 2n(vector strength) (6), with critical values of 5.991 for a= 0.05 and 13.816 for a = 0.001.
-//6. Shannon, R. V., Zeng, F. G., Kamath, V., Wygonski, J. & Ekelid, M. (1995) Science 270, 303304.
+proc CalcVectorStrengthSpikes() {local i,sumxi,sumyi,n,period,thetai,t_start, t_end, Nsize,R, z localobj spikes
+    
+    // $1 cell type
+    //$2 cell number
+    //$3 period length T in ms (i.e. 1000/AM_modfreq)
+    //$4 start time, ignore spikes before this
+    //$5 end time
+    // From Kajikawa and Hackett: J Neurosci meth
+    // Also Chang et al. 10.1073/pnas.0508239102
+    //The Rayleigh statistic is 2n(vector strength) (6), with critical values of 5.991 for a= 0.05 and 13.816 for a = 0.001.
+    //6. Shannon, R. V., Zeng, F. G., Kamath, V., Wygonski, J. & Ekelid, M. (1995) Science 270, 303304.
+    
+    // Zar 1999 Biostatistical Analysis
+    // p.617 - P-value for circular data
+   // R = N*SI ,  Z=(R^2)/N
+   // pval=exp(sqrt(1+(4*n)+4*((n)^2-z*n))-(1+2*n))
+    
 
     if($1==ts){
 	  spikes = new Vector()
@@ -116,25 +124,39 @@ proc CalcVectorStrengthSpikes() {local i,sumxi,sumyi,n,period,thetai,t_start, t_
 
     sumxi=0
     sumyi=0
-	VectorStrength=0
+    VectorStrength=0
     RayleighTest=0
-	n=spikes.size()
-    if (n <= 0) return
+    n=spikes.size()
+    VectorStrength_pval=0
+    VectorStrength_Nsize=0
+
+    if (n <= 0) {
+	VectorStrength = 0
+	RayleighTest =0
+	VectorStrength_pval = 0
+	return
+    }
+
     period = $3
     t_start = $4
     if (t_start < 0  || t_start > tstop) tstart =0
     t_end = $5
     if (t_end < 0  || t_end > tstop || t_end <= t_start) t_end = tstop
-
+   Nsize =0
     for i=0, n-1 {
         if( spikes.x[i] >= t_start && spikes.x[i] <= t_end){
-		  thetai =  (((spikes.x[i])%period)/period)*2*PI
-		  sumxi+=cos(thetai)
-		  sumyi+=sin(thetai)
+	    thetai =  (((spikes.x[i])%period)/period)*2*PI
+	    sumxi+=cos(thetai)
+	    sumyi+=sin(thetai)
+	    Nsize+=1
         }
-	}
-	VectorStrength=sqrt((sumxi^2)+(sumyi^2))/n
-	RayleighTest=2*n*(VectorStrength)^2
+    }	  
+    VectorStrength=sqrt((sumxi^2)+(sumyi^2))/n
+    RayleighTest=2*n*(VectorStrength)^2
+    R=VectorStrength*n
+    z=(R^2)/n
+    VectorStrength_pval=exp(sqrt(1+(4*n)+4*((n)^2-z*n))-(1+2*n))
+    VectorStrength_Nsize = Nsize
 }
 
 
@@ -437,76 +459,73 @@ proc print_rate(){localobj tmpspikes
 
 
 
-proc print_periodpsth() { // 3 args - celltype, str: filename root, str: name of cell
+proc print_periodpsth() {local R,z,Nsize,pval // 3 args - celltype, str: filename root, str: name of cell
 
      if (t_ignore_after > tstop)  t_ignore_after = tstop
-     if (t_ignore_before <=0) t_ignore_before= int(((stimdelay+ramplngth*2)*1000)/binwidth)
+     if (t_ignore_before <=0) t_ignore_before= int(((stimdelay*2)*1000))
 
      calc_psth($1)
-
-  for i=0, nchannels-1{
-    if (t_ignore_after != 0 && t_ignore_after < psth[i].size) psth[i].remove(t_ignore_after,psth[i].size-1)
-    if (t_ignore_before != 0 && t_ignore_before < psth[i].size) psth[i].remove(0,t_ignore_before)
-  }
-   period_hist(AM_modfreq)
-
-  sprint(filename,"%s/periodhist.%d.dat",$s2,$1)
-  outfile.wopen(filename)
-  outfile.printf("# %s cell histogram folded to mod freq %d\n",$s3,AM_modfreq)
-  for i=0, nchannels-1{
-    for j=0,period_psth[0].size()-1 {
-	outfile.printf("%d\t%.2f\t%8.3f\n",i,j*binwidth,period_psth[i].x[j])
-    }
-    outfile.printf("\n")
-  }
-  outfile.close()
-
-//Print vector strength and rayleigh coefficient
-  sprint(filename,"%s/vs.%d.dat",$s2,$1)
-  outfile.wopen(filename)
-  outfile.printf("# %s Vector strength and Rayleigh Coefficient for period %d Hz\n",$s3,AM_modfreq)
-  for i=0, nchannels-1{	
-      	CalcVectorStrength(period_psth[i],binwidth,1000/AM_modfreq)
-	outfile.printf("%d\t%8.5f\t%8.5f\n",i,VectorStrength,RayleighTest)
-  }
-  outfile.close()
-
+     
+     for i=0, nchannels-1{
+	 if (t_ignore_after != 0 && t_ignore_after < psth[i].size) psth[i].remove(t_ignore_after,psth[i].size-1)
+	 if (t_ignore_before != 0 && t_ignore_before < psth[i].size) psth[i].remove(0,t_ignore_before)
+     }
+     period_hist(AM_modfreq)
+     
+     sprint(filename,"%s/periodhist.%d.dat",$s2,$1)
+     outfile.wopen(filename)
+     outfile.printf("# %s cell histogram folded to mod freq %d\n",$s3,AM_modfreq)
+     for i=0, nchannels-1{
+	 for j=0,period_psth[0].size()-1 {
+	     outfile.printf("%d\t%.2f\t%8.3f\n",i,j*binwidth,period_psth[i].x[j])
+	 }
+	 outfile.printf("\n")
+     }
+     outfile.close()
+     
+     //Print vector strength and rayleigh coefficient
+     sprint(filename,"%s/vs.%d.dat",$s2,$1)
+     outfile.wopen(filename)
+     outfile.printf("# %s Vector strength and Rayleigh Coefficient for period %d Hz\n",$s3,AM_modfreq)
+     for i=0, nchannels-1{	
+      	 CalcVectorStrength(period_psth[i],binwidth,1000/AM_modfreq)
+	 outfile.printf("%d\t%8.5f\t%8.5f\n",i,VectorStrength,RayleighTest)
+     }
+     outfile.close()
+     
     //Print vector strength and rayleigh coefficient
-  sprint(filename,"%s/vsSPIKES.%d.dat",$s2,$1)
-  outfile.wopen(filename)
-  outfile.printf("# %s Vector strength and Rayleigh Coefficient for period %d Hz\n",$s3,AM_modfreq)
-  for i=0, nchannels-1{
-      CalcVectorStrengthSpikes($1,i,1000/AM_modfreq, t_ignore_before*binwidth, t_ignore_after*binwidth)
-outfile.printf("%d\t%0.6f\t%8.2f\t%d\n",i,VectorStrength,RayleighTest, psth[i].sum())
-  }
-  outfile.close()
-
-//Print spectrogram of PSTH hist
-  sprint(filename,"%s/spctFULL.%d.dat",$s2,$1)
-  outfile.wopen(filename)
-  outfile.printf("# %s cell PSTH spectrogram\n",$s3)
-  for i=0, nchannels-1{
-    work.resize(0)
-    work.spctrm(psth[i])
- if (work.size() >= 2 ){
-    for j=0,work.size-1 outfile.printf("%d\t%d\t%8.4f\n",i,j,work.x[j])
-    outfile.printf("\n")
-    } else {
-    outfile.printf("%d\t0.0\t0.0\n",i)
+    sprint(filename,"%s/vsSPIKES.%d.dat",$s2,$1)
+    outfile.wopen(filename)
+    outfile.printf("# %s Vector strength and Rayleigh Coefficient for period %d Hz\n",$s3,AM_modfreq)
+    for i=0, nchannels-1{
+	CalcVectorStrengthSpikes($1,i,1000/AM_modfreq, t_ignore_before, t_ignore_after)
+	outfile.printf("%d\t%0.6f\t%8.2f\t%d\t%.4g\n",i,VectorStrength,RayleighTest, VectorStrength_Nsize, VectorStrength_pval)
     }
-  }
-  outfile.close()
-
-  
-  
-  
-//Print spectrogram of period hist
-  sprint(filename,"%s/spct.%d.dat",$s2,$1)
-  outfile.wopen(filename)
-  outfile.printf("# %s cell rate place\n",$s3)
-  sprint(filename,"%s/spctVS.%d.dat",$s2,$1)
-  file.wopen(filename)
-  for i=0, nchannels-1{	
+    outfile.close()
+    
+    //Print spectrogram of PSTH hist
+    sprint(filename,"%s/spctFULL.%d.dat",$s2,$1)
+    outfile.wopen(filename)
+    outfile.printf("# %s cell PSTH spectrogram\n",$s3)
+    for i=0, nchannels-1{
+	work.resize(0)
+	work.spctrm(psth[i])
+	if (work.size() >= 2 ){
+	    for j=0,work.size-1 outfile.printf("%d\t%d\t%8.4f\n",i,j,work.x[j])
+	    outfile.printf("\n")
+	} else {
+	    outfile.printf("%d\t0.0\t0.0\n",i)
+	}
+    }
+    outfile.close()
+    
+    //Print spectrogram of period hist
+    sprint(filename,"%s/spct.%d.dat",$s2,$1)
+    outfile.wopen(filename)
+    outfile.printf("# %s cell rate place\n",$s3)
+    sprint(filename,"%s/spctVS.%d.dat",$s2,$1)
+    file.wopen(filename)
+    for i=0, nchannels-1{	
       	work.resize(0)
 	work.spctrm(period_psth[i])
 	for j=0,work.size-1 outfile.printf("%d\t%d\t%8.4f\n",i,j,work.x[j])
@@ -514,10 +533,10 @@ outfile.printf("%d\t%0.6f\t%8.2f\t%d\n",i,VectorStrength,RayleighTest, psth[i].s
 	if (work.size >= 2) {
 	    file.printf("%d\t%g\t%g",i,work.x[1],work.x[0])
 	} else {
-	   file.printf("%d\t%g\t%g",i,0,work.x[0])
+	    file.printf("%d\t%g\t%g",i,0,work.x[0])
 	}  
-  }
-  outfile.close()
+    }
+    outfile.close()
     file.close()
 }
 
@@ -633,9 +652,10 @@ proc print_spiketimes() { // 3 args - indices of Tstellate cell plus filename ro
 }
 
 
-proc print_ts_raster() { // 1 arg - filename root
+proc print_ts_raster() {local i,j,k // 1 arg - filename root
 
   sprint(filename,"%s/ts_raster.dat",$s1)
+  print "Print_ts_raster ", filename
   outfile.wopen(filename)
   outfile.printf("# Tstellate cell raster plot\n")
   for i = 0, nchannels-1 {
@@ -648,7 +668,7 @@ proc print_ts_raster() { // 1 arg - filename root
   outfile.close()
 }
 
-proc print_ds_raster() { // 1 arg - filename root
+proc print_ds_raster() {local i,j,k // 1 arg - filename root
 
   sprint(filename,"%s/ds_raster.dat",$s1)
   outfile.wopen(filename)
@@ -662,7 +682,7 @@ proc print_ds_raster() { // 1 arg - filename root
   }
   outfile.close()
 }
-proc print_tv_raster() { // 1 arg - filename root
+proc print_tv_raster() {local i,j,k // 1 arg - filename root
 
   sprint(filename,"%s/tv_raster.dat",$s1)
   outfile.wopen(filename)
@@ -677,7 +697,7 @@ proc print_tv_raster() { // 1 arg - filename root
   outfile.close()
 }
 
-proc print_golgi_raster() { // 1 arg - filename root
+proc print_golgi_raster() {local i,j,k // 1 arg - filename root
   sprint(filename,"%s/glg_raster.dat",$s1)
   outfile.wopen(filename)
   outfile.printf("# Golgi cell raster plot\n")
@@ -692,7 +712,7 @@ proc print_golgi_raster() { // 1 arg - filename root
 }
 
 
-proc print_an_raster() { // 1 arg - filename root
+proc print_an_raster() {local i,j,k // 1 arg - filename root
   sprint(filename,"%s/anHSR_raster.dat",$s1)
   outfile.wopen(filename)
   if (outfile.isopen()) {
@@ -734,7 +754,7 @@ proc print_isis() { // 3 args - indices of tstellate cell plus filename root
   outfile.close()
 }
 
-proc print_isi_stats() { // 1 arg - filename root
+proc print_isi_stats() {local i,j // 1 arg - filename root
   sprint(filename,"%s/ts_stats.dat",$s1)
   outfile.wopen(filename)
   outfile.printf("#Interspike interval statistics for tstellate cells\n")
@@ -773,7 +793,7 @@ proc print_isi_stats() { // 1 arg - filename root
   outfile.close()
 }
 
-proc print_lags() { local i,j // 3 args - indices of Tstellate cell + filename root
+proc print_lags() {local i,j // 3 args - indices of Tstellate cell + filename root
   sprint(filename,"%s/lags_%d_%d.dat",$s3,$1,$2)
   outfile.wopen(filename)
   outfile.printf("# Lag times for Tstellate cell [%d][%d]\n",$1,$2)
