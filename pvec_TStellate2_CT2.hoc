@@ -1,13 +1,29 @@
 
 
 //Fixed params
-   param.ts_gleak = 0.000473539
-	param.ts_erev=-62.9
-	param.n.x[hsr][ts]=25
-	param.n.x[lsr][ts]=25
-	param.n.x[ds][ts]=20
-	param.n.x[tv][ts]=20
-	param.n.x[glg][ts]=20	
+param.ts_gnabar		= 0.23677
+param.ts_gkhtbar	= 0.0189416
+param.ts_gleak		= 0.000473539
+param.ts_ghbar		= 6.20392e-05
+param.ts_gkabar		= 0.01539
+   param.ts_erev=-62.9
+param.ts_jitter_sd = 0.2
+
+param.bw.x[hsr][ts]=0
+param.bw.x[lsr][ts]=0
+param.bw.x[ds][ts]=9
+param.bw.x[tv][ts]=3
+param.bw.x[glg][ts]=3
+param.delay.x[hsr][ts]=1.6
+param.delay.x[lsr][ts]=1.6
+param.delay.x[ds][ts]=0.4
+param.delay.x[tv][ts]=0.4
+param.delay.x[glg][ts]=0.5
+param.n.x[hsr][ts]=30
+param.n.x[lsr][ts]=30
+param.n.x[ds][ts]=20
+param.n.x[tv][ts]=20
+param.n.x[glg][ts]=20
 
 
  // 20130812+13:24:44
@@ -18,3 +34,15 @@ param.w.x[ds][ts] = 0.000434838*1
 param.w.x[tv][ts] = 6.71923e-05*1
 param.w.x[glg][ts] = 0.000321159*1
 
+param.w.x[lsr][ts] = 0.0012267*1
+param.w.x[hsr][ts] = 0.0012447*1
+param.w.x[ds][ts] = 0.000434838*1
+param.w.x[tv][ts] = 6.71923e-05*1
+param.w.x[glg][ts] = 0.000321159*1
+
+
+param.w.x[lsr][ts] = 0.0011116*1
+param.w.x[hsr][ts] = 0.0012699*1
+param.w.x[ds][ts] = 0.00041157*1
+param.w.x[tv][ts] = 0.00015319*1
+param.w.x[glg][ts] = 0.00038271*1
