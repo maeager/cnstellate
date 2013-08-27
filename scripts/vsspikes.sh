@@ -19,7 +19,7 @@ for cell in $(seq 0 1 5); do
     > vsSPIKES.$cell.dat;   
     for i in $(ls  */vsSPIKES.$cell.dat|sort -n)
     do 
-	   awk '! /#/ {R=$2*$4;z=0;if ($4>0){z=(R^2)/$4};pval=exp(sqrt(1+(4*$4)+4*(($4)^2-z*$4))-(1+2*$4));print $2,$3,z,pval}' $i > /tmp/vsSPIKES.dat
+	   awk '! /#/ {R=$2*$4;z=0;if($4>0){z=(R^2)/$4};pval=exp(sqrt(1+(4*$4)+4*(($4)^2-z*$4))-(1+2*$4));print $2,$3,z,pval}' $i > /tmp/vsSPIKES.dat
 	   paste -d ' ' /tmp/cf.dat /tmp/vsSPIKES.dat >> vsSPIKES.$cell.dat
            echo "" >> vsSPIKES.$cell.dat
     done 
