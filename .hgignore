@@ -41,8 +41,12 @@ DS_RateLevel/*.dat
 TV_RateLevel/*.dat
 TV_Notch/*
 TV_Notch_spl50/*
-TStellate2_*/ModulationTransferFunction/*
-TStellate2_*/F0Response/*
+*/ModulationTransferFunction/*
+*/F0Response/*
+*/RateLevel*
+*/NoiseRateLevel*
+*/MaskedRateLevel*
+*/MaskedResponseCurve*
 
 syntax: regexp
 .*\#.*\#$
