@@ -232,3 +232,80 @@ param.w.x[ds][ts] = 0.000661479*1
 param.w.x[tv][ts] = 2.00741e-05*1
 param.w.x[glg][ts] = 0.000248028*1
 
+ // 20130812+17:28:12
+  
+param.w.x[lsr][ts] = 0.001216*1
+param.w.x[hsr][ts] = 0.000983397*1
+param.w.x[ds][ts] = 0.000561479*1
+param.w.x[tv][ts] = 2.00741e-05*1
+param.w.x[glg][ts] = 0.000248028*1
+
+
+param.w.x[lsr][ts] =   1.1752e-03 
+param.w.x[hsr][ts] =   1.0073e-03 
+param.w.x[ds][ts] =   6.2060e-04  
+param.w.x[tv][ts] =  1.8165e-04 
+param.w.x[glg][ts] =   1.0594e-04   // 20130821+16:23:36
+  
+param.w.x[lsr][ts] = 0.00174046*1
+param.w.x[hsr][ts] = 0.000505579*1
+param.w.x[ds][ts] = 7.33722e-05*1
+param.w.x[tv][ts] = 7.31865e-05*1
+param.w.x[glg][ts] = 8.95339e-06*1
+
+ // 20130821+16:36:55
+  
+param.w.x[lsr][ts] = 0.00318376*1
+param.w.x[hsr][ts] = 0.0018834*1
+param.w.x[ds][ts] = 0.000661479*1
+param.w.x[tv][ts] = 2.00741e-05*1
+param.w.x[glg][ts] = 0.000248028*1
+
+ // 20130821+16:42:21
+  
+param.w.x[lsr][ts] = 0.00118376*1
+param.w.x[hsr][ts] = 0.000883397*1
+param.w.x[ds][ts] = 0.000661479*1
+param.w.x[tv][ts] = 2.00741e-05*1
+param.w.x[glg][ts] = 0.000248028*1
+
+ // 20130822+14:22:22
+  
+param.w.x[lsr][ts] = 0.0016898*1
+param.w.x[hsr][ts] = 0.00090108*1
+param.w.x[ds][ts] = 0.00040962*1
+param.w.x[tv][ts] = 0.00033648*1
+param.w.x[glg][ts] = 5.4179e-05*1
+
+ // 20130822+14:25:16
+  
+param.w.x[lsr][ts] = 0.0016898*1
+param.w.x[hsr][ts] = 0.00090108*1
+param.w.x[ds][ts] = 0.00040962*1
+param.w.x[tv][ts] = 0.00033648*1
+param.w.x[glg][ts] = 5.4179e-05*1
+
+ // 20130824+03:48:56
+  
+param.w.x[lsr][ts] = 0.0018405*1
+param.w.x[hsr][ts] = 0.0004908*1
+param.w.x[ds][ts] = 7.3372e-05*1
+param.w.x[tv][ts] = 0.00017319*1
+param.w.x[glg][ts] = 8.9534e-06*1
+
+ // 20130824+11:46:34
+  
+param.w.x[lsr][ts] = 0.0016202*1
+param.w.x[hsr][ts] = 0.00088558*1
+param.w.x[ds][ts] = 4.527e-05*1
+param.w.x[tv][ts] = 3.2426e-05*1
+param.w.x[glg][ts] = 5.4179e-05*1
+
+ // 20130824+12:26:27
+  
+param.w.x[lsr][ts] = 0.0016202*1
+param.w.x[hsr][ts] = 0.00088558*1
+param.w.x[ds][ts] = 0.0004527*1
+param.w.x[tv][ts] = 0.00032426*1
+param.w.x[glg][ts] = 5.4179e-05*1
+

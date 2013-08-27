@@ -114,7 +114,7 @@ plot '< awk ''/IVOnset/ {if ($3!=0) print $3,$4; end}'' TStellate.Fit.dat'  u 1 
 #      '< tail -6 TStellate.Fit.dat | head -2 | awk ''{print $2}'' ' u ($0+1):1 axes x2y2 notitle w p ls 1 pt 5 ps 1.5
 
 unset multiplot
-!fixbb multiplotIVCV4.eps
+# !fixbb multiplotIVCV4.eps
 
 # set output "psthcv.eps"
 
