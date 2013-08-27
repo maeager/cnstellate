@@ -51,17 +51,10 @@ create_cells()
 connect_cells(fileroot)
 connect_CNcells(fileroot)
 
-//xopen("par_experiment_TV_RateLevel.hoc")
-xopen("par_experiment_TStellate2.hoc")
 
-create_cells()
-connect_cells(fileroot)
-connect_CNcells(fileroot)
-RefreshCellParams()
+xopen("par_experiment_TStellate2.hoc") //needed for CS_data(), CT1_data() and CT2_data()
 
-
-
-
+whichcell=50
 strdef targetcell
 targetcell="cn.tstellate[whichcell]"
 
@@ -94,11 +87,7 @@ RefreshCF()
 
 proc AMresponse_CS(){
     CS_data()
-    RefreshParameters()
-    ANFilterBankRun()  //Generate new AN instant. rates
-    SetInputRates()
     xopen("pvec_TStellate2_CS.hoc")
-
     connect_cells(fileroot)
     connect_CNcells(fileroot)
     RefreshCellParams()
@@ -111,25 +100,18 @@ proc AMresponse_CS(){
 
 proc AMresponse_CT1(){
     CT1_data()
-    RefreshParameters()
-    ANFilterBankRun()  //Generate new AN instant. rates
-    SetInputRates()
     xopen("pvec_TStellate2_CT1.hoc")
-
     connect_cells(fileroot)
     connect_CNcells(fileroot)
     RefreshCellParams()
     binwidth=0.1
     reps=50
     F0_Response(tonefreq)
-    ModulationTransferFunction(tonefreq)
+//    ModulationTransferFunction(tonefreq)
 }
 
 proc AMresponse_CT2(){
     CT2_data()
-    RefreshParameters()
-    ANFilterBankRun()  //Generate new AN instant. rates
-    SetInputRates()
     xopen("pvec_TStellate2_CT2.hoc")
     connect_cells(fileroot)
     connect_CNcells(fileroot)
@@ -150,8 +132,8 @@ proc SimpleResponses_CS(){
     RefreshCellParams()
     RateLevelFunction()
     NoiseRateLevelFunction()
-//    MaskedRateLevelFunction()
-//   MaskedResponseCurve()
+    MaskedRateLevelFunction()
+   MaskedResponseCurve()
 }
 
 proc SimpleResponses_CT1(){
