@@ -69,6 +69,7 @@ set tics nomirror out
 #set key center top title " " nobox
 set label 1 "{/Sans-Bold C}" at screen 0.075,screen 0.5 font "Arial,32"
 
+
 plot 'TStellate.Fit.dat' u ($1):2 t "Test" w l lc "black", \
      '< tail -91 ../TStellate/CS-01-864-004.png.dat' u 1:2 t "Reference" w l lc rgb "#0060ad"
 unset key

@@ -452,3 +452,133 @@ param.w.x[ds][ts] = 0.000733722*1
 param.w.x[tv][ts] = 7.31865e-05*1
 param.w.x[glg][ts] = 8.95339e-06*1
 
+param.w.x[lsr][ts] = 1.2160e-03
+param.w.x[hsr][ts] =   9.8340e-04
+param.w.x[ds][ts]=   5.6148e-04
+param.w.x[tv][ts]=   2.0074e-05
+param.w.x[glg][ts]=   2.4803e-04
+ // 20130813+10:18:16
+  
+param.w.x[lsr][ts] = 0.001216*1
+param.w.x[hsr][ts] = 0.0009834*1
+param.w.x[ds][ts] = 0.00056148*1
+param.w.x[tv][ts] = 2.0074e-05*1
+param.w.x[glg][ts] = 0.00024803*1
+
+ // 20130813+10:33:19
+  
+param.w.x[lsr][ts] = 0.001216*1
+param.w.x[hsr][ts] = 0.0009834*1
+param.w.x[ds][ts] = 0.00056148*1
+param.w.x[tv][ts] = 2.0074e-05*1
+param.w.x[glg][ts] = 0.00024803*1
+
+ // 20130813+10:33:19
+  
+param.w.x[lsr][ts] = 0.001216*1
+param.w.x[hsr][ts] = 0.0009834*1
+param.w.x[ds][ts] = 0.00056148*1
+param.w.x[tv][ts] = 2.0074e-05*1
+param.w.x[glg][ts] = 0.00024803*1
+
+ // 20130813+10:38:49
+  
+param.w.x[lsr][ts] = 0.001216*1
+param.w.x[hsr][ts] = 0.0009834*1
+param.w.x[ds][ts] = 0.00056148*1
+param.w.x[tv][ts] = 2.0074e-05*1
+param.w.x[glg][ts] = 0.00024803*1
+
+
+param.w.x[lsr][ts] =   1.7405e-03  
+param.w.x[hsr][ts] = 5.0558e-04    
+param.w.x[ds][ts] = 7.3372e-04   
+param.w.x[tv][ts] = 7.3186e-05  
+param.w.x[glg][ts] = 8.9534e-06 // 20130813+11:06:26
+  
+param.w.x[lsr][ts] = 0.0017405*1
+param.w.x[hsr][ts] = 0.00050558*1
+param.w.x[ds][ts] = 0.00073372*1
+param.w.x[tv][ts] = 7.3186e-05*1
+param.w.x[glg][ts] = 8.9534e-06*1
+
+ // 20130821+16:32:47
+  
+param.w.x[lsr][ts] = 0.00174046*1
+param.w.x[hsr][ts] = 0.000505579*1
+param.w.x[ds][ts] = 7.33722e-05*1
+param.w.x[tv][ts] = 7.31865e-05*1
+param.w.x[glg][ts] = 8.95339e-06*1
+
+ // 20130822+12:37:30
+  
+param.w.x[lsr][ts] = 0.0018405*1
+param.w.x[hsr][ts] = 0.0004908*1
+param.w.x[ds][ts] = 7.3372e-05*1
+param.w.x[tv][ts] = 0.00017319*1
+param.w.x[glg][ts] = 8.9534e-06*1
+
+ // 20130822+12:46:02
+  
+param.w.x[lsr][ts] = 0.0018405*1
+param.w.x[hsr][ts] = 0.0004908*1
+param.w.x[ds][ts] = 7.3372e-05*1
+param.w.x[tv][ts] = 0.00017319*1
+param.w.x[glg][ts] = 8.9534e-06*1
+
+ // 20130824+04:16:47
+  
+param.w.x[lsr][ts] = 0.001*1
+param.w.x[hsr][ts] = 0.001*1
+param.w.x[ds][ts] = 0.0001*1
+param.w.x[tv][ts] = 0.0002*1
+param.w.x[glg][ts] = 0.0005*1
+
+ // 20130824+04:18:53
+  
+param.w.x[lsr][ts] = 0.001*1
+param.w.x[hsr][ts] = 0.001*1
+param.w.x[ds][ts] = 0.0001*1
+param.w.x[tv][ts] = 0.0002*1
+param.w.x[glg][ts] = 0.0005*1
+
+ // 20130824+04:19:31
+  
+param.w.x[lsr][ts] = 0.001*1
+param.w.x[hsr][ts] = 0.001*1
+param.w.x[ds][ts] = 0.0001*1
+param.w.x[tv][ts] = 0.0002*1
+param.w.x[glg][ts] = 0.0005*1
+
+ // 20130824+04:20:03
+  
+param.w.x[lsr][ts] = 0.001*1
+param.w.x[hsr][ts] = 0.001*1
+param.w.x[ds][ts] = 0.0001*1
+param.w.x[tv][ts] = 0.0002*1
+param.w.x[glg][ts] = 0.0005*1
+
+ // 20130824+04:20:37
+  
+param.w.x[lsr][ts] = 0.001*1
+param.w.x[hsr][ts] = 0.001*1
+param.w.x[ds][ts] = 0.0001*1
+param.w.x[tv][ts] = 0.0002*1
+param.w.x[glg][ts] = 0.0005*1
+
+ // 20130824+11:46:15
+  
+param.w.x[lsr][ts] = 0.0017991*1
+param.w.x[hsr][ts] = 0.0004908*1
+param.w.x[ds][ts] = 7.3372e-05*1
+param.w.x[tv][ts] = 0.00017319*1
+param.w.x[glg][ts] = 8.9534e-06*1
+
+ // 20130824+12:07:43
+  
+param.w.x[lsr][ts] = 0.0017991*1
+param.w.x[hsr][ts] = 0.0004908*1
+param.w.x[ds][ts] = 7.3372e-05*1
+param.w.x[tv][ts] = 0.00017319*1
+param.w.x[glg][ts] = 8.9534e-06*1
+
