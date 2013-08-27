@@ -90,17 +90,16 @@ Ratelevel()
 
 whichcell=ArnottFig12_CFpos
 error_fn = "DS_RateLevel_err"
-param.ds_gnabar  = (0.408307/2) * 1.5 //0.30623025
-param.ds_gkltbar = 0.0163897
 
-param.ds_gkhtbar = 0.030623 
+param.ds_gnabar  = 0.30623025
+param.ds_gkltbar = 0.0163897
 param.ds_gleak   = 0.000274146 
 param.ds_erev    = -70 
 param.w.x[glg][ds]=0.00001
 reps=5
 
 //xopen("DS_RateLevel/pvec_DS_RateLevel.hoc")	
-//QuickRun()	
+//  QuickRun()	
 //	run_multipleprax()
 //	runprax()
 //	reps=50
@@ -117,13 +116,14 @@ reps=10
 //runprax()
 print "g,hsr->ds = 0"
 
-/*
+proc run_whsr(){
 NPARAMS=2
 init_params(NPARAMS)
 append_weight_hsrds()
 append_num_hsrds_connections()
 runprax()
-
+}
+proc run_wglg(){
 NPARAMS=2
 init_params(NPARAMS)
 append_weight_glgds()
@@ -131,7 +131,7 @@ append_num_glgds_connections()
 param.w.x[glg][ds]=0.00001
 set_pvec()
 runprax()
-*/
+}
 
 reps=25
 NPARAMS=3
@@ -161,7 +161,7 @@ param.w.x[hsr][ds] = 0.000397827
 
 set_pvec()
 
-proc run_prax(){
+proc run_optimisation(){
 	set_pvec()
 	reps=5
 	runprax2()
@@ -174,4 +174,4 @@ proc run_prax(){
 	reps=50
 	printprax2()
 }
-//run_multipleprax()
+//run_optimisation()

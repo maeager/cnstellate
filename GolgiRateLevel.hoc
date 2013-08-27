@@ -266,8 +266,8 @@ proc PrintRatelevel(){ local i
     file.printf("param.w.x[lsr][glg]= %.4f \n",param.w.x[lsr][glg])
     file.printf("param.w.x[hsr][glg]= %.4f \n",param.w.x[hsr][glg])
     file.printf("# Golgi Spontaneous rate = %.4f\n",param.golgi_spon)
-	
+    	
 }
 
-
 for i=0,5 { file.printf("%d\t%.3f\t%.3f\n",i*5-20,dvec.x[i],fvec.x[i]) }
+

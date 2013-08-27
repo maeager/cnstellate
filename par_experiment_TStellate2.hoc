@@ -1,26 +1,26 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
 /*  par_experiment_TStellate2
- *  Experimental setup for second TStellate optimisation 
- *
- *   
- *    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
- *
- *    This file is part of cnstellate.
- * 
- *    This is free software: you can redistribute it and/or modify
- *    it under the terms of the GNU General Public License as published by
- *    the Free Software Foundation, either version 3 of the License, or
- *    (at your option) any later version.
- *
- *    This is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU General Public License for more details.
- *
- *    You should have received a copy of the GNU General Public License
- *    along with this program.  If not, see <http://www.gnu.org/licenses/>.  
- */
+*  Experimental setup for second TStellate optimisation 
+*
+*   
+*    Copyright © 2012 Michael Eager, (mick.eager@gmail.com)
+* 
+*    This file is part of cnstellate.
+* 
+*    This is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU General Public License as published by
+*    the Free Software Foundation, either version 3 of the License, or
+*    (at your option) any later version.
+*
+*    This is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU General Public License for more details.
+*
+*    You should have received a copy of the GNU General Public License
+*    along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+*/
 
 
 // CS and CT data were from Long-Evans and Hooded Wistar rats at RVEEH
@@ -62,15 +62,15 @@ TSexemplar_CF = 9100
 // and -58.7 ± 2.8 mV, respectively.
 
 func SetChopperRMP(){
-	if ($1 == 0) {
-		return -58.7
-	} else if ($1 == 1) {
-		return -60.2
-	}else if ($1 == 2 ) {
-		return -59.0
-	}
-	print "SetChopperRMP: Using default TS RMP"
-	return TSexemplar_RMP	
+   if ($1 == 0) {
+      return -58.7
+   } else if ($1 == 1) {
+      return -60.2
+   }else if ($1 == 2 ) {
+      return -59.0
+   }
+   print "SetChopperRMP: Using default TS RMP"
+   return TSexemplar_RMP   
 }
 
 
@@ -86,22 +86,22 @@ func SetChopperRMP(){
 // tential during CF tone presentation. 
 
 
-delay					= 0.02
-dur						= 0.0475    // Actual duration minus half ramplength
-ramplngth				= 0.005 
-dutycycle				= 0.8       // get an extra 40msec post-tone
-cfhi					= 40000     //suitable for cat and rat model but not for human
-cflo					= 200       
-srate					= 100000    // 500k is no longer needed in Zilany AN model
-stimtdres				= 1/srate
-sg_rate					= 50000     // store AN model at 50k 
-sg_tdres				= 1/sg_rate
-tstop					= 110       // 20 ms delay, 50 ms stim, 40 post tone
-ANmodel					= 7         // ZilanyBruce
-species					= 2         //Rat
-audiogram_file			= "rat_bruce_audiogram.dat"
-reps					= 25
-usesavedfilterbanks		= 1
+delay               = 0.02
+dur                  = 0.0475    // Actual duration minus half ramplength
+ramplngth            = 0.005 
+dutycycle            = 0.8       // get an extra 40msec post-tone
+cfhi               = 40000     //suitable for cat and rat model but not for human
+cflo               = 200       
+srate               = 100000    // 500k is no longer needed in Zilany AN model
+stimtdres            = 1/srate
+sg_rate               = 50000     // store AN model at 50k 
+sg_tdres            = 1/sg_rate
+tstop               = 110       // 20 ms delay, 50 ms stim, 40 post tone
+ANmodel               = 7         // ZilanyBruce
+species               = 2         //Rat
+audiogram_file         = "rat_bruce_audiogram.dat"
+reps               = 25
+usesavedfilterbanks      = 1
 
 
 RefreshCF()
@@ -200,7 +200,7 @@ SetupChopperCV()
 // Modifications to the AIV statistics -- Michael Eager
 // sampling periods increased from 1 msec to 5 msec
 
-//Membrane potential adaptation and hyperpolarisation
+// Membrane potential adaptation and hyperpolarisation
 // data from Figure 6 in Paolini et al. 2005
 // MP*_data will be used in the optimation routine
 // Average of 10 CT1, 4 CT2  units
@@ -277,7 +277,7 @@ proc CalcIVMeasures(){
     v20_depol = $o1.mean( ivdata[0].indwhere(">=",20) - 1, ivdata[0].indwhere(">=",21))
     v50_depol = $o1.mean( ivdata[0].indwhere(">=",50) -1, ivdata[0].indwhere(">=",51))
     adaptation_ratio = v20_depol - v50_depol
-     
+    
     resting_value  = $o1.mean(0 , ivdata[0].indwhere(">",0))
     v60_depol = $o1.mean(ivdata[0].indwhere(">=",60) - 1, ivdata[0].indwhere(">=",61))
     offset_hyperpol = resting_value - v60_depol
@@ -295,7 +295,11 @@ proc CalcIVMeasures(){
 proc CalcIVMeasures_version2(){local time_shift localobj iv_vec,time_vec
     iv_vec=$o1
     time_vec=$o2
-    if (numarg()==3) { time_shift=$3 } else {time_shift = 0}
+    if (numarg()==3) { 
+		time_shift= $3 
+	} else {
+		time_shift = 0
+	}
     
     onset_depol = iv_vec.mean(time_vec.indwhere(">=",5.0+time_shift), time_vec.indwhere(">=",10.0+time_shift))
     
@@ -304,9 +308,9 @@ proc CalcIVMeasures_version2(){local time_shift localobj iv_vec,time_vec
     onset_ratio = onset_depol / middle_depol
    
     v20_depol = iv_vec.mean( time_vec.indwhere(">=",18+time_shift) - 1, time_vec.indwhere(">=",23+time_shift))
-    v50_depol = iv_vec.mean( time_vec.indwhere(">=",48+time_shift) - 1, time_vec.indwhere(">=",53+time_shift))
+    v50_depol = iv_vec.mean( time_vec.indwhere(">=",40+time_shift) - 1, time_vec.indwhere(">=",45+time_shift))
     adaptation_ratio = v20_depol - v50_depol
-     
+    
     resting_value  = iv_vec.mean(0 , time_vec.indwhere(">",0))
     v60_depol = iv_vec.mean(time_vec.indwhere(">=",58+time_shift) - 1, time_vec.indwhere(">=",63+time_shift))
     offset_hyperpol = resting_value - v60_depol
@@ -317,7 +321,6 @@ proc CalcIVMeasures_version2(){local time_shift localobj iv_vec,time_vec
     print "IV STAT 1 onset ratio                   ", onset_ratio  
     print "IV STAT 2 adaptation of depolarization  ", adaptation_ratio
     print "IV STAT 3 post-tone hyperpolarization   ", offset_hyperpol
-    
 }
 
 
@@ -337,10 +340,10 @@ proc CS_data() {local points
    // threshold 10dB
    //spl      = 40   //30 dB above depolarisation threshold
    //tonefreq = 11700 //Hz, characteristic frequency
-
- spl = TSexemplar_SPL_thresh
- tonefreq = TSexemplar_CF
-
+   
+   spl = TSexemplar_SPL_thresh
+   tonefreq = TSexemplar_CF
+   
    
    whichcell = FindInd(tonefreq)  //get CF index close to 3.9kHz
    print "CS data CF ", tonefreq, "(Hz), location ", whichcell
@@ -364,8 +367,7 @@ proc CS_data() {local points
    sprint(cmd,"mkdir -p %s",fileroot)
    system(cmd)
    
-
-   
+ 
    IV_reference = new List()
    IV_weight = new List()
    //10 dB re thresh
@@ -381,7 +383,7 @@ proc CS_data() {local points
    IV_temp = new Vector(4,0)
    IV_temp.x[2]=1  // only offset hyperpol data used in error comparison
    IV_weight.append(IV_temp)
-         
+    
    //30 dB re thresh  (use actual trace in Figure 1)
    IV_temp = new Vector()
    CalcIVMeasures_version2(ivdata[1],ivdata[0])
@@ -411,19 +413,19 @@ proc CS_data() {local points
    //10 dB re thresh
    //CV_temp = new Vector()   
    //CV_reference.append(CV_temp) //No data
-      
+    
    //20 dB re thresh  (remove the last elementin CVdata_CS)
    CV_reference.append(CVdata_CS.getcol(1).remove(4))
    CV_temp = new Vector(4,default_CV_weight)
    CV_weight.append(CV_temp)
-
+   
    
    //30 dB - Average data in Figure 2 
    CV_temp = CV_sustained.getcol(1).c
    CV_reference.append(CV_temp.remove(4))
    CV_temp = new Vector(4,default_CV_weight*2)
    CV_weight.append(CV_temp)
-
+   
    
    //40 dB re thresh
    CV_temp = new Matrix()
@@ -434,6 +436,7 @@ proc CS_data() {local points
    sustained_transient_chopper=0
    
 }
+
 proc Test_IVCV_reference_data(){local ii
    for ii=0,2 {
       print "ii  ", ii   
@@ -458,7 +461,7 @@ proc CT1_data() {local points localobj temp
    //tonefreq = 8200 //Hz, characteristic frequency
     spl = TSexemplar_SPL_thresh
     tonefreq = TSexemplar_CF
-
+   
    
    whichcell = FindInd(tonefreq)  //get CF index close to 8.2kHz
    print "CT1 data CF ", tonefreq, "(Hz), location ", whichcell
@@ -478,7 +481,7 @@ proc CT1_data() {local points localobj temp
    chopperIVgr =  new Graph()
    ivdata[1].plot(chopperIVgr,ivdata[0])
    chopperIVgr.exec_menu("View = plot")
-
+   
    
    
    IV_reference = new List()
@@ -498,7 +501,7 @@ proc CT1_data() {local points localobj temp
    IV_temp.x[1]=1  //  
    IV_temp.x[2]=1  //  
    IV_weight.append(IV_temp)
-         
+    
    //30 dB re thresh  (use actual trace in Figure 1)
    IV_temp = new Vector()
    CalcIVMeasures_version2(ivdata[1],ivdata[0])
@@ -522,7 +525,7 @@ proc CT1_data() {local points localobj temp
    IV_temp.x[2]=1  // only offset hyperpol data used in error comparison   
    IV_weight.append(IV_temp)
    
-
+   
    
    //CV
    SetupChopperCV()
@@ -531,22 +534,22 @@ proc CT1_data() {local points localobj temp
    
    CV_temp = CV_transient1.getcol(1).c   
    CV_temp.remove(4)
-
+   
    //10 dB re thresh
    //CV_temp = new Vector()   
    //CV_reference.append(CV_temp) //No data
-      
+    
    //20 dB re thresh  (remove the last elementin CVdata_CS)
    CV_reference.append(CV_temp)
    temp = new Vector(4,default_CV_weight)
    CV_weight.append(temp)
-
+   
    
    //30 dB - Average data in Figure 2 
    CV_reference.append(CV_temp)   
    temp = new Vector(4,default_CV_weight*2)
    CV_weight.append(temp)
-
+   
    
    //40 dB re thresh
    CV_reference.append(CV_temp)
@@ -554,7 +557,7 @@ proc CT1_data() {local points localobj temp
    CV_weight.append(temp)
    
    sustained_transient_chopper=1
-      
+    
 }
 
 proc CT2_data() {local points localobj temp
@@ -571,7 +574,7 @@ proc CT2_data() {local points localobj temp
    whichcell = FindInd(tonefreq)  //get CF index close to 12.4kHz
    file.ropen("TStellate/CT2-01-305-014.png.dat")
    print "CT2 data CF ", tonefreq, "(Hz), location ", whichcell
-
+   
    
    objref tempmat, ivdata[2]
    ivdata[0] = new Vector()
@@ -610,7 +613,7 @@ proc CT2_data() {local points localobj temp
    IV_temp.x[1]=1  //  
    IV_temp.x[2]=1  //  
    IV_weight.append(IV_temp)
-         
+    
    //30 dB re thresh  (use actual trace in Figure 1)
    IV_temp = new Vector()
    CalcIVMeasures_version2(ivdata[1],ivdata[0])
@@ -634,7 +637,7 @@ proc CT2_data() {local points localobj temp
    IV_temp.x[2]=1  // only offset hyperpol data used in error comparison   
    IV_weight.append(IV_temp)
    
-
+   
    
    //CV
    SetupChopperCV()
@@ -643,22 +646,22 @@ proc CT2_data() {local points localobj temp
    
    CV_temp = CV_transient2.getcol(1).c   
    CV_temp.remove(4)
-
+   
    //10 dB re thresh
    //CV_temp = new Vector()   
    //CV_reference.append(CV_temp) //No data
-      
+    
    //20 dB re thresh  (remove the last elementin CVdata_CS)
    CV_reference.append(CV_temp)
    temp = new Vector(4,default_CV_weight)
    CV_weight.append(temp)
-
+   
    
    //30 dB - Average data in Figure 2 
    CV_reference.append(CV_temp)   
    temp = new Vector(4,default_CV_weight*4)
    CV_weight.append(temp)
-
+   
    
    //40 dB re thresh
    CV_reference.append(CV_temp)
@@ -666,7 +669,7 @@ proc CT2_data() {local points localobj temp
    CV_weight.append(temp)
    
    sustained_transient_chopper=2
-
+   
 }
 
 
@@ -679,14 +682,14 @@ objref iv,meaniv,psthgr,tstellate_spikes
 psthgr = new Graph()
 
 proc RunTStellate(){
-
+   print "RunTStellate: "   
    RefreshCF()
    GetAudiogramData()
    RefreshParameters()
    ANFilterBankRun()
    //CheckFilterbank()
    SetInputRates()
-
+   
    
     objref iv,meaniv,tvec
    //ClearSpikes()
@@ -717,7 +720,8 @@ proc RunTStellate(){
    CalcIVMeasures_version2(meaniv,ivdata[0])
    //psth = tstellate[whichcell][0].spikes.histogram(0,110,binwidth)
    //psth.plot(psthgr,binwidth) psthgr.exec_menu("View = plot")
-   PSTHcell(tstellate_spikes,10,1)
+   PSTHcell(tstellate_spikes,10,0)
+   print "RunTStellate: done"  
 }
 
 
@@ -750,7 +754,7 @@ proc reset_TStellate(){local ii
          execute1(cmd)
          sprint(cmd,"tstellate[%d][0].dend.e_pas  = param.ts_dend_e",ii) 
          execute1(cmd)
-         }
+        }
       //        }
    }
 }
@@ -789,7 +793,7 @@ proc IVMeasures(){local offset
     // resting_value  = $o2.mean($o1.indwhere(">",-10) , $o1.indwhere(">",0))
     // v60_depol  = $o2.mean($o1.indwhere(">=",60+offset) - 1, $o1.indwhere(">=",65+offset))
     // offset_hyperpol = resting_value - v60_depol
-
+   
    
     $o3.x[0] = onset_ratio
     $o3.x[1] = adaptation_ratio
@@ -1043,306 +1047,5 @@ proc connect_TS() {local i_chan,i,p,target,source,low,high,range,channel,sourcec
 }
 
 threshold_rate=0
-objref penalties
-
-func TStellate2_err( ) {local jj,pp,xtime,error,penalty,sustainedrate,inputresistance,lcount localobj ivtemp,spikelist_temp
-   
-   penalty=0
-   objref penalties
-   penalties = new Vector()
-   error=0
-   //check for bad values
-   for pp=0,NPARAMS-1 {
-      if (($&2[pp] <= pvec_ranges.x[pp][0]) || ($&2[pp] > pvec_ranges.x[pp][1])) {
-         return 1e9
-      }
-   }
-   
-   //print variables
-   print "TStellate_err2 ", $1
-   for pp=0,NPARAMS-1 { printf("%s = %g * %g",pvec_name.object(pp).s,$&2[pp],pvec_factor.x[pp])}
-   //Set the parameters (see parameters_TStellate.hoc)
-   for pp=0,NPARAMS-1 {
-      sprint(cmd,"%s = %g * %g ",pvec_name.object(pp).s,$&2[pp],pvec_factor.x[pp])
-      execute1(cmd)
-   }
-   flushf()
-   // if (plot_variables == 1) {
-   //   tgr[0].line($&2[0], $&2[1])
-   //   tgr[0].flush()
-   //   tgr[1].line($&2[1], $&2[2])
-   //   tgr[1].flush()
-   //   doNotify()
-   //   print $1, $&2[0], $&2[2], $&2[3]
-   // }
-   
-   connect_TS(fileroot)
-   RefreshCellParams() //refresh_TStellate()
-   jitterdelay(param.delay.x[hsr][ts],param.ts_jitter_sd)
-
-   //Analyse spikes
-   doNotify()
-   //CNSpikes2()
-   
-//Stimulus at threshold   
-   spl =  TSexemplar_SPL_thresh
-   reps=2
-   RunTStellate()
-   threshold_rate = psth.sum()/reps
-   if(threshold_rate > 10) penalties.append( (threshold_rate-10)/100 )
-   print "threshold rate", threshold_rate
-   //penalty for spikes during tone at threshold
-   
-   
-   objref TSIVList,TSspikeList   
-   TSIVList = new List()
-   TSspikeList = new List()
-
-   // Calculate fitness
-   objref ref_IVvec,weightvec,ref,test
-   ref_IVvec = new Vector()
-   weightvec = new Vector(7,1)
-   ref = new Vector(7,0)
-   test = new Vector(7,0)
-   
-
-   reps=25      
-   for (spl = TSexemplar_SPL_thresh+20; spl<= TSexemplar_SPL_thresh + 40; spl += 10){ 
-      RunTStellate()         
-      TSIVList.append(meaniv.c)
-      TSspikeList.append(tstellate_spikes)
-   }
-   
-      
-   for ii=0,2 {
-      test_shift = (TSIVList.object(ii).max_ind(stimdelay*1000/dt,(stimdelay*1000 + 20)/dt)/10) - 2.5   
-      test = new Vector(4)
-      IVMeasures(tvec,TSIVList.object(ii),test,test_shift)
-      print "IV test measures "      
-      test.printf
-      IV_reference.object(ii).printf
-      //IV comparison 
-      error+=sqrt(IV_reference.object(ii).meansqerr(test,IV_weight.object(ii)))    
-        print "IV comparison ", sqrt(IV_reference.object(ii).meansqerr(test,IV_weight.object(ii)))    
-      
-      PSTHcell(TSspikeList.object(ii),10,1)
-      
-      //Global vector cvISI manipulated by PSTHcell - bad code
-      test = new Vector(4)
-      test.copy(cvISI, 0, 0, 3, 1, 1)
-      
-      //CV comparison 
-      error+=sqrt(CV_reference.object(ii).meansqerr(test,CV_weight.object(ii)))    
-      print "CV comparison ", sqrt(CV_reference.object(ii).meansqerr(test,CV_weight.object(ii)))    
-      
-      
-      //Calculate additional penalties
-      
-      //Penalty: Number of trials counted in CV 
-      if(checkedtrials < 0.9*reps) {
-         penalties.append( 10)
-         print "Checked trials penalty +10 ", checkedtrials 
-      }
-   //Penalty 1: Sustained rate 
-      sustainedrate = psth.sum(2,6)/25
-//      if (ii > 1)   {
-//         if(sustainedrate < 50) penalties.append( sustainedrate - 50) //penalty for lack of spikes during tone
-//      }
-
-        if(psth.sum(8,12)/25 > 10) {
-         penalties.append(psth.sum(8,12)/25 - 10) //penalty for too many spikes after tone
-         print "After tone spikes ", psth.sum(8,12)/25
-      }
-
-      
-      //Penalty 3: CV follows criteria for chopper
-      //First 10 ms must be strongly regular
-      print "CV of test cell"
-      cvISI.printf      
-      if(cvISI.x[0] > 0.2)    penalties.append( 10*(cvISI.x[0] - 0.2))
-      if(cvISI.x[0] > 0.3)    penalties.append( 10 + 10*(cvISI.x[0] - 0.3))
-      if (sustained_transient_chopper == 0){
-         //Sustained model   
-         if(cvISI.x[1] > 0.2 || cvISI.x[1] == 0) penalties.append( 10*(cvISI.x[1] - 0.2))
-         if(cvISI.x[2] > 0.2 || cvISI.x[2] == 0) penalties.append( 10*(cvISI.x[2] - 0.2))
-         if(cvISI.x[3] > 0.2 || cvISI.x[3] == 0) penalties.append( 10*(cvISI.x[3] - 0.2))
-      } else if (sustained_transient_chopper == 1){
-         //Transient 1 model
-         if(cvISI.x[1] > 0.3 || cvISI.x[1] == 0) penalties.append( 10*(cvISI.x[1] - 0.3))
-         if(cvISI.x[2] > 0.3 || cvISI.x[2] == 0) penalties.append( 10*(cvISI.x[2] - 0.3))
-         if(cvISI.x[3] > 0.3 || cvISI.x[3] == 0) penalties.append( 10*(cvISI.x[3] - 0.3))  
-      } else if (sustained_transient_chopper == 2){
-         //Transient 1 model
-         if(cvISI.x[1] < 0.3) penalties.append( 10*(0.3 - cvISI.x[1]))
-         if(cvISI.x[2] < 0.3) penalties.append( 10*(0.3 - cvISI.x[2]))
-         if(cvISI.x[3] < 0.3) penalties.append( 10*(0.3 - cvISI.x[3]))  
-         if(cvISI.x[1] > 0.5) penalties.append( 10*(cvISI.x[1] - 0.5))
-         if(cvISI.x[2] > 0.5) penalties.append( 10*(cvISI.x[2] - 0.5))
-         if(cvISI.x[3] > 0.5) penalties.append( 10*(cvISI.x[3] - 0.5))  
-      }
-      
-            
-   }//ii  for loop
-
-   //Penalty 4: Input resistance must be within physiological range
-   access tstellate[whichcell][0].soma 
-   inputresistance = rn() //Calculate input resistance, see Utilities.hoc   
-   if(inputresistance < 30 || inputresistance > 400) penalties.append(100)
-   
-   print "Penalties size ", penalties.size()
-   penalties.printf
-   penalty = penalties.sum()
-   error += penalty
-
-   sprint(fname,"%s/error_out.dat",fileroot)
-   file.aopen(fname)
-   for pp=0,NPARAMS-1 {
-      file.printf("%g\t",$&2[pp]*pvec_factor.x[pp])
-   }
-   file.printf("%g\n",error)
-   file.close()
-   
-   doNotify()
-   return error
-}
-
-
-proc printprax(){local pp,ii,pp2,cur_reps
-   //Output model data with best parameters
-   cur_reps = reps
-   reps=50
-   sprint(cmd,"mkdir -p %s",fileroot)
-   system(cmd)
-   reps=50
-   print error=TStellate2_err(0,&pvec.x[0])
-   set_datestr()
-   sprint(fname,"%s/%s.Fit.dat",fileroot,origfileroot)
-   file.wopen(fname)
-   if (file.isopen()){
-       file.printf("# %s Optimisation\n",fileroot)
-       file.printf("# %s \n",datestr)
-       for pp=0,NPARAMS-1 {
-	   file.printf("#%s = %g\t[%g,%g]\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp],pvec_ranges.x[pp][0],pvec_ranges.x[pp][1])
-       }
-       file.printf("# final error=%f\n",error)
-       //file.printf("# Principle axis matrix\n")
-       //for pp=0,NPARAMS-1 {
-       //pval[pp] = new Vector(NPARAMS)
-       //pval_praxis(pp,&pval[pp].x[0])
-       //file.printf("#\t")
-       //for pp2=0,NPARAMS-1 file.printf("%g\t",pval[pp].x[pp2])
-       //file.printf("\n")
-       //}
-       file.printf("# Threshold level %g \n", TSexemplar_SPL_thresh )
-       file.printf("# Threshold rate %g \n", threshold_rate)
-       file.printf("# TS exemplar RMP %g\n", TSexemplar_RMP )
-       file.printf("# TS exemplar CF %g\n",TSexemplar_CF)
-       
-       file.printf("# Time\t IV @spl=20 (mV)\t IV @spl=30 (mV)\t IV @spl=40 (mV)\n")
-       for ii=0,tvec.size()-1 {
-	   file.printf("%.2f\t%.6f\t%.6f\t%.6f\n",tvec.x[ii],TSIVList.object(0).x[ii],TSIVList.object(1).x[ii],TSIVList.object(2).x[ii])
-       }
-       for ii=0,2 {
-	   test_shift = (TSIVList.object(ii).max_ind(stimdelay*1000/dt,(stimdelay*1000 +20)/dt)/10) - 2.5
-	   test = new Vector(4)
-	   IVMeasures(tvec,TSIVList.object(ii),test,test_shift)   
-	   file.printf("# IV Measures at spl %d\n",TSexemplar_SPL_thresh+ 20+ ii*10 )
-	   file.printf("# RMP \t%g\t%g \n", IV_reference.object(ii).x[3], test.x[3])
-	   file.printf("# IVshift\t%g\n", test_shift)
-	   file.printf("# IVOnset\t%g\t%g\n", IV_reference.object(ii).x[0], test.x[0])
-	   file.printf("# IVAdaptation\t%g\t%g\n", IV_reference.object(ii).x[1], test.x[1])
-	   file.printf("# IVOffset\t%g\t%g\n", IV_reference.object(ii).x[2],test.x[2])
-	   penalty = sqrt(IV_reference.object(ii).meansqerr(test,IV_weight.object(ii)))   
-	   file.printf("# IV Measures RMS error \t%g\n", penalty)
-	   //IV comparison 
-	   error+=penalty 
-	   PSTHcell(TSspikeList.object(ii),10,1)
-	   file.printf("#PSTH: Time\t Rate (sp/s)\n")
-	   for jj=0,psth.size()-1 {
-	       file.printf("# %d\t%.6f\n",jj,psth.x[jj])
-	   }
-	   file.printf("#CV: Time\t CV ()\t\t ISI mean (ms)\t\t ISI sd (ms) \n")
-	   for jj=0,4 {
-	       file.printf("# %d\t%.6f\t%.6f\t%.6f\n",jj,cvISI.x[jj], uISI.x[jj],sISI.x[jj])
-	   }
-	   test = new Vector(4)
-	   test.copy(cvISI, 0, 0, 3, 1, 1)
-	   file.printf("#CV: Time\t CV reference\t\t CV test ()\t Weighting \n")
-	   for jj=0,test.size()-1 {
-	       file.printf("# %d\t%.6f\t%.6f\t%.6f\n",jj,test.x[jj], CV_reference.object(ii).x[jj], CV_weight.object(ii).x[jj])
-	   }
-	   //IV comparison 
-	   print error+=sqrt(CV_reference.object(ii).meansqerr(test,CV_weight.object(ii)))      
-	   file.printf("# CV Measures RMS error \t%g\n", penalty)
-	   file.printf("#   FSL Mean %g, Std Dev %g \n",  fslmean,fslstd)
-	   
-	   //Calculate additional penalties
-	   
-	   //Penalty: Number of trials counted in CV 
-	   if(checkedtrials < 0.8*reps) penalty =10
-	   file.printf("# Checked trials \t%g\n", checkedtrials)
-	   file.printf("# Checked trials penalty\t%g\n", penalty)
-	   
-	   //Penalty 1: Sustained rate 
-	   sustainedrate = psth.sum(2,6)/25
-	   file.printf("# Sustained rate \t%g\n", sustainedrate)
-	   
-	   if (ii > 1)   {
-	       //penalty for lack of spikes during tone
-	       if(sustainedrate < 10) penalty = 10 - sustainedrate 
-	       file.printf("# Sustained rate penalty \t%g\n", penalty)
-	   }
-	   //penalty for too many spikes after tone
-	   if(psth.sum(8,12)/25 > 10) penalty = psth.sum(8,12)/25 - 10 
-	   file.printf("# Post stimulus rate penalty \t%g\n", penalty)
-	   
-	   //Penalty 3: CV follows criteria for chopper
-	   //First 10 ms must be strongly regular
-	   penalty=0
-	   if(cvISI.x[0] > 0.2) penalty+= 10 + 100*abs(cvISI.x[0] - 0.2)
- 	   if(cvISI.x[0] > 0.3) penalty+= 100
-	   if (sustained_transient_chopper==0){
-	       //Sustained model   
-	       if(cvISI.x[1] > 0.3 || cvISI.x[1] == 0) penalty+= 10
-	       if(cvISI.x[2] > 0.3 || cvISI.x[2] == 0) penalty+= 10
-	       if(cvISI.x[3] > 0.3 || cvISI.x[3] == 0) penalty+= 10
-	   } else {
-	       //Transient models
-	       if(cvISI.x[1] > 0.5 || cvISI.x[1] == 0) penalty+= 10
-	       if(cvISI.x[2] > 0.5 || cvISI.x[2] == 0) penalty+= 10
-	       if(cvISI.x[3] > 0.5 || cvISI.x[3] == 0) penalty+= 10 
-	   }
-	   
-	   file.printf("#   CV Penalty = %g\n",penalty)
-	   file.printf("\t\t")
-       }//ii  for loop
-       
-       //Penalty 4: Input resistance must be within physiological range
-       access tstellate[whichcell][0].soma 
-       inputresistance = rn() //Calculate input resistance, see Utilities.hoc   
-       if(inputresistance < 30 || inputresistance > 400) penalty = 100
-       file.printf("#  Input Resistance = %g\n",inputresistance)
-       file.printf("#  Input Resistance Penalty = %g\n",penalty)
-       file.printf("#  tonefreq = %g\n",tonefreq)
-       param.print2file(file,"#") //let Network Parameters print the struct
-       
-       file.close()
-   }
-   //Write parameters to general optimisation file
-   sprint(fname,"%s/pvec_%s.hoc",fileroot,origfileroot)
-   file.aopen(fname)
-   if (file.isopen()){
-       file.printf(" // %s  \n",datestr)
-       for pp=0,NPARAMS-1 {
-	   file.printf("%s = %g*%g\n",pvec_name.object(pp).s,pvec.x[pp],pvec_factor.x[pp])
-       }
-       file.printf("\n")
-       file.close()
-   }
-   reps = cur_reps
-  doNotify()
-  flushf()
-   PSTHcell(TSspikeList.object(1),10,2)
-   PSTHcell(TSspikeList.object(1),1,2)
-   PSTHcell(TSspikeList.object(1),0.25,2)
-}
+threshold_penalty = 0
+objref ivrmserror,ivpenalties,cvrmserror,cvpenalties
