@@ -1,0 +1,143 @@
+// Error in TStellate2.hoc caused a stack depth failure even with -NSTACK over 100000
+// printprax is now called as a loose file when needed rather than as a procedure
+
+objref praxfile
+//proc printprax(){local i_window,pp,ispl,pp2 
+   set_datestr()
+   sprint(fname,"%s/%s.Fit.dat",fileroot,origfileroot)
+   praxfile = new File()
+   praxfile.wopen(fname)
+   if (praxfile.isopen()){
+      praxfile.printf("# %s Optimisation\n",fileroot)
+      praxfile.printf("# %s \n",datestr)
+      for pp=0,NPARAMS-1 {
+         praxfile.printf("#%s = %g\t[%g,%g]\n",pvec_name.object(pp).s,pvec.x[pp]*pvec_factor.x[pp],pvec_ranges.x[pp][0],pvec_ranges.x[pp][1])
+      }
+      praxfile.printf("# final error=%f\n",error)
+      //praxfile.printf("# Principle axis matrix\n")
+      //for pp=0,NPARAMS-1 {
+      //pval[pp] = new Vector(NPARAMS)
+      //pval_praxis(pp,&pval[pp].x[0])
+      //praxfile.printf("#\t")
+      //for pp2=0,NPARAMS-1 praxfile.printf("%g\t",pval[pp].x[pp2])
+      //praxfile.printf("\n")
+      //}
+      praxfile.printf("# Threshold level %g \n", TSexemplar_SPL_thresh )
+      praxfile.printf("# Threshold rate %g \n", threshold_rate)
+      praxfile.printf("# TS exemplar RMP %g\n", TSexemplar_RMP )
+      praxfile.printf("# TS exemplar CF %g\n",TSexemplar_CF)
+      praxfile.printf("# CV RMS errors:\t")
+      cvrmserror.printf("%.4g\t")
+      praxfile.printf("\n# Penalties :\t")
+      cvpenalties.printf("%.4g\t")
+      praxfile.printf("\n")
+      praxfile.printf("# IV RMS errors:\t")
+      ivrmserror.printf("%.4g\t")
+      praxfile.printf("\n# IV Penalties :\t")
+      ivpenalties.printf("%.4g\t")
+      praxfile.printf("\n")
+      praxfile.printf("# Final Error  %g   %g\n",error, ivrmserror.sum() +  cvrmserror.sum() + ivpenalties.sum() + cvpenalties.sum())
+      flushf()
+      
+      praxfile.printf("# Time\t IV @spl=20 (mV)\t IV @spl=30 (mV)\t IV @spl=40 (mV)\n")
+      for ispl=0,tvec.size()-1 {
+         praxfile.printf("%.2f\t%.6f\t%.6f\t%.6f\n",tvec.x[ispl],TSIVList.object(0).x[ispl],TSIVList.object(1).x[ispl],TSIVList.object(2).x[ispl])
+      }
+      print "Writing tones to file..."
+      for ispl=0,2 {
+      doNotify()
+         test_shift = (TSIVList.object(ispl).max_ind(stimdelay*1000/dt,(stimdelay*1000 +20)/dt)/10) - 2.5
+         test = new Vector(4)
+         IVMeasures(tvec,TSIVList.object(ispl),test,test_shift)   
+         praxfile.printf("# IV Measures at spl %d\n",TSexemplar_SPL_thresh+ 20+ ispl*10 )
+         praxfile.printf("# RMP \t%g\t%g \n", IV_reference.object(ispl).x[3], test.x[3])
+         praxfile.printf("# IVshift\t%g\n", test_shift)
+         praxfile.printf("# IVOnset\t%g\t%g\n", IV_reference.object(ispl).x[0], test.x[0])
+         praxfile.printf("# IVAdaptation\t%g\t%g\n", IV_reference.object(ispl).x[1], test.x[1])
+         praxfile.printf("# IVOffset\t%g\t%g\n", IV_reference.object(ispl).x[2],test.x[2])  
+         praxfile.printf("# IV Measures RMS error \t%g\n", sqrt(IV_reference.object(ispl).meansqerr(test,IV_weight.object(ispl))))
+         praxfile.printf("# IV RMS Error: \t %g\n ",ivrmserror.x[ispl]) 
+         praxfile.printf("\n")
+         //IV comparison 
+         
+         PSTHcell(TSspikeList.object(ispl),10,0)
+	 print "printprax: Calc psth and stats, tone  ", ispl   
+
+         praxfile.printf("#PSTH: Time\t Rate (sp/s)\n")
+         for i_window=0,psth.size()-1 {
+            praxfile.printf("# %d\t%.6f\n",i_window,psth.x[i_window])
+         }
+         praxfile.printf("#CV: Time\t CV ()\t\t ISI mean (ms)\t\t ISI sd (ms) \n")
+         for i_window=0,4 {
+            praxfile.printf("# %d\t%.6f\t%.6f\t%.6f\n",i_window,cvISI.x[i_window], uISI.x[i_window],sISI.x[i_window])
+         }
+         test = new Vector(4)
+         test.copy(cvISI, 0, 0, 3, 1, 1)
+         praxfile.printf("#CV: Time\t CV reference\t\t CV test ()\t Weighting \n")
+         for i_window=0,test.size()-1 {
+            praxfile.printf("# %d\t%.6f\t%.6f\t%.6f\n",i_window,test.x[i_window], CV_reference.object(ispl).x[i_window], CV_weight.object(ispl).x[i_window])
+         }
+         praxfile.printf("# CV RMS Error \t%g\n ",cvrmserror.x[ispl]) 
+
+         //IV comparison 
+         print error+=sqrt(CV_reference.object(ispl).meansqerr(test,CV_weight.object(ispl)))      
+         praxfile.printf("# CV Measures RMS error \t%g\n", penalty)
+         praxfile.printf("#   FSL Mean %g, Std Dev %g \n",  fslmean,fslstd)         
+         //Calculate additional penalties
+         doNotify()
+         flushf()         
+         //Penalty: Number of trials counted in CV 
+         praxfile.printf("# Checked trials \t%g\n", checkedtrials)
+
+         
+         //Penalty 1: Sustained rate 
+         sustainedrate = psth.sum(2,6)/reps
+         praxfile.printf("# Sustained rate \t%g\n", sustainedrate)
+         
+         if (ispl > 1)   {
+            //penalty for lack of spikes during tone
+            if(sustainedrate < 10) penalty = 10 - sustainedrate 
+            praxfile.printf("# Sustained rate penalty \t%g\n", penalty)
+         }
+         //penalty for too many spikes after tone
+         if(psth.sum(8,12)/reps > 10) penalty = psth.sum(8,12)/reps - 10 
+         praxfile.printf("# Post stimulus rate penalty \t%g\n", penalty)
+         
+         //Penalty 3: CV follows criteria for chopper
+         //First 10 ms must be strongly regular
+         penalty=0
+        
+         praxfile.printf("\n")
+      }//ispl  for loop
+      
+      //Penalty 4: Input resistance must be within physiological range
+      access tstellate[whichcell][0].soma 
+      inputresistance = rn() //Calculate input resistance, see Utilities.hoc   
+      if(inputresistance < 30 || inputresistance > 400) penalty = 100
+      praxfile.printf("#  Input Resistance = %g\n",inputresistance)
+      praxfile.printf("#  Input Resistance Penalty = %g\n",penalty)
+      praxfile.printf("#  tonefreq = %g\n",tonefreq)
+      param.print2file(praxfile,"#") //let Network Parameters print the struct
+      
+      praxfile.close()
+   }
+   //Write parameters to general optimisation file
+   sprint(fname,"%s/pvec_%s.hoc",fileroot,origfileroot)
+   praxfile.aopen(fname)
+   if (praxfile.isopen()){
+      praxfile.printf(" // %s  \n",datestr)
+      for pp=0,NPARAMS-1 {
+         praxfile.printf("%s = %g*%g\n",pvec_name.object(pp).s,pvec.x[pp],pvec_factor.x[pp])
+      }
+      praxfile.printf("\n")
+      praxfile.close()
+   }
+   doNotify()
+   flushf()
+   print "printprax: pvec_* file written"
+   PSTHcell(TSspikeList.object(1),10,2)
+   print "printprax: psth_10 file written"   
+   PSTHcell(TSspikeList.object(1),1,2)
+   print "printprax: psth_1 file written"
+   PSTHcell(TSspikeList.object(1),0.25,2)
+   print "printprax: psth_0.25 file written"
