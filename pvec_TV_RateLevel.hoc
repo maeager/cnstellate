@@ -28,19 +28,25 @@ param.w.x[ds][tv] = 0.00172859
 // Jun 24
 
 param.n.x[lsr][tv] = 20
-param.n.x[hsr][tv] = 10
+param.n.x[hsr][tv] = 20
 param.n.x[ds][tv] = 30
-param.n.x[glg][tv] = 10
+param.n.x[glg][tv] = 20
 param.bw.x[ds][tv] = 30
-param.bw.x[glg][tv] = 20
+param.bw.x[glg][tv] = 30
 param.tv_erev =  -70.2485 
 param.tv_gleak = 0.000249321
 param.delay.x[ds][tv] = 0.5
+param.delay.x[glg][tv] = 0.5
 
-
+param.tv_erev =  -72
 
 param.w.x[lsr][tv] = 0.0051716
 param.w.x[glg][tv] = 0.00258648
 param.w.x[hsr][tv] = 0.000645083
 param.w.x[ds][tv] = 0.00358648
+
+param.w.x[lsr][tv] = 0.0051716 
+param.w.x[glg][tv] = 0.00129324 
+param.w.x[hsr][tv] =0.000645083 
+param.w.x[ds][tv] = 0.00179324 
 
