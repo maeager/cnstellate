@@ -20,8 +20,12 @@ objref  ANFBgr,  Sout[nchannels]
 objref stimgr,b1,gr
 
 ghoshalkim_position				= 86 
-// equates to position in CN model of 22.6kHz correponding to unit S03-07 (22.7kHz CF)
+cfhi		= 40000
+cflo		= 200
+RefreshCF()
+tonefreq = cf.x[ghoshalkim_position]
 
+// equates to position in CN model of 22.6kHz correponding to unit S03-07 (22.7kHz CF)
 objref  ANFBgr, b2, Sout[nchannels]
 changescale						= 1
 scale							= 60
@@ -84,24 +88,24 @@ proc ShowGolgiGraphs() {
 count					= 0
 
 //Setup Auditory model
-ANmodel					= 7//Zilany et al 2009,2010 v4  model
-species					= 1	//Cat
-cfhi					= 40000
-cflo					= 200
-tonefreq				= 22700 //Ghoshal and Kim 1997 unit S03-07
-dur						= 0.0475 //duration of tone segment (seconds)	
-dutycycle				= 0.2	//quiet duration = dutycycle*dur
-ramplngth				= 0.0025
-stimdelay				= 0.02	//sec
-srate					= 100000.0
-stimtdres				= 1/srate
-sg_rate					= 50000		
-sg_tdres				= 1/sg_rate
-stimtype				= 1 //tone stimulus
-reps					= 25
-nrep					= 1 //nrep is number of reps of stimulus
+ANmodel		= 7//Zilany et al 2009,2010 v4	model
+species		= 1	//Cat
+cfhi		= 40000
+cflo		= 200
+tonefreq	= 22700 //Ghoshal and Kim 1997 unit S03-07
+dur		= 0.0475 //duration of tone segment (seconds)	
+dutycycle	= 0.2	//quiet duration = dutycycle*dur
+ramplngth	= 0.0025
+stimdelay	= 0.02	//sec
+srate		= 100000.0
+stimtdres	= 1/srate
+sg_rate		= 50000		
+sg_tdres	= 1/sg_rate
+stimtype	= 1 //tone stimulus
+reps		= 25
+nrep		= 1 //nrep is number of reps of stimulus
 
-ANFBgr					= new Graph()
+ANFBgr		= new Graph()
 usesavedfilterbanks		= 1
 
 reps					= 25
@@ -500,29 +504,6 @@ proc PrintFinalResults(){
     for i=0,level.size()-1 { file.printf("%d\t%.3f\t%.3f\t%.3f\t%.3f\n",level.x[i],grate[ghoshalkim_position].x[i],gstdev[ghoshalkim_position].x[i],fvec.x[i], targetrl.x[i]) }
     file.close()
 }
-//PrintFinalResults()
-
-
-/* proc PrintFinalResults(){ */
-	/* attr_praxis(1, 0.1, 3) */
-	/* for k = 0,5 fit_praxis(NPARAMS,"err",&pvec.x[0]) */
-	
-	/*  RatelevelGolgi1() */
-	/*    if (file.isopen()) file.close() */
-	
-	/*     file.wopen("GolgiRateLevel.dat") */
-	/*     file.printf("# Golgi model rate-level data\n") */
-	/*     file.printf("# Spatial filter: Stdev of LSR input channels=%.4f\n",param.bw.x[lsr][glg]) */
-	/*     file.printf("# Synaptic Filter: Tau = 5ms, Scale_factor=%.2f\n",param.golgi_syn_filter_scale_factor) */
-	/*     file.printf("# Weighted sum of LSR = %.4f \n",param.w.x[lsr][glg]) */
-	/*     file.printf("# Weighted sum of HSR = %.4f \n",param.w.x[hsr][glg]) */
-	/*     file.printf("# Golgi Spontaneous rate = %.4f\n",param.golgi_spon) */
-	/*     file.printf("# Final err(0,&pvec.x[0]) = %.8f\n",err(0,&pvec.x[0])) */
-	
-	/*     file.printf("# SPL\tRate (sp/sec)\t Stdev\n") */
-	/*     for i=0,level.size()-1 { file.printf("%d\t%.3f\t%.3f\t%.3f\t%.3f\n",level.x[i],grate[ghoshalkim_position].x[i],gstdev[ghoshalkim_position].x[i],fvec.x[i], targetrl.x[i]) } */
-	/*     file.close() */
-/* } */
 //PrintFinalResults()
 
 

@@ -65,9 +65,12 @@ v_init				= -65
 param.ts_gnabar		= 0.23677
 param.ts_gkhtbar	= 0.0189416
 param.ts_gleak		= 0.000473539
-param.ts_erev		= -55
+param.ts_erev		= -60.9
 param.ts_ghbar		= 6.20392e-05
 param.ts_gkabar		= 0.01539
+
+param.delay.x[glg][ts] = 0.5
+param.ts_jitter_sd = 0.2
 
 //Optimisation parameters
 print "Optimisation parameters for T Stellate cell"

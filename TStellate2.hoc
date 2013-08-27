@@ -56,28 +56,28 @@ xopen("jitter.hoc")
 // use_ball_stick=1
  
 // reset_DS_ClickRecovery()
-// param.w.x[hsr][ds]*	=10
-// param.w.x[ds][tv]/	=10
+// param.w.x[hsr][ds]*  =10
+// param.w.x[ds][tv]/  =10
 // reset_weights()
-// usesavedfilterbanks	=1
+// usesavedfilterbanks  =1
 
 
 //Initial values
-param.w.x[hsr][ts]		= 0.001
-param.w.x[lsr][ts]		= 0.001
-param.w.x[ds][ts]		= 0.0001
-param.w.x[tv][ts]		= 0.0002
-param.w.x[glg][ts]		= 0.0005
+param.w.x[hsr][ts]    = 0.001
+param.w.x[lsr][ts]    = 0.001
+param.w.x[ds][ts]    = 0.0001
+param.w.x[tv][ts]    = 0.0002
+param.w.x[glg][ts]    = 0.0005
 
 
 param.delay.x[glg][ts] = 0.5
 
-param.n.x[hsr][ts]		= 30
-param.n.x[lsr][ts]		= 30
-param.n.x[ds][ts]		= 20
-param.n.x[tv][ts]		= 20
-param.n.x[glg][ts]		= 20
-param.ts_jitter_sd = 0.5 //ms
+param.n.x[hsr][ts]    = 30
+param.n.x[lsr][ts]    = 30
+param.n.x[ds][ts]    = 20
+param.n.x[tv][ts]    = 20
+param.n.x[glg][ts]    = 20
+param.ts_jitter_sd = 0.2 //ms
 
 ANsoundspath="../sounds"        //system dependent 
 fileroot="TStellate"
@@ -96,7 +96,7 @@ xopen("cngui.hoc")
 
 xopen("par_experiment_TStellate2.hoc")
 
-
+xopen("TStellate2_err.hoc")
 
 create_cells()
 
@@ -125,14 +125,14 @@ proc QuickRun(){
 }
 
 tolerance = 0.0001
-maxstepsize = 0.001
+maxstepsize = 0.0001
 printmode = 3
 strdef error_fn
 error_fn = "TStellate2_err"
 
 proc runprax(){
-	attr_praxis(tolerance, maxstepsize, printmode)
-	fit_praxis(NPARAMS,error_fn,&pvec.x[0])
+  attr_praxis(tolerance, maxstepsize, printmode)
+  fit_praxis(NPARAMS,error_fn,&pvec.x[0])
 }
 
 
@@ -148,109 +148,99 @@ xopen("jitter.hoc")
 
 
 proc optimise_CS(){
-	xopen("pvec_TStellate2_CS.hoc")	
-	CS_data()	
-	
-	for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100+20*(ii))
 
-	param.ts_ghbar=6.20392e-05 
-	param.n.x[hsr][ts]=30
-	param.n.x[lsr][ts]=30
-	param.n.x[ds][ts]=20
-	param.n.x[tv][ts]=20
-	param.n.x[glg][ts]=20
-	param.ts_erev=-60.9  
-	set_pvec()
-	RefreshParameters()
-	ANFilterBankRun()  //Generate new AN instant. rates
-	SetInputRates()
-	
-	set_pvec()
-	//QuickRun()
-	reps=25
-	runprax()
-	reps=50
-	printprax()
-	//runprax()
-	//printprax()
-	//runprax()
-	//printprax()
-	//runprax()
-	//printprax()
-	print "CS Done"
-	PSTHcell(tstellate_spikes,10,2)
-	PSTHcell(tstellate_spikes,0.25,2)
+  CS_data()  
+  
+  for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100+20*(ii))
+
+  param.ts_ghbar=6.20392e-05 
+  param.n.x[hsr][ts]=30
+  param.n.x[lsr][ts]=30
+  param.n.x[ds][ts]=20
+  param.n.x[tv][ts]=20
+  param.n.x[glg][ts]=20
+  param.ts_erev=-60.9  
+  xopen("pvec_TStellate2_CS.hoc")  
+  set_pvec()
+  RefreshParameters()
+  ANFilterBankRun()  //Generate new AN instant. rates
+  SetInputRates()
+  
+  set_pvec()
+  //QuickRun()
+  reps=25
+  //runprax()
+  reps=50
+  flushf()
+  
+  printprax2()
+  xopen("printprax.hoc")
+  print "CS Done"
+
 }
 
 
 proc optimise_CT1(){
-	CT1_data()	
-    xopen("pvec_TStellate2_CT1.hoc")	
-	//for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100)
-	for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100+20*(ii))
-	
-	param.ts_erev=-62.9
-	param.n.x[hsr][ts]=30
-	param.n.x[lsr][ts]=30
-	param.n.x[ds][ts]=20
-	param.n.x[tv][ts]=20
-	param.n.x[glg][ts]=20
-	set_pvec()	
-	
-	RefreshParameters()
-	ANFilterBankRun()  //Generate new AN instant. rates
-	SetInputRates()
-	
-	//QuickRun()
-	runprax()
-	printprax()
-	//runprax()
-	//printprax()
-	//runprax()
-	//printprax()
-	//runprax()
-	//printprax()
-	print "CT1 Done"
-	PSTHcell(tstellate_spikes,10,2)
-	PSTHcell(tstellate_spikes,0.25,2)
+  CT1_data()  
+
+  //for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100)
+  for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100+20*(ii))
+  
+  param.ts_erev=-62.9
+  param.n.x[hsr][ts]=30
+  param.n.x[lsr][ts]=30
+  param.n.x[ds][ts]=20
+  param.n.x[tv][ts]=20
+  param.n.x[glg][ts]=20
+  xopen("pvec_TStellate2_CT1.hoc")  
+  set_pvec()  
+  
+  RefreshParameters()
+  ANFilterBankRun()  //Generate new AN instant. rates
+  SetInputRates()
+  
+  //QuickRun()
+//  runprax()
+  flushf()
+  printprax2()
+  xopen("printprax.hoc")
+
+  print "CT1 Done"
 }
 
 proc optimise_CT2(){ 
-	
-	//start pvec vaues with previous run
-	xopen("pvec_TStellate2_CT2.hoc")
-	//set the stimulus and target data set 
-	CT2_data()
-	//set the weighting in CV data points 
+  
+  //set the stimulus and target data set 
+  CT2_data()
+  //set the weighting in CV data points 
     //  should be at least 10 times to match the magnitude of the IV data
-	
-	for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100+20*(ii))
-	
-	//set default fixed params
-	param.ts_erev=-62.9
-	param.n.x[hsr][ts]=30
-	param.n.x[lsr][ts]=30
-	param.n.x[ds][ts]=20
-	param.n.x[tv][ts]=20
-	param.n.x[glg][ts]=20	
-	set_pvec()
-	
-	RefreshParameters()
-	ANFilterBankRun()  
-	SetInputRates()
-	
-	//QuickRun()
-	//runprax()
-	//printprax()
-	//runprax()
-	//printprax()
-	//runprax()
-	//printprax()
-	runprax()
-	printprax()
-	print "CT2 Done"
-	PSTHcell(tstellate_spikes,10,2)
-	PSTHcell(tstellate_spikes,0.25,2)
+  
+  for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100+20*(ii))
+  
+  //set default fixed params
+  param.ts_erev=-62.9
+  param.n.x[hsr][ts]=30
+  param.n.x[lsr][ts]=30
+  param.n.x[ds][ts]=20
+  param.n.x[tv][ts]=20
+  param.n.x[glg][ts]=20  
+  //start pvec vaues with previous run
+  xopen("pvec_TStellate2_CT2.hoc")
+  
+  set_pvec()
+  
+  RefreshParameters()
+  ANFilterBankRun()  
+  SetInputRates()
+  
+  //QuickRun()
+  
+  //runprax()
+  flushf()
+  printprax2()
+  xopen("printprax.hoc")
+  print "CT2 Done"
+
 }
 
 TSexemplar_SPL_thresh=20

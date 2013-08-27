@@ -271,9 +271,10 @@ proc RatelevelGolgi1(){local i,j,count,sum,runtime,cell,xtime localobj tmp
 
 
 
-count			= 0
-tonefreq		= golgi[76][0].cf
-dur				= 0.049 	//duration of tone segment (seconds)
+count	  = 0
+whichcell = 76
+tonefreq  = golgi[76][0].cf
+dur	  = 0.049 	//duration of tone segment (seconds)
 
 dutycycle		= 0.2		//quiet duration = dutycycle*dur
 ramplngth		= 0.001
