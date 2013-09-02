@@ -153,6 +153,7 @@ proc optimise_CS(){
   CS_data()  
   
   for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100+20*(ii))
+TSexemplar_SPL_thresh=20
 
   // set default fixed params and initial 
   // pvec vaues with previous run
@@ -161,15 +162,15 @@ proc optimise_CS(){
 
   //QuickRun()
   reps=25
-  //runprax()
+  runprax()
   reps=50
   flushf()
   printprax2()
   print "CS Done"
-//    RateLevelFunction()
+ //    RateLevelFunction()
  //   NoiseRateLevelFunction()
  //   ModulationTransferFunction(tonefreq)
-    F0_Response(tonefreq)
+ //  F0_Response(tonefreq)
 
 
 }
@@ -180,6 +181,7 @@ proc optimise_CT1(){
 
   //for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100)
   for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100+20*(ii))
+TSexemplar_SPL_thresh=20
   
   // set default fixed params and initial 
   // pvec vaues with previous run
@@ -187,14 +189,14 @@ proc optimise_CT1(){
   set_pvec()  
   
   //QuickRun()
-//  runprax()
+  runprax()
   flushf()
   printprax2()
   print "CT1 Done"
-    RateLevelFunction()
-    NoiseRateLevelFunction()
-    ModulationTransferFunction(tonefreq)
-    F0_Response(tonefreq)
+  //  RateLevelFunction()
+  // NoiseRateLevelFunction()
+  //  ModulationTransferFunction(tonefreq)
+  //  F0_Response(tonefreq)
 
 }
 
@@ -203,9 +205,9 @@ proc optimise_CT2(){
   //set the stimulus and target data set 
   CT2_data()
   //set the weighting in CV data points 
-    //  should be at least 10 times to match the magnitude of the IV data
-  
+  //  should be at least 10 times to match the magnitude of the IV data
   for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100+20*(ii))
+TSexemplar_SPL_thresh=20
   
   // set default fixed params and initial 
   // pvec vaues with previous run
@@ -215,7 +217,7 @@ proc optimise_CT2(){
   
   //QuickRun()
   
-  //runprax()
+  runprax()
   flushf()
   printprax2()
   print "CT2 Done"
