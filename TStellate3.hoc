@@ -1,0 +1,229 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+/*
+ *   TStellate3.hoc
+ *   Optimise parameters controlling TS cells. Second routine 
+ *   with three tones.
+ * 
+ *    Copyright © 2012- Michael Eager, (mick.eager@gmail.com)
+ *
+ *    This file is part of cnstellate.
+ * 
+ *    This is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation, either version 3 of the License, or
+ *    (at your option) any later version.
+ *
+ *    This is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+ */
+
+
+load_file("nrngui.hoc")
+//load_file("par_netpar.hoc")
+//load_file("par_init.hoc")
+
+xopen("Params.hoc")
+xopen("Utilities.hoc")
+xopen("NetworkParameters.hoc")
+xopen("AuditoryNerve.hoc")
+xopen("par_CNcell.tem")      // CN cell template
+
+//Previous optimisation parameters
+xopen("pvec_Golgi_RateLevel.hoc")
+xopen("pvec_DS_ClickRecovery.hoc")
+xopen("pvec_DS_RateLevel.hoc")
+xopen("pvec_TV_Notch.hoc")
+xopen("pvec_TV_RateLevel.hoc")
+
+
+//Parameters for this optimisation
+xopen("parameters_TStellate.hoc")
+
+//--- Setup CN Stellate Network model
+xopen("CochlearNucleus.hoc")         // model set-up
+// xopen("par_CochlearNucleus.hoc")   // parallel model set-up
+xopen("spike_stats.hoc")
+xopen("calcisilag.hoc")
+xopen("jitter.hoc")
+
+ 
+// use_ball_stick=1
+ 
+// reset_DS_ClickRecovery()
+// param.w.x[hsr][ds]*  =10
+// param.w.x[ds][tv]/  =10
+// reset_weights()
+// usesavedfilterbanks  =1
+
+
+//Initial values
+param.w.x[hsr][ts]    = 0.001
+param.w.x[lsr][ts]    = 0.001
+param.w.x[ds][ts]    = 0.0001
+param.w.x[tv][ts]    = 0.0002
+param.w.x[glg][ts]    = 0.0005
+
+
+param.delay.x[glg][ts] = 0.5
+
+param.n.x[hsr][ts]    = 30
+param.n.x[lsr][ts]    = 30
+param.n.x[ds][ts]    = 20
+param.n.x[tv][ts]    = 20
+param.n.x[glg][ts]    = 20
+param.ts_jitter_sd = 0.2 //ms
+
+ANsoundspath="../sounds"        //system dependent 
+fileroot="TStellate"
+create_cells()
+objref nil
+// Comment out next line to kill all TS cells not covered by experimental data
+// subtypes' CFs. It reduces processing time by a fraction - enough when
+// simulating multiple times
+//for i=0,99 if(i != 20 || i !=38 || i != 51) tstellate[i][0] = nil
+
+
+connect_cells(fileroot)
+connect_CNcells(fileroot)
+xopen("cngui.hoc")
+xopen("ResponsesRoutines.hoc")
+
+xopen("par_experiment_TStellate3.hoc")
+xopen("TStellate3_err.hoc")
+
+ANmodel	     = 7 //Zilany Bruce model (Zilany et al, 2009)
+species      = 1 //Cat
+audiogram_file	= "cat_audiogram.txt"
+usesavedfilterbanks = 1
+ANsoundspath = "../sounds"  //local sounds path
+
+
+create_cells()
+connect_cells(fileroot)
+connect_CNcells(fileroot)
+
+ RefreshCF()
+ RefreshCNcellsCF()
+ RefreshCellParams()
+ 
+ CS_data()
+ SetupChopperCV()
+ SetupChopperMP()
+ 
+  
+
+//tstop=300
+proc QuickRun(){
+  set_pvec()
+  pvec.printf
+  print TStellate3_err(0,&pvec.x[0])  
+}
+
+tolerance = 0.0001
+maxstepsize = 0.0001
+printmode = 3
+strdef error_fn
+error_fn = "TStellate3_err"
+
+proc runprax(){
+  attr_praxis(tolerance, maxstepsize, printmode)
+  fit_praxis(NPARAMS,error_fn,&pvec.x[0])
+}
+
+
+
+//objref pval[NPARAMS]
+
+objref nil
+access tstellate[whichcell][0].soma
+xopen("reset_weights.hoc")
+xopen("voltage.ses")
+xopen("jitter.hoc")
+
+
+
+proc optimise_CS(){
+
+  CS_data()  
+  
+  for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100+20*(ii))
+
+  // set default fixed params and initial 
+  // pvec vaues with previous run
+  xopen("pvec_TStellate2_CS.hoc")  
+  set_pvec()
+
+  //QuickRun()
+  reps=25
+  //runprax()
+  reps=50
+  flushf()
+  printprax2()
+  print "CS Done"
+//    RateLevelFunction()
+ //   NoiseRateLevelFunction()
+ //   ModulationTransferFunction(tonefreq)
+    F0_Response(tonefreq)
+
+
+}
+
+
+proc optimise_CT1(){
+  CT1_data()  
+
+  //for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100)
+  for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100+20*(ii))
+  
+  // set default fixed params and initial 
+  // pvec vaues with previous run
+  xopen("pvec_TStellate2_CT1.hoc")  
+  set_pvec()  
+  
+  //QuickRun()
+//  runprax()
+  flushf()
+  printprax2()
+  print "CT1 Done"
+    RateLevelFunction()
+    NoiseRateLevelFunction()
+    ModulationTransferFunction(tonefreq)
+    F0_Response(tonefreq)
+
+}
+
+proc optimise_CT2(){ 
+  
+  //set the stimulus and target data set 
+  CT2_data()
+  //set the weighting in CV data points 
+    //  should be at least 10 times to match the magnitude of the IV data
+  
+  for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100+20*(ii))
+  
+  // set default fixed params and initial 
+  // pvec vaues with previous run
+  xopen("pvec_TStellate2_CT2.hoc")
+  
+  set_pvec()
+  
+  //QuickRun()
+  
+  //runprax()
+  flushf()
+  printprax2()
+  print "CT2 Done"
+//    RateLevelFunction()
+//    NoiseRateLevelFunction()
+//    ModulationTransferFunction(tonefreq)
+//    F0_Response(tonefreq)
+
+}
+
+TSexemplar_SPL_thresh=20
