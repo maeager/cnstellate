@@ -129,8 +129,8 @@ proc print_AMresults() {local tmpbinwidth
 
 
 /*********Default Parameters *************/
-ANsoundspath = "/media/data/sounds"  //local sounds path
-ANmodel      = 6      //Zilany Bruce model
+//ANsoundspath = "../sounds"  //local sounds path
+ANmodel      = 7      //Zilany Bruce model
 species      = 1      //Cat
 nrep         = 1      //nrep is number of reps of stimulus
 cfhi         = 40000
@@ -344,6 +344,11 @@ proc ModulationTransferFunction(){
 proc F0_Response(){
 	stimtype = 3 	//AM tone
 	dur = 0.149
+	ramplngth	= 0.002
+	stimdelay	= 0.01
+	dutycycle = 0.0
+	tonefreq	= $1
+	
 	ramplngth	= 0.002
 	stimdelay=0.01
 	tonefreq = $1
