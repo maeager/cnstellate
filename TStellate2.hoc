@@ -92,14 +92,19 @@ objref nil
 connect_cells(fileroot)
 connect_CNcells(fileroot)
 xopen("cngui.hoc")
-
+xopen("ResponsesRoutines.hoc")
 
 xopen("par_experiment_TStellate2.hoc")
-
 xopen("TStellate2_err.hoc")
 
-create_cells()
+ANmodel	     = 7 //Zilany Bruce model (Zilany et al, 2009)
+species      = 1 //Cat
+audiogram_file	= "cat_audiogram.txt"
+usesavedfilterbanks = 1
+ANsoundspath = "../sounds"  //local sounds path
 
+
+create_cells()
 connect_cells(fileroot)
 connect_CNcells(fileroot)
 
@@ -111,11 +116,7 @@ connect_CNcells(fileroot)
  SetupChopperCV()
  SetupChopperMP()
  
- RefreshParameters()
- ANFilterBankRun()
- //SetInputRates()
-
- 
+  
 
 //tstop=300
 proc QuickRun(){
@@ -153,29 +154,23 @@ proc optimise_CS(){
   
   for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100+20*(ii))
 
-  param.ts_ghbar=6.20392e-05 
-  param.n.x[hsr][ts]=30
-  param.n.x[lsr][ts]=30
-  param.n.x[ds][ts]=20
-  param.n.x[tv][ts]=20
-  param.n.x[glg][ts]=20
-  param.ts_erev=-60.9  
+  // set default fixed params and initial 
+  // pvec vaues with previous run
   xopen("pvec_TStellate2_CS.hoc")  
   set_pvec()
-  RefreshParameters()
-  ANFilterBankRun()  //Generate new AN instant. rates
-  SetInputRates()
-  
-  set_pvec()
+
   //QuickRun()
   reps=25
   //runprax()
   reps=50
   flushf()
-  
   printprax2()
-  xopen("printprax.hoc")
   print "CS Done"
+//    RateLevelFunction()
+ //   NoiseRateLevelFunction()
+ //   ModulationTransferFunction(tonefreq)
+    F0_Response(tonefreq)
+
 
 }
 
@@ -186,26 +181,21 @@ proc optimise_CT1(){
   //for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100)
   for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100+20*(ii))
   
-  param.ts_erev=-62.9
-  param.n.x[hsr][ts]=30
-  param.n.x[lsr][ts]=30
-  param.n.x[ds][ts]=20
-  param.n.x[tv][ts]=20
-  param.n.x[glg][ts]=20
+  // set default fixed params and initial 
+  // pvec vaues with previous run
   xopen("pvec_TStellate2_CT1.hoc")  
   set_pvec()  
-  
-  RefreshParameters()
-  ANFilterBankRun()  //Generate new AN instant. rates
-  SetInputRates()
   
   //QuickRun()
 //  runprax()
   flushf()
   printprax2()
-  xopen("printprax.hoc")
-
   print "CT1 Done"
+    RateLevelFunction()
+    NoiseRateLevelFunction()
+    ModulationTransferFunction(tonefreq)
+    F0_Response(tonefreq)
+
 }
 
 proc optimise_CT2(){ 
@@ -217,29 +207,22 @@ proc optimise_CT2(){
   
   for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100+20*(ii))
   
-  //set default fixed params
-  param.ts_erev=-62.9
-  param.n.x[hsr][ts]=30
-  param.n.x[lsr][ts]=30
-  param.n.x[ds][ts]=20
-  param.n.x[tv][ts]=20
-  param.n.x[glg][ts]=20  
-  //start pvec vaues with previous run
+  // set default fixed params and initial 
+  // pvec vaues with previous run
   xopen("pvec_TStellate2_CT2.hoc")
   
   set_pvec()
-  
-  RefreshParameters()
-  ANFilterBankRun()  
-  SetInputRates()
   
   //QuickRun()
   
   //runprax()
   flushf()
   printprax2()
-  xopen("printprax.hoc")
   print "CT2 Done"
+//    RateLevelFunction()
+//    NoiseRateLevelFunction()
+//    ModulationTransferFunction(tonefreq)
+//    F0_Response(tonefreq)
 
 }
 

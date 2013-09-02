@@ -184,6 +184,7 @@ proc printprax2(){
    system(cmd)
    print error=TStellate2_err(0,&pvec.x[0])
    //printprax()
+  xopen("printprax.hoc")  //Quick fix while debugging printprax()
 
 }
 

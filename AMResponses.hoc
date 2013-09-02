@@ -107,7 +107,7 @@ proc AMresponse_CT1(){
     binwidth=0.1
     reps=50
     F0_Response(tonefreq)
-//    ModulationTransferFunction(tonefreq)
+    ModulationTransferFunction(tonefreq)
 }
 
 proc AMresponse_CT2(){

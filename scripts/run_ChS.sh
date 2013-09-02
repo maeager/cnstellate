@@ -10,9 +10,9 @@ cd $PBS_O_WORKDIR
 # cd `dirname $0`/..
 module load octave/3.6.2
 
-
+./mpi/special TStellate2.hoc -c "optimise_CS()"
 # ./mpi/special AMResponses.hoc -c "SimpleResponses_CS()" -c "AMresponse_CS()"
-./mpi/special AMResponses.hoc -c "AMresponse_CS()"
+# ./mpi/special AMResponses.hoc -c "AMresponse_CS()"
 
 cd TStellate2_CS
 ../scripts/fullbattery.sh
