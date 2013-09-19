@@ -85,7 +85,7 @@ func SetChopperRMP(){
 // examine the relationship between stimulus SPL and membrane po-
 // tential during CF tone presentation. 
 
-
+proc TS_stimulus_setup(){
 delay               = 0.02
 dur                  = 0.0475    // Actual duration minus half ramplength
 ramplngth            = 0.005 
@@ -103,10 +103,10 @@ audiogram_file         = "rat_bruce_audiogram.dat"
 reps               = 25
 usesavedfilterbanks      = 1
 
-
 RefreshCF()
 GetAudiogramData()
-
+}
+TS_stimulus_setup()
 
 
 // Reference and test comparison vectors: These objects are lists with three
@@ -343,7 +343,7 @@ proc CS_data() {local points
    
    spl = TSexemplar_SPL_thresh
    tonefreq = TSexemplar_CF
-   
+   TS_stimulus_setup()
    
    whichcell = FindInd(tonefreq)  //get CF index close to 3.9kHz
    print "CS data CF ", tonefreq, "(Hz), location ", whichcell
@@ -461,7 +461,8 @@ proc CT1_data() {local points localobj temp
    //tonefreq = 8200 //Hz, characteristic frequency
     spl = TSexemplar_SPL_thresh
     tonefreq = TSexemplar_CF
-   
+   TS_stimulus_setup()
+
    
    whichcell = FindInd(tonefreq)  //get CF index close to 8.2kHz
    print "CT1 data CF ", tonefreq, "(Hz), location ", whichcell
@@ -570,6 +571,8 @@ proc CT2_data() {local points localobj temp
    // tonefreq = 12400 //Hz
    spl = TSexemplar_SPL_thresh
    tonefreq = TSexemplar_CF
+   TS_stimulus_setup()
+
    
    whichcell = FindInd(tonefreq)  //get CF index close to 12.4kHz
    file.ropen("TStellate/CT2-01-305-014.png.dat")
