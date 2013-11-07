@@ -1,6 +1,6 @@
 /* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
 
-/*  par_experiment_TStellate2
+/*  par_experiment_TStellate3
 *  Experimental setup for second TStellate optimisation 
 *
 *   
@@ -62,15 +62,15 @@ TSexemplar_CF = 9100
 // and -58.7 ± 2.8 mV, respectively.
 
 func SetChopperRMP(){
-   if ($1 == 0) {
-      return -58.7
-   } else if ($1 == 1) {
-      return -60.2
-   }else if ($1 == 2 ) {
-      return -59.0
-   }
-   print "SetChopperRMP: Using default TS RMP"
-   return TSexemplar_RMP   
+	if ($1 == 0) {
+		return -58.7
+	} else if ($1 == 1) {
+		return -60.2
+	}else if ($1 == 2 ) {
+		return -59.0
+	}
+	print "SetChopperRMP: Using default TS RMP"
+	return TSexemplar_RMP   
 }
 
 
@@ -85,27 +85,28 @@ func SetChopperRMP(){
 // examine the relationship between stimulus SPL and membrane po-
 // tential during CF tone presentation. 
 
-
-delay               = 0.05
-dur                  = 0.0475    // Actual duration minus half ramplength
-ramplngth            = 0.005 
-dutycycle            = 0.8       // get an extra 40msec post-tone
-cfhi               = 40000     //suitable for cat and rat model but not for human
-cflo               = 200       
-srate               = 100000    // 500k is no longer needed in Zilany AN model
-stimtdres            = 1/srate
-sg_rate               = 50000     // store AN model at 50k 
-sg_tdres            = 1/sg_rate
-tstop               = 180       // 50 ms delay, 50 ms stim, 40 ms post tone
-ANmodel               = 7         // ZilanyBruce
-species               = 2         //Rat
-audiogram_file         = "rat_bruce_audiogram.dat"
-reps               = 25
-usesavedfilterbanks      = 1
-
-
-RefreshCF()
-GetAudiogramData()
+proc TS3_stimulus_setup(){
+	
+	stimdelay               = 0.05
+	dur                  = 0.0475    // Actual duration minus half ramplength
+	ramplngth            = 0.005 
+	dutycycle            = 0.8       // get an extra 40msec post-tone
+	cfhi               = 40000     //suitable for cat and rat model but not for human
+	cflo               = 200       
+	srate               = 100000    // 500k is no longer needed in Zilany AN model
+	stimtdres            = 1/srate
+	sg_rate               = 50000     // store AN model at 50k 
+	sg_tdres            = 1/sg_rate
+	tstop               = 180       // 50 ms delay, 50 ms stim, 40 ms post tone
+	ANmodel               = 7         // ZilanyBruce
+	species               = 9         //Cat
+	audiogram_file         = "cat_audiogram.txt"
+	reps               = 25
+	usesavedfilterbanks      = 1
+	RefreshCF()
+	GetAudiogramData()
+}
+TS3_stimulus_setup()
 
 
 
@@ -139,38 +140,38 @@ objref TSIVList,TSspikeList
 
 
 proc SetupChopperCV(){local nrow,ncol
-   nrow   = 5
-   ncol   = 3
-   
-   objref CV_sustained, CV_transient1, CV_transient2
-   CV_transient2         = new Matrix()
-   CV_transient1         = new Matrix()
-   CV_sustained         = new Matrix()
-   
-   file = new File()
-   file.ropen("TStellate/PaoliniBalancedInh-Fig2.png.dat")
-   if(file.isopen()){
-      CV_transient2.scanf(file,nrow, ncol)
-      CV_transient1.scanf(file,nrow, ncol)
-      CV_sustained.scanf(file,nrow, ncol)
-      file.close()
-   } else {
-      print "Error reading TStellate/PaoliniBalancedInh-Fig2.png.dat"
-   }
-   
-   // CV at 3 levels for CS unit in Figure 3C (20,40,50 dB re Thresh)
-   file.ropen("TStellate/Paolini2005_Fig3C_CVdata.dat")
-   if(file.isopen()){
-      CVdata_CS = new Matrix()
-      CVdata_CS.scanf(file,5, 4)
-      file.close()
-      CVlevel_CS = new Vector()
-      //SPL values in Figure 3,  re threshold
-      CVlevel_CS.append(20,40,50)
-   } else {
-      print "Error reading CV data TStellate/Paolini2005_Fig3C_CVdata.dat"
-   }
-   
+	nrow   = 5
+	ncol   = 3
+	
+	objref CV_sustained, CV_transient1, CV_transient2
+	CV_transient2         = new Matrix()
+	CV_transient1         = new Matrix()
+	CV_sustained         = new Matrix()
+	
+	file = new File()
+	file.ropen("TStellate/PaoliniBalancedInh-Fig2.png.dat")
+	if(file.isopen()){
+		CV_transient2.scanf(file,nrow, ncol)
+		CV_transient1.scanf(file,nrow, ncol)
+		CV_sustained.scanf(file,nrow, ncol)
+		file.close()
+	} else {
+		print "Error reading TStellate/PaoliniBalancedInh-Fig2.png.dat"
+	}
+	
+	// CV at 3 levels for CS unit in Figure 3C (20,40,50 dB re Thresh)
+	file.ropen("TStellate/Paolini2005_Fig3C_CVdata.dat")
+	if(file.isopen()){
+		CVdata_CS = new Matrix()
+		CVdata_CS.scanf(file,5, 4)
+		file.close()
+		CVlevel_CS = new Vector()
+		//SPL values in Figure 3,  re threshold
+		CVlevel_CS.append(20,40,50)
+	} else {
+		print "Error reading CV data TStellate/Paolini2005_Fig3C_CVdata.dat"
+	}
+	
 }
 
 SetupChopperCV()
@@ -209,58 +210,58 @@ objref MPadaptation_CS, MPadaptation_CT1, MPadaptation_CT2, MPadaptation_data
 objref MPhyper_CS, MPhyper_CT1, MPhyper_CT2, MPhyper_data, MPlevel_re_thresh
 
 proc SetupChopperMP(){local nrow,ncol
-   objref MPadaptation_CS, MPadaptation_CT1, MPadaptation_CT2, MPadaptation_data
-   objref MPhyper_CS, MPhyper_CT1, MPhyper_CT2, MPhyper_data
-   
-   nrow = 4 // four SPL levels
-   ncol = 3 // SPL, Adaptation or Offset difference mean , standard deviation
-   
-   MPadaptation_CS = new Matrix()
-   MPadaptation_CT1 = new Matrix()
-   MPadaptation_CT2 = new Matrix()
-   
-   MPhyper_CS = new Matrix()
-   MPhyper_CT1 = new Matrix()
-   MPhyper_CT2 = new Matrix()
-   MPlevel_re_thresh = new Vector()
-   MPlevel_re_thresh.append(10,20,30,40)
-   
-   // CT 1 & 2 adaptation 
-   file = new File()
+	objref MPadaptation_CS, MPadaptation_CT1, MPadaptation_CT2, MPadaptation_data
+	objref MPhyper_CS, MPhyper_CT1, MPhyper_CT2, MPhyper_data
+	
+	nrow = 4 // four SPL levels
+	ncol = 3 // SPL, Adaptation or Offset difference mean , standard deviation
+	
+	MPadaptation_CS = new Matrix()
+	MPadaptation_CT1 = new Matrix()
+	MPadaptation_CT2 = new Matrix()
+	
+	MPhyper_CS = new Matrix()
+	MPhyper_CT1 = new Matrix()
+	MPhyper_CT2 = new Matrix()
+	MPlevel_re_thresh = new Vector()
+	MPlevel_re_thresh.append(10,20,30,40)
+	
+	// CT 1 & 2 adaptation 
+	file = new File()
     file.ropen("TStellate/Fig6A.dat")
-   if(file.isopen()){
-      MPadaptation_CT2.scanf(file,nrow, ncol)
-      MPadaptation_CT1.scanf(file,nrow, ncol)
-      MPadaptation_CS = new Matrix(nrow,ncol)
-      MPadaptation_CS.zero()
-      file.close()
-   } else {
-      print "Error reading MP data"
-   }
-   
-   //CT 1 & 2 hyperpolarisation
-   file.ropen("TStellate/Fig6B.dat")
-   if(file.isopen()){
-      MPhyper_CT2.scanf(file,nrow, ncol)
-      MPhyper_CT1.scanf(file,nrow, ncol)
-      file.close()
-   } else {
-      print "Error reading MP data Fig6B.dat"
-   }
-   
-   // CS unit 01-859-013
-   // Figure 3, Paolini et al., 2005
-   // Hyperpolarisation MPt60 - RMP
-   file.ropen("./TStellate/PaoliniBalancedInh_Fig3_Offset.dat")
-   if(file.isopen()){
-      MPhyper_CS = new Matrix()
-      MPhyper_CS.scanf(file,4, 4)
-      file.close()
-   } else {
-      print "Error reading MP data PaoliniBalancedInh-Fig3_Offset.dat"
-   }
-   
-   
+	if(file.isopen()){
+		MPadaptation_CT2.scanf(file,nrow, ncol)
+		MPadaptation_CT1.scanf(file,nrow, ncol)
+		MPadaptation_CS = new Matrix(nrow,ncol)
+		MPadaptation_CS.zero()
+		file.close()
+	} else {
+		print "Error reading MP data"
+	}
+	
+	//CT 1 & 2 hyperpolarisation
+	file.ropen("TStellate/Fig6B.dat")
+	if(file.isopen()){
+		MPhyper_CT2.scanf(file,nrow, ncol)
+		MPhyper_CT1.scanf(file,nrow, ncol)
+		file.close()
+	} else {
+		print "Error reading MP data Fig6B.dat"
+	}
+	
+	// CS unit 01-859-013
+	// Figure 3, Paolini et al., 2005
+	// Hyperpolarisation MPt60 - RMP
+	file.ropen("./TStellate/PaoliniBalancedInh_Fig3_Offset.dat")
+	if(file.isopen()){
+		MPhyper_CS = new Matrix()
+		MPhyper_CS.scanf(file,4, 4)
+		file.close()
+	} else {
+		print "Error reading MP data PaoliniBalancedInh-Fig3_Offset.dat"
+	}
+	
+	
 }
 
 SetupChopperMP()
@@ -268,12 +269,12 @@ SetupChopperMP()
 
 
 proc CalcIVMeasures(){
-   
+	
     onset_depol = $o1.mean(ivdata[0].indwhere(">=",5.0), ivdata[0].indwhere(">=",10.0))
     middle_depol = $o1.mean( ivdata[0].indwhere(">=",20), ivdata[0].indwhere(">=",30))
-   
+	
     onset_ratio = onset_depol / middle_depol
-   
+	
     v20_depol = $o1.mean( ivdata[0].indwhere(">=",20) - 1, ivdata[0].indwhere(">=",21))
     v50_depol = $o1.mean( ivdata[0].indwhere(">=",50) -1, ivdata[0].indwhere(">=",51))
     adaptation_ratio = v20_depol - v50_depol
@@ -281,11 +282,11 @@ proc CalcIVMeasures(){
     resting_value  = $o1.mean(0 , ivdata[0].indwhere(">",0))
     v60_depol = $o1.mean(ivdata[0].indwhere(">=",60) - 1, ivdata[0].indwhere(">=",61))
     offset_hyperpol = resting_value - v60_depol
-   
+	
     print "resting membrane potential              ", resting_value
     print "level of initial depolarization         ", onset_depol
     print "onset ratio                             ", onset_ratio
-   
+	
     print "adaptation of sustained depolarization  ", adaptation_ratio
     print "post-tone hyperpolarization             ", offset_hyperpol
     
@@ -304,9 +305,9 @@ proc CalcIVMeasures_version2(){local time_shift localobj iv_vec,time_vec
     onset_depol = iv_vec.mean(time_vec.indwhere(">=",5.0+time_shift), time_vec.indwhere(">=",10.0+time_shift))
     
     middle_depol = iv_vec.mean( time_vec.indwhere(">=",20+time_shift), time_vec.indwhere(">=",30+time_shift))
-   
+	
     onset_ratio = onset_depol / middle_depol
-   
+	
     v20_depol = iv_vec.mean( time_vec.indwhere(">=",18+time_shift) - 1, time_vec.indwhere(">=",23+time_shift))
     v50_depol = iv_vec.mean( time_vec.indwhere(">=",40+time_shift) - 1, time_vec.indwhere(">=",45+time_shift))
     adaptation_ratio = v20_depol - v50_depol
@@ -333,359 +334,345 @@ sustained_transient_chopper=0
 
 
 proc CS_data() {local points
-   //chopper sustained
-   // unit 01-864-004  CF 11.7kHz  AP threshold 10 dB
-   //CV (10ms segs) always below 0.2 for 45, 65, and 75 dB
-   // rate saturation at 75 dB
-   // threshold 10dB
-   //spl      = 40   //30 dB above depolarisation threshold
-   //tonefreq = 11700 //Hz, characteristic frequency
-   
-   spl = TSexemplar_SPL_thresh
-   tonefreq = TSexemplar_CF
-      
-delay               = 0.05
-dur                  = 0.0475    // Actual duration minus half ramplength
-ramplngth            = 0.005 
-dutycycle            = 0.8       // get an extra 40msec post-tone
-
-   
-   whichcell = FindInd(tonefreq)  //get CF index close to 3.9kHz
-   print "CS data CF ", tonefreq, "(Hz), location ", whichcell
-   
-   objref tempmat, ivdata[2]
-   ivdata[0] = new Vector() //time vector
-   ivdata[1] = new Vector() //iv trace vector
-   
-   //Get iv trace from Figure 1A (Paolini et al 2005)
-   // spl=40 dB in figure
-   file.ropen("TStellate/CS-01-864-004.png.dat")
-   tempmat = new Matrix()
-   tempmat.scanf(file)
-   ivdata[0] = tempmat.getcol(0) //time
-   ivdata[1] = tempmat.getcol(1) //voltage (mV)
-   file.close()
-   chopperIVgr =  new Graph()
-   ivdata[1].plot(chopperIVgr,ivdata[0])
-   chopperIVgr.exec_menu("View = plot")
-   sprint(fileroot,"TStellate2_CS")    // root for output filenames
-   sprint(cmd,"mkdir -p %s",fileroot)
-   system(cmd)
-   
- 
-   IV_reference = new List()
-   IV_weight = new List()
-   //10 dB re thresh
-   //IV_temp = new Vector(4,0)   
-   //IV_reference.append(IV_temp) //No data
-   //IV_weight.append(IV_temp)
-   
-   //20 dB re thresh
-   IV_temp = new Vector(4,0)
-   IV_temp.x[2] = MPhyper_CS.x[0][1] //Hyperpolarisation
-   IV_temp.x[3] = MPhyper_CS.x[0][2] //RMP
-   IV_reference.append(IV_temp)
-   IV_temp = new Vector(4,0)
-   IV_temp.x[2]=1  // only offset hyperpol data used in error comparison
-   IV_weight.append(IV_temp)
+	//chopper sustained
+	// unit 01-864-004  CF 11.7kHz  AP threshold 10 dB
+	//CV (10ms segs) always below 0.2 for 45, 65, and 75 dB
+	// rate saturation at 75 dB
+	// threshold 10dB
+	//spl      = 40   //30 dB above depolarisation threshold
+	//tonefreq = 11700 //Hz, characteristic frequency
+	
+	spl = TSexemplar_SPL_thresh
+	tonefreq = TSexemplar_CF
+	
+	sprint(fileroot,"TStellate3_CS")    // root for output filenames
+	sprint(cmd,"mkdir -p %s",fileroot)
+	system(cmd)
+	
+	TS3_stimulus_setup()
+	
+	
+	whichcell = FindInd(tonefreq)  //get CF index close to tonefreq
+	print "CS data CF ", tonefreq, "(Hz), location ", whichcell
+	
+	objref tempmat, ivdata[2]
+	ivdata[0] = new Vector() //time vector
+	ivdata[1] = new Vector() //iv trace vector
+	
+	//Get iv trace from Figure 1A (Paolini et al 2005)
+	// spl=40 dB in figure
+	file.ropen("TStellate/CS-01-864-004.png.dat")
+	tempmat = new Matrix()
+	tempmat.scanf(file)
+	ivdata[0] = tempmat.getcol(0) //time
+	ivdata[1] = tempmat.getcol(1) //voltage (mV)
+	file.close()
+	chopperIVgr =  new Graph()
+	ivdata[1].plot(chopperIVgr,ivdata[0])
+	chopperIVgr.exec_menu("View = plot")
+	
+	
+	IV_reference = new List()
+	IV_weight = new List()
+	//10 dB re thresh
+	//IV_temp = new Vector(4,0)   
+	//IV_reference.append(IV_temp) //No data
+	//IV_weight.append(IV_temp)
+	
+	//20 dB re thresh
+	IV_temp = new Vector(4,0)
+	IV_temp.x[2] = MPhyper_CS.x[0][1] //Hyperpolarisation
+	IV_temp.x[3] = MPhyper_CS.x[0][2] //RMP
+	IV_reference.append(IV_temp)
+	IV_temp = new Vector(4,0)
+	IV_temp.x[2]=1  // only offset hyperpol data used in error comparison
+	IV_weight.append(IV_temp)
     
-   //30 dB re thresh  (use actual trace in Figure 1)
-   IV_temp = new Vector()
-   CalcIVMeasures_version2(ivdata[1],ivdata[0])
-   IV_temp.append(onset_ratio,adaptation_ratio ,offset_hyperpol,resting_value)    
-   IV_reference.append(IV_temp)
-   IV_temp = new Vector(4,1)
-   IV_temp.x[3]=0  // ignore RMP
-   IV_weight.append(IV_temp) //all data available
-   
-   
-   
-   //40 dB re thresh
-   IV_temp = new Vector(4)   
-   IV_reference.append(IV_temp)
-   IV_temp.x[2] = MPhyper_CS.x[2][1] //Hyperpolarisation
-   IV_temp.x[3] = MPhyper_CS.x[2][2] //RMP
-   IV_reference.append(IV_temp)
-   IV_temp = new Vector(4,0)
-   IV_temp.x[2]=1  // only offset hyperpol data used in error comparison   
-   IV_weight.append(IV_temp)
-   
-   
-   SetupChopperCV()
-   CV_reference = new List()
-   CV_weight = new List()
-   
-   //10 dB re thresh
-   //CV_temp = new Vector()   
-   //CV_reference.append(CV_temp) //No data
+	//30 dB re thresh  (use actual trace in Figure 1)
+	IV_temp = new Vector()
+	CalcIVMeasures_version2(ivdata[1],ivdata[0])
+	IV_temp.append(onset_ratio,adaptation_ratio ,offset_hyperpol,resting_value)    
+	IV_reference.append(IV_temp)
+	IV_temp = new Vector(4,1)
+	IV_temp.x[3]=0  // ignore RMP
+	IV_weight.append(IV_temp) //all data available
+	
+	
+	
+	//40 dB re thresh
+	IV_temp = new Vector(4)   
+	IV_reference.append(IV_temp)
+	IV_temp.x[2] = MPhyper_CS.x[2][1] //Hyperpolarisation
+	IV_temp.x[3] = MPhyper_CS.x[2][2] //RMP
+	IV_reference.append(IV_temp)
+	IV_temp = new Vector(4,0)
+	IV_temp.x[2]=1  // only offset hyperpol data used in error comparison   
+	IV_weight.append(IV_temp)
+	
+	
+	SetupChopperCV()
+	CV_reference = new List()
+	CV_weight = new List()
+	
+	//10 dB re thresh
+	//CV_temp = new Vector()   
+	//CV_reference.append(CV_temp) //No data
     
-   //20 dB re thresh  (remove the last elementin CVdata_CS)
-   CV_reference.append(CVdata_CS.getcol(1).remove(4))
-   CV_temp = new Vector(4,default_CV_weight)
-   CV_weight.append(CV_temp)
-   
-   
-   //30 dB - Average data in Figure 2 
-   CV_temp = CV_sustained.getcol(1).c
-   CV_reference.append(CV_temp.remove(4))
-   CV_temp = new Vector(4,default_CV_weight*2)
-   CV_weight.append(CV_temp)
-   
-   
-   //40 dB re thresh
-   CV_temp = new Matrix()
-   CV_reference.append(CVdata_CS.getcol(2).remove(4))
-   CV_temp = new Vector(4,default_CV_weight)
-   CV_weight.append(CV_temp)
-   
-   sustained_transient_chopper=0
-   
+	//20 dB re thresh  (remove the last elementin CVdata_CS)
+	CV_reference.append(CVdata_CS.getcol(1).remove(4))
+	CV_temp = new Vector(4,default_CV_weight)
+	CV_weight.append(CV_temp)
+	
+	
+	//30 dB - Average data in Figure 2 
+	CV_temp = CV_sustained.getcol(1).c
+	CV_reference.append(CV_temp.remove(4))
+	CV_temp = new Vector(4,default_CV_weight*2)
+	CV_weight.append(CV_temp)
+	
+	
+	//40 dB re thresh
+	CV_temp = new Matrix()
+	CV_reference.append(CVdata_CS.getcol(2).remove(4))
+	CV_temp = new Vector(4,default_CV_weight)
+	CV_weight.append(CV_temp)
+	
+	sustained_transient_chopper=0
+	
 }
 
 proc Test_IVCV_reference_data(){local ii
-   for ii=0,2 {
-      print "ii  ", ii   
-      CV_reference.object(ii).printf
-      CV_weight.object(ii).printf
-      print ""  
-      IV_reference.object(ii).printf
-      IV_weight.object(ii).printf
-   }
+	for ii=0,2 {
+		print "ii  ", ii   
+		CV_reference.object(ii).printf
+		CV_weight.object(ii).printf
+		print ""  
+		IV_reference.object(ii).printf
+		IV_weight.object(ii).printf
+	}
 }
 
 proc CT1_data() {local points localobj temp
-   
-   // chopper transient 1 CF 8.2 KHz
-   // unit 01-857-007 \citep{PaoliniClareyEtAl:2005}
-   // CV first 10ms <0.2, then moves above 0.2
-   // this unit's depolarisation threshold  55 dB
-   // average CT threshold for depolarization
-   // and AP generation of 47.2 ± 2.5 and 57.4 ± 2.2 dB SPL
-   
-   //spl      = 85   //30 dB above depolarisation threshold
-   //tonefreq = 8200 //Hz, characteristic frequency
+	
+	// chopper transient 1 CF 8.2 KHz
+	// unit 01-857-007 \citep{PaoliniClareyEtAl:2005}
+	// CV first 10ms <0.2, then moves above 0.2
+	// this unit's depolarisation threshold  55 dB
+	// average CT threshold for depolarization
+	// and AP generation of 47.2 ± 2.5 and 57.4 ± 2.2 dB SPL
+	
+	//spl      = 85   //30 dB above depolarisation threshold
+	//tonefreq = 8200 //Hz, characteristic frequency
     spl = TSexemplar_SPL_thresh
     tonefreq = TSexemplar_CF
+	TS3_stimulus_setup()
 	
-	delay               = 0.05
-	dur                  = 0.0475    // Actual duration minus half ramplength
-	ramplngth            = 0.005 
-	dutycycle            = 0.8       // get an extra 40msec post-tone
-
-   
-   whichcell = FindInd(tonefreq)  //get CF index close to 8.2kHz
-   print "CT1 data CF ", tonefreq, "(Hz), location ", whichcell
-   sprint(fileroot,"TStellate2_CT1")    // root for output filenames    
-   sprint(cmd,"mkdir -p %s",fileroot)
-   system(cmd)
-   
-   file.ropen("TStellate/CT1-01-857-007.png.dat")
-   objref tempmat, ivdata[2]
-   ivdata[0] = new Vector()
-   ivdata[1] = new Vector()
-   tempmat = new Matrix() //points, 2)
-   tempmat.scanf(file)
-   ivdata[0] = tempmat.getcol(0) //time
-   ivdata[1] = tempmat.getcol(1) //voltage (mV)
-   file.close()
-   chopperIVgr =  new Graph()
-   ivdata[1].plot(chopperIVgr,ivdata[0])
-   chopperIVgr.exec_menu("View = plot")
-   
-   
-   
-   IV_reference = new List()
-   IV_weight = new List()
-   //10 dB re thresh
-   //IV_temp = new Vector(4,0)   
-   //IV_reference.append(IV_temp) //No data
-   //IV_weight.append(IV_temp)
-   
-   //20 dB re thresh
-   IV_temp = new Vector(4,0)
-   IV_temp.x[1] = MPadaptation_CT1.x[1][1]
-   IV_temp.x[2] = MPhyper_CT1.x[1][1] //Hyperpolarisation
-   IV_temp.x[3] = MPhyper_CT1.x[1][2] //s.e.
-   IV_reference.append(IV_temp)
-   IV_temp = new Vector(4,0)
-   IV_temp.x[1]=1  //  
-   IV_temp.x[2]=1  //  
-   IV_weight.append(IV_temp)
+	
+	whichcell = FindInd(tonefreq)  //get CF index close to 8.2kHz
+	print "CT1 data CF ", tonefreq, "(Hz), location ", whichcell
+	sprint(fileroot,"TStellate3_CT1")    // root for output filenames    
+	sprint(cmd,"mkdir -p %s",fileroot)
+	system(cmd)
+	
+	file.ropen("TStellate/CT1-01-857-007.png.dat")
+	objref tempmat, ivdata[2]
+	ivdata[0] = new Vector()
+	ivdata[1] = new Vector()
+	tempmat = new Matrix() //points, 2)
+	tempmat.scanf(file)
+	ivdata[0] = tempmat.getcol(0) //time
+	ivdata[1] = tempmat.getcol(1) //voltage (mV)
+	file.close()
+	chopperIVgr =  new Graph()
+	ivdata[1].plot(chopperIVgr,ivdata[0])
+	chopperIVgr.exec_menu("View = plot")
+	
+	
+	
+	IV_reference = new List()
+	IV_weight = new List()
+	//10 dB re thresh
+	//IV_temp = new Vector(4,0)   
+	//IV_reference.append(IV_temp) //No data
+	//IV_weight.append(IV_temp)
+	
+	//20 dB re thresh
+	IV_temp = new Vector(4,0)
+	IV_temp.x[1] = MPadaptation_CT1.x[1][1]
+	IV_temp.x[2] = MPhyper_CT1.x[1][1] //Hyperpolarisation
+	IV_temp.x[3] = MPhyper_CT1.x[1][2] //s.e.
+	IV_reference.append(IV_temp)
+	IV_temp = new Vector(4,0)
+	IV_temp.x[1]=1  //  
+	IV_temp.x[2]=1  //  
+	IV_weight.append(IV_temp)
     
-   //30 dB re thresh  (use actual trace in Figure 1)
-   IV_temp = new Vector()
-   CalcIVMeasures_version2(ivdata[1],ivdata[0])
-   IV_temp.append(onset_ratio,adaptation_ratio ,offset_hyperpol,resting_value)    
-   IV_reference.append(IV_temp)
-   IV_temp = new Vector(4,1)
-   IV_temp.x[3]=0  // ignore RMP
-   IV_weight.append(IV_temp) //all data available
-   
-   
-   
-   //40 dB re thresh
-   IV_temp = new Vector(4)   
-   IV_reference.append(IV_temp)
-   IV_temp.x[1] = MPadaptation_CT1.x[1][1]
-   IV_temp.x[2] = MPhyper_CT1.x[2][1] //Hyperpolarisation
-   IV_temp.x[3] = MPhyper_CT1.x[2][2] //s.e. of hyperpolarisation
-   IV_reference.append(IV_temp)
-   IV_temp = new Vector(4,0)
-   IV_temp.x[1]=1  //  
-   IV_temp.x[2]=1  // only offset hyperpol data used in error comparison   
-   IV_weight.append(IV_temp)
-   
-   
-   
-   //CV
-   SetupChopperCV()
-   CV_reference = new List()
-   CV_weight = new List()
-   
-   CV_temp = CV_transient1.getcol(1).c   
-   CV_temp.remove(4)
-   
-   //10 dB re thresh
-   //CV_temp = new Vector()   
-   //CV_reference.append(CV_temp) //No data
+	//30 dB re thresh  (use actual trace in Figure 1)
+	IV_temp = new Vector()
+	CalcIVMeasures_version2(ivdata[1],ivdata[0])
+	IV_temp.append(onset_ratio,adaptation_ratio ,offset_hyperpol,resting_value)    
+	IV_reference.append(IV_temp)
+	IV_temp = new Vector(4,1)
+	IV_temp.x[3]=0  // ignore RMP
+	IV_weight.append(IV_temp) //all data available
+	
+	
+	
+	//40 dB re thresh
+	IV_temp = new Vector(4)   
+	IV_reference.append(IV_temp)
+	IV_temp.x[1] = MPadaptation_CT1.x[1][1]
+	IV_temp.x[2] = MPhyper_CT1.x[2][1] //Hyperpolarisation
+	IV_temp.x[3] = MPhyper_CT1.x[2][2] //s.e. of hyperpolarisation
+	IV_reference.append(IV_temp)
+	IV_temp = new Vector(4,0)
+	IV_temp.x[1]=1  //  
+	IV_temp.x[2]=1  // only offset hyperpol data used in error comparison   
+	IV_weight.append(IV_temp)
+	
+	
+	
+	//CV
+	SetupChopperCV()
+	CV_reference = new List()
+	CV_weight = new List()
+	
+	CV_temp = CV_transient1.getcol(1).c   
+	CV_temp.remove(4)
+	
+	//10 dB re thresh
+	//CV_temp = new Vector()   
+	//CV_reference.append(CV_temp) //No data
     
-   //20 dB re thresh  (remove the last elementin CVdata_CS)
-   CV_reference.append(CV_temp)
-   temp = new Vector(4,default_CV_weight)
-   CV_weight.append(temp)
-   
-   
-   //30 dB - Average data in Figure 2 
-   CV_reference.append(CV_temp)   
-   temp = new Vector(4,default_CV_weight*2)
-   CV_weight.append(temp)
-   
-   
-   //40 dB re thresh
-   CV_reference.append(CV_temp)
-   temp = new Vector(4,default_CV_weight)
-   CV_weight.append(temp)
-   
-   sustained_transient_chopper=1
+	//20 dB re thresh  (remove the last elementin CVdata_CS)
+	CV_reference.append(CV_temp)
+	temp = new Vector(4,default_CV_weight)
+	CV_weight.append(temp)
+	
+	
+	//30 dB - Average data in Figure 2 
+	CV_reference.append(CV_temp)   
+	temp = new Vector(4,default_CV_weight*2)
+	CV_weight.append(temp)
+	
+	
+	//40 dB re thresh
+	CV_reference.append(CV_temp)
+	temp = new Vector(4,default_CV_weight)
+	CV_weight.append(temp)
+	
+	sustained_transient_chopper=1
     
 }
 
 proc CT2_data() {local points localobj temp
-   
-   //chopper transient type 2
-   // unit 01-305-014 \citep{PaoliniClareyEtAl:2005}
-   //CV (10ms segs) first 10m below 0.2, then rises above 0.3
-   // rate saturation at 5 dB
-   // spl      = 35   //30 dB above depolarisation threshold
-   // tonefreq = 12400 //Hz
-   spl = TSexemplar_SPL_thresh
-   tonefreq = TSexemplar_CF
-   
-   
-   delay               = 0.05
-   dur                  = 0.0475    // Actual duration minus half ramplength
-   ramplngth            = 0.005 
-   dutycycle            = 0.8       // get an extra 40msec post-tone
-
-   whichcell = FindInd(tonefreq)  //get CF index close to 12.4kHz
-   file.ropen("TStellate/CT2-01-305-014.png.dat")
-   print "CT2 data CF ", tonefreq, "(Hz), location ", whichcell
-   
-   
-   objref tempmat, ivdata[2]
-   ivdata[0] = new Vector()
-   ivdata[1] = new Vector()
-   tempmat = new Matrix() //points, 2)
-   tempmat.scanf(file)
-   ivdata[0] = tempmat.getcol(0) //time
-   ivdata[1] = tempmat.getcol(1) //voltage (mV)
-   file.close()
-   chopperIVgr =  new Graph()
-   ivdata[1].plot(chopperIVgr,ivdata[0])
-   chopperIVgr.exec_menu("View = plot")
-   sprint(fileroot,"TStellate2_CT2")    // root for output filenames
+	
+	//chopper transient type 2
+	// unit 01-305-014 \citep{PaoliniClareyEtAl:2005}
+	//CV (10ms segs) first 10m below 0.2, then rises above 0.3
+	// rate saturation at 5 dB
+	// spl      = 35   //30 dB above depolarisation threshold
+	// tonefreq = 12400 //Hz
+	spl = TSexemplar_SPL_thresh
+	tonefreq = TSexemplar_CF
+	TS3_stimulus_setup()	
+	sprint(fileroot,"TStellate3_CT2")    // root for output filenames
     sprint(cmd,"mkdir -p %s",fileroot)
-   system(cmd)
-   
-   
-   CalcIVMeasures_version2(ivdata[1],ivdata[0])
-   
-   
-   
-   IV_reference = new List()
-   IV_weight = new List()
-   //10 dB re thresh
-   //IV_temp = new Vector(4,0)   
-   //IV_reference.append(IV_temp) //No data
-   //IV_weight.append(IV_temp)
-   
-   //20 dB re thresh
-   IV_temp = new Vector(4,0)
-   IV_temp.x[1] = MPadaptation_CT2.x[1][1]
-   IV_temp.x[2] = MPhyper_CT2.x[1][1] //Hyperpolarisation
-   IV_temp.x[3] = MPhyper_CT2.x[1][2] //s.e.
-   IV_reference.append(IV_temp)
-   IV_temp = new Vector(4,0)
-   IV_temp.x[1]=1  //  
-   IV_temp.x[2]=1  //  
-   IV_weight.append(IV_temp)
+	system(cmd)
+	
+	whichcell = FindInd(tonefreq)  //get CF index close to 12.4kHz
+	file.ropen("TStellate/CT2-01-305-014.png.dat")
+	print "CT2 data CF ", tonefreq, "(Hz), location ", whichcell
+	
+	objref tempmat, ivdata[2]
+	ivdata[0] = new Vector()
+	ivdata[1] = new Vector()
+	tempmat = new Matrix() //points, 2)
+	tempmat.scanf(file)
+	ivdata[0] = tempmat.getcol(0) //time
+	ivdata[1] = tempmat.getcol(1) //voltage (mV)
+	file.close()
+	chopperIVgr =  new Graph()
+	ivdata[1].plot(chopperIVgr,ivdata[0])
+	chopperIVgr.exec_menu("View = plot")
+	
+	CalcIVMeasures_version2(ivdata[1],ivdata[0])
+	
+
+	IV_reference = new List()
+	IV_weight = new List()
+	//10 dB re thresh
+	//IV_temp = new Vector(4,0)   
+	//IV_reference.append(IV_temp) //No data
+	//IV_weight.append(IV_temp)
+	
+	//20 dB re thresh
+	IV_temp = new Vector(4,0)
+	IV_temp.x[1] = MPadaptation_CT2.x[1][1]
+	IV_temp.x[2] = MPhyper_CT2.x[1][1] //Hyperpolarisation
+	IV_temp.x[3] = MPhyper_CT2.x[1][2] //s.e.
+	IV_reference.append(IV_temp)
+	IV_temp = new Vector(4,0)
+	IV_temp.x[1]=1  //  
+	IV_temp.x[2]=1  //  
+	IV_weight.append(IV_temp)
     
-   //30 dB re thresh  (use actual trace in Figure 1)
-   IV_temp = new Vector()
-   CalcIVMeasures_version2(ivdata[1],ivdata[0])
-   IV_temp.append(onset_ratio,adaptation_ratio ,offset_hyperpol,resting_value)    
-   IV_reference.append(IV_temp)
-   IV_temp = new Vector(4,1)
-   IV_temp.x[3]=0  // ignore RMP
-   IV_weight.append(IV_temp) //all data available
-   
-   
-   
-   //40 dB re thresh
-   IV_temp = new Vector(4)   
-   IV_reference.append(IV_temp)
-   IV_temp.x[1] = MPadaptation_CT2.x[1][1]
-   IV_temp.x[2] = MPhyper_CT2.x[2][1] //Hyperpolarisation
-   IV_temp.x[3] = MPhyper_CT2.x[2][2] //s.e. of hyperpolarisation
-   IV_reference.append(IV_temp)
-   IV_temp = new Vector(4,0)
-   IV_temp.x[1]=1  //  
-   IV_temp.x[2]=1  // only offset hyperpol data used in error comparison   
-   IV_weight.append(IV_temp)
-   
-   
-   
-   //CV
-   SetupChopperCV()
-   CV_reference = new List()
-   CV_weight = new List()
-   
-   CV_temp = CV_transient2.getcol(1).c   
-   CV_temp.remove(4)
-   
-   //10 dB re thresh
-   //CV_temp = new Vector()   
-   //CV_reference.append(CV_temp) //No data
+	//30 dB re thresh  (use actual trace in Figure 1)
+	IV_temp = new Vector()
+	CalcIVMeasures_version2(ivdata[1],ivdata[0])
+	IV_temp.append(onset_ratio,adaptation_ratio ,offset_hyperpol,resting_value)    
+	IV_reference.append(IV_temp)
+	IV_temp = new Vector(4,1)
+	IV_temp.x[3]=0  // ignore RMP
+	IV_weight.append(IV_temp) //all data available
+	
+	
+	
+	//40 dB re thresh
+	IV_temp = new Vector(4)   
+	IV_reference.append(IV_temp)
+	IV_temp.x[1] = MPadaptation_CT2.x[1][1]
+	IV_temp.x[2] = MPhyper_CT2.x[2][1] //Hyperpolarisation
+	IV_temp.x[3] = MPhyper_CT2.x[2][2] //s.e. of hyperpolarisation
+	IV_reference.append(IV_temp)
+	IV_temp = new Vector(4,0)
+	IV_temp.x[1]=1  //  
+	IV_temp.x[2]=1  // only offset hyperpol data used in error comparison   
+	IV_weight.append(IV_temp)
+	
+	
+	
+	//CV
+	SetupChopperCV()
+	CV_reference = new List()
+	CV_weight = new List()
+	
+	CV_temp = CV_transient2.getcol(1).c   
+	CV_temp.remove(4)
+	
+	//10 dB re thresh
+	//CV_temp = new Vector()   
+	//CV_reference.append(CV_temp) //No data
     
-   //20 dB re thresh  (remove the last elementin CVdata_CS)
-   CV_reference.append(CV_temp)
-   temp = new Vector(4,default_CV_weight)
-   CV_weight.append(temp)
-   
-   
-   //30 dB - Average data in Figure 2 
-   CV_reference.append(CV_temp)   
-   temp = new Vector(4,default_CV_weight*4)
-   CV_weight.append(temp)
-   
-   
-   //40 dB re thresh
-   CV_reference.append(CV_temp)
-   temp = new Vector(4,default_CV_weight)
-   CV_weight.append(temp)
-   
-   sustained_transient_chopper=2
-   
+	//20 dB re thresh  (remove the last elementin CVdata_CS)
+	CV_reference.append(CV_temp)
+	temp = new Vector(4,default_CV_weight)
+	CV_weight.append(temp)
+	
+	
+	//30 dB - Average data in Figure 2 
+	CV_reference.append(CV_temp)   
+	temp = new Vector(4,default_CV_weight*4)
+	CV_weight.append(temp)
+	
+	
+	//40 dB re thresh
+	CV_reference.append(CV_temp)
+	temp = new Vector(4,default_CV_weight)
+	CV_weight.append(temp)
+	
+	sustained_transient_chopper=2
+	
 }
 
 
@@ -698,22 +685,22 @@ objref iv,meaniv,psthgr,tstellate_spikes
 psthgr = new Graph()
 
 proc RunTStellate(){
-   print "RunTStellate: "   
-   RefreshCF()
-   GetAudiogramData()
-   RefreshParameters()
-   ANFilterBankRun()
-   //CheckFilterbank()
-   SetInputRates()
-   
-   
+	print "RunTStellate: "   
+	RefreshCF()
+	GetAudiogramData()
+	RefreshParameters()
+	ANFilterBankRun()
+	//CheckFilterbank()
+	SetInputRates()
+	
+	
     objref iv,meaniv,tvec
-   //ClearSpikes()
+	//ClearSpikes()
     iv = new Vector()
     iv.record(&tstellate[whichcell][0].soma.v(0.5))
     meaniv = new Vector(tstop/dt + 1,0)
     //tstellate[whichcell][0].spikes.resize(0)
-   tstellate_spikes = new List()
+	tstellate_spikes = new List()
     for ireps = 0, reps-1 {
         GenSpikes2()
         print ireps
@@ -721,7 +708,7 @@ proc RunTStellate(){
         //SaveSpikes()
         tstellate_spikes.append(tstellate[whichcell][0].spiketimes.c)
         for i=0,tstop/dt-1{
-         if (iv.x[i] > thresh) iv.x[i] = thresh
+			if (iv.x[i] > thresh) iv.x[i] = thresh
         }
         meaniv.add(iv)
         iv.mul(0)
@@ -730,14 +717,14 @@ proc RunTStellate(){
     tvec=new Vector(tstop/dt + 1)
     tvec.indgen(dt).add(-stimdelay*1000)
     meaniv.plot(chopperIVgr,tvec)
-   
+	
     chopperIVgr.exec_menu("View = plot")
-   CalcIVMeasures_version2(ivdata[1],ivdata[0])
-   CalcIVMeasures_version2(meaniv,ivdata[0])
-   //psth = tstellate[whichcell][0].spikes.histogram(0,110,binwidth)
-   //psth.plot(psthgr,binwidth) psthgr.exec_menu("View = plot")
-   PSTHcell(tstellate_spikes,10,0)
-   print "RunTStellate: done"  
+	CalcIVMeasures_version2(ivdata[1],ivdata[0])
+	CalcIVMeasures_version2(meaniv,ivdata[0])
+	//psth = tstellate[whichcell][0].spikes.histogram(0,110,binwidth)
+	//psth.plot(psthgr,binwidth) psthgr.exec_menu("View = plot")
+	PSTHcell(tstellate_spikes,10,0)
+	print "RunTStellate: done"  
 }
 
 
@@ -757,311 +744,310 @@ param.ts_jitter_sd = 0.2
 proc reset_TStellate(){local ii
     print "updating features for T stellate optimisation routines"
     for ii = 0,nchannels-1 {
-      //        if(ii == 20 || ii == 38 || ii == 51){
-      sprint(cmd,"tstellate[%d][0].soma.gnabar_rm  = param.ts_gnabar",ii) execute1(cmd)
-      sprint(cmd,"tstellate[%d][0].soma.gkhtbar_rm = param.ts_gkhtbar",ii) execute1(cmd)
-      sprint(cmd,"tstellate[%d][0].soma.gleak_rm   = param.ts_gleak",ii) execute1(cmd)
-      sprint(cmd,"tstellate[%d][0].soma.erev_rm    = param.ts_erev",ii) execute1(cmd)
-      sprint(cmd,"tstellate[%d][0].soma.ghbar_rm   = param.ts_ghbar",ii) execute1(cmd)
-      sprint(cmd,"tstellate[%d][0].soma.gkabar_ka  = param.ts_gkabar",ii) execute1(cmd)
-      
-      if (use_ball_stick == 1){
-         sprint(cmd,"tstellate[%d][0].dend.g_pas  = param.ts_dend_g",ii) 
-         execute1(cmd)
-         sprint(cmd,"tstellate[%d][0].dend.e_pas  = param.ts_dend_e",ii) 
-         execute1(cmd)
+		//        if(ii == 20 || ii == 38 || ii == 51){
+		sprint(cmd,"tstellate[%d][0].soma.gnabar_rm  = param.ts_gnabar",ii) execute1(cmd)
+		sprint(cmd,"tstellate[%d][0].soma.gkhtbar_rm = param.ts_gkhtbar",ii) execute1(cmd)
+		sprint(cmd,"tstellate[%d][0].soma.gleak_rm   = param.ts_gleak",ii) execute1(cmd)
+		sprint(cmd,"tstellate[%d][0].soma.erev_rm    = param.ts_erev",ii) execute1(cmd)
+		sprint(cmd,"tstellate[%d][0].soma.ghbar_rm   = param.ts_ghbar",ii) execute1(cmd)
+		sprint(cmd,"tstellate[%d][0].soma.gkabar_ka  = param.ts_gkabar",ii) execute1(cmd)
+		
+		if (use_ball_stick == 1){
+			sprint(cmd,"tstellate[%d][0].dend.g_pas  = param.ts_dend_g",ii) 
+			execute1(cmd)
+			sprint(cmd,"tstellate[%d][0].dend.e_pas  = param.ts_dend_e",ii) 
+			execute1(cmd)
         }
-      //        }
-   }
+		//        }
+	}
 }
 
 // Calculate average IV measures  and put them in first three elements in input vector 3 
 proc IVMeasures(){local offset
     /// args: 1 time vec, 2 voltage vec, 3 output vec (size=6), 4 offset
-   if (numarg() != 4) {
-      offset = stimdelay*1000
-   } else {
-      offset = $4
-   }
-   offset-=stimdelay*1000
-   
-   
+	if (numarg() != 4) {
+		offset = stimdelay*1000
+	} else {
+		offset = $4
+	}
+	offset-=stimdelay*1000
+	
+	
     onset_depol = $o2.mean($o1.indwhere(">=",5.0), $o1.indwhere(">=",10.0))
     middle_depol = $o2.mean( $o1.indwhere(">=",20), $o1.indwhere(">=",30))
     onset_ratio = onset_depol / middle_depol
-   
+	
     v20_depol = $o2.mean( $o1.indwhere(">=",20) - 1, $o1.indwhere(">=",22))
     v50_depol = $o2.mean( $o1.indwhere(">=",50) - 1, $o1.indwhere(">=",52))
     adaptation_ratio = v20_depol - v50_depol
-   
+	
     resting_value  = $o2.mean($o1.indwhere(">",-10) , $o1.indwhere(">",0))
     v60_depol  = $o2.mean($o1.indwhere(">=",60) - 1, $o1.indwhere(">=",62))
     offset_hyperpol = resting_value - v60_depol
-   
-   //     onset_depol = $o2.mean($o1.indwhere(">=",5.0+offset), $o1.indwhere(">=",10.0+offset))
+	
+	//     onset_depol = $o2.mean($o1.indwhere(">=",5.0+offset), $o1.indwhere(">=",10.0+offset))
     // middle_depol = $o2.mean( $o1.indwhere(">=",20+offset), $o1.indwhere(">=",30+offset))
     // onset_ratio = onset_depol / middle_depol
-   
+	
     // v20_depol = $o2.mean( $o1.indwhere(">=",20+offset) - 1, $o1.indwhere(">=",22+offset))
     // v50_depol = $o2.mean( $o1.indwhere(">=",50+offset) - 1, $o1.indwhere(">=",52+offset))
     // adaptation_ratio = v20_depol - v50_depol
-   
+	
     // resting_value  = $o2.mean($o1.indwhere(">",-10) , $o1.indwhere(">",0))
     // v60_depol  = $o2.mean($o1.indwhere(">=",60+offset) - 1, $o1.indwhere(">=",65+offset))
     // offset_hyperpol = resting_value - v60_depol
-   
-   
+	
+	
     $o3.x[0] = onset_ratio
     $o3.x[1] = adaptation_ratio
     $o3.x[2] = offset_hyperpol
-   print "resting membrane potential              ", resting_value
-   print "level of initial depolarization         ", onset_ratio
-   print "adaptation of sustained depolarization  ", adaptation_ratio
-   print "post-tone hyperpolarization             ", offset_hyperpol
-   
+	print "resting membrane potential              ", resting_value
+	print "level of initial depolarization         ", onset_ratio
+	print "adaptation of sustained depolarization  ", adaptation_ratio
+	print "post-tone hyperpolarization             ", offset_hyperpol
+	
 }
 
 
 
 //mimick connect_CNcells from CochlearNucleus.hoc
 proc connect_TS() {local i_chan,i,p,target,source,low,high,range,channel,sourcechannel
-   
-   objref tstellate[nchannels][nTSperchannel]
-   
-   for i_chan = 0, nchannels-1 {
-      if (nTSperchannel > 0) {
-         for j_cell = 0, nTSperchannel-1 {
-            if(use_ball_stick==0){
-               sprint(cmd, "tstellate[%d][%d] = new CNcell(0,cf.x[%d],%d)",i_chan,j_cell,i_chan,i_chan)
-            } else {
-               sprint(cmd, "tstellate[%d][%d] = new CNcell(0,cf.x[%d],%d,1)",i_chan,j_cell,i_chan,i_chan)
-            }
-            execute1(cmd)
-         }
-      }   
-   }   
-   
-   
-   
-   print "Connecting cells."
-   sprint(filename,"%s.connect",$s1)
-   outfile.wopen(filename)
-   
-   
-   objref    hsr2tsAMPAlist,   lsr2tsAMPAlist,   glg2tsGABAlist,   ds2tsGLYlist,   tv2tsGLYlist,   ts2tsAMPAlist
-   
-   hsr2tsAMPAlist = new List()
-   lsr2tsAMPAlist = new List()
-   glg2tsGABAlist = new List()
-   ds2tsGLYlist  = new List() 
-   tv2tsGLYlist  = new List() 
-   ts2tsAMPAlist  = new List()
-   
-   
-   
-   if( ( param.n.getval(hsr,ts) > 0 ) && ( nTSperchannel != 0 ) ){
-      outfile.printf("\n%d %d\n",hsr,ts)
-      for channel = 0, nchannels-1{
-         for target = 0, nTSperchannel-1 {
-            for i=0, param.n.getval(hsr,ts)-1{
-               //Choose source channel
-               sourcechannel = random.normal(channel,param.bw.getval(hsr,ts)/2)
-               if ((sourcechannel - int(sourcechannel)) > 0.5 ){
-                  sourcechannel = 1 + int(sourcechannel)
-               } else { 
-                  sourcechannel = int(sourcechannel) 
-               }
-               if (sourcechannel <=0 ) sourcechannel=0
-               if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
-               //Choose random source from available cells in sourcechannel
-               source = random.discunif(0,HSRsperchannel-1)
-               //print "HSR[",sourcechannel,"][",source,"] connected to TS[",channel,"][",target,"]"
-               sprint(cmd, "tstellate[%d][%d].soma hsr2tsAMPAlist.append( new NetCon( an.HSR[%d][%d], tstellate[%d][%d].AMPA, thresh,param.delay.getval(hsr,ts), param.w.getval(hsr,ts)))",channel,target,sourcechannel,source,channel,target)
-               execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
-               outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
-               
-            }
-         }
-         p = 100*(channel)/(nchannels)
-         printf("\rHSR->TS === %3d%% ===",p)
-         flushf()
-         doNotify() // Although this slows down cell creation, the
-         // process is so long that we have to allow the
-         // user to quit during the creation.
-      }
-      printf("\rHSR->TS === done ===\n")
-   }
-   
-   if( ( param.n.getval(lsr,ts) > 0 ) && ( nTSperchannel != 0 ) ){
-      outfile.printf("\n%d %d\n",lsr,ts)
-      for channel = 0, nchannels-1{
-         for target = 0, nTSperchannel-1 {
-            for i=0, param.n.getval(lsr,ts)-1{
-               //Choose source channel
-               sourcechannel = random.normal(channel,param.bw.getval(lsr,ts)/2)
-               if ((sourcechannel - int(sourcechannel)) > 0.5 ){
-                  sourcechannel = 1+int(sourcechannel)
-               } else { 
-                  sourcechannel = int(sourcechannel) 
-               }
-               if (sourcechannel <=0 ) sourcechannel=0
-               if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
-               //Choose random source from available cells
-               source = random.discunif(0,LSRsperchannel-1)
-               //print "LSR[",sourcechannel,"][",source,"] connected to TS[",channel,"][",target,"]"
-               sprint(cmd, "tstellate[%d][%d].soma lsr2tsAMPAlist.append( new NetCon( an.LSR[%d][%d], tstellate[%d][%d].AMPA, thresh,param.delay.getval(lsr,ts), param.w.getval(lsr,ts)))",channel,target,sourcechannel,source,channel,target)
-               execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
-               outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
-               
-            }
-         }
-         p = 100*(channel)/(nchannels)
-         printf("\rLSR->TS=== %3d%% ===",p)
-         flushf()
-         doNotify() // Although this slows down cell creation, the
-         // process is so long that we have to allow the
-         // user to quit during the creation.
-      }
-      printf("\rLSR->TS=== done ===\n")
-   }
-   
-   
-   print "Connecting CN network cells to TS cells"
-   
-   
-   if( ( param.n.getval(ts,ts) > 0 ) && ( nTSperchannel > 1 ) ){
-      outfile.printf("%d %d\n",ts,ts)
-      for channel = 0, nchannels-1{
-         for target = 0, nTSperchannel-1 {
-            for i=0, param.n.getval(ts,ts)-1{
-               //Choose random source from available cells
-               source = random.discunif(0,nTSperchannel-1)
-               while( source == target)  source = random.repick()  //Don't connect to self
-               // print "TS[",channel,"][",source,"] connected to "TS[",channel,"][",target,"]"
-               // tscells[channel*numTSperchannel+target].connect_pre(tscells[source], 1, param.delay.getval(ts,ts), param.w.getval(ts,ts))
-               sprint(cmd, "tstellate[%d][%d].soma ts2tsAMPAlist.append( new NetCon(&v(0.5), tstellate[%d][%d].AMPA, thresh,param.delay.getval(ts,ts), param.w.getval(ts,ts)))",sourcechannel,source,channel,target)
-               execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
-               outfile.printf("%d %d %d %d\n",channel,source,channel,target)
-               
-            }
-         }
-         p = 100*(channel)/(nchannels)
-         printf("\rTS->TS=== %3d%% ===",p)
-         flushf()
-         doNotify() // Although this slows down cell creation, the
-         // process is so long that we have to allow the
-         // user to quit during the creation.
-      }
-      printf("\rTS->TS=== done ===\n")
-   }
-   
-   
-   if( ( param.n.getval(tv,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nTVperchannel != 0 ) ){
-      outfile.printf("\n%d %d\n",tv,ts)
-      for channel = 0, nchannels-1{
-         for target = 0, nTSperchannel-1 {
-            for i=0, param.n.getval(tv,ts)-1{
-               //Choose source channel
-               sourcechannel = random.normal(channel,param.bw.getval(tv,ts)/2)
-               if ((sourcechannel - int(sourcechannel)) > 0.5 ){
-                  sourcechannel = 1+int(sourcechannel)
-               } else { 
-                  sourcechannel = int(sourcechannel) 
-               }
-               if (sourcechannel <=0 ) sourcechannel=0
-               if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
-               //Choose random source from available cells
-               source = random.discunif(0,nTVperchannel-1)
-               // print "TV[",sourcechannel,"][",source,"] connected to "TS[",channel,"][",target,"]"
-               sprint(cmd, "tuberculoventral[%d][%d].soma tv2tsGLYlist.append( new NetCon(&v(0.5), tstellate[%d][%d].GlyR,  thresh,param.delay.getval(tv,ts), param.w.getval(tv,ts)))",sourcechannel,source,channel,target)
-               execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
-               outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
-               
-            }
-         }
-         p = 100*(channel)/(nchannels)
-         printf("\rTV->TS=== %3d%% ===",p)
-         flushf()
-         doNotify() // Although this slows down cell creation, the
-         // process is so long that we have to allow the
-         // user to quit during the creation.
-      }
-      printf("\rTV->TS=== done ===\n")
-   }
-   
-   if( ( param.n.getval(ds,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nDSperchannel != 0 ) ){
-      outfile.printf("\n%d %d\n",ds,ts)
-      for channel = 0, nchannels-1{
-         for target = 0, nTSperchannel-1 {
-            for i=0, param.n.getval(ds,ts)-1{
-               //Choose source channel
-               sourcechannel = random.normal(channel,param.bw.getval(ds,ts)/2)
-               if ((sourcechannel - int(sourcechannel)) > 0.5 ){
-                  sourcechannel = 1+int(sourcechannel)
-               } else { 
-                  sourcechannel = int(sourcechannel) 
-               }
-               if (sourcechannel <=0 ) sourcechannel=0
-               if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
-               //Choose random source from available cells
-               source = random.discunif(0,nDSperchannel-1)
-               // print "DS[",sourcechannel,"][",source,"] connected to "TS[",channel,"][",target,"]"
-               sprint(cmd, "dstellate[%d][%d].soma ds2tsGLYlist.append( new NetCon(&v(0.5), tstellate[%d][%d].GlyR, thresh,param.delay.getval(ds,ts), param.w.getval(ds,ts)))",sourcechannel,source,channel,target)
-               execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
-               outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
-            }
-         }
-         p = 100*(channel)/(nchannels)
-         printf("\rDS->TS=== %3d%% ===",p)
-         flushf()
-         doNotify() // Although this slows down cell creation, the
-         // process is so long that we have to allow the
-         // user to quit during the creation.
-      }
-      printf("\rDS->TS=== done ===\n")
-   }
-   
-   
-   if( ( param.n.getval(glg,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nGperchannel != 0 ) ){
-      outfile.printf("\n%d %d\n",glg,ts)
-      for channel = 0, nchannels-1{
-         for target = 0, nTSperchannel-1 {
-            for i=0, param.n.getval(glg,ts)-1{
-               //Choose source channel
-               sourcechannel = random.normal(channel,param.bw.getval(glg,ts)/2)
-               if ((sourcechannel - int(sourcechannel)) > 0.5 ){
-                  sourcechannel = 1+int(sourcechannel)
-               } else { 
-                  sourcechannel = int(sourcechannel) 
-               }
-               if (sourcechannel <=0 ) sourcechannel=0
-               if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
-               
-               //Choose random source from available cells
-               source = random.discunif(0,nGperchannel-1)
-               // print "GLG[",sourcechannel,"][",source,"] connected to "TS[",channel,"][",target,"]"
-               if (LSR2GLG ==1 ) { //Conductance model of golgi
-                  sprint(cmd, "golgi[%d][%d].soma glg2tsGABAlist.append( new NetCon(&v(0.5),tstellate[%d][%d].GABAA, thresh,param.delay.getval(glg,ts), param.w.getval(glg,ts)))",sourcechannel,source,channel,target)
-                  execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
-               } else { //filter based model of golgi
-                  sprint(cmd, "glg2tsGABAlist.append( new NetCon( golgi[%d][%d].sg, tstellate[%d][%d].GABAA, thresh,param.delay.getval(glg,ts), param.w.getval(glg,ts)))",sourcechannel,source,channel,target)
-                  execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
-               }
-               outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
-            }
-         }
-         p = 100*(channel)/(nchannels)
-         printf("\rGLG->TS=== %3d%% ===",p)
-         flushf()
-         doNotify() // Although this slows down cell creation, the
-         // process is so long that we have to allow the
-         // user to quit during the creation.
-      }
-      printf("\rGLG->TS=== done ===\n")
-   }
-   outfile.close()   
+	
+	objref tstellate[nchannels][nTSperchannel]
+	
+	for i_chan = 0, nchannels-1 {
+		if (nTSperchannel > 0) {
+			for j_cell = 0, nTSperchannel-1 {
+				if(use_ball_stick==0){
+					sprint(cmd, "tstellate[%d][%d] = new CNcell(0,cf.x[%d],%d)",i_chan,j_cell,i_chan,i_chan)
+				} else {
+					sprint(cmd, "tstellate[%d][%d] = new CNcell(0,cf.x[%d],%d,1)",i_chan,j_cell,i_chan,i_chan)
+				}
+				execute1(cmd)
+			}
+		}   
+	}   
+	
+	
+	
+	print "Connecting cells."
+	sprint(filename,"%s.connect",$s1)
+	outfile.wopen(filename)
+	
+	
+	objref    hsr2tsAMPAlist,   lsr2tsAMPAlist,   glg2tsGABAlist,   ds2tsGLYlist,   tv2tsGLYlist,   ts2tsAMPAlist
+	
+	hsr2tsAMPAlist = new List()
+	lsr2tsAMPAlist = new List()
+	glg2tsGABAlist = new List()
+	ds2tsGLYlist  = new List() 
+	tv2tsGLYlist  = new List() 
+	ts2tsAMPAlist  = new List()
+	
+	
+	
+	if( ( param.n.getval(hsr,ts) > 0 ) && ( nTSperchannel != 0 ) ){
+		outfile.printf("\n%d %d\n",hsr,ts)
+		for channel = 0, nchannels-1{
+			for target = 0, nTSperchannel-1 {
+				for i=0, param.n.getval(hsr,ts)-1{
+					//Choose source channel
+					sourcechannel = random.normal(channel,param.bw.getval(hsr,ts)/2)
+					if ((sourcechannel - int(sourcechannel)) > 0.5 ){
+						sourcechannel = 1 + int(sourcechannel)
+					} else { 
+						sourcechannel = int(sourcechannel) 
+					}
+					if (sourcechannel <=0 ) sourcechannel=0
+					if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
+					//Choose random source from available cells in sourcechannel
+					source = random.discunif(0,HSRsperchannel-1)
+					//print "HSR[",sourcechannel,"][",source,"] connected to TS[",channel,"][",target,"]"
+					sprint(cmd, "tstellate[%d][%d].soma hsr2tsAMPAlist.append( new NetCon( an.HSR[%d][%d], tstellate[%d][%d].AMPA, thresh,param.delay.getval(hsr,ts), param.w.getval(hsr,ts)))",channel,target,sourcechannel,source,channel,target)
+					execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
+					outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
+					
+				}
+			}
+			p = 100*(channel)/(nchannels)
+			printf("\rHSR->TS === %3d%% ===",p)
+			flushf()
+			doNotify() // Although this slows down cell creation, the
+			// process is so long that we have to allow the
+			// user to quit during the creation.
+		}
+		printf("\rHSR->TS === done ===\n")
+	}
+	
+	if( ( param.n.getval(lsr,ts) > 0 ) && ( nTSperchannel != 0 ) ){
+		outfile.printf("\n%d %d\n",lsr,ts)
+		for channel = 0, nchannels-1{
+			for target = 0, nTSperchannel-1 {
+				for i=0, param.n.getval(lsr,ts)-1{
+					//Choose source channel
+					sourcechannel = random.normal(channel,param.bw.getval(lsr,ts)/2)
+					if ((sourcechannel - int(sourcechannel)) > 0.5 ){
+						sourcechannel = 1+int(sourcechannel)
+					} else { 
+						sourcechannel = int(sourcechannel) 
+					}
+					if (sourcechannel <=0 ) sourcechannel=0
+					if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
+					//Choose random source from available cells
+					source = random.discunif(0,LSRsperchannel-1)
+					//print "LSR[",sourcechannel,"][",source,"] connected to TS[",channel,"][",target,"]"
+					sprint(cmd, "tstellate[%d][%d].soma lsr2tsAMPAlist.append( new NetCon( an.LSR[%d][%d], tstellate[%d][%d].AMPA, thresh,param.delay.getval(lsr,ts), param.w.getval(lsr,ts)))",channel,target,sourcechannel,source,channel,target)
+					execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
+					outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
+					
+				}
+			}
+			p = 100*(channel)/(nchannels)
+			printf("\rLSR->TS=== %3d%% ===",p)
+			flushf()
+			doNotify() // Although this slows down cell creation, the
+			// process is so long that we have to allow the
+			// user to quit during the creation.
+		}
+		printf("\rLSR->TS=== done ===\n")
+	}
+	
+	
+	print "Connecting CN network cells to TS cells"
+	
+	
+	if( ( param.n.getval(ts,ts) > 0 ) && ( nTSperchannel > 1 ) ){
+		outfile.printf("%d %d\n",ts,ts)
+		for channel = 0, nchannels-1{
+			for target = 0, nTSperchannel-1 {
+				for i=0, param.n.getval(ts,ts)-1{
+					//Choose random source from available cells
+					source = random.discunif(0,nTSperchannel-1)
+					while( source == target)  source = random.repick()  //Don't connect to self
+					// print "TS[",channel,"][",source,"] connected to "TS[",channel,"][",target,"]"
+					// tscells[channel*numTSperchannel+target].connect_pre(tscells[source], 1, param.delay.getval(ts,ts), param.w.getval(ts,ts))
+					sprint(cmd, "tstellate[%d][%d].soma ts2tsAMPAlist.append( new NetCon(&v(0.5), tstellate[%d][%d].AMPA, thresh,param.delay.getval(ts,ts), param.w.getval(ts,ts)))",sourcechannel,source,channel,target)
+					execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
+					outfile.printf("%d %d %d %d\n",channel,source,channel,target)
+					
+				}
+			}
+			p = 100*(channel)/(nchannels)
+			printf("\rTS->TS=== %3d%% ===",p)
+			flushf()
+			doNotify() // Although this slows down cell creation, the
+			// process is so long that we have to allow the
+			// user to quit during the creation.
+		}
+		printf("\rTS->TS=== done ===\n")
+	}
+	
+	
+	if( ( param.n.getval(tv,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nTVperchannel != 0 ) ){
+		outfile.printf("\n%d %d\n",tv,ts)
+		for channel = 0, nchannels-1{
+			for target = 0, nTSperchannel-1 {
+				for i=0, param.n.getval(tv,ts)-1{
+					//Choose source channel
+					sourcechannel = random.normal(channel,param.bw.getval(tv,ts)/2)
+					if ((sourcechannel - int(sourcechannel)) > 0.5 ){
+						sourcechannel = 1+int(sourcechannel)
+					} else { 
+						sourcechannel = int(sourcechannel) 
+					}
+					if (sourcechannel <=0 ) sourcechannel=0
+					if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
+					//Choose random source from available cells
+					source = random.discunif(0,nTVperchannel-1)
+					// print "TV[",sourcechannel,"][",source,"] connected to "TS[",channel,"][",target,"]"
+					sprint(cmd, "tuberculoventral[%d][%d].soma tv2tsGLYlist.append( new NetCon(&v(0.5), tstellate[%d][%d].GlyR,  thresh,param.delay.getval(tv,ts), param.w.getval(tv,ts)))",sourcechannel,source,channel,target)
+					execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
+					outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
+					
+				}
+			}
+			p = 100*(channel)/(nchannels)
+			printf("\rTV->TS=== %3d%% ===",p)
+			flushf()
+			doNotify() // Although this slows down cell creation, the
+			// process is so long that we have to allow the
+			// user to quit during the creation.
+		}
+		printf("\rTV->TS=== done ===\n")
+	}
+	
+	if( ( param.n.getval(ds,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nDSperchannel != 0 ) ){
+		outfile.printf("\n%d %d\n",ds,ts)
+		for channel = 0, nchannels-1{
+			for target = 0, nTSperchannel-1 {
+				for i=0, param.n.getval(ds,ts)-1{
+					//Choose source channel
+					sourcechannel = random.normal(channel,param.bw.getval(ds,ts)/2)
+					if ((sourcechannel - int(sourcechannel)) > 0.5 ){
+						sourcechannel = 1+int(sourcechannel)
+					} else { 
+						sourcechannel = int(sourcechannel) 
+					}
+					if (sourcechannel <=0 ) sourcechannel=0
+					if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
+					//Choose random source from available cells
+					source = random.discunif(0,nDSperchannel-1)
+					// print "DS[",sourcechannel,"][",source,"] connected to "TS[",channel,"][",target,"]"
+					sprint(cmd, "dstellate[%d][%d].soma ds2tsGLYlist.append( new NetCon(&v(0.5), tstellate[%d][%d].GlyR, thresh,param.delay.getval(ds,ts), param.w.getval(ds,ts)))",sourcechannel,source,channel,target)
+					execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
+					outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
+				}
+			}
+			p = 100*(channel)/(nchannels)
+			printf("\rDS->TS=== %3d%% ===",p)
+			flushf()
+			doNotify() // Although this slows down cell creation, the
+			// process is so long that we have to allow the
+			// user to quit during the creation.
+		}
+		printf("\rDS->TS=== done ===\n")
+	}
+	
+	
+	if( ( param.n.getval(glg,ts) > 0 ) && ( nTSperchannel != 0 ) && ( nGperchannel != 0 ) ){
+		outfile.printf("\n%d %d\n",glg,ts)
+		for channel = 0, nchannels-1{
+			for target = 0, nTSperchannel-1 {
+				for i=0, param.n.getval(glg,ts)-1{
+					//Choose source channel
+					sourcechannel = random.normal(channel,param.bw.getval(glg,ts)/2)
+					if ((sourcechannel - int(sourcechannel)) > 0.5 ){
+						sourcechannel = 1+int(sourcechannel)
+					} else { 
+						sourcechannel = int(sourcechannel) 
+					}
+					if (sourcechannel <=0 ) sourcechannel=0
+					if (sourcechannel > nchannels-1 ) sourcechannel=nchannels-1
+					
+					//Choose random source from available cells
+					source = random.discunif(0,nGperchannel-1)
+					// print "GLG[",sourcechannel,"][",source,"] connected to "TS[",channel,"][",target,"]"
+					if (LSR2GLG ==1 ) { //Conductance model of golgi
+						sprint(cmd, "golgi[%d][%d].soma glg2tsGABAlist.append( new NetCon(&v(0.5),tstellate[%d][%d].GABAA, thresh,param.delay.getval(glg,ts), param.w.getval(glg,ts)))",sourcechannel,source,channel,target)
+						execute1(cmd) //syn id=0 AMPA, =1 GLY =2 GABAa
+					} else { //filter based model of golgi
+						sprint(cmd, "glg2tsGABAlist.append( new NetCon( golgi[%d][%d].sg, tstellate[%d][%d].GABAA, thresh,param.delay.getval(glg,ts), param.w.getval(glg,ts)))",sourcechannel,source,channel,target)
+						execute1(cmd) //syn id: 0=AMPA, 1= GLY 2= GABAa
+					}
+					outfile.printf("%d %d %d %d\n",sourcechannel,source,channel,target)
+				}
+			}
+			p = 100*(channel)/(nchannels)
+			printf("\rGLG->TS=== %3d%% ===",p)
+			flushf()
+			doNotify() // Although this slows down cell creation, the
+			// process is so long that we have to allow the
+			// user to quit during the creation.
+		}
+		printf("\rGLG->TS=== done ===\n")
+	}
+	outfile.close()   
 }
 
-threshold_rate=0
+threshold_rate = 0
 threshold_penalty = 0
-objref ivrmserror,ivpenalties,cvrmserror,cvpenalties

@@ -119,14 +119,10 @@ connect_CNcells(fileroot)
   
 
 //tstop=300
-proc QuickRun(){
-  set_pvec()
-  pvec.printf
-  print TStellate3_err(0,&pvec.x[0])  
-}
+
 
 tolerance = 0.0001
-maxstepsize = 0.0001
+maxstepsize = 0.001
 printmode = 3
 strdef error_fn
 error_fn = "TStellate3_err"
@@ -134,6 +130,12 @@ error_fn = "TStellate3_err"
 proc runprax(){
   attr_praxis(tolerance, maxstepsize, printmode)
   fit_praxis(NPARAMS,error_fn,&pvec.x[0])
+}
+proc QuickRun(){
+    set_pvec()
+    pvec.printf
+    sprint(cmd,"%s(0,&pvec.x[0])",error_fn)
+	execute1(cmd)
 }
 
 
@@ -157,22 +159,22 @@ TSexemplar_SPL_thresh=20
 
   // set default fixed params and initial 
   // pvec vaues with previous run
-  xopen("pvec_TStellate2_CS.hoc")  
+  xopen("pvec_TStellate3_CS.hoc")  
   set_pvec()
 
   //QuickRun()
   reps=25
-  runprax()
+ // runprax()
   reps=50
   flushf()
-  printprax2()
+  //printprax2()
   print "CS Done"
- //    RateLevelFunction()
- //   NoiseRateLevelFunction()
- //   ModulationTransferFunction(tonefreq)
- //  F0_Response(tonefreq)
-
-
+     RateLevelFunction()
+    NoiseRateLevelFunction()
+	tonefreq=9100
+    ModulationTransferFunction(tonefreq)
+   F0_Response(tonefreq)
+ 
 }
 
 
@@ -185,18 +187,20 @@ TSexemplar_SPL_thresh=20
   
   // set default fixed params and initial 
   // pvec vaues with previous run
-  xopen("pvec_TStellate2_CT1.hoc")  
+  xopen("pvec_TStellate3_CT1.hoc")  
   set_pvec()  
   
   //QuickRun()
-  runprax()
+  //runprax()
   flushf()
-  printprax2()
+  reps=50
+  //printprax2()
   print "CT1 Done"
-  //  RateLevelFunction()
-  // NoiseRateLevelFunction()
-  //  ModulationTransferFunction(tonefreq)
-  //  F0_Response(tonefreq)
+    RateLevelFunction()
+   NoiseRateLevelFunction()
+	tonefreq=9100
+    ModulationTransferFunction(tonefreq)
+    F0_Response(tonefreq)
 
 }
 
@@ -207,24 +211,26 @@ proc optimise_CT2(){
   //set the weighting in CV data points 
   //  should be at least 10 times to match the magnitude of the IV data
   for ii=0,CV_weight.count()-1 CV_weight.object(ii).mul(100+20*(ii))
-TSexemplar_SPL_thresh=20
+  TSexemplar_SPL_thresh=20
   
   // set default fixed params and initial 
   // pvec vaues with previous run
-  xopen("pvec_TStellate2_CT2.hoc")
+  xopen("pvec_TStellate3_CT2.hoc")
   
   set_pvec()
   
   //QuickRun()
   
-  runprax()
+  //runprax()
   flushf()
-  printprax2()
+  reps=50
+  //printprax2()
   print "CT2 Done"
-//    RateLevelFunction()
-//    NoiseRateLevelFunction()
-//    ModulationTransferFunction(tonefreq)
-//    F0_Response(tonefreq)
+    RateLevelFunction()
+    NoiseRateLevelFunction()
+	tonefreq=9100
+    ModulationTransferFunction(tonefreq)
+    F0_Response(tonefreq)
 
 }
 

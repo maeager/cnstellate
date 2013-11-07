@@ -701,7 +701,7 @@ flushf()
   penalty =0
   sustainedrate = psth.sum(2,6)/25
   if(sustainedrate < 10) penalty += 12 - sustainedrate //penalty for lack of spikes during tone
-  if(checkedtrials < 0.9*reps) penalty += 5
+  if(psth_checkedtrials < 0.9*reps) penalty += 5
   if(cvISI.x[0] > 0.2) penalty += 5
    if(cvISI.x[0] > 0.3) penalty += 5
   if(cvISI.x[1] > 0.5 || cvISI.x[1] == 0) penalty += 10
