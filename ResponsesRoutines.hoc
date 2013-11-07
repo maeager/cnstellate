@@ -129,7 +129,8 @@ proc print_AMresults() {local tmpbinwidth
 
 
 /*********Default Parameters *************/
-//ANsoundspath = "../sounds"  //local sounds path
+proc Verification_default_params(){
+ANsoundspath = "../sounds"  //local sounds path
 ANmodel      = 7      //Zilany Bruce model
 species      = 1      //Cat
 nrep         = 1      //nrep is number of reps of stimulus
@@ -142,12 +143,15 @@ sg_rate      = 50000
 sg_tdres     = 1/sg_rate
 usesavedfilterbanks=1
 RefreshCF()
+}
+Verification_default_params()
 /****************************************/
 
 
 
 // Run RLF
 proc RateLevelFunction(){
+Verification_default_params()
 	tonefreq=cf.x[50]
 	reps=50
 	stimtype	= 1      //tone
@@ -184,6 +188,7 @@ proc RateLevelFunction(){
 
 // Run Noise RF
 proc NoiseRateLevelFunction(){
+Verification_default_params()
 	stimtype = 6 //broadband noise
 
 	ramplngth			= 0.002
@@ -217,6 +222,7 @@ proc NoiseRateLevelFunction(){
 }
 
 proc MaskedRateLevelFunction(){local ifreq,freq_increment, myCF
+Verification_default_params()
 	stimtype = 7 //tone and noise
 	ramplngth			= 0.002
 	stimdelay			= 0.02   //sec, 20 msec
@@ -246,6 +252,7 @@ proc MaskedRateLevelFunction(){local ifreq,freq_increment, myCF
 
 // Run tone RF with 50%noise
 proc MaskedResponseCurve(){local ifreq,freq_increment, myCF
+Verification_default_params()
 	stimtype = 7 //tone and noise
 	ramplngth	= 0.005
 	dur		= 0.045    //duration of stim (seconds)
@@ -282,6 +289,7 @@ proc MaskedResponseCurve(){local ifreq,freq_increment, myCF
 //1/8th octave steps
 //short stim  25 ms
 proc ResponseArea(){local myCF,ifreq
+Verification_default_params()
 	stimtype=1 //tone
 	dur       = 0.024    //duration of stim (seconds)
 	freq_increment=cf.x[50]/8
@@ -313,6 +321,7 @@ proc ResponseArea(){local myCF,ifreq
 
 //Run MTF
 proc ModulationTransferFunction(){
+Verification_default_params()
 	stimtype	= 3 	//AM tone
 	dur		= 0.149
 	ramplngth	= 0.002
@@ -342,6 +351,7 @@ proc ModulationTransferFunction(){
 
 //Run f0 response
 proc F0_Response(){
+Verification_default_params()
 	stimtype = 3 	//AM tone
 	dur = 0.149
 	ramplngth	= 0.002
