@@ -27,15 +27,15 @@ objref praxfile
       praxfile.printf("# TS exemplar RMP %g\n", TSexemplar_RMP )
       praxfile.printf("# TS exemplar CF %g\n",TSexemplar_CF)
       praxfile.printf("# CV RMS errors:\t")
-      cvrmserror.printf("%.4g\t")
-      praxfile.printf("\n# Penalties :\t")
-      cvpenalties.printf("%.4g\t")
-      praxfile.printf("\n")
+      cvrmserror.printf(praxfile, "%.4g\t")
+      praxfile.printf("# CV Penalties :\t")
+      cvpenalties.printf(praxfile,"%.4g\t")
+      //praxfile.printf("\n")
       praxfile.printf("# IV RMS errors:\t")
-      ivrmserror.printf("%.4g\t")
-      praxfile.printf("\n# IV Penalties :\t")
-      ivpenalties.printf("%.4g\t")
-      praxfile.printf("\n")
+      ivrmserror.printf(praxfile,"%.4g\t")
+      praxfile.printf("# IV Penalties :\t")
+      ivpenalties.printf(praxfile,"%.4g\t")
+      //praxfile.printf("\n")
       praxfile.printf("# Final Error  %g   %g\n",error, ivrmserror.sum() +  cvrmserror.sum() + ivpenalties.sum() + cvpenalties.sum())
       flushf()
       
@@ -82,25 +82,25 @@ objref praxfile
          //IV comparison 
          print error+=sqrt(CV_reference.object(ispl).meansqerr(test,CV_weight.object(ispl)))      
          praxfile.printf("# CV Measures RMS error \t%g\n", penalty)
-         praxfile.printf("#   FSL Mean %g, Std Dev %g \n",  fslmean,fslstd)         
+         praxfile.printf("#   FSL Mean %g, Std Dev %g , Median %g\n",  fslmean,fslstd,fslmedian)         
          //Calculate additional penalties
          doNotify()
          flushf()         
          //Penalty: Number of trials counted in CV 
-         praxfile.printf("# Checked trials \t%g\n", checkedtrials)
+         praxfile.printf("# Checked trials \t%g\n", psth_checkedtrials)
 
          
          //Penalty 1: Sustained rate 
-         sustainedrate = psth.sum(2,6)/reps
+         sustainedrate = psth.sum(2,6)/5
          praxfile.printf("# Sustained rate \t%g\n", sustainedrate)
          
          if (ispl > 1)   {
             //penalty for lack of spikes during tone
-            if(sustainedrate < 10) penalty = 10 - sustainedrate 
+            if(sustainedrate < 50) penalty =  sustainedrate -50 
             praxfile.printf("# Sustained rate penalty \t%g\n", penalty)
          }
          //penalty for too many spikes after tone
-         if(psth.sum(8,12)/reps > 10) penalty = psth.sum(8,12)/reps - 10 
+         if(psth.sum(8,12)/5 > 50) penalty = psth.sum(8,12)/5 - 50 
          praxfile.printf("# Post stimulus rate penalty \t%g\n", penalty)
          
          //Penalty 3: CV follows criteria for chopper
