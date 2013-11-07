@@ -196,7 +196,7 @@ ANmodel		= 6 //default
 species		= 9		   // 0	 human (as in ARLO paper)
 // 9  cat, all CFs (as in JASA 2001 Zhang et al., paper)
 // 1  cat, remapped to 9, [removed: only low CFs (as in Carney '93 JASA paper - not recommended)]
-// 2  rat,  implemented by Michael Eager in Zilany and Bruce 2007 (6), Zilany et al. 2009,2010 (7) models
+// 2  rat,  implemented by Michael Eager in Zilany and Bruce 2007 (ANmodel=6), and Zilany et al. 2009,2010 (ANmodel=7) versions
 
 ifspike		= 1
 //sout is adjusted so that instant. rate can be fed to spike generator

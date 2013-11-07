@@ -1,11 +1,11 @@
 #!/usr/bin/gnuplot -persist
 
 set terminal postscript eps enhanced defaultplex \
-   leveldefault mono solid\
+   mono solid \
    dashlength 1.0 linewidth 2.0 butt noclip \
    palfuncparam 2000,0.003 \
    "Helvetica" 18
-#color solid
+#color solid leveldefault
 set output "multiplotIVCV4.eps"
 
 #set size 0.49,0.5
