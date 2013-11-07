@@ -32,7 +32,7 @@ objref uISI, sISI,ISIg, cvISI,u1,s1, CVgr, ISIHg, ISI,ISIH
 
 objref bins[1]
 
-cvmean = 0
+
 
 /*
 * PlotLine
@@ -63,10 +63,17 @@ proc PlotLine(){local i,j, lineon, markon//vector,graph, label,  color, binsize
     }
 }
 
-psth_stimdur_mode=0
-checkedtrials=0
 
-proc PSTHcell() {local i, j, sp1, sp2, index, intv,first, cvmean, count,sizebins localobj checkspikes, tmpfile
+psth_stimdur_mode=0
+psth_checkedtrials=0
+psth_prior_spikes=0
+fslmean = 0
+fslstd = 0
+fslmedian = 0
+fsloffset = 0
+cvmean = 0
+
+proc PSTHcell() {local i, j, sp1, sp2, index, intv,first, count,sizebins localobj checkspikes, tmpfile
     objref pstg, pstv[3],psth
 	objref bins[1]
     objref uISI, sISI,ISIg,  fs, fsl,fslg, cvISI,u1,s1, CVgr, ISIHg, ISI,ISIH
@@ -76,13 +83,30 @@ proc PSTHcell() {local i, j, sp1, sp2, index, intv,first, cvmean, count,sizebins
     print "PSTHcell: ", $o1, $2, $3 
 	for i = 0, 2 { pstv[i] = new Vector()}
     count = 0
+	psth_prior_spikes=0
     checkspikes= new Vector()
+	fsl = new Vector()
+	fs = new Vector()
+	print "PSTHcell: Running first pass to get fsloffset"
+	for i=0, $o1.count()-1{
+		if ($o1.object(i).size() != 0) { 
+			fsl.indvwhere($o1.object(i),"[]",stimdelay*1000+2.5,stimdelay*1000+10)  	  if (fsl.size() != 0) { 
+				fs.append($o1.object(i).x[fsl.x[0]] - stimdelay*1000)				
+            }
+		}
+    }
+	if (fs.size()>10){
+		fsloffset = fs.median() - 1.0
+	} else fsloffset = 2.5
+	print "PSTHcell: first pass fsl median ", fs.median(), " fsloffset ", fsloffset
+	
+	
     //Create PSTH: Remove spikes before stimulus and adjust times relative to onset
     for i=0, $o1.count()-1{
 		if ($o1.object(i).size() ==0) { continue }
 		for j= 0 , $o1.object(i).size()-1 {
             sp1 = $o1.object(i).x[j]
-            if ((sp1 >= stimdelay*1000) ){ 
+            if ((sp1 >= stimdelay*1000 + fsloffset) ){ 
 				pstv[0].append(sp1-stimdelay*1000)
 				count +=1
             }
@@ -123,20 +147,20 @@ proc PSTHcell() {local i, j, sp1, sp2, index, intv,first, cvmean, count,sizebins
     fs = new Vector()
     ISI = new Vector()
     index = 0    
-    checkedtrials = 0
+    psth_checkedtrials = 0
     for i=0, $o1.count()-1 {
 		first = 0
 		//print "PSTHcell: Go through spike train only if first three spikes occur in first 15 ms"
-        checkspikes.indvwhere($o1.object(i),"[]",stimdelay*1000 +  2.5, stimdelay*1000 + 17.5)
+        checkspikes.indvwhere($o1.object(i),"[]",stimdelay*1000 + fsloffset, stimdelay*1000 + fsloffset + 15)
         if(checkspikes.size() >= 3) {
 			// Go through spike train only if no spikes occur immediately before stimulus evoked spike
 			//checkspikes.indvwhere($o1.object(i),"[]",stimdelay*1000 - 5 ,stimdelay*1000 + 2.5)
 			//if(checkspikes.size() == 0) {
-			checkedtrials+=1
-			print "PSTHcell: count intervals"
+			psth_checkedtrials+=1
+			//print "PSTHcell: count intervals"
 			for j = 0, $o1.object(i).size() - 2 {
-				sp1 = $o1.object(i).x[j]-stimdelay*1000
-				if (sp1 <= param.delay.x[hsr][ds]) {
+				sp1 = $o1.object(i).x[j] - stimdelay*1000
+				if (sp1 <= fsloffset) {
 					if ($o1.object(i).size() <=1) { 
 						break 
 					}else{
@@ -163,12 +187,12 @@ proc PSTHcell() {local i, j, sp1, sp2, index, intv,first, cvmean, count,sizebins
 					bins[index].append(intv)
 					ISI.append(intv)
 				}
-			} //checked trials: no spikes beforehand,
-			//} //checked trials:  min 3 spikes in first 15 ms
+				//} //checked trials: no spikes beforehand,
+			} //checked trials:  min 3 spikes in first 15 ms
 		}
     }
     
-    print "PSTHcell: Intervals done. Checked trials: ", checkedtrials	
+    print "PSTHcell: Intervals done. Checked trials: ", psth_checkedtrials	
     cv1 = 0
     cvmean = 0
     for i = 0, sizebins-2 {
@@ -198,8 +222,10 @@ proc PSTHcell() {local i, j, sp1, sp2, index, intv,first, cvmean, count,sizebins
 	
     fslmean = 0
     fslstd = 0
+	fslmedian = 0
     if (fs.size() >1){
 		fsl = fs.histogram(0,20, dt)
+		fslmedian = fs.median()
 		fslmean = fs.mean()
 		if (fs.size > 2) {
 			fslstd = fs.stdev()
@@ -207,6 +233,7 @@ proc PSTHcell() {local i, j, sp1, sp2, index, intv,first, cvmean, count,sizebins
     } else{ 
         fsl = new Vector()
     }
+	
     print "FSL mean ", fslmean, " std ", fslstd 
 	doNotify()
 	flushf()
@@ -302,7 +329,7 @@ proc PSTHcell() {local i, j, sp1, sp2, index, intv,first, cvmean, count,sizebins
     }
 	print "PSTHcell: Total spikes ", psth.sum()
 	print "PSTHcell: done"	
-    objref bins[1],pstv
+    //objref bins[1],pstv
 }
 
 /*

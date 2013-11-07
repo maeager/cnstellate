@@ -229,7 +229,8 @@ proc MeanRate(){local i, j localobj indices
 
 
 
-checkedtrials=0   
+psth_checkedtrials=0   
+
 proc PSTHcell() {local i, j, sp1, sp2, index, intv,first, cvmean, count,sizebins localobj checkspikes
     objref pstg, pstv[3],psth
     objref uISI, sISI,ISIg,  fs, fsl,fslg, cvISI,u1,s1, CVgr, ISIHg, ISI,ISIH
@@ -284,7 +285,7 @@ proc PSTHcell() {local i, j, sp1, sp2, index, intv,first, cvmean, count,sizebins
     fs = new Vector()
     ISI = new Vector()
     index = 0    
-    checkedtrials = 0
+    psth_checkedtrials = 0
     for i=0, $o1.count()-1 {
 	first = 0
 	// Go through spike train only if first three spikes occur in 10 ms
@@ -293,7 +294,7 @@ proc PSTHcell() {local i, j, sp1, sp2, index, intv,first, cvmean, count,sizebins
 	// spikes occur immediately before stimulus evoked spike
 	checkspikes.indvwhere($o1.object(i),"[]",18,23.2)
 	if(checkspikes.size() == 0){
-	    checkedtrials+=1
+	    psth_checkedtrials+=1
 
 	for j = 0, $o1.object(i).size() - 2 {
             sp1 = $o1.object(i).x[j]-stimdelay*1000
@@ -315,7 +316,7 @@ proc PSTHcell() {local i, j, sp1, sp2, index, intv,first, cvmean, count,sizebins
             }
 	}
     }
-    print "Checked trials: ", checkedtrials	
+    print "Checked trials: ", psth_checkedtrials	
     cv1 = 0
     cvmean = 0
     for i = 0, sizebins-2 {
