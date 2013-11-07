@@ -169,7 +169,7 @@ proc optimise_CS(){
 //    RateLevelFunction()
  //   NoiseRateLevelFunction()
  //   ModulationTransferFunction(tonefreq)
-    F0_Response(tonefreq)
+ //   F0_Response(tonefreq)
 
 
 }
@@ -191,10 +191,10 @@ proc optimise_CT1(){
   flushf()
   printprax2()
   print "CT1 Done"
-    RateLevelFunction()
-    NoiseRateLevelFunction()
-    ModulationTransferFunction(tonefreq)
-    F0_Response(tonefreq)
+//    RateLevelFunction()
+//    NoiseRateLevelFunction()
+//    ModulationTransferFunction(tonefreq)
+//    F0_Response(tonefreq)
 
 }
 

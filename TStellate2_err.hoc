@@ -1,3 +1,6 @@
+/* -*- mode: nrnhoc; tab-width: 4; indent-tabs-mode: t -*- */
+
+
 
 func TStellate2_err( ) {local jj,pp,xtime,error,penalty,sustainedrate,inputresistance,lcount,tmpreps localobj ivtemp,spikelist_temp
    error=0
@@ -51,10 +54,9 @@ func TStellate2_err( ) {local jj,pp,xtime,error,penalty,sustainedrate,inputresis
    tmpreps = reps
    reps= 2
    RunTStellate()
-   
-   threshold_rate = psth.sum()/reps
+   threshold_rate = meanrate(tstellate[whichcell][0].spikes)
    if(threshold_rate > 10) {
-      threshold_penalty =  (threshold_rate-10)/100
+      threshold_penalty =  (threshold_rate-10)/10
    } 
    print "threshold rate and penalty", threshold_rate, threshold_penalty
    //penalty for spikes during tone at threshold
@@ -105,18 +107,18 @@ func TStellate2_err( ) {local jj,pp,xtime,error,penalty,sustainedrate,inputresis
       //Calculate additional penalties
       
       //Penalty: Number of trials counted in CV 
-      if(checkedtrials < 0.9*reps) {
+      if(psth_checkedtrials < 0.9*reps) {
          cvpenalties.append( 10)
-         print "Checked trials penalty +10 ", checkedtrials 
+         print "Checked trials penalty +10 ", psth_checkedtrials 
       } else cvpenalties.append(0)
       //Penalty 1: Sustained rate 
-      sustainedrate = psth.sum(2,6)/reps
+      sustainedrate = psth.sum(2,6)/5
       //      if (ii > 1)   {
       //         if(sustainedrate < 50) penalties.append( sustainedrate - 50) //penalty for lack of spikes during tone
       //      }
       
-        if(psth.sum(8,12)/reps > 10) {
-         cvpenalties.append(psth.sum(8,12)/reps - 10) //penalty for too many spikes after tone
+      if(psth.sum(8,12)/5 > 30) {
+         cvpenalties.append(psth.sum(8,12)/5 - 30) //penalty for too many spikes after tone
          print "After tone spikes ", psth.sum(8,12)/reps
       } else cvpenalties.append(0)
       
@@ -275,7 +277,7 @@ proc printprax(){local i_window,pp,ispl,pp2
          doNotify()
          flushf()         
          //Penalty: Number of trials counted in CV 
-         praxfile.printf("# Checked trials \t%g\n", checkedtrials)
+         praxfile.printf("# Checked trials \t%g\n", psth_checkedtrials)
 
          
          //Penalty 1: Sustained rate 
