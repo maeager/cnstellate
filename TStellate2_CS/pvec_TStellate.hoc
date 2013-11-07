@@ -598,3 +598,11 @@ param.w.x[ds][ts] = 7.3372e-05*1
 param.w.x[tv][ts] = 0.00017319*1
 param.w.x[glg][ts] = 8.9534e-06*1
 
+ // 20130903+16:37:26
+  
+param.w.x[lsr][ts] = 0.0017991*1
+param.w.x[hsr][ts] = 0.0004908*1
+param.w.x[ds][ts] = 7.3372e-05*1
+param.w.x[tv][ts] = 0.00017319*1
+param.w.x[glg][ts] = 8.9534e-06*1
+
