@@ -1,12 +1,46 @@
 # -*- mode: org; -*-
+#+TITLE:	README for cnstellate
+#+AUTHOR:	Michael Eager
+#+EMAIL: 	mick.eager@gmail.com
+#+STARTUP:	content
+#+Last Update: 2014-01-21@11:20
 
-* Compile NEURON for gui or mpi 
+* Intro
+
+=cnstellate= is a NEURON program of a detailed biophysically-realistic neural
+network model of the cochlear nucleus stellate microcircuit.  The goal was to
+create a realistic model of four cell types in the mammalian cochlear nucleus
+and then optimise the network parameters in the microcircuit using experimental
+data.
+
+This work formed the basis of my PhD thesis at the [[http://www.ee.unimelb.edu.au/neuroengineering/][NeuroEngineering Research Lab]]
+and the [[http://medoto.unimelb.edu.au/][Department of Otolaryngology]] at the University of Melbourne, and the
+[[http://www.bionicsinstitute.org/][Bionics Institute]] (formerly the Bionic Ear Institute).  My primary supervisor
+was A/Prof David Grayden ([[http://people.eng.unimelb.edu.au/grayden/][homepage]]) and my co-supervisors were Prof. Anthony Burkitt and
+Dr. Hamish Meffin.
+
+
+The cnstellate code is available at bitbucket.org/eagerm/cnstellate.
+
+The code includes work by other researchers including:
+ - Auditory nerve models from the [[http://www.urmc.rochester.edu/labs/Carney-Lab/][Carney Lab]]
+ - Membrane current models from the [[http://www.manislab.org/][Manis Lab]]
+
+
+* Requirements
+
+  - NEURON [http://www.neuron.yale.edu] (developmental version is preferred)
+  - optional : MPI compiler, GNU binutils, autotools, GNUplot, GNU octave
+
+* Install
+
+** Compile NEURON for gui or mpi
 
 I generally setup two versions of NEURON one for testing with a GUI
 and the other with MPI. PVM may also be used to generate parallel
 simulations, but mpich2 or open-mpi is preferred.
 
-Firstly, unpack iv then jump into the iv folder. 
+Firstly, unpack iv then jump into the iv folder.
 
 : cd ~
 : mkdir -p src/neuron
@@ -17,7 +51,7 @@ Firstly, unpack iv then jump into the iv folder.
 
 Default installation (/usr/local) requires root privileges. I prefer to install IV into its source directory.
 
-: ./configure --prefix=`pwd` 
+: ./configure --prefix=`pwd`
 : make && make install
 
 
@@ -43,10 +77,10 @@ and for MPI
 : ../configure --prefix=`pwd` --without-iv --with-paranrn
 : nice make -j3 && make install
 
-** Developmental NEURON 
+** Developmental NEURON
 
 The up to date NEURON package can be pulled from the NEURON mercurial repository
-(http://www.neuron.yale.edu/hg/neuron/iv and 
+(http://www.neuron.yale.edu/hg/neuron/iv and
  http://www.neuron.yale.edu/hg/neuron/nrn)
 Each of the source packages need to run some autotools scripts in ./build.sh in their directories.
 
@@ -62,6 +96,9 @@ Each of the source packages need to run some autotools scripts in ./build.sh in 
 
 Use the configure/make/install steps above on the developmental source code.
 
+** Download cnstellate
+
+: $ hg clone http://www.bitbucket.org/eagerm/cnstellate
 
 * CNSTELLATE configuration
 
@@ -99,7 +136,7 @@ To run the script in non-gui mode, use the mpi version:
 
 :  ./mpi/special par_golgi_test.hoc -
 
-When the MPI version is run without mpiexec or mpirun, the program run identical to the gui version without any visual windows. 
+When the MPI version is run without mpiexec or mpirun, the program run identical to the gui version without any visual windows.
 For parallel cnstellate to work, the MPI version should be run in the background from the mpispecial script or in batch mode:
 
 : ./mpispecial np par_batch.hoc > /tmp/batch.log 2>&1 &
@@ -110,9 +147,10 @@ To run a test on different numbers of processors, see the example script test1.s
 
 : ./test1.sh
 
+
 Submit the script to a PBS engine using
 
-: qsub -q medium.q -b y -V -cwd `pwd`/mpispecial 5 par_batch.hoc 
+: qsub -q medium.q -b y -V -cwd `pwd`/mpispecial 5 par_batch.hoc
 
 
 
@@ -125,16 +163,16 @@ Chapter 4 of my thesis shows the responses of the CNSM model to AM stimuli.
  - /RateLevelFunction()/
      short tone bursts at fixed frequency and incrementing intensity
  - /NoiseRateLevelFunction()/
-     short noise bursts with incrementing intensity 
+     short noise bursts with incrementing intensity
  - /MaskedRateLevelFunction()/
-     short tone+ noise bursts, fixed noise at intensity with 50% rate in NRL, tone with fixed frequency and incrementing intensity 
+     short tone+ noise bursts, fixed noise at intensity with 50% rate in NRL, tone with fixed frequency and incrementing intensity
  - /MaskedResponseCurve()/
-     masking noise at fixed intensity plus short tone bursts at fixed frequency and increasing intensity 
+     masking noise at fixed intensity plus short tone bursts at fixed frequency and increasing intensity
  - /ResponseArea()/
      short tone bursts: 2D map of frequency and intensity restricted to the receptive field of the unit
  - /F0_Response()/
-     long AM tones at fixed carrier and modulation frequencies, with short increments in intensity 
- - /ModulationTransferFunction()/ 
+     long AM tones at fixed carrier and modulation frequencies, with short increments in intensity
+ - /ModulationTransferFunction()/
      long duration, sinusoidal amplitude modulation
      stimuli at fixed carrier frequency.  Modulation frequency ranges from 50 to
      1200 Hz.  Stimulus intensity was varied from 20 to 80 dB SPL in 20 dB steps.
@@ -168,8 +206,4 @@ The contents of a MTF simulation
  - vs.*.dat: period histogram method (default calcisi.hoc)
  - vsSPIKES.*.dat: raw spike method with spikes from t_start+10 to t_stop (ms)
 
-** Preparation of output data for plotting
-
-
-
-
+# ** Preparation of output data for plotting
