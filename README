@@ -1,6 +1,17 @@
+#+TITLE: README file for cnstellate
+#+DATE:
+#+AUTHOR: Michael A Eager
+#+EMAIL: mick.eager@gmail.com
 # -*- mode: org; -*-
 
-* Compile NEURON for gui or mpi 
+* About
+
+=cnstellate= is a NEURON package simulating the cochlear nucleus stellate microcircuit as part of my PhD.
+
+Citation: Eager, M.A., The stellate microcircuit of the cochlear nucleus: design and optimisation of a biophysically-realistic neural network model, PhD thesis, The University of Melbourne, 2014.
+
+* Installation
+** Compile NEURON for gui or mpi 
 
 I generally setup two versions of NEURON one for testing with a GUI
 and the other with MPI. PVM may also be used to generate parallel
@@ -43,9 +54,13 @@ and for the MPI version
 : ../configure --prefix=`pwd` --without-iv --with-paranrn
 : nice make -j3 && make install
 
+** Get the source code for cnstellate
 
+Pull the repository from bitbucket.
 
-* CNSTELLATE configuration
+: hg clone https://bitbucket.org/eagerm/cnstellate
+
+** Configure and compile
 
 In the working cnstellate directory, setup two linkable libraries against the
 two nrn builds.
@@ -61,7 +76,7 @@ or
 : make mpi
 
 
-* Enabling FFGN in the Zilany et al. 2009 AN model
+** Enabling FFGN in the Zilany et al. 2009 AN model
 
 Uncomment the variables below in =an_zilany_v4.mod= to enable the ffGn
 function. The default mode replaces the ffGn function with a constant
@@ -79,14 +94,22 @@ To run a script in gui mode using the DS cell rate level optimisation routine:
 
 The dash on the end allows the user to enter the interactive mode after loading the HOC file.
 
-To run the script and automatically start the optimsation routine, for each of the 
+** Sequential optimisation routines
+To run the script and automatically start the optimsation routine for each of the cell types in the microcircuit.
 
+Golgi cells were fit to monotonic rate level responses in the marginal shell (Ghoshal and Kim 1998)
+: ./gui/special golgi_RateLevel.hoc -c "run_optimisation()"
 
+Timing of GABAergic inputs to DS cells (from golgi cells) was fit using click-pair recovery times.
+: ./gui/special DS_clickRecovery.hoc -c "run_optimisation()"
+
+D-stellate cell's input parameters were optimised using data from large multipolar responses with onset chopper PSTH's (Arnott et al 2003).
 : ./gui/special DS_RateLevel.hoc -c "run_optimisation()"
 
+Tuberculoventral cell model's rate-level responses are optimised to Type-II units in the DCN (Spirou et al 1999).
 : ./gui/special TV_RateLevel.hoc -c "run_optimisation()"
 
-
+For the T-stellate cells, optimisation for three chopper subtypes are included (CS,CT1 and CT2) based on average intracellular responses (Paolini, Needham, et al. 2004,2005)
 : ./mpi/special TStellate2.hoc -c "optimise_CS()"
 : ./mpi/special TStellate2.hoc -c "optimise_CT1()"
 : ./mpi/special TStellate2.hoc -c "optimise_CT2()"
@@ -146,7 +169,7 @@ The contents of a MTF simulation
  - vs.*.dat: period histogram method (default calcisi.hoc)
  - vsSPIKES.*.dat: raw spike method with spikes from t_start+10 to t_stop (ms)
 
-# ** Preparation of output data for plotting
+** Preparation of output data for plotting
 
 
 

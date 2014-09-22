@@ -308,7 +308,7 @@ proc CalcIVMeasures_version2(){local time_shift localobj iv_vec,time_vec
     onset_ratio = onset_depol / middle_depol
    
     v20_depol = iv_vec.mean( time_vec.indwhere(">=",18+time_shift) - 1, time_vec.indwhere(">=",23+time_shift))
-    v50_depol = iv_vec.mean( time_vec.indwhere(">=",40+time_shift) - 1, time_vec.indwhere(">=",45+time_shift))
+    v50_depol = iv_vec.mean( time_vec.indwhere(">=",48+time_shift) - 1, time_vec.indwhere(">=",53+time_shift))
     adaptation_ratio = v20_depol - v50_depol
     
     resting_value  = iv_vec.mean(0 , time_vec.indwhere(">",0))
