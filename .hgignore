@@ -26,6 +26,8 @@ x86_64/*
 $pfebk/*
 *.ps
 *.pdf
+
+## Sub-folders with output data 
 AMResponses*/*
 MASSIVE/*
 */*RateLevel/*/*
@@ -38,7 +40,7 @@ MASSIVE/*
 libresample-0.1.3/*
 DS_ClickRecovery/*.dat
 DS_RateLevel/*.dat
-TV_RateLevel/*.dat
+TV_RateLevel*/*
 TV_Notch/*
 TV_Notch_spl50/*
 */ModulationTransferFunction/*
@@ -47,7 +49,9 @@ TV_Notch_spl50/*
 */NoiseRateLevel*
 */MaskedRateLevel*
 */MaskedResponseCurve*
+TStellate*_C*/*
 
+# Emacs autosave 
 syntax: regexp
 .*\#.*\#$
 
