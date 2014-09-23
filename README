@@ -8,7 +8,7 @@
 
 =cnstellate= is a NEURON package simulating the cochlear nucleus stellate microcircuit as part of my PhD.
 
-Citation: Eager, M.A., The stellate microcircuit of the cochlear nucleus: design and optimisation of a biophysically-realistic neural network model, PhD thesis, The University of Melbourne, 2014.
+Citation: Eager, M. A., The stellate microcircuit of the cochlear nucleus: design and optimisation of a biophysically-realistic neural network model, PhD thesis, The University of Melbourne, 2013.
 
 * Installation
 ** Compile NEURON for gui or mpi 
@@ -197,6 +197,4 @@ script test1.sh or run it using
 
 Submit the script to a PBS engine using
 
-: qsub -q medium.q -b y -V -cwd `pwd`/mpispecial 5 par_batch.hoc 
-
-
+: qsub -q medium.q -b y -V -cwd `pwd`/mpispecial 5 par_batch.hoc
